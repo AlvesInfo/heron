@@ -1,6 +1,5 @@
-"""
-Tests des formulaires de saisie manuelle des factures (marchandises, formation, personnel)
-"""
+"""Tests des formulaires de saisie manuelle des factures (marchandises, formation, personnel)"""
+
 import datetime
 
 import pytest
@@ -17,7 +16,7 @@ from apps.edi.forms.forms_django.saisie_marchandise_forms import (
 )
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 def test_initialed_date_without_validation():
     assert initialed_date() == "2000-01-01"
 
@@ -44,20 +43,26 @@ def referentiel(make_society, make_country_currency, make_edi_validation):
 
 
 @pytest.mark.parametrize("form_class", [CreateBaseMarchandiseForm, CreateBasePersonnelForm])
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_base_forms_choices(form_class):
     form = form_class()
 
-    assert form.fields["third_party_num"].choices == [("", ""), ("FOUR001", "FOUR001 - Société FOUR001")]
+    assert form.fields["third_party_num"].choices == [
+        ("", ""),
+        ("FOUR001", "FOUR001 - Société FOUR001"),
+    ]
     assert form.fields["invoice_type"].choices == [("380", "FAF"), ("381", "AVO")]
     assert form.fields["devise"].choices == [("EUR", "EUR"), ("USD", "USD")]
     assert form.fields["devise"].initial == "EUR"
     assert form.fields["invoice_number"].required is False
     assert form.fields["invoice_date"].initial == "2026-01-31"
-    assert form.fields["invoice_date"].error_messages["required"] == "Une date de facture est obligatoire"
+    assert (
+        form.fields["invoice_date"].error_messages["required"]
+        == "Une date de facture est obligatoire"
+    )
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_base_marchandise_form_valid():
     form = CreateBaseMarchandiseForm(
         {
@@ -75,15 +80,17 @@ def test_base_marchandise_form_valid():
     assert form.fields["sens"].choices == [(0, "AC"), (1, "VE"), (2, "AC/VE")]
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_base_marchandise_form_requires_supplier():
-    form = CreateBaseMarchandiseForm({"invoice_date": "2026-01-15", "invoice_type": "380", "devise": "EUR"})
+    form = CreateBaseMarchandiseForm(
+        {"invoice_date": "2026-01-15", "invoice_type": "380", "devise": "EUR"}
+    )
 
     assert form.is_valid() is False
     assert form.errors["third_party_num"] == ["Le Fournisseur (TiersX3) est obligatoire"]
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_base_formation_form():
     form = CreateBaseFormationForm()
 
@@ -93,13 +100,15 @@ def test_base_formation_form():
     assert form.fields["sens"].initial == 1
     assert form.fields["devise"].choices == [("EUR", "EUR"), ("USD", "USD")]
 
-    bound = CreateBaseFormationForm({"invoice_date": "2026-01-15", "invoice_type": "381", "devise": "USD"})
+    bound = CreateBaseFormationForm(
+        {"invoice_date": "2026-01-15", "invoice_type": "381", "devise": "USD"}
+    )
 
     assert bound.is_valid(), bound.errors
     assert bound.cleaned_data["third_party_num"] == ""
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_base_personnel_form_sens_hidden():
     form = CreateBasePersonnelForm()
 
@@ -107,7 +116,7 @@ def test_base_personnel_form_sens_hidden():
     assert form.fields["sens"].initial == 1
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 def test_detail_forms_optional_fields():
     marchandise = CreateMarchandiseInvoiceForm()
     formation = CreateFormationInvoiceForm()
@@ -126,7 +135,8 @@ def test_detail_forms_optional_fields():
 
 
 @pytest.mark.parametrize(
-    "form_class", [CreateMarchandiseInvoiceForm, CreateFormationInvoiceForm, CreatePersonnelInvoiceForm]
+    "form_class",
+    [CreateMarchandiseInvoiceForm, CreateFormationInvoiceForm, CreatePersonnelInvoiceForm],
 )
 def test_detail_forms_have_no_duplicate_fields(form_class):
     fields = form_class.Meta.fields

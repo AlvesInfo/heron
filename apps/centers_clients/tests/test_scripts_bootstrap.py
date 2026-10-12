@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'amorçage Django des scripts autonomes de centers_clients (BASE_DIR selon la machine)
+"""FR : Tests de l'amorçage Django des scripts autonomes de centers_clients (BASE_DIR selon la machine)
+
+
 EN : Tests for standalone scripts Django bootstrap
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import importlib
 import platform
 import sys
@@ -19,7 +21,9 @@ from conftest import patched_attrs
 
 
 @pytest.mark.parametrize("module", [import_maisons_bi, import_clients_from_bi_file])
-@pytest.mark.parametrize(("node", "expected"), [("MSI", r"C:\SitesWeb\heron"), ("serveur-prod", "/home/paulo/heron")])
+@pytest.mark.parametrize(
+    ("node", "expected"), [("MSI", r"C:\SitesWeb\heron"), ("serveur-prod", "/home/paulo/heron")]
+)
 def test_base_dir_selon_la_machine(monkeypatch, module, node, expected):
     """Poste Windows de dev ou serveur Linux : BASE_DIR différent, module rechargé"""
     monkeypatch.setattr(sys, "path", list(sys.path))

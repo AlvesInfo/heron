@@ -1,6 +1,6 @@
-"""
-FR : Module de génération du fichier BBGR Statment
-EN : BBGR Statement file generation module
+"""FR : Module de génération du fichier BBGR Statment.
+
+EN : BBGR Statement file generation module.
 
 Commentaire:
 
@@ -10,39 +10,39 @@ created by: Paulo ALVES
 modified at: 2022-12-10
 modified by: Paulo ALVES
 """
+
 from uuid import UUID
 
-from psycopg2 import sql
 from django.db import connection, transaction
+from psycopg2 import sql
 
 from heron.loggers import LOGGER_EDI
-
 
 HISTORIC_STATMENT_ID = 1993598
 
 
 @transaction.atomic
 def insert_bbgr_stament_file(uuid_identification: UUID):
-    """Intégration des lignes de la table des Statment
+    """Intégration des lignes de la table des Statment.
+
     :param uuid_identification: uuid_identification de la trace
     :return:
     """
-
     with connection.cursor() as cursor:
         # ID Minimum pour le premier import
         sql_id = sql.SQL(
             """
-            select 
+            select
                 max(max_id) as max_id
             from (
-                select  
-                    coalesce(max(bi_id), %(historic_id)s) as max_id 
-                from edi_ediimport ee 
+                select
+                    coalesce(max(bi_id), %(historic_id)s) as max_id
+                from edi_ediimport ee
                 where flow_name = 'BbgrStatment'
-                union all 
-                select 
-                    coalesce(max(bi_id), %(historic_id)s) as max_id 
-                from invoices_invoicecommondetails 
+                union all
+                select
+                    coalesce(max(bi_id), %(historic_id)s) as max_id
+                from invoices_invoicecommondetails
                 where flow_name = 'BbgrStatment'
             ) req
             """
@@ -69,7 +69,7 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
             LOGGER_EDI.info("intégration des lignes BBGR Statment")
             sql_insert_statment = sql.SQL(
                 """
-                insert into edi_ediimport 
+                insert into edi_ediimport
                 (
                     "uuid_identification",
                     "created_at",
@@ -122,23 +122,23 @@ def insert_bbgr_stament_file(uuid_identification: UUID):
                    "date_livraison" as "delivery_date",
                    "transaction" as "invoice_number",
                    "date_transaction" as "invoice_date",
-                   case 
-                        when "type_transaction" = 'INV' 
-                        then '380' 
-                        else '381' 
+                   case
+                        when "type_transaction" = 'INV'
+                        then '380'
+                        else '381'
                     end as "invoice_type",
                    'EUR' as "devise",
                    "article" as "reference_article",
                    "article" as "ean_code",
-                   case 
-                        when left("article_facturation", 1) = ANY('{1,2,3,4,5,6,7,8,9}') 
-                        then right("article_facturation", length("article_facturation")-14) 
-                        else "article_facturation" 
+                   case
+                        when left("article_facturation", 1) = ANY('{1,2,3,4,5,6,7,8,9}')
+                        then right("article_facturation", length("article_facturation")-14)
+                        else "article_facturation"
                     end as "libelle",
-                   case 
-                        when "famille" is null or "famille" = '' 
-                        then "article" 
-                        else "famille" 
+                   case
+                        when "famille" is null or "famille" = ''
+                        then "article"
+                        else "famille"
                    end as "famille",
                    "qte_facturee" as "qty",
                    "prix_unitaire" as "gross_unit_price",

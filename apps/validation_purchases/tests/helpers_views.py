@@ -1,16 +1,18 @@
 # pylint: disable=E0401,W0621,C0415
-"""
-FR : Aides pour les tests des vues de validation_purchases : encodage des paramètres,
+"""FR : Aides pour les tests des vues de validation_purchases : encodage des paramètres,
+
+
      jeu de données d'intégration, remplaçant des exports Excel, action en cours
 EN : Helpers for validation_purchases views tests
 
 Importées explicitement par les modules de tests : `from ...helpers_views import ...`
 """
+
 import datetime
 import types
+from collections.abc import Callable
 from decimal import Decimal
 from typing import Any
-from collections.abc import Callable
 
 import pytest
 
@@ -27,8 +29,8 @@ def encode(*values: Any) -> str:
 
 @pytest.fixture
 def stub_excel(monkeypatch) -> Callable[..., list]:
-    """
-    Remplace une fonction d'export Excel d'un module de vue par un enregistreur qui écrit
+    """Remplace une fonction d'export Excel d'un module de vue par un enregistreur qui écrit
+
     quelques octets : `calls = stub_excel(module, "excel_x")` ; `stub_excel(module, "excel_x",
     error=ValueError("boom"))` fait échouer l'export.
     """
@@ -67,17 +69,24 @@ def make_action(db) -> Callable[..., Any]:  # pylint: disable=W0613
 
 @pytest.fixture
 def integration_data(
-    make_edi_import, make_maison, make_edi_import_control, make_icon_origin, make_section, make_society,
+    make_edi_import,
+    make_maison,
+    make_edi_import_control,
+    make_icon_origin,
+    make_section,
+    make_society,
     validation_period,
 ):
-    """
-    Jeu de données de l'écran 2.1 : un fournisseur FOUR001 (WIDEX, flux Widex) avec deux factures
+    """Jeu de données de l'écran 2.1 : un fournisseur FOUR001 (WIDEX, flux Widex) avec deux factures
+
     validées de janvier 2026 rattachées à une maison, un relevé (contrôle) lié, une origine.
     """
     make_icon_origin(1, "Import EDI", "upload")
     maison = make_maison("AF0001", code_maison="AF0001")
     society = make_society("FOUR001", is_client=False, is_supplier=True, name="WIDEX SAS")
-    control = make_edi_import_control(statement_without_tax=Decimal("30"), statement_with_tax=Decimal("36"))
+    control = make_edi_import_control(
+        statement_without_tax=Decimal(30), statement_with_tax=Decimal(36)
+    )
     axe_rfa = make_section("RFA", "RFA01")
     common = {
         "supplier": "WIDEX",
@@ -100,14 +109,22 @@ def integration_data(
     }
     rows = [
         make_edi_import(
-            invoice_number="F001", reference_article="ART-1", net_amount=Decimal("10"),
-            amount_with_vat=Decimal("12"), invoice_amount_without_tax=Decimal("10"),
-            invoice_amount_with_tax=Decimal("12"), **common,
+            invoice_number="F001",
+            reference_article="ART-1",
+            net_amount=Decimal(10),
+            amount_with_vat=Decimal(12),
+            invoice_amount_without_tax=Decimal(10),
+            invoice_amount_with_tax=Decimal(12),
+            **common,
         ),
         make_edi_import(
-            invoice_number="F002", reference_article="ART-2", net_amount=Decimal("20"),
-            amount_with_vat=Decimal("24"), invoice_amount_without_tax=Decimal("20"),
-            invoice_amount_with_tax=Decimal("24"), **common,
+            invoice_number="F002",
+            reference_article="ART-2",
+            net_amount=Decimal(20),
+            amount_with_vat=Decimal(24),
+            invoice_amount_without_tax=Decimal(20),
+            invoice_amount_with_tax=Decimal(24),
+            **common,
         ),
     ]
     rows[1].uuid_identification = rows[0].uuid_identification

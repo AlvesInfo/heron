@@ -1,4 +1,4 @@
-"""Module pour la définition des colonnes excel pour le module compta
+"""Module pour la définition des colonnes excel pour le module compta.
 
 Commentaire:
 
@@ -14,21 +14,16 @@ from apps.core.excel_outputs.excel_writer import (
     f_ligne,
 )
 
-
 columns_purchases_heron = [
     {
         "entete": "Centrale",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -36,15 +31,11 @@ columns_purchases_heron = [
         "entete": "Enseigne",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -52,15 +43,11 @@ columns_purchases_heron = [
         "entete": "Tiers\nX3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -68,15 +55,11 @@ columns_purchases_heron = [
         "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 11,
     },
@@ -84,15 +67,11 @@ columns_purchases_heron = [
         "entete": "N° Facture\npour Sage",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -100,15 +79,11 @@ columns_purchases_heron = [
         "entete": "Type\nFacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -116,15 +91,11 @@ columns_purchases_heron = [
         "entete": "Total HT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -132,15 +103,11 @@ columns_purchases_heron = [
         "entete": "Total TVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -148,15 +115,11 @@ columns_purchases_heron = [
         "entete": "Total TTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -164,15 +127,11 @@ columns_purchases_heron = [
         "entete": "CCT X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -180,15 +139,11 @@ columns_purchases_heron = [
         "entete": "Référence\nCommande",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -196,15 +151,11 @@ columns_purchases_heron = [
         "entete": "N° Commande",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -212,15 +163,11 @@ columns_purchases_heron = [
         "entete": "Date\nCommande",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -228,15 +175,11 @@ columns_purchases_heron = [
         "entete": "N° BL\nFournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -244,15 +187,11 @@ columns_purchases_heron = [
         "entete": "Date\nBL",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -260,15 +199,11 @@ columns_purchases_heron = [
         "entete": "N° Facture\nFournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -276,15 +211,11 @@ columns_purchases_heron = [
         "entete": "Date\nFacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -292,15 +223,11 @@ columns_purchases_heron = [
         "entete": "Référence Article",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 25,
     },
@@ -308,15 +235,11 @@ columns_purchases_heron = [
         "entete": "Libellé",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 35,
     },
@@ -324,15 +247,11 @@ columns_purchases_heron = [
         "entete": "Qty",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0",
-            },
+            "num_format": "#,##0",
         },
         "width": 6,
     },
@@ -340,15 +259,11 @@ columns_purchases_heron = [
         "entete": "P.U HT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
@@ -356,15 +271,11 @@ columns_purchases_heron = [
         "entete": "Montant\nHT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -372,16 +283,12 @@ columns_purchases_heron = [
         "entete": "VAT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "@",
-            },
+            "align": "center",
+            "num_format": "@",
         },
         "width": 7,
     },
@@ -389,15 +296,11 @@ columns_purchases_heron = [
         "entete": "Taux\nTVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00 %",
-            },
+            "num_format": "#,##0.00 %",
         },
         "width": 7,
     },
@@ -405,15 +308,11 @@ columns_purchases_heron = [
         "entete": "Montant\nTVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -421,15 +320,11 @@ columns_purchases_heron = [
         "entete": "Montant\nTTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -437,15 +332,11 @@ columns_purchases_heron = [
         "entete": "Axe BU",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -453,15 +344,11 @@ columns_purchases_heron = [
         "entete": "Axe PRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -469,15 +356,11 @@ columns_purchases_heron = [
         "entete": "Axe PRJ",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -485,15 +368,11 @@ columns_purchases_heron = [
         "entete": "Axe PYS",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -501,15 +380,11 @@ columns_purchases_heron = [
         "entete": "Axe RFA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -517,16 +392,12 @@ columns_purchases_heron = [
         "entete": "Compte\nX3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-                "align": "center",
-            },
+            "num_format": "@",
+            "align": "center",
         },
         "width": 11,
     },
@@ -534,15 +405,11 @@ columns_purchases_heron = [
         "entete": "Grande\nCatégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -550,15 +417,11 @@ columns_purchases_heron = [
         "entete": "Rubrique Presta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -566,15 +429,11 @@ columns_purchases_heron = [
         "entete": "Nom Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -582,16 +441,12 @@ columns_purchases_heron = [
         "entete": "N° de Série",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-                "num_format": "@",
-            },
+            "align": "left",
+            "num_format": "@",
         },
         "width": 20,
     },
@@ -603,15 +458,11 @@ columns_purchases_edi = [
         "entete": "Centrale",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -619,15 +470,11 @@ columns_purchases_edi = [
         "entete": "Enseigne",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -635,15 +482,11 @@ columns_purchases_edi = [
         "entete": "Tiers\nX3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -651,15 +494,11 @@ columns_purchases_edi = [
         "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 11,
     },
@@ -667,15 +506,11 @@ columns_purchases_edi = [
         "entete": "Type\nFacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -683,15 +518,11 @@ columns_purchases_edi = [
         "entete": "Total HT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -699,15 +530,11 @@ columns_purchases_edi = [
         "entete": "Total TVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -715,15 +542,11 @@ columns_purchases_edi = [
         "entete": "Total TTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -731,15 +554,11 @@ columns_purchases_edi = [
         "entete": "CCT X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -747,15 +566,11 @@ columns_purchases_edi = [
         "entete": "Référence\nCommande",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -763,15 +578,11 @@ columns_purchases_edi = [
         "entete": "N° Commande",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -779,15 +590,11 @@ columns_purchases_edi = [
         "entete": "Date\nCommande",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -795,15 +602,11 @@ columns_purchases_edi = [
         "entete": "N° BL\nFournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -811,15 +614,11 @@ columns_purchases_edi = [
         "entete": "Date\nBL",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -827,15 +626,11 @@ columns_purchases_edi = [
         "entete": "N° Facture\nFournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -843,15 +638,11 @@ columns_purchases_edi = [
         "entete": "Date\nFacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -859,15 +650,11 @@ columns_purchases_edi = [
         "entete": "Référence Article",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 25,
     },
@@ -875,15 +662,11 @@ columns_purchases_edi = [
         "entete": "Libellé",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 35,
     },
@@ -891,15 +674,11 @@ columns_purchases_edi = [
         "entete": "Qty",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0",
-            },
+            "num_format": "#,##0",
         },
         "width": 6,
     },
@@ -907,15 +686,11 @@ columns_purchases_edi = [
         "entete": "P.U HT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
@@ -923,15 +698,11 @@ columns_purchases_edi = [
         "entete": "Montant\nHT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -939,16 +710,12 @@ columns_purchases_edi = [
         "entete": "VAT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "@",
-            },
+            "align": "center",
+            "num_format": "@",
         },
         "width": 7,
     },
@@ -956,15 +723,11 @@ columns_purchases_edi = [
         "entete": "Taux\nTVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00 %",
-            },
+            "num_format": "#,##0.00 %",
         },
         "width": 7,
     },
@@ -972,15 +735,11 @@ columns_purchases_edi = [
         "entete": "Montant\nTVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -988,15 +747,11 @@ columns_purchases_edi = [
         "entete": "Montant\nTTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -1004,15 +759,11 @@ columns_purchases_edi = [
         "entete": "Axe BU",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1020,15 +771,11 @@ columns_purchases_edi = [
         "entete": "Axe PRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1036,15 +783,11 @@ columns_purchases_edi = [
         "entete": "Axe PRJ",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1052,15 +795,11 @@ columns_purchases_edi = [
         "entete": "Axe PYS",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1068,15 +807,11 @@ columns_purchases_edi = [
         "entete": "Axe RFA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1084,15 +819,11 @@ columns_purchases_edi = [
         "entete": "Grande\nCatégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -1100,15 +831,11 @@ columns_purchases_edi = [
         "entete": "Rubrique Presta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -1116,15 +843,11 @@ columns_purchases_edi = [
         "entete": "Nom Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -1132,16 +855,12 @@ columns_purchases_edi = [
         "entete": "N° de Série",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-                "num_format": "@",
-            },
+            "align": "left",
+            "num_format": "@",
         },
         "width": 20,
     },
@@ -1153,15 +872,11 @@ columns_rfa_mensuelles = [
         "entete": "Centrale",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -1169,15 +884,11 @@ columns_rfa_mensuelles = [
         "entete": "Enseigne",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -1185,15 +896,11 @@ columns_rfa_mensuelles = [
         "entete": "Tiers\nX3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -1201,15 +908,11 @@ columns_rfa_mensuelles = [
         "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 24,
     },
@@ -1217,15 +920,11 @@ columns_rfa_mensuelles = [
         "entete": "Type\nFacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1233,15 +932,11 @@ columns_rfa_mensuelles = [
         "entete": "Total HT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -1249,15 +944,11 @@ columns_rfa_mensuelles = [
         "entete": "Total TVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -1265,15 +956,11 @@ columns_rfa_mensuelles = [
         "entete": "Total TTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -1281,15 +968,11 @@ columns_rfa_mensuelles = [
         "entete": "CCT X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -1297,15 +980,11 @@ columns_rfa_mensuelles = [
         "entete": "Référence\nCommande",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -1313,15 +992,11 @@ columns_rfa_mensuelles = [
         "entete": "N° Commande",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -1329,15 +1004,11 @@ columns_rfa_mensuelles = [
         "entete": "Date\nCommande",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -1345,15 +1016,11 @@ columns_rfa_mensuelles = [
         "entete": "N° BL\nFournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -1361,15 +1028,11 @@ columns_rfa_mensuelles = [
         "entete": "Date\nBL",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -1377,15 +1040,11 @@ columns_rfa_mensuelles = [
         "entete": "N° Facture\nFournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -1393,15 +1052,11 @@ columns_rfa_mensuelles = [
         "entete": "Date\nFacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -1409,15 +1064,11 @@ columns_rfa_mensuelles = [
         "entete": "Référence Article",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 25,
     },
@@ -1425,15 +1076,11 @@ columns_rfa_mensuelles = [
         "entete": "Libellé",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 35,
     },
@@ -1441,15 +1088,11 @@ columns_rfa_mensuelles = [
         "entete": "Qty",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0",
-            },
+            "num_format": "#,##0",
         },
         "width": 6,
     },
@@ -1457,15 +1100,11 @@ columns_rfa_mensuelles = [
         "entete": "P.U HT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
@@ -1473,15 +1112,11 @@ columns_rfa_mensuelles = [
         "entete": "Montant\nHT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -1489,16 +1124,12 @@ columns_rfa_mensuelles = [
         "entete": "VAT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "@",
-            },
+            "align": "center",
+            "num_format": "@",
         },
         "width": 7,
     },
@@ -1506,15 +1137,11 @@ columns_rfa_mensuelles = [
         "entete": "Taux\nTVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00 %",
-            },
+            "num_format": "#,##0.00 %",
         },
         "width": 7,
     },
@@ -1522,15 +1149,11 @@ columns_rfa_mensuelles = [
         "entete": "Montant\nTVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -1538,15 +1161,11 @@ columns_rfa_mensuelles = [
         "entete": "Montant\nTTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -1554,15 +1173,11 @@ columns_rfa_mensuelles = [
         "entete": "Axe BU",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1570,15 +1185,11 @@ columns_rfa_mensuelles = [
         "entete": "Axe PRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1586,15 +1197,11 @@ columns_rfa_mensuelles = [
         "entete": "Axe PRJ",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1602,15 +1209,11 @@ columns_rfa_mensuelles = [
         "entete": "Axe PYS",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1618,15 +1221,11 @@ columns_rfa_mensuelles = [
         "entete": "Axe RFA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1634,15 +1233,11 @@ columns_rfa_mensuelles = [
         "entete": "Grande\nCatégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -1650,15 +1245,11 @@ columns_rfa_mensuelles = [
         "entete": "Rubrique Presta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -1666,15 +1257,11 @@ columns_rfa_mensuelles = [
         "entete": "Nom Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -1682,16 +1269,12 @@ columns_rfa_mensuelles = [
         "entete": "N° de Série",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-                "num_format": "@",
-            },
+            "align": "left",
+            "num_format": "@",
         },
         "width": 20,
     },
@@ -1703,15 +1286,11 @@ columns_rfa_cct = [
         "entete": "Enseigne",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -1719,16 +1298,12 @@ columns_rfa_cct = [
         "entete": "CCT X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-                "align": "center",
-            },
+            "num_format": "@",
+            "align": "center",
         },
         "width": 11,
     },
@@ -1736,15 +1311,11 @@ columns_rfa_cct = [
         "entete": "INTITULE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 36,
     },
@@ -1756,15 +1327,11 @@ columns_rfa_signboard = [
         "entete": "Enseigne",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },

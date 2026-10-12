@@ -1,6 +1,6 @@
-"""
-FR : Module de validation par djantic des articles sans comptes
-EN : Djantic validation module for articles without accounts
+"""FR : Module de validation par djantic des articles sans comptes.
+
+EN : Djantic validation module for articles without accounts.
 
 Commentaire:
 
@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2024-02-14
 modified by: Paulo ALVES
 """
+
 import datetime
 import uuid
 
@@ -20,7 +21,7 @@ from apps.articles.models import ArticleAccount
 
 
 class ArticleAccountSageSchema(ModelSchema):
-    """Schema Djantic pour validation du modèle AccountSage"""
+    """Schema Djantic pour validation du modèle AccountSage."""
 
     now = timezone.now()
     created_at: datetime.datetime = now
@@ -30,8 +31,7 @@ class ArticleAccountSageSchema(ModelSchema):
     vat: str
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = ArticleAccount
-        include = list(model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-        ]
+        include = [*model.get_columns_import(), "created_at", "modified_at"]

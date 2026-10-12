@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des traitements de la centrale d'achat (bin : logos, doublons, traduction du fichier
+"""FR : Tests des traitements de la centrale d'achat (bin : logos, doublons, traduction du fichier
+
+
      des comptes, mise à jour des comptes des articles) et de l'import des comptes
 EN : Tests for purchasing center processings and accounts import
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import csv
 import io
 import logging
@@ -31,7 +33,9 @@ from apps.centers_purchasing.bin.update_account_article import (
     set_update_articles_confict_account,
     update_axes_edi,
 )
-from apps.centers_purchasing.excel_outputs.output_excel_account_axe_list import excel_liste_account_axe
+from apps.centers_purchasing.excel_outputs.output_excel_account_axe_list import (
+    excel_liste_account_axe,
+)
 from apps.centers_purchasing.imports.imports_data import axe_pro_account
 from apps.centers_purchasing.models import AccountsAxeProCategory
 from apps.data_flux.exceptions import DuplicatesError, ModelFieldError
@@ -64,18 +68,26 @@ def test_duplicates_delete_accounts(make_accounts_axe_pro_category, make_sub_cat
     make_accounts_axe_pro_category(child_center="ACF", vat="001")
     last = make_accounts_axe_pro_category(child_center="ACF", vat="001")
     other = make_accounts_axe_pro_category(child_center="ACF", vat="002")
-    with_sub = make_accounts_axe_pro_category(child_center="ACF", vat="001", sub_category=make_sub_category("Montures"))
+    with_sub = make_accounts_axe_pro_category(
+        child_center="ACF", vat="001", sub_category=make_sub_category("Montures")
+    )
 
     duplicates_delete_accounts()
 
-    assert set(AccountsAxeProCategory.objects.values_list("pk", flat=True)) == {last.pk, other.pk, with_sub.pk}
+    assert set(AccountsAxeProCategory.objects.values_list("pk", flat=True)) == {
+        last.pk,
+        other.pk,
+        with_sub.pk,
+    }
 
 
 # TRADUCTION DU FICHIER DES COMPTES ================================================================
 
 
 @pytest.fixture
-def referentiel(make_child_center, make_big_category, make_sub_category, make_section, make_vat, make_account):
+def referentiel(
+    make_child_center, make_big_category, make_sub_category, make_section, make_vat, make_account
+):
     """Centrale, catégories, axe pro, tva et comptes nécessaires à la traduction d'un fichier"""
     make_child_center("ACF", name="Acuitis")
     category = make_big_category("Marchandises")
@@ -129,24 +141,52 @@ def _read_rows(path):
         return list(csv.reader(file, delimiter=";", quotechar='"'))
 
 
-def test_translate_depuis_l_export_de_l_ecran(referentiel, make_accounts_axe_pro_category, tmp_path):
+def test_translate_depuis_l_export_de_l_ecran(
+    referentiel, make_accounts_axe_pro_category, tmp_path
+):
     """L'export de l'écran (14 colonnes) est traduit en 7 identifiants par ligne, sans entête"""
-    with_sub = make_accounts_axe_pro_category(axe_pro=referentiel["pro"], big_category=referentiel["category"], sub_category=referentiel["sub"], child_center="ACF", vat="001")
-    without_sub = make_accounts_axe_pro_category(axe_pro=referentiel["pro"], big_category=referentiel["category"], child_center="ACF", vat="001")
+    with_sub = make_accounts_axe_pro_category(
+        axe_pro=referentiel["pro"],
+        big_category=referentiel["category"],
+        sub_category=referentiel["sub"],
+        child_center="ACF",
+        vat="001",
+    )
+    without_sub = make_accounts_axe_pro_category(
+        axe_pro=referentiel["pro"],
+        big_category=referentiel["category"],
+        child_center="ACF",
+        vat="001",
+    )
 
     csv_file = translate_accounts_axe_pro_category(_export_file(tmp_path))
 
     rows = _read_rows(csv_file)
     assert csv_file.suffix == ".csv"
     assert len(rows) == 2
-    assert rows[0] == ["ACF", str(referentiel["category"].uuid_identification), str(referentiel["sub"].uuid_identification), str(referentiel["pro"].uuid_identification), "001", str(with_sub.purchase_account.uuid_identification), str(with_sub.sale_account.uuid_identification)]
+    assert rows[0] == [
+        "ACF",
+        str(referentiel["category"].uuid_identification),
+        str(referentiel["sub"].uuid_identification),
+        str(referentiel["pro"].uuid_identification),
+        "001",
+        str(with_sub.purchase_account.uuid_identification),
+        str(with_sub.sale_account.uuid_identification),
+    ]
     assert rows[1][2] == ""
     assert rows[1][5] == str(without_sub.purchase_account.uuid_identification)
 
 
-def test_translate_doublons_dans_le_fichier(referentiel, make_accounts_axe_pro_category, tmp_path, monkeypatch):
+def test_translate_doublons_dans_le_fichier(
+    referentiel, make_accounts_axe_pro_category, tmp_path, monkeypatch
+):
     """Deux lignes de même clé dans le fichier : DuplicatesError"""
-    make_accounts_axe_pro_category(axe_pro=referentiel["pro"], big_category=referentiel["category"], child_center="ACF", vat="001")
+    make_accounts_axe_pro_category(
+        axe_pro=referentiel["pro"],
+        big_category=referentiel["category"],
+        child_center="ACF",
+        vat="001",
+    )
     original = data_pre_processing_pool.excel_file_to_csv_string_io
 
     def _doubled(file, csv_io):
@@ -168,7 +208,28 @@ def test_translate_plan_comptable_absent_vaut_fra(referentiel, tmp_path, monkeyp
     """Sans plan comptable dans le fichier, le compte est cherché sur le plan FRA"""
 
     def _fake(_file, csv_io):
-        csv_io.write("titre\n\n\nentetes\n" + ";".join(["ACF", "Acuitis", "01", "Marchandises", "", "", "OPT", "Optique", "FRA", "001", "", "607000", "", "707000"]) + "\n")
+        csv_io.write(
+            "titre\n\n\nentetes\n"
+            + ";".join(
+                [
+                    "ACF",
+                    "Acuitis",
+                    "01",
+                    "Marchandises",
+                    "",
+                    "",
+                    "OPT",
+                    "Optique",
+                    "FRA",
+                    "001",
+                    "",
+                    "607000",
+                    "",
+                    "707000",
+                ]
+            )
+            + "\n"
+        )
         csv_io.seek(0)
 
     monkeypatch.setattr(data_pre_processing_pool, "excel_file_to_csv_string_io", _fake)
@@ -177,17 +238,39 @@ def test_translate_plan_comptable_absent_vaut_fra(referentiel, tmp_path, monkeyp
 
     rows = _read_rows(translate_accounts_axe_pro_category(source))
 
-    assert rows == [["ACF", str(referentiel["category"].uuid_identification), "", str(referentiel["pro"].uuid_identification), "001", str(referentiel["purchase"].uuid_identification), str(referentiel["sale"].uuid_identification)]]
+    assert rows == [
+        [
+            "ACF",
+            str(referentiel["category"].uuid_identification),
+            "",
+            str(referentiel["pro"].uuid_identification),
+            "001",
+            str(referentiel["purchase"].uuid_identification),
+            str(referentiel["sale"].uuid_identification),
+        ]
+    ]
 
 
 # IMPORT DES COMPTES (chaîne complète) =============================================================
 
 
 @pytest.mark.integration
-def test_axe_pro_account_importe_l_export_et_cree_les_comptes_des_articles(referentiel, media_dirs, make_accounts_axe_pro_category, make_article, make_society, tmp_path):
+def test_axe_pro_account_importe_l_export_et_cree_les_comptes_des_articles(
+    referentiel, media_dirs, make_accounts_axe_pro_category, make_article, make_society, tmp_path
+):
     """Export, modification du compte, ré-import : la ligne importée gagne, fichier sauvegardé, articles complétés"""
-    account = make_accounts_axe_pro_category(axe_pro=referentiel["pro"], big_category=referentiel["category"], child_center="ACF", vat="001")
-    article = make_article("ART-1", society=make_society("FOUR001", is_client=False), big_category=referentiel["category"], axe_pro=referentiel["pro"])
+    account = make_accounts_axe_pro_category(
+        axe_pro=referentiel["pro"],
+        big_category=referentiel["category"],
+        child_center="ACF",
+        vat="001",
+    )
+    article = make_article(
+        "ART-1",
+        society=make_society("FOUR001", is_client=False),
+        big_category=referentiel["category"],
+        axe_pro=referentiel["pro"],
+    )
     file = _export_file(media_dirs.import_accounts)
     account.sale_account = referentiel["sale_bel"]
     account.save()
@@ -224,13 +307,38 @@ def test_axe_pro_account_fichier_invalide(referentiel, media_dirs, caplog):
 
 
 @pytest.fixture
-def articles_et_comptes(referentiel, make_accounts_axe_pro_category, make_article, make_society, make_section, make_big_category):
+def articles_et_comptes(
+    referentiel,
+    make_accounts_axe_pro_category,
+    make_article,
+    make_society,
+    make_section,
+    make_big_category,
+):
     """Deux articles de la catégorie Marchandises / axe OPT, un paramétrage de comptes ACF 001"""
     four = make_society("FOUR001", is_client=False)
-    settings = make_accounts_axe_pro_category(axe_pro=referentiel["pro"], big_category=referentiel["category"], child_center="ACF", vat="001")
-    first = make_article("ART-1", society=four, big_category=referentiel["category"], axe_pro=referentiel["pro"])
-    new = make_article("ART-2", society=four, big_category=referentiel["category"], axe_pro=referentiel["pro"], new_article=True)
-    other = make_article("ART-3", society=four, big_category=make_big_category("Services"), axe_pro=make_section("PRO", "SRV"))
+    settings = make_accounts_axe_pro_category(
+        axe_pro=referentiel["pro"],
+        big_category=referentiel["category"],
+        child_center="ACF",
+        vat="001",
+    )
+    first = make_article(
+        "ART-1", society=four, big_category=referentiel["category"], axe_pro=referentiel["pro"]
+    )
+    new = make_article(
+        "ART-2",
+        society=four,
+        big_category=referentiel["category"],
+        axe_pro=referentiel["pro"],
+        new_article=True,
+    )
+    other = make_article(
+        "ART-3",
+        society=four,
+        big_category=make_big_category("Services"),
+        axe_pro=make_section("PRO", "SRV"),
+    )
     return {"settings": settings, "first": first, "new": new, "other": other, "society": four}
 
 
@@ -240,11 +348,18 @@ def test_set_update_articles_account_global_et_unitaire(articles_et_comptes):
 
     accounts = {row.article.reference: row for row in ArticleAccount.objects.all()}
     assert set(accounts) == {"ART-1"}
-    assert (accounts["ART-1"].purchase_account, accounts["ART-1"].sale_account, accounts["ART-1"].vat.vat) == ("607000", "707000", "001")
+    assert (
+        accounts["ART-1"].purchase_account,
+        accounts["ART-1"].sale_account,
+        accounts["ART-1"].vat.vat,
+    ) == ("607000", "707000", "001")
 
     set_update_articles_account(articles_et_comptes["new"].uuid_identification)
 
-    assert set(ArticleAccount.objects.values_list("article__reference", flat=True)) == {"ART-1", "ART-2"}
+    assert set(ArticleAccount.objects.values_list("article__reference", flat=True)) == {
+        "ART-1",
+        "ART-2",
+    }
 
     set_update_articles_account()
 
@@ -253,7 +368,9 @@ def test_set_update_articles_account_global_et_unitaire(articles_et_comptes):
 
 def test_set_update_articles_confict_account(articles_et_comptes, make_article_account):
     """Les articles (nouveaux compris) sans compte pour la centrale / tva sont complétés, sans doublon"""
-    make_article_account(articles_et_comptes["first"], "ACF", "001", purchase_account="601000", sale_account="701000")
+    make_article_account(
+        articles_et_comptes["first"], "ACF", "001", purchase_account="601000", sale_account="701000"
+    )
 
     set_update_articles_confict_account()
 
@@ -284,9 +401,15 @@ def test_delete_orphans_accounts(articles_et_comptes, make_article_account):
 def test_update_axes_edi(articles_et_comptes, make_edi_import, make_section):
     """Les lignes edi dont les axes diffèrent de l'article sont réalignées, les autres inchangées"""
     first = articles_et_comptes["first"]
-    outdated = make_edi_import("FOUR001", "ART-1", axe_pro=make_section("PRO", "OLD"), big_category=first.big_category)
-    aligned = make_edi_import("FOUR001", "ART-1", axe_pro=first.axe_pro, big_category=first.big_category)
-    unknown = make_edi_import("FOUR001", "ART-9", axe_pro=make_section("PRO", "OLD"), big_category=first.big_category)
+    outdated = make_edi_import(
+        "FOUR001", "ART-1", axe_pro=make_section("PRO", "OLD"), big_category=first.big_category
+    )
+    aligned = make_edi_import(
+        "FOUR001", "ART-1", axe_pro=first.axe_pro, big_category=first.big_category
+    )
+    unknown = make_edi_import(
+        "FOUR001", "ART-9", axe_pro=make_section("PRO", "OLD"), big_category=first.big_category
+    )
 
     update_axes_edi()
 

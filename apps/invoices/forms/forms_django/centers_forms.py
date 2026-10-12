@@ -1,5 +1,4 @@
-"""
-Formulaires django pour les exports X3 pour choisir les centres
+"""Formulaires django pour les exports X3 pour choisir les centres.
 
 Commentaire:
 

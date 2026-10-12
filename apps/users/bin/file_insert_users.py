@@ -1,4 +1,4 @@
-"""Module l'intégration en masse d'utilisateurs depuis un fichier Excel
+"""Module l'intégration en masse d'utilisateurs depuis un fichier Excel.
 
 Commentaire:
 
@@ -8,6 +8,7 @@ created by: Paulo ALVES
 modified at: 2026-10-12
 modified by: Paulo ALVES
 """
+
 import logging
 import smtplib
 import uuid
@@ -22,12 +23,12 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from apps.core.functions.functions_setups import settings
 from apps.core.functions.function_imports import (
     ExcelToCsvError,
     IterFileToInsert,
     IterFileToInsertError,
 )
+from apps.core.functions.functions_setups import settings
 from apps.users.bin.insert_staffs import (
     UserInsertError,
     _file_message,
@@ -56,7 +57,7 @@ COLUMNS_ERROR = (
 
 
 def send_initial_password_email(user, request):
-    """Envoi à l'utilisateur créé du lien d'initialisation de son mot de passe"""
+    """Envoi à l'utilisateur créé du lien d'initialisation de son mot de passe."""
     current_site = get_current_site(request)
     message = render_to_string(
         "users/password_initial_email.txt",
@@ -71,7 +72,7 @@ def send_initial_password_email(user, request):
 
 
 def _create_user(validated, request):
-    """Création d'un utilisateur validé, rattachement aux groupes des staffs et envoi du mail"""
+    """Création d'un utilisateur validé, rattachement aux groupes des staffs et envoi du mail."""
     user = User.objects.create_user(
         validated.get("username"),
         str(validated.get("email")).lower(),
@@ -89,12 +90,35 @@ def _create_user(validated, request):
     send_initial_password_email(user, request)
 
 
+def _insert_one_user(validated_data: dict, request, errors: list) -> None:
+    """Crée un utilisateur validé ; une erreur est journalisée et ajoutée à `errors`."""
+    email = str(validated_data.get("email")).lower()
+
+    try:
+        _create_user(validated_data, request)
+    except (UserInsertError, IntegrityError, ValueError):
+        logger.exception("erreur de creation d users en masse")
+        errors.append(f"erreur de création de l'utilisateur : {email}")
+    except ValidationError:
+        logger.exception("erreur de creation d users en masse")
+        errors.append(
+            f"erreur de création de l'utilisateur : {email}, "
+            f"le mot de passe ne respecte pas les règles"
+        )
+    except smtplib.SMTPException:
+        logger.exception("erreur d envoi de mail pour creation d users en masse")
+        errors.append(
+            f"l'utilisateur : {email}, a été créé, mais l'envoi d'email ne fonctionne pas'"
+        )
+
+
 def insert_users(xls_file: Path, request, code_child_center: str):
-    """Insertion des utilisateurs depuis un fichier excel
+    """Insertion des utilisateurs depuis un fichier excel.
+
     :param xls_file: fichier à intégrer au format excel
     :param request: http.request (construction du lien d'initialisation du mot de passe)
     :param code_child_center: centrale par défaut des utilisateurs créés (celle de l'importateur)
-    :return: (True, []) si tout est passé, sinon (None, liste des erreurs html)
+    :return: (True, []) si tout est passé, sinon (None, liste des erreurs html).
     """
     errors = []
 
@@ -117,25 +141,7 @@ def insert_users(xls_file: Path, request, code_child_center: str):
                     errors.append(_serializer_errors(dict_user, serializer))
                     continue
 
-                email = str(serializer.validated_data.get("email")).lower()
-
-                try:
-                    _create_user(serializer.validated_data, request)
-                except (UserInsertError, IntegrityError, ValueError):
-                    logger.exception("erreur de creation d users en masse")
-                    errors.append(f"erreur de création de l'utilisateur : {email}")
-                except ValidationError:
-                    logger.exception("erreur de creation d users en masse")
-                    errors.append(
-                        f"erreur de création de l'utilisateur : {email}, "
-                        f"le mot de passe ne respecte pas les règles"
-                    )
-                except smtplib.SMTPException:
-                    logger.exception("erreur d envoi de mail pour creation d users en masse")
-                    errors.append(
-                        f"l'utilisateur : {email}, "
-                        f"a été créé, mais l'envoi d'email ne fonctionne pas'"
-                    )
+                _insert_one_user(serializer.validated_data, request, errors)
 
     except IterFileToInsertError:
         logger.exception("colonnes manquantes pour creation d users en masse")
@@ -156,10 +162,11 @@ def insert_users(xls_file: Path, request, code_child_center: str):
 
 
 def set_insert_users(user, request):
-    """Insertion en base des utilisateurs depuis les fichiers excel téléversés
+    """Insertion en base des utilisateurs depuis les fichiers excel téléversés.
+
     :param user: utilisateur en cours (importateur)
     :param request: request
-    :return: (None, messages html)
+    :return: (None, messages html).
     """
     html_messages = ""
 

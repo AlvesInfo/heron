@@ -1,6 +1,4 @@
-"""
-Tests des utilitaires de l'app edi (saisie manuelle, traces, contrôles orphelins)
-"""
+"""Tests des utilitaires de l'app edi (saisie manuelle, traces, contrôles orphelins)"""
 
 import pytest
 
@@ -81,7 +79,9 @@ def test_data_dict_invoices_clean_marchandises_filters_and_sorts():
 
 
 def test_data_dict_invoices_clean_formation():
-    data = _data_dict([{"num": 1, "reference_article": "A", "initial_date": "2026-03-17", "qty": "5"}])
+    data = _data_dict(
+        [{"num": 1, "reference_article": "A", "initial_date": "2026-03-17", "qty": "5"}]
+    )
 
     edi_utilites.data_dict_invoices_clean("formation", data)
 
@@ -109,9 +109,15 @@ def test_get_query_articles_marchandises():
 def test_get_query_articles_by_category(make_article, make_big_category, make_society):
     society = make_society("ZFORM", is_client=False)
     formation = make_big_category("Formation")
-    article = make_article(reference="FORM-1", society=society, big_category=formation, libelle="Formation vente")
+    article = make_article(
+        reference="FORM-1", society=society, big_category=formation, libelle="Formation vente"
+    )
     heron = make_article(
-        reference="FORM-2", society=society, big_category=formation, libelle="x", libelle_heron="Libellé héron"
+        reference="FORM-2",
+        society=society,
+        big_category=formation,
+        libelle="x",
+        libelle_heron="Libellé héron",
     )
     make_article(reference="PERS-1", society=society, big_category=make_big_category("Personnel"))
 

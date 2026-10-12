@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests de la configuration et des modèles de l'app countries
+"""FR : Tests de la configuration et des modèles de l'app countries
+
+
 EN : Tests for countries app configuration and models
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import datetime
 import importlib
 
@@ -37,16 +39,29 @@ def test_app_config():
     assert countries_urls.urlpatterns == []
     assert not any(model._meta.app_label == "countries" for model in admin.site._registry)
     assert {model.__name__ for model in config.get_models()} == {
-        "Country", "Language", "Currency", "ExchangeRate", "ValidationPostalCode", "ValidationIntraVies",
+        "Country",
+        "Language",
+        "Currency",
+        "ExchangeRate",
+        "ValidationPostalCode",
+        "ValidationIntraVies",
     }
 
 
 @pytest.mark.parametrize(
     "module_name",
     [
-        "apps.countries.views", "apps.countries.essais", "apps.countries.excel_outputs", "apps.countries.exports",
-        "apps.countries.parameters", "apps.countries.tasks", "apps.countries.templates", "apps.countries.templates.countries",
-        "apps.countries.validations", "apps.countries.forms.forms_django", "apps.countries.forms.forms_pydantic",
+        "apps.countries.views",
+        "apps.countries.essais",
+        "apps.countries.excel_outputs",
+        "apps.countries.exports",
+        "apps.countries.parameters",
+        "apps.countries.tasks",
+        "apps.countries.templates",
+        "apps.countries.templates.countries",
+        "apps.countries.validations",
+        "apps.countries.forms.forms_django",
+        "apps.countries.forms.forms_pydantic",
         "apps.countries.forms.forms_serializers",
     ],
 )
@@ -84,7 +99,9 @@ def test_langue_et_devise(make_language, make_country_currency):
 
 
 def test_taux_de_change_unique_par_jour():
-    rate = ExchangeRate.objects.create(currency_iso_current="EUR", currency_iso_change="USD", average_exchange_rate="1.08")
+    rate = ExchangeRate.objects.create(
+        currency_iso_current="EUR", currency_iso_change="USD", average_exchange_rate="1.08"
+    )
 
     assert str(rate) == "EUR - USD"
     assert rate.exchange_date == datetime.date.today()
@@ -97,8 +114,12 @@ def test_taux_de_change_unique_par_jour():
 def test_validations_codes_postaux_et_tva_intra(make_country):
     """Une règle par pays pour les codes postaux et pour la tva intracommunautaire"""
     france = make_country("FR", "France")
-    postal = ValidationPostalCode.objects.create(country=france, number_char=5, rule_number=1, exemple="75001")
-    vies = ValidationIntraVies.objects.create(country=france, prefix="FR", func_verif="luhn", lng_min=11, lng_max=11)
+    postal = ValidationPostalCode.objects.create(
+        country=france, number_char=5, rule_number=1, exemple="75001"
+    )
+    vies = ValidationIntraVies.objects.create(
+        country=france, prefix="FR", func_verif="luhn", lng_min=11, lng_max=11
+    )
 
     assert str(postal) == "France - 5 - 75001"
     assert str(vies) == "France - luhn"

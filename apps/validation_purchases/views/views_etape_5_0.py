@@ -1,27 +1,29 @@
-import pendulum
-from django.db import connection
-from django.contrib import messages
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.db.models import Q
+"""Vues de l'étape 5.0 de la validation des achats : refacturation par CCT."""
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.functions.functions_postgresql import query_file_dict_cursor
+import pendulum
+from django.contrib import messages
+from django.db import connection
+from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
 from apps.core.bin.change_traces import trace_change
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from apps.core.functions.functions_postgresql import query_file_dict_cursor
+from apps.edi.models import EdiValidation
 from apps.validation_purchases.excel_outputs.excel_refac_cct import (
     excel_refac_cct,
 )
-from apps.edi.models import EdiValidation
 from apps.validation_purchases.forms import RefacCctValidationForm
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 5.0 - Contrôle Refac M/M-1 par CCT
 
 
 def refac_cct_purchases(request):
-    """View de l'étape 5.0 - Contrôle Refac M M-1 par CCT"""
+    """View de l'étape 5.0 - Contrôle Refac M M-1 par CCT."""
     billing_period = (
         EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first().billing_period
     )
@@ -57,24 +59,24 @@ def refac_cct_purchases(request):
 
 
 def refac_cct_purchases_export(request):
-    """Export Excel du Contrôle Refac M M-1 par CCT
+    """Export Excel du Contrôle Refac M M-1 par CCT.
+
     :param request: Request Django
-    :return: response_file"""
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                "CONTROLE_REFAC_M-1_M_PAR_CCT_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+                f"CONTROLE_REFAC_M-1_M_PAR_CCT_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
             billing_period = (
-                EdiValidation.objects.filter(
-                    Q(final=False) | Q(final__isnull=True)).first().billing_period
+                EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
+                .first()
+                .billing_period
             )
             return response_file(
-                excel_refac_cct,
-                file_name,
-                CONTENT_TYPE_EXCEL,
-                {"initial_date": billing_period}
+                excel_refac_cct, file_name, CONTENT_TYPE_EXCEL, {"initial_date": billing_period}
             )
 
     except Exception:
@@ -84,8 +86,7 @@ def refac_cct_purchases_export(request):
 
 
 def refac_cct_validation(request):
-    """Validation de l'écran de Contrôle Refac M M-1 par CCT"""
-
+    """Validation de l'écran de Contrôle Refac M M-1 par CCT."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -119,12 +120,10 @@ def refac_cct_validation(request):
                 message = "Le contrôle Refac M M-1 par CCT est maintenant invalidé"
 
         except Exception:
-            LOGGER_VIEWS.exception(f"Views : refac_cct_validation error : {form.cleaned_data!r}")
+            LOGGER_VIEWS.exception("Views : refac_cct_validation error : %r", form.cleaned_data)
 
     else:
-        LOGGER_VIEWS.error(
-            f"Views : refac_cct_validation error, form invalid : {form.errors!r}"
-        )
+        LOGGER_VIEWS.error("Views : refac_cct_validation error, form invalid : %r", form.errors)
 
     messages.add_message(request, level, message)
 

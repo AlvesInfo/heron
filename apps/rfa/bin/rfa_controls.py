@@ -1,6 +1,6 @@
-"""
-FR : Module de contrôles de lancement des rfa
-EN : RFA Launch Control Module
+"""FR : Module de contrôles de lancement des rfa.
+
+EN : RFA Launch Control Module.
 
 Commentaire:
 
@@ -11,8 +11,6 @@ modified at: 2024-08-09
 modified by: Paulo ALVES
 """
 
-from typing import AnyStr, List
-
 import pendulum
 from django.db import connection
 from django.db.models import Q
@@ -20,26 +18,26 @@ from django.db.models import Q
 from apps.edi.models import EdiValidation
 
 
-def supplier_control_validation() -> AnyStr:
-    """Contrôle que tous les fournisseurs ayant des rfa soient validés"""
+def supplier_control_validation() -> str:
+    """Contrôle que tous les fournisseurs ayant des rfa soient validés."""
     sql_control = """
-    select 
+    select
         ("ei"."third_party_num" || ' - ' || "bs"."name") as "supplier_name"
-    from "edi_ediimport" "ei" 
+    from "edi_ediimport" "ei"
     join "book_society" "bs"
-    on "ei"."third_party_num" = "bs"."third_party_num" 
-    join "rfa_supplierrate" "rs" 
+    on "ei"."third_party_num" = "bs"."third_party_num"
+    join "rfa_supplierrate" "rs"
     on "ei"."third_party_num" = "rs"."supplier"
-    left join "edi_ediimportcontrol" "ev" 
+    left join "edi_ediimportcontrol" "ev"
     on "ei"."uuid_control" = "ev"."uuid_identification"
     where (
-        "ev"."valid" = false 
-        or 
+        "ev"."valid" = false
+        or
         "ev"."valid" is null
     )
-    group by 
-        "ei"."third_party_num", 
-        "bs"."name", 
+    group by
+        "ei"."third_party_num",
+        "bs"."name",
         "ev"."valid"
     """
 
@@ -50,27 +48,26 @@ def supplier_control_validation() -> AnyStr:
     if not results:
         return ""
 
-    elif len(results) == 1:
+    if len(results) == 1:
         fournisseur = results[0][0]
         return f"Les Factures du Fournisseur {fournisseur}, ne sont pas validées"
-    else:
-        fournisseur = ", ".join([row[0] for row in results])
-        return f"Les Factures des Fournisseurs {fournisseur}, ne sont pas validées"
+    fournisseur = ", ".join([row[0] for row in results])
+    return f"Les Factures des Fournisseurs {fournisseur}, ne sont pas validées"
 
 
-def supplier_control_cct() -> AnyStr:
-    """Contrôle que toutes les factures des fournisseurs ayant des rfa aient des CCT"""
+def supplier_control_cct() -> str:
+    """Contrôle que toutes les factures des fournisseurs ayant des rfa aient des CCT."""
     sql_control = """
-    select 
+    select
         ("ei"."third_party_num" || ' - ' || "bs"."name") as "supplier_name"
-    from "edi_ediimport" "ei" 
+    from "edi_ediimport" "ei"
     join "book_society" "bs"
-    on "ei"."third_party_num" = "bs"."third_party_num" 
-    join "rfa_supplierrate" "rs" 
+    on "ei"."third_party_num" = "bs"."third_party_num"
+    join "rfa_supplierrate" "rs"
     on "ei"."third_party_num" = "rs"."supplier"
     where "ei"."cct_uuid_identification" isnull
-    group by 
-        "ei"."third_party_num", 
+    group by
+        "ei"."third_party_num",
         "bs"."name"
     """
 
@@ -81,16 +78,16 @@ def supplier_control_cct() -> AnyStr:
     if not results:
         return ""
 
-    elif len(results) == 1:
+    if len(results) == 1:
         fournisseur = results[0][0]
         return f"Des CCT n'ont pas été renseignés dans les Factures du Fournisseur {fournisseur}"
-    else:
-        fournisseur = ", ".join([row[0] for row in results])
-        return f"Des CCT n'ont pas été renseignés dans les Factures des Fournisseurs {fournisseur}"
+    fournisseur = ", ".join([row[0] for row in results])
+    return f"Des CCT n'ont pas été renseignés dans les Factures des Fournisseurs {fournisseur}"
 
 
-def have_rfa_to_be_invoiced() -> List:
-    """Contrôle qu'il y ait des factures de RFA à générer : fournisseurs ayant un taux de RFA,
+def have_rfa_to_be_invoiced() -> list:
+    """Contrôle qu'il y ait des factures de RFA à générer : fournisseurs ayant un taux de RFA,.
+
     des factures sur une maison et un axe RFA retenus, hors exclusions (enseigne, client,
     client/fournisseur, axe PRO), et dont les RFA du mois ne sont pas déjà générées.
     Les filtres sont les mêmes que ceux de l'insertion (SQL_RFA_INSERTION).
@@ -144,16 +141,12 @@ def have_rfa_to_be_invoiced() -> List:
 
     with connection.cursor() as cursor:
         cursor.execute(sql_control)
-        results = [row[0] for row in cursor.fetchall()]
-
-    return results
+        return [row[0] for row in cursor.fetchall()]
 
 
 def get_axe_rfa_period():
-    """Récupération de l'axe rfa du mois de la période en cours"""
-    period = EdiValidation.objects.filter(
-        Q(final=False) | Q(final__isnull=True)
-    ).first()
+    """Récupération de l'axe rfa du mois de la période en cours."""
+    period = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
 
     if not period:
         return f"{pendulum.now().year}RFA"

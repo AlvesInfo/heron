@@ -1,6 +1,6 @@
-"""
-FR : Module d'import en boucle des modèles de Sage X3
-EN : Loop import module for Sage X3 models
+"""FR : Module d'import en boucle des modèles de Sage X3.
+
+EN : Loop import module for Sage X3 models.
 
 Commentaire:
 
@@ -10,12 +10,13 @@ created by: Paulo ALVES
 modified at: 2022-04-08
 modified by: Paulo ALVES
 """
+
 import shutil
 from pathlib import Path
 
-from heron.loggers import LOGGER_IMPORT
 from apps.core.functions.functions_setups import settings
 from apps.countries.imports.imports_sage import pays_sage
+from heron.loggers import LOGGER_IMPORT
 
 processing_dict = {
     "ZBICRY_journalier.heron": pays_sage,
@@ -23,8 +24,8 @@ processing_dict = {
 
 
 def get_processing_files():
-    """Récupération des fichiers Sage à intégrer, depuis le serveur Sage X3"""
-    pre_file_list = list(processing_dict)
+    """Récupération des fichiers Sage à intégrer, depuis le serveur Sage X3."""
+    pre_file_list: list = list(processing_dict)
 
     for file in Path(settings.ACUITIS_ARCHIVE_EM_DIR).glob("*"):
         if file.name in processing_dict:
@@ -36,9 +37,7 @@ def get_processing_files():
 
 
 def process():
-    """
-    Intégration des fichiers en fonction des fichiers présents dans le répertoire de processing/sage
-    """
+    """Intégration des fichiers en fonction des fichiers présents dans le répertoire de processing/sage."""
     processing_files = get_processing_files()
 
     for file in processing_files:
@@ -46,17 +45,17 @@ def process():
         trace = None
 
         try:
-            trace, to_print = processing_dict.get(file.name)(file)
+            trace, _ = processing_dict[file.name](file)
             destination = Path(settings.BACKUP_SAGE_DIR) / file.name
             shutil.move(file.resolve(), destination.resolve())
 
-        except TypeError as except_error:
+        except TypeError:
             error = True
-            LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
+            LOGGER_IMPORT.exception("TypeError")
 
-        except Exception as except_error:
+        except Exception:
             error = True
-            LOGGER_IMPORT.exception(f"Exception Générale: {file.name}\n{except_error!r}")
+            LOGGER_IMPORT.exception("Exception Générale: %s", file.name)
 
         finally:
             if error and trace:

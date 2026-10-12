@@ -1,6 +1,6 @@
-"""
-FR : Module des vues pour les saisies et visualisation des marchandises
-EN : Views module for entering and viewing goods
+"""FR : Module des vues pour les saisies et visualisation des marchandises.
+
+EN : Views module for entering and viewing goods.
 
 Commentaire:
 
@@ -10,42 +10,44 @@ created by: Paulo ALVES
 modified at: 2023-01-04
 modified by: Paulo ALVES
 """
+
 import json
+from typing import Any
 
 from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_protect
 from django.db import transaction
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_protect
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
 from apps.accountancy.bin.utilities import get_youngests_vat_rate
+from apps.core.functions.functions_http import is_ajax
 from apps.edi.bin.duplicates_check import check_invoice_exists
 from apps.edi.bin.edi_utilites import (
-    form_errors_message,
-    set_trace_hand_invoice,
     data_dict_invoices_clean,
-    get_query_articles,
+    form_errors_message,
     get_personal_profession_type,
+    get_query_articles,
+    set_trace_hand_invoice,
 )
 from apps.edi.bin.set_hand_invoices import set_hand_invoice
 from apps.edi.forms import (
-    CreateBaseMarchandiseForm,
-    CreateMarchandiseInvoiceForm,
     CreateBaseFormationForm,
-    CreateFormationInvoiceForm,
+    CreateBaseMarchandiseForm,
     CreateBasePersonnelForm,
+    CreateFormationInvoiceForm,
+    CreateMarchandiseInvoiceForm,
     CreatePersonnelInvoiceForm,
     # CreateBaseRfaForm,
     # CreateRfaInvoiceForm,
 )
 from apps.invoices.bin.pre_controls import control_insertion
+from heron.loggers import LOGGER_VIEWS
 
 # 1. CREATION DE FACTURES DE MARCHANDISES
 
-CATEGORIES_DICT = {
+CATEGORIES_DICT: dict[str, dict[str, Any]] = {
     "marchandises": {
         "titre_table": "Saisie de Facture de Marchandises",
         "form": CreateBaseMarchandiseForm,
@@ -67,30 +69,24 @@ CATEGORIES_DICT = {
         "query_articles": True,
         "nb_display": 30,
     },
-    # "rfa": {
-    #     "titre_table": "Saisie de Facture de Personnel",
-    #     "form": CreateBaseRfaForm,
-    #     "details_form": CreateRfaInvoiceForm,
-    #     "query_articles": True,
-    #     "nb_display": 50,
-    # },
 }
 
 
 def _add_message(request, level: int, message: str) -> None:
-    """Pose le niveau du message en session et ajoute le message à afficher"""
+    """Pose le niveau du message en session et ajoute le message à afficher."""
     request.session["level"] = level
     messages.add_message(request, level, message)
 
 
 def _save_hand_invoice(category, details_form, entete, lignes, user):
-    """Crée la facture saisie si elle n'existe pas déjà
+    """Crée la facture saisie si elle n'existe pas déjà.
+
     :param category: Catégorie de facturation
     :param details_form: formulaire des lignes de la catégorie
     :param entete: données validées de l'entête
     :param lignes: lignes saisies
     :param user: utilisateur qui saisit
-    :return: (erreur, message)
+    :return: (erreur, message).
     """
     third_party_num = entete.get("third_party_num")
     invoice_number = entete.get("invoice_number", "")
@@ -113,12 +109,13 @@ def _save_hand_invoice(category, details_form, entete, lignes, user):
 
 
 def _post_hand_invoices(request, category, invoice_form, details_form):
-    """Traite la saisie postée en ajax : validation de l'entête puis création de la facture
+    """Traite la saisie postée en ajax : validation de l'entête puis création de la facture.
+
     :param request: Request au sens Django
     :param category: Catégorie de facturation
     :param invoice_form: formulaire d'entête de la catégorie
     :param details_form: formulaire des lignes de la catégorie
-    :return: JsonResponse, le résultat est porté par les messages
+    :return: JsonResponse, le résultat est porté par les messages.
     """
     level = 50
     data = {"success": "ko"}
@@ -161,7 +158,7 @@ def _post_hand_invoices(request, category, invoice_form, details_form):
 
     except Exception as error:
         _add_message(request, level, "Une erreur c'est produite, veuillez consulter les logs")
-        LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
+        LOGGER_VIEWS.exception("erreur form")
 
         # On trace l'erreur, car cela ne se fera pas sans appel à set_hand_invoice()
         set_trace_hand_invoice(
@@ -199,13 +196,12 @@ def create_hand_invoices(request, category):
     :param request:  Request au sens Django
     :param category:  Catégorie de facturation
     """
-
     if category not in CATEGORIES_DICT:
         return redirect("home")
 
-    titre_table, invoice_form, details_form, query_articles, nb_display = CATEGORIES_DICT.get(
+    titre_table, invoice_form, details_form, query_articles, nb_display = CATEGORIES_DICT[
         category
-    ).values()
+    ].values()
 
     # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
     not_finalize = control_insertion()

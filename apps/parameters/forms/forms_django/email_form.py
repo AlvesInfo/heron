@@ -1,6 +1,5 @@
-"""
-Forms des Parameters
-"""
+"""Forms des Parameters."""
+
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 
@@ -9,18 +8,19 @@ from apps.parameters.models import Email
 
 
 class EmailForm(forms.ModelForm):
-    """Form pour les Emails"""
+    """Form pour les Emails."""
 
     use_required_attribute = False
 
     email_body = forms.CharField(widget=CKEditorWidget())
 
     def __init__(self, *args, **kwargs):
+        """Rend le corps de l'e-mail auto-extensible."""
         super().__init__(*args, **kwargs)
         self.fields["email_body"].widget.attrs["is"] = "textarea-autogrow"
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = Email
         fields = (

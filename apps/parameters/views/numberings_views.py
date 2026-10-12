@@ -1,27 +1,25 @@
-"""
-Views des Paramètres
-"""
+"""Views des Paramètres."""
+
 import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.bin.change_traces import trace_mark_delete
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.parameters.excel_outputs.parameters_excel_numberings import excel_liste_numberings
-from apps.parameters.models import Counter, CounterNums
 from apps.parameters.forms import CounterForm
+from apps.parameters.models import Counter, CounterNums
+from heron.loggers import LOGGER_EXPORT_EXCEL, LOGGER_VIEWS
 
 
 # ECRANS DES NUMEROTATIONS =========================================================================
 class NumberingsList(ListView):
-    """View de la liste des Numérotations"""
+    """View de la liste des Numérotations."""
 
     model = Counter
     context_object_name = "numberings"
@@ -30,7 +28,7 @@ class NumberingsList(ListView):
 
 
 class NumberingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Numérotations"""
+    """CreateView de création des Numérotations."""
 
     model = Counter
     form_class = CounterForm
@@ -39,7 +37,7 @@ class NumberingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     error_message = "La Numérotation %(name)s n'a pu être créé, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("parameters:numberings_list")
@@ -49,7 +47,7 @@ class NumberingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -57,7 +55,7 @@ class NumberingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 
 class NumberingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des Numérotations"""
+    """UpdateView pour modification des Numérotations."""
 
     model = Counter
     form_class = CounterForm
@@ -66,7 +64,7 @@ class NumberingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     error_message = "La Numérotation %(name)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Mise à jour Numérotation"
         context["chevron_retour"] = reverse("parameters:numberings_list")
@@ -74,8 +72,8 @@ class NumberingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
         return super().get_context_data(**context)
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -83,13 +81,12 @@ class NumberingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 def numberings_export_list(_):
-    """
-    Export Excel de la liste des Numérotations
+    """Export Excel de la liste des Numérotations.
+
     :param _: Request Django
-    :return: response_file
+    :return: response_file.
     """
     try:
-
         today = pendulum.now()
         file_name = f"LISTING_DES_NUMEROTATIONS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 
@@ -103,11 +100,11 @@ def numberings_export_list(_):
 
 @transaction.atomic
 def numbering_delete(request):
-    """Suppression des Numérotations
-    :param request: Request Django
-    :return: view
-    """
+    """Suppression des Numérotations.
 
+    :param request: Request Django
+    :return: view.
+    """
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -117,7 +114,7 @@ def numbering_delete(request):
     try:
         numbering = Counter.objects.get(pk=id_pk)
 
-        if not numbering.name == 'generic':
+        if numbering.name != "generic":
             # Le compteur courant protège la numérotation (FK PROTECT) : supprimé avec elle
             CounterNums.objects.filter(counter=numbering).delete()
             trace_mark_delete(
@@ -129,16 +126,15 @@ def numbering_delete(request):
             data = {"success": "success"}
 
         else:
-            LOGGER_VIEWS.exception(
-                f"numbering_delete, l'user : {request.user.email!r} "
-                f"a tenter de supprimer la Numérotation générique"
+            LOGGER_VIEWS.error(
+                "numbering_delete, l'user : %r a tenter de supprimer la Numérotation générique",
+                request.user.email,
             )
 
-    except (Counter.DoesNotExist, Exception) as error:
+    except (Counter.DoesNotExist, Exception):
         LOGGER_VIEWS.exception(
-            f"views - numbering_delete, l'user : {request.user.email!r} "
-            f"a tenter de supprimer une Numérotation inexistante"
-            f"\n{error!r}"
+            "views - numbering_delete, l'user : %r a tenter de supprimer une Numérotation inexistante",
+            request.user.email,
         )
 
     return JsonResponse(data)

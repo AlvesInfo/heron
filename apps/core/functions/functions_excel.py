@@ -1,22 +1,20 @@
-"""
-Module qui gère les fichiers Excel
-"""
-import os
-import sys
-import glob
+"""Module qui gère les fichiers Excel."""
+
 import codecs
 import csv
-from datetime import datetime
+import gc
+import glob
 import shutil
+import sys
+from pathlib import Path
 
-from bs4 import BeautifulSoup
-import xlsxwriter
 import pandas as pd
+import xlsxwriter
+from bs4 import BeautifulSoup
+from django.utils import timezone
 
 from apps.core.functions.functions_logs import LOG_FILE, write_log
 from apps.core.functions.functions_utilitaires import delete_file, encoding_detect
-import gc
-
 
 XLSX_PAPER_SIZE = {
     "Printer default": (0, "Printer default"),
@@ -62,25 +60,26 @@ XLSX_PAPER_SIZE = {
 
 
 def get_paper_size(value: str):
-    """retourne la valeur en int de la taille de la page demandée
-        :param value: valeur demandée
-        :return: int value
+    """Retourne la valeur en int de la taille de la page demandée.
+
+    :param value: valeur demandée
+    :return: int value.
     """
     return XLSX_PAPER_SIZE.get(value, (0, "Printer default"))[0]
 
 
 class ExcelToCsvError(Exception):
-    """Exception niveau module"""
+    """Exception niveau module."""
 
 
-def excel_excel_to_csv(fichier_excel, fichier_csv, header=True, sheets=None):
-    """
-    Fonction qui transforme un fichier excel en csv
-        :param fichier_excel: nom du fichier du excel
-        :param fichier_csv: nom du fichier du csv
-        :param header: entête
-        :param sheets: feuilles
-        :return: fichier excel en csv
+def excel_excel_to_csv(fichier_excel, fichier_csv, *, header=True, sheets=None):
+    """Fonction qui transforme un fichier excel en csv.
+
+    :param fichier_excel: nom du fichier du excel
+    :param fichier_csv: nom du fichier du csv
+    :param header: entête
+    :param sheets: feuilles
+    :return: fichier excel en csv.
     """
     success = []
 
@@ -104,9 +103,8 @@ def excel_excel_to_csv(fichier_excel, fichier_csv, header=True, sheets=None):
 
         else:
             for sheet in sheets:
-                pth = os.path.split(fichier_csv)[0]
                 filename = str(sheet).replace(" ", "").upper() + ".csv"
-                sheet_csv = os.path.join(pth, filename)
+                sheet_csv = str(Path(fichier_csv).parent / filename)
                 success.append(sheet_csv)
                 data = pd.read_excel(xls, sheet_name=sheet)
                 data.to_csv(
@@ -120,88 +118,86 @@ def excel_excel_to_csv(fichier_excel, fichier_csv, header=True, sheets=None):
 
     except ExcelToCsvError:
         success = []
-        ligne = f"{datetime.now().isoformat()} | Erreur excel_excel_to_csv : {sys.exc_info()[1]}\n"
+        ligne = f"{timezone.localtime().isoformat()} | Erreur excel_excel_to_csv : {sys.exc_info()[1]}\n"
         write_log(LOG_FILE, ligne)
 
     return success
 
 
-def excel_xhtml_to_csv(fichier_excel, fichier_csv, header=True):
-    """
-    Fonction qui transforme un fichier Xhtml excel en csv
-        :param fichier_excel: nom du fichier du Xhtml excel
-        :param fichier_csv: nom du fichier du csv
-        :param header: entête
-        :return: fichier excel en csv
+def excel_xhtml_to_csv(fichier_excel, fichier_csv, *, header=True):
+    """Fonction qui transforme un fichier Xhtml excel en csv.
+
+    :param fichier_excel: nom du fichier du Xhtml excel
+    :param fichier_csv: nom du fichier du csv
+    :param header: entête
+    :return: fichier excel en csv.
     """
     success = []
 
     try:
         encoding = encoding_detect(fichier_excel)
 
-        with codecs.open(fichier_excel, "r", encoding=encoding, errors="replace") as file:
+        with (
+            codecs.open(fichier_excel, "r", encoding=encoding, errors="replace") as file,
+            Path(fichier_csv).open("w", newline="", encoding="utf-8") as csvfile,
+        ):
+            csv_write = csv.writer(csvfile, delimiter=";", quoting=csv.QUOTE_ALL)
+            soup = BeautifulSoup(file, "lxml-xml")
+            for i, t_r in enumerate(soup.find_all("tr")):
+                ligne = ""
 
-            with open(fichier_csv, "w", newline="", encoding="utf-8") as csvfile:
-                csv_write = csv.writer(csvfile, delimiter=";", quoting=csv.QUOTE_ALL)
-                soup = BeautifulSoup(file, "lxml-xml")
-                for i, t_r in enumerate(soup.find_all("tr")):
-                    ligne = ""
+                for t_d in t_r.find_all("td"):
+                    lig = ""
 
-                    for t_d in t_r.find_all("td"):
-                        lig = ""
+                    for span in t_d.find_all("span"):
+                        lig = (
+                            span.string.replace("=", "")
+                            .replace('"', "")
+                            .replace(";", "")
+                            .replace("\n", "")
+                            .replace("\r", "")
+                            + ";"
+                        )
 
-                        for span in t_d.find_all("span"):
-                            lig = (
-                                span.string.replace("=", "")
-                                .replace('"', "")
-                                .replace(";", "")
-                                .replace("\n", "")
-                                .replace("\r", "")
-                                + ";"
-                            )
+                    if not lig:
+                        lig = ";"
 
-                        if not lig:
-                            lig = ";"
+                    ligne += lig
 
-                        ligne += lig
+                ligne = ligne[:-1]
 
-                    ligne = ligne[:-1]
+                # writerow attend une liste : une chaîne serait écrite caractère par caractère
+                if i == 0 and header is not None:
+                    csv_write.writerow(ligne.split(";"))
 
-                    # writerow attend une liste : une chaîne serait écrite caractère par caractère
-                    if i == 0 and header is not None:
-                        csv_write.writerow(ligne.split(";"))
-
-                    if i > 0:
-                        csv_write.writerow(ligne.split(";"))
+                if i > 0:
+                    csv_write.writerow(ligne.split(";"))
 
         success.append(str(fichier_csv))
 
     except ExcelToCsvError:
-        ligne = (
-            f"{datetime.now().isoformat()} | Erreur excel_excel_to_csv : " f"{sys.exc_info()[1]}\n"
-        )
+        ligne = f"{timezone.localtime().isoformat()} | Erreur excel_excel_to_csv : {sys.exc_info()[1]}\n"
         write_log(LOG_FILE, ligne)
 
     return success
 
 
 def date_debut_nom_fichier():
+    """Fonction qui renvoie la date du jour au format texte souligné.
+
+    :return: la date du jour au format texte souligné --> '2018_09_23'.
     """
-    Fonction qui renvoie la date du jour au format texte souligné
-        :return: la date du jour au format texte souligné --> '2018_09_23'
-    """
-    return datetime.date(datetime.now()).isoformat().replace("-", "") + "_"
+    return timezone.localdate().isoformat().replace("-", "") + "_"
 
 
 class ExcelToCsv:
-    """
-    Class pour tansformation des fichiers Excel
-    """
+    """Class pour tansformation des fichiers Excel."""
 
     def __init__(
         self,
         rep=None,
         rep_sauv=None,
+        *,
         header=True,
         first_date=True,
         deletion=None,
@@ -209,6 +205,7 @@ class ExcelToCsv:
         sheets=None,
         file_name=None,
     ):
+        """Mémorise les répertoires et les options de conversion Excel vers csv."""
         self.rep = rep
         self.rep_sauv = rep_sauv
         self.log_file = log if log is not None else LOG_FILE
@@ -220,87 +217,89 @@ class ExcelToCsv:
 
     @staticmethod
     def excel_is_xhtml(fichier):
+        """Fonction qui vérifie si le fichier est un fichier Xhtml excel.
+
+        :param fichier: fichier
+        :return: True ou False.
         """
-        Fonction qui vérifie si le fichier est un fichier Xhtml excel
-            :param fichier: fichier
-            :return: True ou False
-        """
-        with open(fichier, "r", encoding="utf-8", errors="replace") as file:
+        with Path(fichier).open(encoding="utf-8", errors="replace") as file:
             test_xhtml = file.readline()[0:5]
 
         return test_xhtml == "<html"
 
+    def _csv_file_name(self, file):
+        """Chemin du csv à produire pour un fichier excel (préfixé de la date si demandé)."""
+        path = Path(file)
+        f_name = path.stem + ".csv"
+
+        if self.first_date is not None:
+            f_name = date_debut_nom_fichier() + f_name
+
+        return str(path.with_name(f_name))
+
+    def _convert_file(self, file):
+        """Convertit un fichier excel en csv, journalise l'échec, supprime ou archive l'original.
+
+        :param file: chemin du fichier excel
+        :return: liste des csv produits (vide en cas d'échec).
+        """
+        csv_file = self._csv_file_name(file)
+        delete_file(csv_file)
+
+        if self.excel_is_xhtml(file):
+            success = excel_xhtml_to_csv(file, csv_file, header=self.header)
+        else:
+            success = excel_excel_to_csv(file, csv_file, header=self.header, sheets=self.sheets)
+
+        if not success:
+            write_log(
+                self.log_file,
+                f"{timezone.localtime().isoformat()} | Erreur de Conversion .xls "
+                f"en .csv : {Path(file).name}\n"
+                f"\t\t\t{sys.exc_info()[1]}\n",
+            )
+
+        if self.deletion:
+            Path(file).unlink()
+
+        if self.rep_sauv is not None and self.deletion is None:
+            shutil.move(file, Path(self.rep_sauv) / Path(file).name)
+
+        return success or []
+
     def make_csv(self):
+        """Fonction qui transforme un fichier excel en csv.
+
+        :return: la liste des fichiers traités.
         """
-        Fonction qui transforme un fichier excel en csv
-            :return: la liste des fichiers traités
-        """
-        treated_files = []
+        treated_files: list = []
 
-        if self.rep:
-            # imports pdb;pdb.set_trace()
-            try:
-                if self.file_name is None:
-                    rep = self.rep + "/*.*"
-                else:
-                    rep = self.rep + f"/{self.file_name}"
+        if not self.rep:
+            return treated_files
 
-                files = [fichier for fichier in glob.glob(rep)]
+        rep = self.rep + ("/*.*" if self.file_name is None else f"/{self.file_name}")
 
-                for file in files:
-                    filename, ext = os.path.splitext(os.path.basename(file))
+        try:
+            # glob.glob conservé : les tests le remplacent pour simuler un répertoire illisible
+            for file in glob.glob(rep):  # noqa: PTH207
+                if Path(file).suffix in {".xls", ".xlsb", ".xlsm", ".xlsx"}:
+                    treated_files.extend(self._convert_file(file))
 
-                    if ext in {".xls", ".xlsb", ".xlsm", ".xlsx"}:
-                        pth, fichier = os.path.split(file)
-                        f_name = filename + ".csv"
-
-                        if self.first_date is not None:
-                            f_name = date_debut_nom_fichier() + f_name
-
-                        csv_file = os.path.join(pth, f_name)
-                        delete_file(csv_file)
-
-                        if self.excel_is_xhtml(file):
-                            success = excel_xhtml_to_csv(file, csv_file, self.header)
-
-                        else:
-                            success = excel_excel_to_csv(file, csv_file, self.header, self.sheets)
-
-                        if success:
-                            treated_files.extend(success)
-
-                        else:
-                            ligne = (
-                                f"{datetime.now().isoformat()} | Erreur de Conversion .xls "
-                                f"en .csv : {fichier}\n"
-                                f"\t\t\t{sys.exc_info()[1]}\n"
-                            )
-
-                            write_log(self.log_file, ligne)
-
-                        if self.deletion:
-                            os.remove(file)
-
-                        if self.rep_sauv is not None and self.deletion is None:
-                            excel_sauv = os.path.join(self.rep_sauv, fichier)
-                            shutil.move(file, excel_sauv)
-
-            except ExcelToCsvError:
-                ligne = (
-                    f"{datetime.now().isoformat()} | Erreur de conversion fichiers .xls en .csv : "
-                    f"{sys.exc_info()[1]}\n"
-                )
-                write_log(self.log_file, ligne)
+        except ExcelToCsvError:
+            write_log(
+                self.log_file,
+                f"{timezone.localtime().isoformat()} | Erreur de conversion fichiers .xls en .csv : "
+                f"{sys.exc_info()[1]}\n",
+            )
 
         return treated_files
 
 
 class GenericExcel:
-    """
-    Class pour manager plus simplement les fichiers excel XlsxWriter
-    """
+    """Class pour manager plus simplement les fichiers excel XlsxWriter."""
 
     def __init__(self, excel_workbooks, in_memory=None):
+        """Ouvre le classeur xlsxwriter, en mémoire constante si demandé."""
         if in_memory is not None:
             self.workbook = xlsxwriter.Workbook(excel_workbooks[0], {"constant_memory": True})
         else:
@@ -310,8 +309,8 @@ class GenericExcel:
             self.worksheets.append(self.workbook.add_worksheet(sheet))
 
     def write_headers_h(self, num_sheet, row, col, valeurs, styles=None):
-        """
-            Ecriture des entêtes à deux étages, en horizontal
+        """Ecriture des entêtes à deux étages, en horizontal.
+
             exemple :   |     ENTETE PRINCIPAL      |
                         | t 01 | t 02 | t 03 | t 04 |
         :param num_sheet: Numéro de la feuille, dans laquelle il faut écrire
@@ -319,7 +318,7 @@ class GenericExcel:
         :param col: Numéro de la colonne de l'entête principal, débute à 0
         :param valeurs: Liste des valeurs à inserer dans les cellules
         :param styles: Liste des sytles à appliquer aux cellules, par défaut pas de styles
-        :return: Ne retourne rien
+        :return: Ne retourne rien.
         """
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
@@ -344,8 +343,8 @@ class GenericExcel:
                 col_01 += 1
 
     def write_headers_v(self, num_sheet, row, col, valeurs, styles=None):
-        """
-            Ecriture des entêtes à deux étages, en vertical
+        """Ecriture des entêtes à deux étages, en vertical.
+
             exemple :   | E | t 01 |
                         | N | t 02 |
                         | T | t 03 |
@@ -357,7 +356,7 @@ class GenericExcel:
         :param col: Numéro de la colonne de l'entête principal, débute à 0
         :param valeurs: Liste des valeurs à inserer dans les cellules
         :param styles: Liste des sytles à appliquer aux cellules, par défaut pas de styles
-        :return: Ne retourne rien
+        :return: Ne retourne rien.
         """
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
@@ -382,8 +381,8 @@ class GenericExcel:
                 row += 1
 
     def write_merge_h(self, num_sheet, row, col_01, col_02, valeur, style=None):
-        """
-            Ecriture d'une valeur merge, en horizontal
+        """Ecriture d'une valeur merge, en horizontal.
+
             exemple :   |   cellule     |
                         |   |   |   |   |
         :param num_sheet: Numéro de la feuille, dans laquelle il faut écrire
@@ -392,7 +391,7 @@ class GenericExcel:
         :param col_02: Dernière colonne du merge, débute à 0
         :param valeur: Valeur à inserer dans la cellule
         :param style: Sytle à appliquer à la cellules, par défaut pas de styles
-        :return: Ne retourne rien
+        :return: Ne retourne rien.
         """
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
@@ -403,8 +402,8 @@ class GenericExcel:
             wsexcel.merge_range(row, col_01, row, col_02, valeur)
 
     def write_merge_v(self, num_sheet, row_01, row_02, col, valeur, style=None):
-        """
-            Ecriture d'une valeur merge, en Vertical
+        """Ecriture d'une valeur merge, en Vertical.
+
             exemple :   | E |   |
                         | N |   |
                         | T |   |
@@ -417,7 +416,7 @@ class GenericExcel:
         :param col: Colonne, débute à 0
         :param valeur: Valeur à inserer dans la cellule
         :param style: Sytle à appliquer à la cellules, par défaut pas de styles
-        :return: Ne retourne rien
+        :return: Ne retourne rien.
         """
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
@@ -427,21 +426,20 @@ class GenericExcel:
                 wsexcel.write(row_01, col, valeur, f_m)
             else:
                 wsexcel.write(row_01, col, valeur)
+        elif style:
+            f_m = self.workbook.add_format(style)
+            wsexcel.merge_range(row_01, col, row_02, col, valeur, f_m)
         else:
-            if style:
-                f_m = self.workbook.add_format(style)
-                wsexcel.merge_range(row_01, col, row_02, col, valeur, f_m)
-            else:
-                wsexcel.merge_range(row_01, col, row_02, col, valeur)
+            wsexcel.merge_range(row_01, col, row_02, col, valeur)
 
     def write_merge(self, num_sheet, cells, valeur, style=None):
-        """
-            Ecriture d'une valeur, dans des cellules mergées
+        """Ecriture d'une valeur, dans des cellules mergées.
+
         :param num_sheet: Numéro de la feuille, dans laquelle il faut écrire
         :param cells: cellules en notation 'A1:B5'
         :param valeur: Valeur à inserer dans la cellule
         :param style: Sytle à appliquer à la cellules, par défaut pas de styles
-        :return: Ne retourne rien
+        :return: Ne retourne rien.
         """
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
@@ -452,14 +450,14 @@ class GenericExcel:
             wsexcel.merge_range(cells, valeur)
 
     def write_row(self, num_sheet, row, col, valeur, style=None):
-        """
-            Ecriture d'une seule cellule
+        """Ecriture d'une seule cellule.
+
         :param num_sheet: Numéro de la feuille, dans laquelle il faut écrire
         :param row: Numéro de la ligne de l'entête principal, débute à 0
         :param col: Numéro de la colonne de l'entête principal, débute à 0
         :param valeur: valeur à inserer dans la cellules
         :param style: sytle à appliquer à la cellule, par défaut pas de style
-        :return: Ne retourne rien
+        :return: Ne retourne rien.
         """
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
@@ -471,16 +469,16 @@ class GenericExcel:
             wsexcel.write(row, col, valeur)
 
     def write_rows(self, num_sheet, row, col, valeurs, styles=None):
-        """
-        Ecriture de plusieurs cellules adjacentes
-            :param num_sheet: Numéro de la feuille, dans laquelle il faut écrire
-            :param row: Numéro de la ligne de l'entête principal, débute à 0
-            :param col: Numéro de la colonne de l'entête principal, débute à 0
-            :param valeurs: Liste des valeurs à inserer dans les cellules
-            :param styles:  Liste des styles à appliquer aux cellules, par défaut pas de styles.
-                            Si toutes les valeurs ont le même style à appliquer, alors on peut
-                            n'envoyer qu'un seul
-            :return: Ne retourne rien
+        """Ecriture de plusieurs cellules adjacentes.
+
+        :param num_sheet: Numéro de la feuille, dans laquelle il faut écrire
+        :param row: Numéro de la ligne de l'entête principal, débute à 0
+        :param col: Numéro de la colonne de l'entête principal, débute à 0
+        :param valeurs: Liste des valeurs à inserer dans les cellules
+        :param styles:  Liste des styles à appliquer aux cellules, par défaut pas de styles.
+                        Si toutes les valeurs ont le même style à appliquer, alors on peut
+                        n'envoyer qu'un seul
+        :return: Ne retourne rien.
         """
         f_o = styles
         nb_col = len(valeurs)
@@ -494,8 +492,6 @@ class GenericExcel:
 
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
-        # print(len(valeurs), len(styles))
-        # print(valeurs)
         for num in range(nb_col):
             val = valeurs[num]
             if styles:
@@ -506,14 +502,14 @@ class GenericExcel:
             col += 1
 
     def write_image(self, num_sheet, row, col, image, options=None):
-        """
-        Fonction qui écrit une image dans le fichier excel
-            :param num_sheet: Numéro de la feuille, dans laquelle il faut écrire
-            :param row: Numéro de la ligne de l'entête principal, débute à 0
-            :param col: Numéro de la colonne de l'entête principal, débute à 0
-            :param image: Image
-            :param options: Options
-            :return: None
+        """Fonction qui écrit une image dans le fichier excel.
+
+        :param num_sheet: Numéro de la feuille, dans laquelle il faut écrire
+        :param row: Numéro de la ligne de l'entête principal, débute à 0
+        :param col: Numéro de la colonne de l'entête principal, débute à 0
+        :param image: Image
+        :param options: Options
+        :return: None.
         """
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
@@ -523,56 +519,58 @@ class GenericExcel:
             wsexcel.insert_image(row, col, image)
 
     def excel_sheet(self, num_sheet):
-        """
-        Fonction qui gère les feuiles du fichier à générer
-            :param num_sheet: Numéro de la feuille débute à 1
-            :return: la feuille à manipuler
+        """Fonction qui gère les feuiles du fichier à générer.
+
+        :param num_sheet: Numéro de la feuille débute à 1
+        :return: la feuille à manipuler.
         """
         feuille = num_sheet - 1
         return self.worksheets[feuille]
 
     def sheet_zoom(self, num_sheet, zoom_value):
-        """
-        Fonction qui place un zoom sur la feuille
-            :param num_sheet: Numéro de la feuille débute à 1
-            :param zoom_value: Valeur du zoom en int
-            :return: None
+        """Fonction qui place un zoom sur la feuille.
+
+        :param num_sheet: Numéro de la feuille débute à 1
+        :param zoom_value: Valeur du zoom en int
+        :return: None.
         """
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
         wsexcel.set_zoom(zoom_value)
 
     def sheet_hide_zero(self, num_sheet):
-        """
-        Fonction qui masque les valeur 0 dans la feuille
-            :param num_sheet: Numéro de la feuille débute à 1
-            :return: None
+        """Fonction qui masque les valeur 0 dans la feuille.
+
+        :param num_sheet: Numéro de la feuille débute à 1
+        :return: None.
         """
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
         wsexcel.hide_zero()
 
     def sheet_tab_color(self, num_sheet, color):
-        """
-        Fonction qui colore l'onglet de la feuille dans le classeur
-            :param num_sheet: Numéro de la feuille débute à 1
-            :param color: Couleur de l'onglet
-            :return: None
+        """Fonction qui colore l'onglet de la feuille dans le classeur.
+
+        :param num_sheet: Numéro de la feuille débute à 1
+        :param color: Couleur de l'onglet
+        :return: None.
         """
         feuille = num_sheet - 1
         wsexcel = self.worksheets[feuille]
         wsexcel.set_tab_color(color)
 
-    def conditional_value(self, num_sheet, str_plage, valeur, type_format="cell", criteria="<", style=None):
-        """
-        Fonction qui pose des conditions
-            :param num_sheet: Numéro de la feuille débute à 1
-            :param str_plage: Plage de la feuille conditionnelle
-            :param valeur: valeur conditionnelle
-            :param type_format: type de formatage cell, formula, ....
-            :param criteria: Critère
-            :param style: Style
-            :return: None
+    def conditional_value(
+        self, num_sheet, str_plage, valeur, type_format="cell", criteria="<", style=None
+    ):
+        """Fonction qui pose des conditions.
+
+        :param num_sheet: Numéro de la feuille débute à 1
+        :param str_plage: Plage de la feuille conditionnelle
+        :param valeur: valeur conditionnelle
+        :param type_format: type de formatage cell, formula, ....
+        :param criteria: Critère
+        :param style: Style
+        :return: None.
         """
         feuille = num_sheet - 1
         cellule = str_plage
@@ -587,9 +585,9 @@ class GenericExcel:
             )
 
     def excel_close(self):
-        """
-        Fonction qui ferme le fichier excel
-            :return: None
+        """Fonction qui ferme le fichier excel.
+
+        :return: None.
         """
         self.workbook.close()
         gc.collect()

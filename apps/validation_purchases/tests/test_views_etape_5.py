@@ -1,4 +1,5 @@
 """Tests des vues des étapes 5.0 à 5.5 (refac, fournisseurs M vs M-1, CA, contrôles Sage)"""
+
 import logging
 import uuid
 
@@ -25,7 +26,7 @@ def url(name, **kwargs):
 
 
 # 5.0 - REFAC PAR CCT ==============================================================================
-@pytest.mark.usefixtures('integration_data')
+@pytest.mark.usefixtures("integration_data")
 def test_refac_cct_purchases(logged_client):
     response = logged_client.get(url("refac_cct_purchases"))
 
@@ -42,7 +43,9 @@ def test_refac_cct_purchases_export(logged_client, integration_data, stub_excel,
     calls = stub_excel(views_etape_5_0, "excel_refac_cct")
 
     response = logged_client.get(url("refac_cct_purchases_export"))
-    assert response["Content-Disposition"].startswith("attachment; filename=CONTROLE_REFAC_M-1_M_PAR_CCT_")
+    assert response["Content-Disposition"].startswith(
+        "attachment; filename=CONTROLE_REFAC_M-1_M_PAR_CCT_"
+    )
     assert calls[0][1] == ({"initial_date": integration_data.validation.billing_period},)
 
     stub_excel(views_etape_5_0, "excel_refac_cct", error=RuntimeError("boom"))
@@ -55,8 +58,16 @@ def test_refac_cct_purchases_export(logged_client, integration_data, stub_excel,
 # VALIDATIONS 5.0 / 5.1 / 5.3 ======================================================================
 SCREENS = [
     ("refac_cct_validation", "refac_cct", "Le contrôle Refac M M-1 par CCT est maintenant"),
-    ("balance_suppliers_purchases_validation", "suppliers", "Le contrôle des fournisseurs est maintenant"),
-    ("ca_cct_validation", "validation_ca", "Le contrôle du CA Cosium / Ventes Héron est maintenant"),
+    (
+        "balance_suppliers_purchases_validation",
+        "suppliers",
+        "Le contrôle des fournisseurs est maintenant",
+    ),
+    (
+        "ca_cct_validation",
+        "validation_ca",
+        "Le contrôle du CA Cosium / Ventes Héron est maintenant",
+    ),
 ]
 
 
@@ -78,7 +89,9 @@ def test_validations(ajax_client, logged_client, validation_period, name, flag, 
     assert logged_client.post(url(name), {}).url == HOME
 
     with caplog.at_level(logging.ERROR, logger="error_views"):
-        unknown = ajax_client.post(url(name), {"uuid_identification": str(uuid.uuid4()), flag: "on"})
+        unknown = ajax_client.post(
+            url(name), {"uuid_identification": str(uuid.uuid4()), flag: "on"}
+        )
         invalid = ajax_client.post(url(name), {flag: "on"})
 
     assert unknown.json() == {"success": "ko"}
@@ -108,7 +121,9 @@ def test_suppliers_m_purchases_export(logged_client, stub_excel, caplog):
     calls = stub_excel(views_etape_5_0A, "excel_suppliers_m_vs_m1")
 
     response = logged_client.get(url("suppliers_m_purchases_export", client="AF0001"))
-    assert response["Content-Disposition"].startswith("attachment; filename=CONTROLE_AF0001_M_VS_M-1_")
+    assert response["Content-Disposition"].startswith(
+        "attachment; filename=CONTROLE_AF0001_M_VS_M-1_"
+    )
     assert calls[0][1] == ("AF0001",)
 
     stub_excel(views_etape_5_0A, "excel_suppliers_m_vs_m1", error=RuntimeError("boom"))
@@ -118,9 +133,11 @@ def test_suppliers_m_purchases_export(logged_client, stub_excel, caplog):
     assert response.url == url("suppliers_m_purchases", client="AF0001")
 
 
-@pytest.mark.usefixtures('integration_data')
+@pytest.mark.usefixtures("integration_data")
 def test_third_suppliers_m_purchases(logged_client):
-    response = logged_client.get(url("third_suppliers_m_purchases", client="AF0001", third_party_num="FOUR001"))
+    response = logged_client.get(
+        url("third_suppliers_m_purchases", client="AF0001", third_party_num="FOUR001")
+    )
 
     assert response.status_code == 200
     clients = response.context["clients"]
@@ -133,7 +150,9 @@ def test_third_suppliers_m_purchases_export(logged_client, stub_excel, caplog):
     kwargs = {"client": "AF0001", "third_party_num": "FOUR001"}
 
     response = logged_client.get(url("third_suppliers_m_purchases_export", **kwargs))
-    assert response["Content-Disposition"].startswith("attachment; filename=CONTROLE_AF0001_FOUR001_M_VS_M-1_")
+    assert response["Content-Disposition"].startswith(
+        "attachment; filename=CONTROLE_AF0001_FOUR001_M_VS_M-1_"
+    )
     assert calls[0][1] == ("AF0001", "FOUR001")
 
     stub_excel(views_etape_5_0B, "excel_third_suppliers_m_vs_m1", error=RuntimeError("boom"))
@@ -160,7 +179,9 @@ def test_balance_suppliers_purchases_export(logged_client, integration_data, stu
     calls = stub_excel(views_etape_5_1, "excel_balance_suppliers_purchases")
 
     response = logged_client.get(url("balance_suppliers_purchases_export"))
-    assert response["Content-Disposition"].startswith("attachment; filename=CONTROLE_FACTURES_FOURNISSEURS_")
+    assert response["Content-Disposition"].startswith(
+        "attachment; filename=CONTROLE_FACTURES_FOURNISSEURS_"
+    )
     assert calls[0][1] == ({"initial_date": integration_data.validation.billing_period},)
 
     stub_excel(views_etape_5_1, "excel_balance_suppliers_purchases", error=RuntimeError("boom"))
@@ -182,14 +203,16 @@ def test_ca_cct(logged_client, validation_period):
 
 def test_ca_cct_export(logged_client, stub_excel, caplog):
     stub_excel(views_etape_5_3, "excel_ca_cct")
-    assert logged_client.get(url("ca_cct_export"))["Content-Disposition"].startswith("attachment; filename=CONTROLE_CA_CCT_")
+    assert logged_client.get(url("ca_cct_export"))["Content-Disposition"].startswith(
+        "attachment; filename=CONTROLE_CA_CCT_"
+    )
 
     stub_excel(views_etape_5_3, "excel_ca_cct", error=RuntimeError("boom"))
     with caplog.at_level(logging.ERROR, logger="error_views"):
         assert logged_client.get(url("ca_cct_export")).url == url("ca_cct")
 
 
-@pytest.mark.usefixtures('integration_data')
+@pytest.mark.usefixtures("integration_data")
 def test_ca_familly_cct(logged_client):
     response = logged_client.get(url("ca_familly_cct", client="AF0001"))
 
@@ -214,14 +237,22 @@ def test_ca_familly_cct_export(logged_client, stub_excel, caplog):
 
 
 # 5.5 - CONTROLES SAGE =============================================================================
-@pytest.mark.parametrize(("name", "title", "details", "familles"), [
-    ("sage_controls_globals_purchases", "Contrôle Intégration Sage X3 - Achats", None, None),
-    ("validation_purchases_export_globals", "Export Excel", None, None),
-    ("sage_controls_details_purchases", "Contrôle Intégration Sage X3 - Achats", True, None),
-    ("validation_purchases_export_details", "Export Excel", None, None),
-    ("sage_controls_familles_purchases", "Contrôle Intégration Sage X3 - Détails Achats", True, True),
-    ("validation_purchases_export_familles", "Export Excel", None, None),
-])
+@pytest.mark.parametrize(
+    ("name", "title", "details", "familles"),
+    [
+        ("sage_controls_globals_purchases", "Contrôle Intégration Sage X3 - Achats", None, None),
+        ("validation_purchases_export_globals", "Export Excel", None, None),
+        ("sage_controls_details_purchases", "Contrôle Intégration Sage X3 - Achats", True, None),
+        ("validation_purchases_export_details", "Export Excel", None, None),
+        (
+            "sage_controls_familles_purchases",
+            "Contrôle Intégration Sage X3 - Détails Achats",
+            True,
+            True,
+        ),
+        ("validation_purchases_export_familles", "Export Excel", None, None),
+    ],
+)
 def test_sage_controls(logged_client, name, title, details, familles):
     response = logged_client.get(url(name))
 
@@ -238,9 +269,12 @@ def test_invoices_purchases_export_globals(logged_client, stub_excel, caplog):
     assert response.status_code == 200
     assert response.context["titre_table"] == "ACHATS HERON NON FINALISEES"
 
-    response = logged_client.post(url("invoices_purchases_export_globals"), {"download_token": "tok123"})
+    response = logged_client.post(
+        url("invoices_purchases_export_globals"), {"download_token": "tok123"}
+    )
     assert response["Content-Disposition"].startswith("attachment; filename=ACHATS_A_FINALISER_")
-    assert response.cookies["download_complete_tok123"].value == "true"
+    assert "download_complete_tok123" not in response.cookies
+    assert logged_client.session["download_complete_tok123"] is True
     assert len(calls) == 1
 
     stub_excel(views_etape_5_5, "excel_heron_purchases_not_final", error=RuntimeError("boom"))

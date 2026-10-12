@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'envoi d'emails smtp signés DKIM (apps/core/bin/emails.py) et des logs par
+"""FR : Tests de l'envoi d'emails smtp signés DKIM (apps/core/bin/emails.py) et des logs par
+
+
      fichier ou par mail (apps/core/functions/functions_logs.py), sans réseau
 EN : Tests for DKIM signed smtp emails and file / mail logs, without network
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from pathlib import Path
@@ -67,17 +69,21 @@ def smtp(monkeypatch, tmp_path):
     (tmp_path / "env").mkdir()
     (tmp_path / "env" / "dkim.pem").write_text("CLE PRIVEE", encoding="utf8")
 
-    with patched_attrs(monkeypatch, emails.smtplib, SMTP=_smtp), patched_attrs(monkeypatch, emails.dkim, sign=_sign), patched_attrs(
-        monkeypatch,
-        emails,
-        EMAIL_HOST="smtp.test",
-        EMAIL_PORT=587,
-        EMAIL_HOST_USER="heron@test.local",
-        EMAIL_HOST_PASSWORD="secret",
-        DEFAULT_FROM_EMAIL="compta@test.local",
-        ENV_ROOT=str(tmp_path / "env" / ".env"),
-        DOMAIN="test.local",
-        DKIM_PEM_FILE="dkim.pem",
+    with (
+        patched_attrs(monkeypatch, emails.smtplib, SMTP=_smtp),
+        patched_attrs(monkeypatch, emails.dkim, sign=_sign),
+        patched_attrs(
+            monkeypatch,
+            emails,
+            EMAIL_HOST="smtp.test",
+            EMAIL_PORT=587,
+            EMAIL_HOST_USER="heron@test.local",
+            EMAIL_HOST_PASSWORD="secret",
+            DEFAULT_FROM_EMAIL="compta@test.local",
+            ENV_ROOT=str(tmp_path / "env" / ".env"),
+            DOMAIN="test.local",
+            DKIM_PEM_FILE="dkim.pem",
+        ),
     ):
         yield servers
 
@@ -87,13 +93,37 @@ def test_prepare_mail_interpole_le_contexte():
     message = MIMEMultipart()
     body = MIMEMultipart("alternative")
 
-    emails.prepare_mail(message, body, "Facture {numero}", email_html="<p>Bonjour {nom}</p>", context={"numero": "F1", "nom": "Paul"})
+    emails.prepare_mail(
+        message,
+        body,
+        "Facture {numero}",
+        email_html="<p>Bonjour {nom}</p>",
+        context={"numero": "F1", "nom": "Paul"},
+    )
 
     parts = body.get_payload()
     assert message["Subject"] == "Facture F1"
     assert message["From"] == emails.EMAIL_HOST_USER
     assert parts[0].get_payload() == "Bonjour Paul"
     assert parts[1].get_payload() == "<p>Bonjour Paul</p>"
+
+
+def test_prepare_mail_texte_fourni():
+    """Quand l'appelant fournit la version texte, elle est utilisée (formatée) au lieu du html"""
+    message = MIMEMultipart()
+    body = MIMEMultipart("alternative")
+
+    emails.prepare_mail(
+        message,
+        body,
+        "Sujet",
+        email_text="Bonjour {nom}, texte",
+        email_html="<p>Bonjour {nom}</p>",
+        context={"nom": "Paul"},
+    )
+
+    assert body.get_payload()[0].get_payload() == "Bonjour Paul, texte"
+    assert body.get_payload()[1].get_payload() == "<p>Bonjour Paul</p>"
 
 
 def test_prepare_mail_sans_contexte():
@@ -116,7 +146,14 @@ def test_send_mass_mail_envoie_signe_avec_pieces_jointes(smtp, tmp_path):
     attachment = tmp_path / "facture.pdf"
     attachment.write_bytes(b"%PDF")
     email_list = [
-        (["client@test.local"], "Facture {numero}", "", "<p>Facture {numero}</p>", {"numero": "F1"}, [attachment]),
+        (
+            ["client@test.local"],
+            "Facture {numero}",
+            "",
+            "<p>Facture {numero}</p>",
+            {"numero": "F1"},
+            [attachment],
+        ),
         (["a@test.local", "b@test.local"], "Relance", "", "<p>Relance</p>", {}, []),
     ]
 
@@ -150,7 +187,10 @@ def test_send_mass_mail_erreur_smtp(smtp, monkeypatch):
     def _refuse(*_args, **_kwargs):
         raise smtplib.SMTPException("refus")
 
-    with patched_attrs(monkeypatch, emails.smtplib, SMTP=_refuse), pytest.raises(EmailException, match="send_mass_mail"):
+    with (
+        patched_attrs(monkeypatch, emails.smtplib, SMTP=_refuse),
+        pytest.raises(EmailException, match="send_mass_mail"),
+    ):
         emails.send_mass_mail([(["client@test.local"], "Sujet", "", "<p>x</p>", {}, [])])
 
     assert smtp == []
@@ -177,8 +217,18 @@ def test_write_log_cree_le_fichier_et_ajoute_les_lignes(tmp_path):
     ("use_ssl", "use_tls", "expected_class", "expected_calls"),
     [
         (True, False, "SMTP_SSL", ["ehlo", ("login", "heron@test.local", "secret"), "quit"]),
-        (False, True, "SMTP", ["starttls", "ehlo", ("login", "heron@test.local", "secret"), "quit"]),
-        (False, False, "SMTP", ["starttls", "ehlo", ("login", "heron@test.local", "secret"), "quit"]),
+        (
+            False,
+            True,
+            "SMTP",
+            ["starttls", "ehlo", ("login", "heron@test.local", "secret"), "quit"],
+        ),
+        (
+            False,
+            False,
+            "SMTP",
+            ["starttls", "ehlo", ("login", "heron@test.local", "secret"), "quit"],
+        ),
     ],
 )
 def test_envoi_mail_erreur(settings, monkeypatch, use_ssl, use_tls, expected_class, expected_calls):
@@ -199,7 +249,9 @@ def test_envoi_mail_erreur(settings, monkeypatch, use_ssl, use_tls, expected_cla
 
         return _make
 
-    with patched_attrs(monkeypatch, functions_logs.smtplib, SMTP=_factory("SMTP"), SMTP_SSL=_factory("SMTP_SSL")):
+    with patched_attrs(
+        monkeypatch, functions_logs.smtplib, SMTP=_factory("SMTP"), SMTP_SSL=_factory("SMTP_SSL")
+    ):
         functions_logs.envoi_mail_erreur("une erreur", None if use_ssl else "Sujet erreur")
 
     server = created["server"]

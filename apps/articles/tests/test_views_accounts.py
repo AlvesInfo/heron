@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,R0913
-"""
-FR : Tests des vues des articles / comptes (views_article_accounts.py)
+"""FR : Tests des vues des articles / comptes (views_article_accounts.py)
+
+
 EN : Tests for articles accounts views
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import logging
 
 import pytest
@@ -44,7 +46,7 @@ def comptes(make_article, make_article_account, make_account, make_society):
 # LISTE ============================================================================================
 
 
-@pytest.mark.usefixtures('comptes')
+@pytest.mark.usefixtures("comptes")
 def test_liste_articles_comptes(logged_client):
     """Liste paginée avec filtres, titre avec le compte"""
     response = logged_client.get(reverse("articles:articles_account_list"))
@@ -59,8 +61,18 @@ def test_liste_articles_comptes(logged_client):
     assert "(1 article / comptes)" in response.context["titre_table"]
     assert response.context["attrs_filter"] == {"child_center": "GAF"}
 
-    assert logged_client.get(reverse("articles:articles_account_list"), {"page": "99"}).context["articles"].number == 1
-    assert "résultats" not in logged_client.get(reverse("articles:articles_account_list"), {"reference": "ZZZ"}).context["titre_table"]
+    assert (
+        logged_client.get(reverse("articles:articles_account_list"), {"page": "99"})
+        .context["articles"]
+        .number
+        == 1
+    )
+    assert (
+        "résultats"
+        not in logged_client.get(
+            reverse("articles:articles_account_list"), {"reference": "ZZZ"}
+        ).context["titre_table"]
+    )
 
 
 # UPDATE ===========================================================================================
@@ -70,11 +82,20 @@ def test_update_get(logged_client, comptes):
     """Titre et chevron vers la liste, filtres conservés dans l'url de retour"""
     account = comptes["seul_acf"]
 
-    response = logged_client.get(reverse("articles:articles_account_update", args=(account.pk,)), {"child_center": "ACF", "page": "2"})
+    response = logged_client.get(
+        reverse("articles:articles_account_update", args=(account.pk,)),
+        {"child_center": "ACF", "page": "2"},
+    )
 
     assert response.status_code == 200
-    assert response.context["titre_table"] == f"Modification des comptes de l'article {account.article}"
-    assert response.context["chevron_retour"] == reverse("articles:articles_account_list") + "?child_center=ACF&page=2"
+    assert (
+        response.context["titre_table"]
+        == f"Modification des comptes de l'article {account.article}"
+    )
+    assert (
+        response.context["chevron_retour"]
+        == reverse("articles:articles_account_list") + "?child_center=ACF&page=2"
+    )
 
 
 def test_update_get_next_url(logged_client, comptes):
@@ -82,8 +103,13 @@ def test_update_get_next_url(logged_client, comptes):
     account = comptes["seul_acf"]
     url = reverse("articles:articles_account_update", args=(account.pk,))
 
-    assert logged_client.get(url, {"next": "/articles/fiche/"}).context["chevron_retour"] == "/articles/fiche/"
-    assert logged_client.get(url, {"next": "https://evil.example/x"}).context["chevron_retour"] == reverse("articles:articles_account_list")
+    assert (
+        logged_client.get(url, {"next": "/articles/fiche/"}).context["chevron_retour"]
+        == "/articles/fiche/"
+    )
+    assert logged_client.get(url, {"next": "https://evil.example/x"}).context[
+        "chevron_retour"
+    ] == reverse("articles:articles_account_list")
 
 
 def test_update_cree_le_miroir_gaf(logged_client, comptes):
@@ -101,7 +127,9 @@ def test_update_cree_le_miroir_gaf(logged_client, comptes):
     assert response.url == "/retour/"
     assert (account.purchase_account, account.sale_account) == ("601000", "701000")
     assert (mirror.purchase_account, mirror.sale_account) == ("601000", "701000")
-    assert _messages(response) == [f"Les comptes de l'article {account.article} - centrale ACF - tva 001 ont été modifiés avec success, compte GAF créé avec les mêmes comptes"]
+    assert _messages(response) == [
+        f"Les comptes de l'article {account.article} - centrale ACF - tva 001 ont été modifiés avec success, compte GAF créé avec les mêmes comptes"
+    ]
     assert ChangesTrace.objects.filter(model_name="articleaccount", action_type=1).count() == 1
     assert ChangesTrace.objects.filter(model_name="articleaccount", action_type=2).count() == 1
 
@@ -110,7 +138,10 @@ def test_update_aligne_le_miroir_gaf(logged_client, comptes):
     """La ligne GAF existante est alignée et tracée"""
     account = comptes["double_acf"]
 
-    response = logged_client.post(reverse("articles:articles_account_update", args=(account.pk,)), data={"purchase_account": "601000", "sale_account": "707000"})
+    response = logged_client.post(
+        reverse("articles:articles_account_update", args=(account.pk,)),
+        data={"purchase_account": "601000", "sale_account": "707000"},
+    )
 
     mirror = ArticleAccount.objects.get(pk=comptes["double_gaf"].pk)
     assert response.status_code == 302
@@ -123,9 +154,14 @@ def test_update_aligne_le_miroir_gaf(logged_client, comptes):
 def test_update_miroir_deja_identique(logged_client, comptes):
     """Si GAF a déjà les mêmes comptes, aucune trace supplémentaire"""
     account = comptes["double_acf"]
-    ArticleAccount.objects.filter(pk=comptes["double_gaf"].pk).update(purchase_account="601000", sale_account="707000")
+    ArticleAccount.objects.filter(pk=comptes["double_gaf"].pk).update(
+        purchase_account="601000", sale_account="707000"
+    )
 
-    response = logged_client.post(reverse("articles:articles_account_update", args=(account.pk,)), data={"purchase_account": "601000", "sale_account": "707000"})
+    response = logged_client.post(
+        reverse("articles:articles_account_update", args=(account.pk,)),
+        data={"purchase_account": "601000", "sale_account": "707000"},
+    )
 
     assert _messages(response)[0].endswith(", comptes GAF déjà identiques")
     assert ChangesTrace.objects.filter(model_name="articleaccount").count() == 1
@@ -135,7 +171,10 @@ def test_update_de_la_ligne_gaf_elle_meme(logged_client, comptes):
     """Modifier la ligne GAF ne cherche pas de miroir"""
     account = comptes["double_gaf"]
 
-    response = logged_client.post(reverse("articles:articles_account_update", args=(account.pk,)), data={"purchase_account": "601000", "sale_account": "707000"})
+    response = logged_client.post(
+        reverse("articles:articles_account_update", args=(account.pk,)),
+        data={"purchase_account": "601000", "sale_account": "707000"},
+    )
 
     acf = ArticleAccount.objects.get(pk=comptes["double_acf"].pk)
     assert response.status_code == 302
@@ -145,7 +184,10 @@ def test_update_de_la_ligne_gaf_elle_meme(logged_client, comptes):
 
 def test_update_invalide(logged_client, comptes):
     """Compte hors plan FRA refusé"""
-    response = logged_client.post(reverse("articles:articles_account_update", args=(comptes["seul_acf"].pk,)), data={"purchase_account": "000000", "sale_account": "707000"})
+    response = logged_client.post(
+        reverse("articles:articles_account_update", args=(comptes["seul_acf"].pk,)),
+        data={"purchase_account": "000000", "sale_account": "707000"},
+    )
 
     assert response.status_code == 200
     assert "purchase_account" in response.context["form"].errors
@@ -154,7 +196,7 @@ def test_update_invalide(logged_client, comptes):
 # EXPORT PAR FOURNISSEUR ===========================================================================
 
 
-@pytest.mark.usefixtures('comptes')
+@pytest.mark.usefixtures("comptes")
 def test_export_par_fournisseur(logged_client, caplog):
     """GET affiche le formulaire, POST valide renvoie le xlsx, POST invalide journalise"""
     url = reverse("articles:articles_account_supplier_export")
@@ -176,15 +218,21 @@ def test_export_par_fournisseur(logged_client, caplog):
     assert "erreur form" in caplog.text
 
 
-@pytest.mark.usefixtures('comptes')
+@pytest.mark.usefixtures("comptes")
 def test_export_par_fournisseur_en_erreur(logged_client, monkeypatch, caplog):
     """Exception à la génération : journalisée, écran réaffiché"""
 
     def _boom(*_args, **_kwargs):
         raise RuntimeError("xlsx")
 
-    with patched_attrs(monkeypatch, views_article_accounts, response_file=_boom), caplog.at_level(logging.ERROR, logger="export_excel"):
-        response = logged_client.post(reverse("articles:articles_account_supplier_export"), data={"third_party_num": "FOUR001"})
+    with (
+        patched_attrs(monkeypatch, views_article_accounts, response_file=_boom),
+        caplog.at_level(logging.ERROR, logger="export_excel"),
+    ):
+        response = logged_client.post(
+            reverse("articles:articles_account_supplier_export"),
+            data={"third_party_num": "FOUR001"},
+        )
 
     assert response.status_code == 200
     assert "view : articles_account_supplier_export" in caplog.text
@@ -203,7 +251,9 @@ def test_update_articles_accounts_file(logged_client, monkeypatch, caplog):
     assert response.status_code == 200
     assert response.context["titre_table"] == "13. Update des articles / comptes"
 
-    with patched_attrs(monkeypatch, articles_update_account, update_articles_accounts=lambda: ("erreur", "ok")):
+    with patched_attrs(
+        monkeypatch, articles_update_account, update_articles_accounts=lambda: ("erreur", "ok")
+    ):
         response = logged_client.post(url)
 
     assert response.context["messages_errors"] == "erreur"
@@ -212,7 +262,10 @@ def test_update_articles_accounts_file(logged_client, monkeypatch, caplog):
     def _boom():
         raise RuntimeError("répertoire")
 
-    with patched_attrs(monkeypatch, articles_update_account, update_articles_accounts=_boom), caplog.at_level(logging.ERROR, logger="export_excel"):
+    with (
+        patched_attrs(monkeypatch, articles_update_account, update_articles_accounts=_boom),
+        caplog.at_level(logging.ERROR, logger="export_excel"),
+    ):
         response = logged_client.post(url)
 
     assert response.status_code == 200

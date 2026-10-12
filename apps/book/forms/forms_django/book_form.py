@@ -1,6 +1,6 @@
-"""
-FR : Module des formulaires de validation des imports Sage X3
-EN : Sage X3 import validation forms module
+"""FR : Module des formulaires de validation des imports Sage X3.
+
+EN : Sage X3 import validation forms module.
 
 Commentaire:
 
@@ -10,19 +10,23 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
-from psycopg2 import sql
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import connection
+from psycopg2 import sql
 
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.book.models import Society, SupplierCct
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
 class SocietyForm(forms.ModelForm):
+    """Formulaire de création et de modification d'un tiers."""
 
     use_required_attribute = False
+
     def clean(self):
+        """Normalise les identifiants fournisseurs saisis et contrôle les doublons."""
         cleaned_data = super().clean()
 
         if cleaned_data.get("centers_suppliers_indentifier"):
@@ -38,11 +42,11 @@ class SocietyForm(forms.ModelForm):
             with connection.cursor() as cursor:
                 sql_verify = sql.SQL(
                     """
-                    select 
+                    select
                         "third_party_num",
                         "identifier"
                     from (
-                    select 
+                    select
                         "third_party_num" ,
                         unnest(
                             string_to_array("centers_suppliers_indentifier", '|')
@@ -50,7 +54,7 @@ class SocietyForm(forms.ModelForm):
                         from {table} bs
                         where "third_party_num" != %(third_party_num)s
                     ) req
-                    where "identifier" = ANY(%(identifiers)s) 
+                    where "identifier" = ANY(%(identifiers)s)
                     """
                 ).format(
                     table=sql.Identifier(Society._meta.db_table),
@@ -76,6 +80,7 @@ class SocietyForm(forms.ModelForm):
                     raise ValidationError(f"{text_error}")
 
     def __init__(self, *args, **kwargs):
+        """Ajoute le champ d'activation et ajuste les champs facultatifs."""
         super().__init__(*args, **kwargs)
         self.fields["in_use"] = forms.BooleanField(
             required=False,
@@ -116,6 +121,8 @@ class SocietyForm(forms.ModelForm):
         self.fields["invoice_entete"].required = False
 
     class Meta:
+        """Métadonnées Django : modèle et champs du formulaire."""
+
         model = Society
         fields = [
             "third_party_num",
@@ -172,7 +179,7 @@ class SocietyForm(forms.ModelForm):
             "email_05",
             "phone_number_01",
             "mobile_number",
-            "invoice_entete"
+            "invoice_entete",
         ]
 
         widgets = {
@@ -185,7 +192,11 @@ class SocietyForm(forms.ModelForm):
 
 
 class SupplierCctForm(forms.ModelForm):
+    """Formulaire d'identifiant CCT d'un fournisseur."""
+
     class Meta:
+        """Métadonnées Django : modèle et champs du formulaire."""
+
         model = SupplierCct
         fields = [
             "id",
@@ -194,7 +205,11 @@ class SupplierCctForm(forms.ModelForm):
 
 
 class SupplierCctUnitForm(forms.ModelForm):
+    """Formulaire unitaire d'identifiant CCT d'un fournisseur."""
+
     class Meta:
+        """Métadonnées Django : modèle et champs du formulaire."""
+
         model = SupplierCct
         fields = [
             "id",

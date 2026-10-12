@@ -1,8 +1,8 @@
-"""
-FR : Module du modèle de répertoire, des fournisseurs et clients. Les modèles peuvent être liés
+"""FR : Module du modèle de répertoire, des fournisseurs et clients. Les modèles peuvent être liés.
+
      aux modèles Sage de l'application Accountancy, et mis à jours depuis Sage X3
 EN : Directory model module, suppliers and customers. Models can be linked
-     to the Sage models of the Accountancy application, and updated from Sage X3
+     to the Sage models of the Accountancy application, and updated from Sage X3.
 
 Commentaire:
 
@@ -12,17 +12,19 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 import uuid
 
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
-from apps.parameters.models import FlagsTable, Category, SubCategory, UnitChoices
-from apps.accountancy.models import SectionSage, CctSage
+from django.utils.translation import gettext_lazy as _
+
+from apps.accountancy.models import CctSage, SectionSage
+from apps.parameters.models import Category, FlagsTable, SubCategory, UnitChoices
 
 
 class StatFamillyAxes(FlagsTable):
-    """Nommage des statistiques pour réemploi éventuel"""
+    """Nommage des statistiques pour réemploi éventuel."""
 
     name = models.CharField(unique=True, max_length=35, verbose_name="nom")
     description = models.CharField(null=True, blank=True, max_length=80, verbose_name="description")
@@ -32,14 +34,15 @@ class StatFamillyAxes(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.name}"
 
     def get_absolute_url(self):
-        """Retourne l'url en cas de success create, update ou delete"""
+        """Retourne l'url en cas de success create, update ou delete."""
         return reverse("book:statistique_update", args=[self.name])
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
         indexes = [
@@ -50,12 +53,13 @@ class StatFamillyAxes(FlagsTable):
 
 
 class SupplierFamilyAxes(FlagsTable):
-    """Statistiques EDI, pour mettre par défaut les axes_pro, grandes cétagories, rubriques presta,
-    poids, unités et code douaniers quand un nouvel article se présente
+    """Statistiques EDI, pour mettre par défaut les axes_pro, grandes cétagories, rubriques presta,.
+
+    poids, unités et code douaniers quand un nouvel article se présente.
     """
 
     class Unit(models.TextChoices):
-        """Unit choices"""
+        """Unit choices."""
 
         GR = "Grammes", _("Grammes")
         KG = "Kg", _("Kilo")
@@ -122,11 +126,11 @@ class SupplierFamilyAxes(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.stat_name} - {self.invoice_column} - {self.regex_match}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["stat_name", "invoice_column", "regex_match", "expected_result"]
         unique_together = (("stat_name", "invoice_column", "regex_match", "expected_result"),)
@@ -141,9 +145,10 @@ class SupplierFamilyAxes(FlagsTable):
 
 
 class SupplierCct(FlagsTable):
-    """Identificant des CCT pour chaque Fournisseur
+    """Identificant des CCT pour chaque Fournisseur.
+
     FR: Table de couples Fournisseur/Identifiant CCT
-    EN: Table of Supplier/CCT Identifier pairs
+    EN: Table of Supplier/CCT Identifier pairs.
     """
 
     third_party_num = models.ForeignKey(
@@ -167,17 +172,17 @@ class SupplierCct(FlagsTable):
     )
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return (
             f"{self.third_party_num} - {self.cct_uuid_identification.name} - {self.cct_identifier}"
         )
 
     def get_absolute_url(self):
-        """Retourne l'url en cas de success create, update ou delete"""
+        """Retourne l'url en cas de success create, update ou delete."""
         return reverse("book:society_update", args=[self.third_party_num.pk, "alls"])
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["third_party_num", "cct_uuid_identification"]
         unique_together = (("third_party_num", "cct_uuid_identification"),)

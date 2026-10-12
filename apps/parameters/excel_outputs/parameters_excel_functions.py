@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour les Functions
+"""Module d'export du fichier excel pour les Functions.
 
 Commentaire:
 
@@ -11,14 +11,13 @@ modified by: Paulo ALVES
 
 import io
 
-from apps.parameters.models import InvoiceFunctions
-from apps.parameters.excel_outputs.output_excel_filles_columns import columns_list_functions
 from apps.core.excel_outputs.generic_list_export import excel_list_export
+from apps.parameters.excel_outputs.output_excel_filles_columns import columns_list_functions
+from apps.parameters.models import InvoiceFunctions
 
 
 def get_row():
-    """Class qui renvoie les bonnes colonnes pour le fichier Excel"""
-
+    """Class qui renvoie les bonnes colonnes pour le fichier Excel."""
     yield from [
         (
             row.get("function_name"),
@@ -40,7 +39,7 @@ def get_row():
 
 
 def excel_liste_functions(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des Functions"""
+    """Fonction de génération du fichier de liste des Functions."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     columns = columns_list_functions

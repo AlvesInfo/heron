@@ -1,4 +1,5 @@
 """Tests des vues ventes / CA Cosium : exports et resets"""
+
 import datetime
 import logging
 
@@ -25,7 +26,7 @@ def period_sales(make_vente, make_maison, month_period):
 
 
 # EXPORT DES VENTES ================================================================================
-@pytest.mark.usefixtures('period_sales')
+@pytest.mark.usefixtures("period_sales")
 def test_export_sales_cosium_get(logged_client):
     response = logged_client.get(reverse("compta:export_sales_cosium"))
 
@@ -34,9 +35,11 @@ def test_export_sales_cosium_get(logged_client):
     assert response.context["nb_paging"] == 19
 
 
-@pytest.mark.usefixtures('period_sales')
+@pytest.mark.usefixtures("period_sales")
 def test_export_sales_cosium_post(logged_client, month_period):
-    response = logged_client.post(reverse("compta:export_sales_cosium"), {"periode": month_period.value})
+    response = logged_client.post(
+        reverse("compta:export_sales_cosium"), {"periode": month_period.value}
+    )
 
     assert response.status_code == 200
     assert response["Content-Type"].startswith("application/vnd")
@@ -55,10 +58,13 @@ def test_export_sales_cosium_exception(logged_client, month_period, monkeypatch,
     def boom(*args, **kwargs):
         raise RuntimeError("boom")
 
-    with patched_attrs(monkeypatch, ca_cosium_views, response_file=boom), caplog.at_level(
-        logging.ERROR, logger="error_views"
+    with (
+        patched_attrs(monkeypatch, ca_cosium_views, response_file=boom),
+        caplog.at_level(logging.ERROR, logger="error_views"),
     ):
-        response = logged_client.post(reverse("compta:export_sales_cosium"), {"periode": month_period.value})
+        response = logged_client.post(
+            reverse("compta:export_sales_cosium"), {"periode": month_period.value}
+        )
 
     assert response.status_code == 200
     assert "erreur export_sales_cosium" in caplog.text
@@ -74,7 +80,9 @@ def test_export_ca_cosium_get(logged_client):
 
 
 def test_export_ca_cosium_post_sans_ca(logged_client, month_period):
-    response = logged_client.post(reverse("compta:export_ca_cosium"), {"periode": month_period.value})
+    response = logged_client.post(
+        reverse("compta:export_ca_cosium"), {"periode": month_period.value}
+    )
 
     assert response.status_code == 200
     assert "semble ne pas avoir été importé" in response.context["message_ca"]
@@ -82,12 +90,16 @@ def test_export_ca_cosium_post_sans_ca(logged_client, month_period):
 
 def test_export_ca_cosium_post_avec_ca(logged_client, make_ca_client, month_period):
     make_ca_client(date_ca=month_period.dte_f)
-    response = logged_client.post(reverse("compta:export_ca_cosium"), {"periode": month_period.value})
+    response = logged_client.post(
+        reverse("compta:export_ca_cosium"), {"periode": month_period.value}
+    )
 
     assert "CA_PAR_MAISONS_FAMILLES_" in response["Content-Disposition"]
 
 
-def test_export_ca_cosium_formulaire_invalide_et_exception(logged_client, month_period, monkeypatch, caplog):
+def test_export_ca_cosium_formulaire_invalide_et_exception(
+    logged_client, month_period, monkeypatch, caplog
+):
     with caplog.at_level(logging.ERROR, logger="error_views"):
         logged_client.post(reverse("compta:export_ca_cosium"), {"periode": "x"})
 
@@ -96,10 +108,13 @@ def test_export_ca_cosium_formulaire_invalide_et_exception(logged_client, month_
     def boom(*args, **kwargs):
         raise RuntimeError("boom")
 
-    with patched_attrs(monkeypatch, ca_cosium_views.CaClients.objects, filter=boom), caplog.at_level(
-        logging.ERROR, logger="error_views"
+    with (
+        patched_attrs(monkeypatch, ca_cosium_views.CaClients.objects, filter=boom),
+        caplog.at_level(logging.ERROR, logger="error_views"),
     ):
-        response = logged_client.post(reverse("compta:export_ca_cosium"), {"periode": month_period.value})
+        response = logged_client.post(
+            reverse("compta:export_ca_cosium"), {"periode": month_period.value}
+        )
 
     assert response.status_code == 200
     assert "erreur export_ca_cosium" in caplog.text
@@ -123,7 +138,10 @@ def test_reset_clients_in_sales_erreur(logged_client, monkeypatch, caplog):
     def boom(cursor):
         raise RuntimeError("boom")
 
-    with patched_attrs(monkeypatch, ca_cosium_views, set_cct_ventes=boom), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, ca_cosium_views, set_cct_ventes=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         response = logged_client.get(reverse("compta:reset_clients_in_sales"))
 
     assert response.status_code == 302
@@ -146,15 +164,18 @@ def test_reset_exhange_rates_in_sales_get(logged_client):
     assert "taux de change" in response.context["titre_table"]
 
 
-@pytest.mark.usefixtures('subscriptions_in_period')
+@pytest.mark.usefixtures("subscriptions_in_period")
 def test_reset_exhange_rates_in_sales_post(logged_client, month_period, monkeypatch):
     calls = []
     with patched_attrs(
-        monkeypatch, ca_cosium_views,
+        monkeypatch,
+        ca_cosium_views,
         update_exchange_rates=lambda d, f: calls.append(("rates", d, f)),
         set_ca=lambda d, f, user: calls.append(("ca", d, f, user)),
     ):
-        response = logged_client.post(reverse("compta:reset_exhange_rates_in_sales"), {"periode": month_period.value})
+        response = logged_client.post(
+            reverse("compta:reset_exhange_rates_in_sales"), {"periode": month_period.value}
+        )
 
     assert response.status_code == 302
     assert calls == [
@@ -165,7 +186,9 @@ def test_reset_exhange_rates_in_sales_post(logged_client, month_period, monkeypa
     assert logged_client.session["level"] == 20
 
 
-@pytest.mark.parametrize("url_name", ["compta:reset_exhange_rates_in_sales", "compta:reset_sales", "compta:reset_ca"])
+@pytest.mark.parametrize(
+    "url_name", ["compta:reset_exhange_rates_in_sales", "compta:reset_sales", "compta:reset_ca"]
+)
 def test_resets_formulaire_invalide(logged_client, url_name, caplog):
     with caplog.at_level(logging.ERROR, logger="error_views"):
         response = logged_client.post(reverse(url_name), {"periode": "x"})
@@ -175,15 +198,18 @@ def test_resets_formulaire_invalide(logged_client, url_name, caplog):
     assert "erreur form" in caplog.text
 
 
-@pytest.mark.usefixtures('subscriptions_in_period')
+@pytest.mark.usefixtures("subscriptions_in_period")
 def test_reset_sales(logged_client, month_period, monkeypatch):
     calls = []
     with patched_attrs(
-        monkeypatch, ca_cosium_views,
+        monkeypatch,
+        ca_cosium_views,
         force_update_sales=lambda d, f: calls.append("force"),
         set_ca=lambda d, f, user: calls.append("ca"),
     ):
-        response = logged_client.post(reverse("compta:reset_sales"), {"periode": month_period.value})
+        response = logged_client.post(
+            reverse("compta:reset_sales"), {"periode": month_period.value}
+        )
 
     assert response.status_code == 302
     assert response.url == reverse("compta:export_sales_cosium")
@@ -198,12 +224,13 @@ def test_reset_sales_get(logged_client):
     assert response.context["titre_table"] == "Reset des ventes Cosium"
 
 
-@pytest.mark.usefixtures('subscriptions_in_period')
+@pytest.mark.usefixtures("subscriptions_in_period")
 def test_reset_ca(logged_client, month_period, make_ca_client, monkeypatch):
     make_ca_client(date_ca=month_period.dte_f)
     calls = []
     with patched_attrs(
-        monkeypatch, ca_cosium_views,
+        monkeypatch,
+        ca_cosium_views,
         update_exchange_rates=lambda d, f: calls.append("rates"),
         set_ca=lambda d, f, user: calls.append("ca"),
     ):

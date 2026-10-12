@@ -1,4 +1,5 @@
 """Tests de l'import des ventes Cosium depuis la table B.I (SQL réelles)"""
+
 import datetime
 from decimal import Decimal
 
@@ -25,7 +26,7 @@ PERIOD = ("2026-01-01", "2026-01-31")
 def maison_chf(make_maison, make_country, make_exchange_rate):
     """Maison suisse (devise CHF, code_maison AF0001) avec un taux de change pour janvier 2026"""
     pays = make_country("CH", "Suisse", currency_iso="CHF")
-    make_exchange_rate("CHF", datetime.date(2026, 1, 1), Decimal("2"))
+    make_exchange_rate("CHF", datetime.date(2026, 1, 1), Decimal(2))
     return make_maison("AF0001", pays=pays, code_maison="AF0001")
 
 
@@ -44,8 +45,8 @@ def test_insert_ventes_cosium_premier_import(bi_ventes_table, maison_chf):
     assert vente.cct_uuid_identification == maison_chf
     # taux de change : 1/2 = 0.5 ; CA après remise 100 -> 50 €
     assert vente.taux_change_moyen == Decimal("0.5")
-    assert vente.ca_ht_ap_remise_eur == Decimal("50")
-    assert vente.px_vente_ttc_eur == Decimal("60")
+    assert vente.ca_ht_ap_remise_eur == Decimal(50)
+    assert vente.px_vente_ttc_eur == Decimal(60)
     assert ventes["COS2"].cct_uuid_identification is None
 
 
@@ -89,36 +90,40 @@ def test_mise_a_jour_ventes_cosium(bi_ventes_table, make_vente, maison_chf, capl
     """Les lignes B.I absentes des ventes sont ajoutées, les présentes sont ignorées"""
     present = bi_ventes_table()
     missing = bi_ventes_table(code_cosium="COS2")
-    make_vente(id_bi=present, code_cosium="COS1", ca_ht_ap_remise=Decimal("7"))
+    make_vente(id_bi=present, code_cosium="COS1", ca_ht_ap_remise=Decimal(7))
 
     with caplog.at_level("INFO", logger="import"):
         mise_a_jour_ventes_cosium()
 
     assert sorted(VentesCosium.objects.values_list("id_bi", flat=True)) == [present, missing]
-    assert VentesCosium.objects.get(id_bi=present).ca_ht_ap_remise == Decimal("7")
+    assert VentesCosium.objects.get(id_bi=present).ca_ht_ap_remise == Decimal(7)
     assert VentesCosium.objects.get(id_bi=missing).cct_uuid_identification == maison_chf
 
 
 def test_update_exchange_rates(make_vente, maison_chf):
-    vente = make_vente(cct_uuid_identification=maison_chf, ca_ht_ap_remise=Decimal("100"), ca_ht_ap_remise_eur=None)
+    vente = make_vente(
+        cct_uuid_identification=maison_chf, ca_ht_ap_remise=Decimal(100), ca_ht_ap_remise_eur=None
+    )
     hors_periode = make_vente(
-        cct_uuid_identification=maison_chf, date_vente=datetime.date(2026, 2, 10),
-        sale_month=datetime.date(2026, 2, 1), ca_ht_ap_remise_eur=None,
+        cct_uuid_identification=maison_chf,
+        date_vente=datetime.date(2026, 2, 10),
+        sale_month=datetime.date(2026, 2, 1),
+        ca_ht_ap_remise_eur=None,
     )
 
     update_exchange_rates(*PERIOD)
 
     vente.refresh_from_db()
     hors_periode.refresh_from_db()
-    assert vente.ca_ht_ap_remise_eur == Decimal("50")
-    assert vente.pv_net_unitaire_eur == Decimal("50")
+    assert vente.ca_ht_ap_remise_eur == Decimal(50)
+    assert vente.pv_net_unitaire_eur == Decimal(50)
     assert hors_periode.ca_ht_ap_remise_eur is None
 
 
 def test_force_update_sales(bi_ventes_table, make_vente, maison_chf):
     """Les ventes de la période sont remplacées par celles de la B.I, cct et taux recalculés"""
-    bi_ventes_table(code_maison="AF0001", ca_ht_ap_remise=Decimal("300"))
-    make_vente(id_bi=5, code_cosium="ANCIENNE", ca_ht_ap_remise=Decimal("1"))
+    bi_ventes_table(code_maison="AF0001", ca_ht_ap_remise=Decimal(300))
+    make_vente(id_bi=5, code_cosium="ANCIENNE", ca_ht_ap_remise=Decimal(1))
     hors_periode = make_vente(date_vente=datetime.date(2025, 12, 5), code_cosium="DEC")
 
     force_update_sales(*PERIOD)
@@ -127,7 +132,7 @@ def test_force_update_sales(bi_ventes_table, make_vente, maison_chf):
     assert codes == {"COS1", "DEC"}
     vente = VentesCosium.objects.get(code_cosium="COS1")
     assert vente.cct_uuid_identification == maison_chf
-    assert vente.ca_ht_ap_remise_eur == Decimal("150")
+    assert vente.ca_ht_ap_remise_eur == Decimal(150)
     assert VentesCosium.objects.get(pk=hors_periode.pk).code_cosium == "DEC"
 
 

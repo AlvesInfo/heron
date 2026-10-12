@@ -1,6 +1,6 @@
-"""
-FR : Module core des parametrages
-EN : Core module parameters
+"""FR : Module core des parametrages.
+
+EN : Core module parameters.
 
 Commentaire:
 
@@ -11,27 +11,26 @@ modified at: 2022-12-27
 modified by: Paulo ALVES
 """
 
-from typing import Any, AnyStr, Dict
 from datetime import timedelta
+from typing import Any
 
 import pendulum
-from django_celery_results.models import TaskResult
-from django.utils import timezone
-from django.db import close_old_connections, connection
-from django.contrib import messages
 from asgiref.sync import sync_to_async
+from django.contrib import messages
+from django.db import close_old_connections, connection
+from django.utils import timezone
+from django_celery_results.models import TaskResult
 
-from apps.core.exceptions import LaunchDoesNotExistsError
-from apps.core.functions.functions_utilitaires import get_module_object
 from apps.book.models import Society
 from apps.centers_clients.models import Maison
+from apps.core.exceptions import LaunchDoesNotExistsError
+from apps.core.functions.functions_utilitaires import get_module_object
 from apps.parameters.models import (
     ActionInProgress,
-    InvoiceFunctions,
     Counter,
     CounterNums,
+    InvoiceFunctions,
 )
-
 
 DATE_FORMATS = {
     "AAAAMM": "YYYYMM",
@@ -45,10 +44,11 @@ AFFIX_KINDS = ("TIERS", "CCT")
 
 
 def _get_code(kind: str, attr_instance: Any) -> str | None:
-    """Retourne le code du tiers ou du cct, sans espaces
+    """Retourne le code du tiers ou du cct, sans espaces.
+
     :param kind: "TIERS" ou "CCT"
     :param attr_instance: n° de tiers à retrouver
-    :return: le code, ou None s'il n'existe pas
+    :return: le code, ou None s'il n'existe pas.
     """
     try:
         if kind == "TIERS":
@@ -62,11 +62,12 @@ def _get_code(kind: str, attr_instance: Any) -> str | None:
 
 
 def _affixed_code(name: str, kind: str, attr_instance: Any) -> str:
-    """Retourne le texte pour les noms de type KIND, KIND_xxx ou xxx_KIND
+    """Retourne le texte pour les noms de type KIND, KIND_xxx ou xxx_KIND.
+
     :param name: nom du préfix ou du suffix
     :param kind: "TIERS" ou "CCT"
     :param attr_instance: n° de tiers à retrouver
-    :return: le texte du préfix ou du suffix
+    :return: le texte du préfix ou du suffix.
     """
     parts = name.split("_")
 
@@ -90,11 +91,12 @@ def _affixed_code(name: str, kind: str, attr_instance: Any) -> str:
     return f"{before}{code}{after}"
 
 
-def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
-    """Retourne le texte de la attr_instance souhaitée dans le préfix ou le suffix
+def get_pre_suf(name: str, attr_instance: Any | None = None) -> str:
+    """Retourne le texte de la attr_instance souhaitée dans le préfix ou le suffix.
+
     :param name: nom du préfix ou du suffix
     :param attr_instance: attr_instance à retrouver, soit une date, soit un tiers, soit un cct
-    :return: le texte du préfix ou du suffix
+    :return: le texte du préfix ou du suffix.
     """
     if name in DATE_FORMATS:
         date = attr_instance or pendulum.now()
@@ -107,8 +109,8 @@ def get_pre_suf(name: AnyStr, attr_instance: Any = None) -> str:
     return name or ""
 
 
-def get_action(action: AnyStr = "import_edi_invoices"):
-    """Récupération de l'état d'action"""
+def get_action(action: str = "import_edi_invoices"):
+    """Récupération de l'état d'action."""
     # action_dict = {"action": "comment", ...}
     action_dict = {
         "import_edi_invoices": "Executable pour l'import des fichiers edi des factures founisseurs",
@@ -133,7 +135,7 @@ def get_action(action: AnyStr = "import_edi_invoices"):
 
 
 def get_in_progress(action="import_edi_invoices", task_name="suppliers_import"):
-    """Renvoi si un process d'intégration edi est en cours"""
+    """Renvoi si un process d'intégration edi est en cours."""
     try:
         in_action_object = ActionInProgress.objects.get(action=action)
         in_action = in_action_object.in_progress
@@ -155,7 +157,7 @@ def get_in_progress(action="import_edi_invoices", task_name="suppliers_import"):
 
 
 def get_actions_in_progress():
-    """Renvoi si un process est edi est en cours"""
+    """Renvoi si un process est edi est en cours."""
     in_action = ActionInProgress.objects.filter(in_progress=True).exists()
 
     # On contrôle si une tâche est réellement en cours pour éviter les faux positifs
@@ -168,8 +170,9 @@ def get_actions_in_progress():
     return in_action
 
 
-def get_object(task_to_launch: AnyStr):
-    """Retourne la fonction à lancer
+def get_object(task_to_launch: str):
+    """Retourne la fonction à lancer.
+
     :param task_to_launch: Tâche à lancer
     :return:
     """
@@ -186,9 +189,10 @@ def get_object(task_to_launch: AnyStr):
 
 
 def initial_counter_nums(counter_instance: Counter):
-    """Initialise un compteur s'il n'existe pas
+    """Initialise un compteur s'il n'existe pas.
+
     :param counter_instance: instance du model Counter
-    :return: None
+    :return: None.
     """
     try:
         obj = CounterNums.objects.get(counter=counter_instance)
@@ -199,11 +203,12 @@ def initial_counter_nums(counter_instance: Counter):
     return obj
 
 
-def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) -> str:
-    """Retourne la numérotation
+def get_counter_num(counter_instance: Counter, attr_instance_dict: dict | None = None) -> str:
+    """Retourne la numérotation.
+
     :param counter_instance: instance du compteur à appliquer
     :param attr_instance_dict: dictonaire des valeurs des attr_instance à appliquer
-    :return: la numérotation demandée
+    :return: la numérotation demandée.
     """
     if attr_instance_dict is None:
         attr_instance_dict = {}
@@ -221,14 +226,10 @@ def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) 
     separateur = counter_instance.separateur or attr_instance_dict.get("separateur", "")
 
     if prefix:
-        str_num += (
-            get_pre_suf(name=prefix, attr_instance=attr_instance_prefix) + separateur
-        )
+        str_num += get_pre_suf(name=prefix, attr_instance=attr_instance_prefix) + separateur
 
     if suffix:
-        str_num += (
-            get_pre_suf(name=suffix, attr_instance=attr_instance_suffix) + separateur
-        )
+        str_num += get_pre_suf(name=suffix, attr_instance=attr_instance_suffix) + separateur
 
     str_num += str(counter_num_obj.num).zfill(ldap_num)
 
@@ -239,37 +240,27 @@ def get_counter_num(counter_instance: Counter, attr_instance_dict: Dict = None) 
 
 
 def have_action_in_progress():
-    """Retourne si une action est en cours, dans la table des paramètres ou dans les process celery"""
-    in_progress = False
-
+    """Retourne si une action est en cours, dans la table des paramètres ou dans les process celery."""
     with connection.cursor() as cursor:
         sql_action = """
             SELECT EXISTS (
-                SELECT 1 
+                SELECT 1
                 FROM parameters_actioninprogress
                 WHERE in_progress
-            ) 
+            )
             OR EXISTS (
-                SELECT 1 
+                SELECT 1
                 FROM django_celery_results_taskresult
                 WHERE status = 'STARTED'
                 AND date_created > NOW() - INTERVAL '2 hours'
             ) AS data_exists
         """
         cursor.execute(sql_action)
-        in_progress = cursor.fetchone()[0]
-
-    return in_progress
+        return cursor.fetchone()[0]
 
 
 def have_send_email_without_finalize():
-    """
-    Contrôle que la facturation soit finalizée, pour les factures envoyées par mail
-    :return: True si finalisé sinon False
-
-    """
-    have_send = False
-
+    """Contrôle que la facturation soit finalizée, pour les factures envoyées par mail."""
     with connection.cursor() as cursor:
         sql_control = """
         SELECT EXISTS (
@@ -280,35 +271,26 @@ def have_send_email_without_finalize():
         ) AS have_send
         """
         cursor.execute(sql_control)
-        have_send = cursor.fetchone()[0]
-
-    return have_send
+        return cursor.fetchone()[0]
 
 
 def have_subscription(subscription_name: str) -> bool:
-    """
-    Contrôle que la facturation soit finalizée, pour les factures envoyées par mail
-    :return: True si finalisé sinon False
-
-    """
-    have_subscription_name = False
-
+    """Contrôle que la facturation soit finalizée, pour les factures envoyées par mail."""
     with connection.cursor() as cursor:
         sql_control = """
         SELECT EXISTS (
-            SELECT 1 
+            SELECT 1
             FROM centers_clients_maisonsubcription
             WHERE "function" = %(subscription_name)s
             LIMIT 1
         ) AS have_subscription
         """
         cursor.execute(sql_control, {"subscription_name": subscription_name})
-        have_subscription_name = cursor.fetchone()[0]
-
-    return have_subscription_name
+        return cursor.fetchone()[0]
 
 
 def set_message(request, level, message):
+    """Ajoute un message Django et mémorise son niveau en session."""
     request.session["level"] = level
     messages.add_message(request, level, message)
 
@@ -328,6 +310,4 @@ def _get_in_progress_with_cleanup(*args, **kwargs):
 # thread_sensitive=False permet l'exécution parallèle dans des threads séparés
 # et évite-les deadlocks en production sur Linux
 # Le wrapper _get_in_progress_with_cleanup ferme les connexions après chaque appel
-get_in_progress_async = sync_to_async(
-    _get_in_progress_with_cleanup, thread_sensitive=False
-)
+get_in_progress_async = sync_to_async(_get_in_progress_with_cleanup, thread_sensitive=False)

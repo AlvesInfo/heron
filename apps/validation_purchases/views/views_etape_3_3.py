@@ -1,25 +1,27 @@
+"""Vues de l'étape 3.3 de la validation des achats : nouveaux clients."""
+
 import pendulum
 from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.http import JsonResponse
 from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from apps.edi.models import EdiValidation
 from apps.validation_purchases.excel_outputs.excel_clients_news import (
     excel_clients_news,
 )
-from apps.edi.models import EdiValidation
 from apps.validation_purchases.forms import ClientsNewsValidationForm
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 3.3 - Contrôle nouveaux clients
 
 
 def clients_news_purchases(request):
-    """View de l'étape 3.3 des écrans de contrôles"""
+    """View de l'étape 3.3 des écrans de contrôles."""
     context = {
         "titre_table": "3.3 - Contrôle des nouveaux clients",
         "clients_news_validation": EdiValidation.objects.filter(
@@ -31,14 +33,16 @@ def clients_news_purchases(request):
 
 
 def clients_news_purchases_export(request):
-    """Export Excel du Contrôle des nouveaux clients
+    """Export Excel du Contrôle des nouveaux clients.
+
     :param request: Request Django
-    :return: response_file"""
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                "CONTROLE_NOUVEAUX_CLIENTS_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+                f"CONTROLE_NOUVEAUX_CLIENTS_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
 
             return response_file(
@@ -54,8 +58,7 @@ def clients_news_purchases_export(request):
 
 
 def clients_news_validation(request):
-    """Validation de l'écran de Contrôle des nouveaux clients"""
-
+    """Validation de l'écran de Contrôle des nouveaux clients."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -88,12 +91,10 @@ def clients_news_validation(request):
                 message = "Le contrôle des nouveaux clients est maintenant invalidé"
 
         except Exception:
-            LOGGER_VIEWS.exception(f"Views : clients_news_validation error : {form.cleaned_data!r}")
+            LOGGER_VIEWS.exception("Views : clients_news_validation error : %r", form.cleaned_data)
 
     else:
-        LOGGER_VIEWS.error(
-            f"Views : clients_news_validation error, form invalid : {form.errors!r}"
-        )
+        LOGGER_VIEWS.error("Views : clients_news_validation error, form invalid : %r", form.errors)
 
     messages.add_message(request, level, message)
 

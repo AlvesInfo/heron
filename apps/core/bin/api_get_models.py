@@ -1,6 +1,6 @@
-"""
-FR : Module de traitement des nouveaux articles pour dans la table articles avec new_article = true
-EN : New article processing module for in articles table with new_article = true
+"""FR : Module de traitement des nouveaux articles pour dans la table articles avec new_article = true.
+
+EN : New article processing module for in articles table with new_article = true.
 
 Commentaire:
 
@@ -10,9 +10,8 @@ created by: Paulo ALVES
 modified at: 2023-03-18
 modified by: Paulo ALVES
 """
-from typing import AnyStr
 
-from django.db.models import CharField, Value, Case, When, Q, F
+from django.db.models import Case, CharField, F, Q, QuerySet, Value, When
 from django.db.models.functions import Concat
 
 from apps.accountancy.models import AccountSage
@@ -22,11 +21,11 @@ from apps.centers_clients.models import Maison
 from apps.parameters.models import UnitChoices
 
 
-def get_articles_alls(third_party_num: AnyStr = None) -> Article.objects:
-    """
-    Retourne l'ensemble des Articles
+def get_articles_alls(third_party_num: str | None = None) -> QuerySet:
+    """Retourne l'ensemble des Articles.
+
     :param third_party_num: Tiers X3
-    :return: queryset of dict
+    :return: queryset of dict.
     """
     queryset = Article.objects.annotate(
         str_search=Concat(
@@ -62,12 +61,12 @@ def get_articles_alls(third_party_num: AnyStr = None) -> Article.objects:
     return queryset.filter(third_party_num=third_party_num)
 
 
-def get_articles(str_query: AnyStr, third_party_num: AnyStr = None) -> Article.objects:
-    """
-    Recherche par API des Articles
+def get_articles(str_query: str, third_party_num: str | None = None) -> QuerySet:
+    """Recherche par API des Articles.
+
     :param str_query: Texte à rechercher pour l'api dropdown
     :param third_party_num: Tiers X3 pour filtrer davantage
-    :return: queryset of dict
+    :return: queryset of dict.
     """
     queryset = get_articles_alls()
 
@@ -88,12 +87,12 @@ def get_articles(str_query: AnyStr, third_party_num: AnyStr = None) -> Article.o
     return queryset.filter(str_search__icontains=str_query)[:50]
 
 
-def get_societies_alls() -> Society.objects:
+def get_societies_alls() -> QuerySet:
+    """Recherche par API des tiers.
+
+    :return: queryset of dict.
     """
-    Recherche par API des tiers
-    :return: queryset of dict
-    """
-    queryset = Society.objects.annotate(
+    return Society.objects.annotate(
         str_search=Concat(
             "third_party_num",
             Value("|"),
@@ -121,26 +120,24 @@ def get_societies_alls() -> Society.objects:
         ),
     ).values("pk", "model")
 
-    return queryset
 
+def get_societies(str_query: str) -> QuerySet:
+    """Recherche par API des tiers.
 
-def get_societies(str_query: AnyStr) -> Society.objects:
-    """
-    Recherche par API des tiers
     :param str_query: Texte à rechercher pour l'api dropdown
-    :return: queryset of dict
+    :return: queryset of dict.
     """
     queryset = get_societies_alls()
 
     return queryset.filter(str_search__icontains=str_query)[:50]
 
 
-def get_maisons_alls() -> Maison.objects:
+def get_maisons_alls() -> QuerySet:
+    """Recherche par API des CCT / Maisons.
+
+    :return: queryset of dict.
     """
-    Recherche par API des CCT / Maisons
-    :return: queryset of dict
-    """
-    queryset = Maison.objects.annotate(
+    return Maison.objects.annotate(
         str_search=Concat(
             "cct",
             Value("|"),
@@ -170,36 +167,34 @@ def get_maisons_alls() -> Maison.objects:
         ),
     ).values("pk", "model")
 
-    return queryset
 
+def get_maisons(str_query: str) -> QuerySet:
+    """Recherche par API des CCT / Maisons.
 
-def get_maisons(str_query: AnyStr) -> Maison.objects:
-    """
-    Recherche par API des CCT / Maisons
     :param str_query: Texte à rechercher pour l'api dropdown
-    :return: queryset of dict
+    :return: queryset of dict.
     """
     queryset = get_maisons_alls()
 
     return queryset.filter(str_search__icontains=str_query)[:50]
 
 
-def get_maisons_in_use(str_query: AnyStr) -> Maison.objects:
-    """
-    Recherche par API des CCT / Maisons des maisons non fermées ou plus utilisées
+def get_maisons_in_use(str_query: str) -> QuerySet:
+    """Recherche par API des CCT / Maisons des maisons non fermées ou plus utilisées.
+
     :param str_query: Texte à rechercher pour l'api dropdown
-    :return: queryset of dict
+    :return: queryset of dict.
     """
     queryset = get_maisons_alls()
 
     return queryset.filter(closing_date__isnull=True, str_search__icontains=str_query)[:50]
 
 
-def get_cct_in_use_active(str_query: AnyStr) -> Maison.objects:
-    """
-    Recherche par API des CCT / Maisons des maisons non fermées ou inactives
+def get_cct_in_use_active(str_query: str) -> QuerySet:
+    """Recherche par API des CCT / Maisons des maisons non fermées ou inactives.
+
     :param str_query: Texte à rechercher pour l'api dropdown
-    :return: queryset of dict
+    :return: queryset of dict.
     """
     queryset = (
         Maison.objects.annotate(
@@ -238,37 +233,35 @@ def get_cct_in_use_active(str_query: AnyStr) -> Maison.objects:
     return queryset[:50]
 
 
-def get_unity_alls() -> UnitChoices.objects:
+def get_unity_alls() -> QuerySet:
+    """Recherche par API des Unitées.
+
+    :return: queryset of dict.
     """
-    Recherche par API des Unitées
-    :return: queryset of dict
-    """
-    queryset = UnitChoices.objects.annotate(
+    return UnitChoices.objects.annotate(
         str_search=F("unity"),
         pk=F("num"),
         model=F("unity"),
     ).values("num", "unity")
 
-    return queryset
 
+def get_unity(str_query: str) -> QuerySet:
+    """Recherche par API des Unitées.
 
-def get_unity(str_query: AnyStr) -> UnitChoices.objects:
-    """
-    Recherche par API des Unitées
     :param str_query: Texte à rechercher pour l'api dropdown
-    :return: queryset of dict
+    :return: queryset of dict.
     """
     queryset = get_unity_alls()
 
     return queryset.filter(str_search__icontains=str_query)
 
 
-def get_accounts_alls() -> AccountSage.objects:
+def get_accounts_alls() -> QuerySet:
+    """Recherche par API des Comptes Sage X3.
+
+    :return: queryset of dict.
     """
-    Recherche par API des Comptes Sage X3
-    :return: queryset of dict
-    """
-    queryset = AccountSage.objects.annotate(
+    return AccountSage.objects.annotate(
         str_search=Concat(
             "account",
             Value(" - "),
@@ -284,14 +277,12 @@ def get_accounts_alls() -> AccountSage.objects:
         ),
     ).values("pk", "model")
 
-    return queryset
 
+def get_account(str_query: str) -> QuerySet:
+    """Recherche par API des Comptes Sage X3.
 
-def get_account(str_query: AnyStr) -> AccountSage.objects:
-    """
-    Recherche par API des Comptes Sage X3
     :param str_query: Texte à rechercher pour l'api dropdown
-    :return: queryset of dict
+    :return: queryset of dict.
     """
     queryset = get_accounts_alls()
 

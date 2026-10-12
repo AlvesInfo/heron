@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql, pour les factures de ventes Publicite
-EN : Module of sql queries, for sales Publicity invoices
+"""FR : Module des requêtes sql, pour les factures de ventes Publicite.
+
+EN : Module of sql queries, for sales Publicity invoices.
 
 Commentaire:
 
@@ -10,16 +10,17 @@ created by: Paulo ALVES
 modified at: 2023-03-16
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 SQL_HEADER = sql.SQL(
     """
-    select 
+    select
         "ii"."supplier_initial_libelle" as "libelle",
-        case 
+        case
             when "ii"."unit_weight" = '%%'
-            then ("ii"."qty" * 100)::numeric 
-            else "ii"."qty" 
+            then ("ii"."qty" * 100)::numeric
+            else "ii"."qty"
         end as "qty" ,
         "ii"."unit_weight",
         "sd"."net_unit_price" as "base",
@@ -30,17 +31,17 @@ SQL_HEADER = sql.SQL(
         "sd"."amount_with_vat"
     from "invoices_saleinvoicedetail" "sd"
     join "invoices_invoicecommondetails" as "ii"
-    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification" 
+    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification"
     join "book_society" "bs"
-    on "bs"."third_party_num" = "ii"."third_party_num" 
+    on "bs"."third_party_num" = "ii"."third_party_num"
     where "uuid_invoice" = %(uuid_invoice)s
     order by "ii"."libelle" desc
     """
 )
 
 SQL_RESUME_HEADER = sql.SQL(
-    """    
-    select 
+    """
+    select
         sum("mont_00") as "net_mont_00",
         sum("mont_20") as "mont_20",
         sum("net_amount") as "net_amount",
@@ -51,7 +52,7 @@ SQL_RESUME_HEADER = sql.SQL(
         sum("ttc_vat_20") as "ttc_vat_20",
         sum("amount_with_vat") as "amount_with_vat"
     from (
-        select 
+        select
             case when "sd"."vat_rate" = 0 then "sd"."net_amount" else 0 end as "mont_00",
             case when "sd"."vat_rate" != 0 then "sd"."net_amount" else 0 end as "mont_20",
             "sd"."net_amount",
@@ -63,11 +64,10 @@ SQL_RESUME_HEADER = sql.SQL(
             "sd"."amount_with_vat"
         from "invoices_saleinvoicedetail" "sd"
         join "invoices_invoicecommondetails" as "ii"
-        on "ii"."import_uuid_identification" = "sd"."import_uuid_identification" 
+        on "ii"."import_uuid_identification" = "sd"."import_uuid_identification"
         join "book_society" "bs"
-        on "bs"."third_party_num" = "ii"."third_party_num" 
+        on "bs"."third_party_num" = "ii"."third_party_num"
         where "uuid_invoice" = %(uuid_invoice)s
     ) "head"
     """
 )
-

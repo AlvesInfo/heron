@@ -1,6 +1,6 @@
-"""
-FR : Module du modèle des maisons
-EN : Houses model module
+"""FR : Module du modèle des maisons.
+
+EN : Houses model module.
 
 Commentaire:
 
@@ -10,12 +10,12 @@ created by: Paulo ALVES
 modified at: 2022-04-07
 modified by: Paulo ALVES
 """
-from copy import deepcopy
+
 import os
 import platform
 import sys
-from datetime import datetime
 import time
+from copy import deepcopy
 
 import django
 
@@ -31,22 +31,23 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 from django.db import connection
+from django.utils import timezone
 
-from apps.countries.models import Country
 from apps.centers_clients.models import MaisonBi
+from apps.countries.models import Country
 
 
 def import_maisons_bi():
-    """Import des maisons depuis la B.I Acuitis et Direct Optic"""
+    """Import des maisons depuis la B.I Acuitis et Direct Optic."""
     with connection.cursor() as cursor:
         sql_maisons = """
         select
             left("code_maison", 30) as "code_maison",
             left("intitule", 50) as "intitule",
-            case 
-                when "affaire"='' or "affaire" isnull 
+            case
+                when "affaire"='' or "affaire" isnull
                 then left("intitule_court", 20)
-                else left("affaire", 20) 
+                else left("affaire", 20)
             end as "intitule_court",
             left("code_cosium", 30) as "code_cosium",
             left("reference_cosium", 30) as "reference_cosium",
@@ -61,20 +62,20 @@ def import_maisons_bi():
             left("telephone", 25) as "telephone",
             left("email", 85) as "email"
         from heron_bi_maisons
-        
+
         union
-        
+
         select
-            case 
-                when left(code_maison, 2) = 'DO' 
+            case
+                when left(code_maison, 2) = 'DO'
                 then left("code_maison", 30)
                 else 'DO'||left("code_maison", 28)
             end  as "code_maison",
             left("intitule", 50) as "intitule",
-            case 
-                when "affaire"='' or "affaire" isnull 
+            case
+                when "affaire"='' or "affaire" isnull
                 then left("intitule_court", 20)
-                else left("affaire", 20) 
+                else left("affaire", 20)
             end as "intitule_court",
             left("code_cosium", 30) as "code_cosium",
             '' as "reference_cosium",
@@ -109,10 +110,11 @@ def import_maisons_bi():
             "telephone",
             "email",
         ]
-        i = 0
 
-        for i, maison in enumerate(cursor.fetchall(), 1):
-            maison_dict = dict(zip(list_fields, maison))
+        rows = cursor.fetchall()
+
+        for row in rows:
+            maison_dict = dict(zip(list_fields, row, strict=False))
 
             try:
                 maison_dict["pays"] = Country.objects.get(country=maison_dict.get("pays"))
@@ -146,12 +148,12 @@ def import_maisons_bi():
                     .first()
                 )
                 maison_test = deepcopy(maison_dict)
-                maison_test["pays"] = maison_test.get("pays").country
+                maison_test["pays"] = maison_test["pays"].country
 
                 if maison != maison_test:
                     MaisonBi.objects.filter(code_maison=maison_dict.get("code_maison")).update(
                         **{
-                            **{"is_modify": True},
+                            "is_modify": True,
                             **{
                                 key: value
                                 for key, value in maison_dict.items()
@@ -160,13 +162,12 @@ def import_maisons_bi():
                         }
                     )
 
-        return f"{str(i)} maisons importées ou mises à jour"
+        return f"{len(rows)!s} maisons importées ou mises à jour"
 
 
 if __name__ == "__main__":
-
     while True:
-        maintenant = datetime.now()
+        maintenant = timezone.localtime()
         heure = maintenant.hour
         minute = maintenant.minute
 

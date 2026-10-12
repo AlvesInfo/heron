@@ -1,5 +1,4 @@
-"""
-FR: Module utilitaire pour les progress bar
+"""FR: Module utilitaire pour les progress bar.
 
 Commentaire:
 
@@ -12,12 +11,12 @@ modified by: Paulo ALVES
 
 from django.db import transaction
 
-from heron.loggers import LOGGER_DJANGO
 from apps.core.models import SSEProgress
+from heron.loggers import LOGGER_DJANGO
 
 
 def update_progress_threaded(job_id: str, **kwargs):
-    """Met à jour le SSEProgress avec un commit immédiat dans une transaction séparée"""
+    """Met à jour le SSEProgress avec un commit immédiat dans une transaction séparée."""
     with transaction.atomic():
         progress = SSEProgress.objects.select_for_update().get(job_id=job_id)
         try:
@@ -30,4 +29,4 @@ def update_progress_threaded(job_id: str, **kwargs):
             else:
                 progress.update_progress(**kwargs)
         except TypeError:
-            LOGGER_DJANGO.exception(f"update_progress_threaded : arguments invalides {kwargs!r}")
+            LOGGER_DJANGO.exception("update_progress_threaded : arguments invalides %r", kwargs)

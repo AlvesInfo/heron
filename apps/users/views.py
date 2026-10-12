@@ -1,41 +1,43 @@
-"""
-Views de l'app users : connexion, création et profil des utilisateurs, gestion des groupes,
-intégration en masse des Admin délégués (csv) et des utilisateurs (excel)
-"""
-import json
-from datetime import datetime as dt
+"""Views de l'app users : connexion, création et profil des utilisateurs, gestion des groupes,.
 
-from django.views.generic.edit import FormView
-from django.db import transaction, connection
-from django.http import JsonResponse
+intégration en masse des Admin délégués (csv) et des utilisateurs (excel).
+"""
+
+import json
+from typing import Any
+
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from django.views.decorators.http import require_http_methods
-from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.sessions.models import Session
+from django.db import connection, transaction
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.http import require_http_methods
+from django.views.generic.edit import FormView
 
-from apps.users.models import User, UserSession, AuthGroupName, UploadUserFile, AuthGroupAccessStaff
-from apps.users.forms.forms_django.forms import (
-    UserLoginForm,
-    UserRegisterForm,
-    UpdateProfilForm,
-    UpdateGroupesForm,
-    InsertStaffsForm,
-    UploadStaffsForm,
-    GroupAccessStaffForm,
-    ChangeEmailForm,
-)
-from apps.users.bin.insert_staffs import set_insert_staffs, delete_upload_file
-from apps.users.bin.file_insert_users import set_insert_users
-from apps.users.Exceptions import UsersError
-from apps.core.functions.functions_logs import LOG_FILE, write_log, envoi_mail_erreur
+from apps.core.functions.functions_http import check_next_page, is_ajax
+from apps.core.functions.functions_logs import LOG_FILE, envoi_mail_erreur, write_log
 from apps.core.functions.functions_sql import clean_id
 from apps.core.functions.functions_utilitaires import get_client_ip
-from apps.core.functions.functions_http import check_next_page, is_ajax
+from apps.users.bin.file_insert_users import set_insert_users
+from apps.users.bin.insert_staffs import delete_upload_file, set_insert_staffs
+from apps.users.Exceptions import UsersError
+from apps.users.forms.forms_django.forms import (
+    ChangeEmailForm,
+    GroupAccessStaffForm,
+    InsertStaffsForm,
+    UpdateGroupesForm,
+    UpdateProfilForm,
+    UploadStaffsForm,
+    UserLoginForm,
+    UserRegisterForm,
+)
+from apps.users.models import AuthGroupAccessStaff, AuthGroupName, UploadUserFile, User, UserSession
 from heron.loggers import LOGGER_CONNEXION
 
 # Bouton natif sans habillage : seule l'icône corbeille est visible (même style que les gabarits)
@@ -48,7 +50,7 @@ USERS_INSERT = 0
 
 
 def _user_log(user, request):
-    """Partie commune des messages de log de connexion"""
+    """Partie commune des messages de log de connexion."""
     return (
         f"mail : {user.email} - nom: {user.last_name} - prénom : {user.first_name} - "
         f"ip : {get_client_ip(request)}"
@@ -56,7 +58,7 @@ def _user_log(user, request):
 
 
 def _groupes_log(groupes):
-    """Texte de rattachement aux groupes pour les logs"""
+    """Texte de rattachement aux groupes pour les logs."""
     if len(groupes) > 1:
         return f"ratachés aux groupes : {', '.join(groupes)}"
 
@@ -64,9 +66,10 @@ def _groupes_log(groupes):
 
 
 def clean_session(user_session):
-    """Fonction de nettoyage des sessions précédentes pour l'utilisateur
+    """Fonction de nettoyage des sessions précédentes pour l'utilisateur.
+
     :param user_session: Instance de UserSession(user, session)
-    :return: None
+    :return: None.
     """
     sessions = [
         session.session.pk
@@ -79,7 +82,7 @@ def clean_session(user_session):
 @require_http_methods(["GET", "POST"])
 @csrf_protect
 def login_view(request):
-    """Connexion : une seule session active par utilisateur"""
+    """Connexion : une seule session active par utilisateur."""
     next_page = check_next_page(request.GET.get("next"))
     title = "Se Connecter"
     form = UserLoginForm(request.POST or None)
@@ -98,28 +101,28 @@ def login_view(request):
                 user=user, session_id=request.session.session_key
             )
             clean_session(user_session)
-            LOGGER_CONNEXION.info(f"Connexion réussie : {_user_log(user, request)}")
+            LOGGER_CONNEXION.info("Connexion réussie : %s", _user_log(user, request))
             return redirect(next_page)
 
         messages.warning(request, "Email ou mot de passe, non trouvés")
         LOGGER_CONNEXION.warning(
-            f"Connexion ratée : mail : {email} - ip : {get_client_ip(request)}"
+            "Connexion ratée : mail : %s - ip : %s", email, get_client_ip(request)
         )
 
     if form.errors:
-        LOGGER_CONNEXION.exception(
-            f"Formulaire Invalide : {form.errors} - ip : {get_client_ip(request)}"
+        LOGGER_CONNEXION.error(
+            "Formulaire Invalide : %s - ip : %s", form.errors, get_client_ip(request)
         )
 
     return render(request, "users/login_form.html", context)
 
 
 def _create_registered_user(form, super_user):
-    """
-    Création de l'utilisateur à partir du formulaire validé, avec rattachement à ses groupes
+    """Création de l'utilisateur à partir du formulaire validé, avec rattachement à ses groupes.
+
     :param form: UserRegisterForm validé
     :param super_user: True si l'utilisateur créateur est superuser
-    :return: l'utilisateur créé et la liste des groupes rattachés
+    :return: l'utilisateur créé et la liste des groupes rattachés.
     """
     cleaned_data = form.cleaned_data
     email = cleaned_data.get("email")
@@ -154,7 +157,7 @@ def _create_registered_user(form, super_user):
 @csrf_protect
 @login_required
 def register_view(request):
-    """Création d'un utilisateur par un superuser ou un staff (restreint à ses groupes)"""
+    """Création d'un utilisateur par un superuser ou un staff (restreint à ses groupes)."""
     form = UserRegisterForm(request.user, request.POST or None)
     super_user = request.user.is_superuser
     staf_user = request.user.is_staff
@@ -163,8 +166,10 @@ def register_view(request):
     if (staf_user or super_user) and form.is_valid():
         user, groupes = _create_registered_user(form, super_user)
         LOGGER_CONNEXION.info(
-            f"Le super User : {request.user.id}, a créer l'utilisateur : "
-            f"{_user_log(user, request)} -{_groupes_log(groupes)}"
+            "Le super User : %s, a créer l'utilisateur : %s -%s",
+            request.user.id,
+            _user_log(user, request),
+            _groupes_log(groupes),
         )
         next_page = request.GET.get("next")
 
@@ -184,8 +189,8 @@ def register_view(request):
 
 @require_http_methods(["GET"])
 def logout_view(request):
-    """Déconnexion"""
-    LOGGER_CONNEXION.info(f"Déconnexion : {_user_log(request.user, request)}")
+    """Déconnexion."""
+    LOGGER_CONNEXION.info("Déconnexion : %s", _user_log(request.user, request))
     logout(request)
     return redirect("/")
 
@@ -194,7 +199,7 @@ def logout_view(request):
 @csrf_protect
 @login_required
 def profil_view(request):
-    """Modification de son profil et de son mot de passe"""
+    """Modification de son profil et de son mot de passe."""
     user_id = request.user
     form = UpdateProfilForm(user_id, request.POST or None)
     context = {"title": "Votre Compte", "form": form}
@@ -216,17 +221,17 @@ def profil_view(request):
             user = authenticate(request=request, email=email, password=password)
             login(request, user)
             LOGGER_CONNEXION.info(
-                f"Changement de profil ou mot de passe : {_user_log(user_id, request)}"
+                "Changement de profil ou mot de passe : %s", _user_log(user_id, request)
             )
             context["message"] = "Votre profil et votre mot passe ont bien été changés"
         else:
-            LOGGER_CONNEXION.info(f"Changement de profil : {_user_log(user_id, request)}")
+            LOGGER_CONNEXION.info("Changement de profil : %s", _user_log(user_id, request))
             context["message"] = "Votre profil à bien été changé"
 
     elif form.errors:
         LOGGER_CONNEXION.info(
-            f"Changement de profil ou mot de passe : {_user_log(user_id, request)} - "
-            f"Echec : Les deux mots de passe ne sont pas identiques"
+            "Changement de profil ou mot de passe : %s - Echec : Les deux mots de passe ne sont pas identiques",
+            _user_log(user_id, request),
         )
 
     return render(request, "users/user_profil.html", context)
@@ -236,11 +241,13 @@ def profil_view(request):
 @csrf_protect
 @login_required
 def update_user_groupes(request):
-    """Ecran de gestion des groupes des utilisateurs subordonnés (staff et superuser)"""
+    """Ecran de gestion des groupes des utilisateurs subordonnés (staff et superuser)."""
     user = get_object_or_404(User, pk=request.user.id)
 
     if not user.is_staff:
         return redirect("/")
+
+    context: dict[str, Any]
 
     if not user.in_groups() and not user.is_superuser:
         context = {"not_in_groups": True}
@@ -268,8 +275,8 @@ def update_user_groupes(request):
 
 
 def _log_users_error(view_name, err):
-    """Trace fichier + mail des erreurs des vues ajax de gestion des groupes"""
-    log_line = f"{dt.now().isoformat()} | users/views/{view_name} : {err}\n"
+    """Trace fichier + mail des erreurs des vues ajax de gestion des groupes."""
+    log_line = f"{timezone.localtime().isoformat()} | users/views/{view_name} : {err}\n"
     write_log(LOG_FILE, log_line)
     envoi_mail_erreur(log_line)
 
@@ -278,8 +285,8 @@ def _log_users_error(view_name, err):
 @csrf_protect
 @login_required
 def modification_groupes(request):
-    """Remplacement (ajax) des groupes d'un utilisateur par ceux cochés"""
-    dic = {"success": "ko"}
+    """Remplacement (ajax) des groupes d'un utilisateur par ceux cochés."""
+    dic: dict = {"success": "ko"}
 
     if is_ajax(request) and request.POST.get("pk") != "None":
         try:
@@ -299,8 +306,10 @@ def modification_groupes(request):
                 )
                 user = get_object_or_404(User, pk=user_pk)
                 LOGGER_CONNEXION.info(
-                    f"Le super User : {request.user.id}, a modifié les groupes , "
-                    f"pour l'utilisateur :{_user_log(user, request)} - {_groupes_log(groupes)}"
+                    "Le super User : %s, a modifié les groupes , pour l'utilisateur :%s - %s",
+                    request.user.id,
+                    _user_log(user, request),
+                    _groupes_log(groupes),
                 )
 
             dic = {"success": "ok"}
@@ -315,11 +324,11 @@ def modification_groupes(request):
 @csrf_protect
 @login_required
 def affichage_groupes(request):
-    """Renvoi (ajax) des identifiants des groupes d'un utilisateur"""
+    """Renvoi (ajax) des identifiants des groupes d'un utilisateur."""
     if not is_ajax(request):
         return redirect("/")
 
-    dic = {"success": "ko"}
+    dic: dict = {"success": "ko"}
 
     try:
         user = User.objects.get(pk=json.loads(request.POST["pk"]))
@@ -331,12 +340,13 @@ def affichage_groupes(request):
 
 
 def _upload_file(request, allowed_extensions, type_insert, file_label):
-    """Téléversement (ajax) d'un fichier d'intégration d'utilisateurs
+    """Téléversement (ajax) d'un fichier d'intégration d'utilisateurs.
+
     :param request: request Django (POST + FILES)
     :param allowed_extensions: extensions acceptées
     :param type_insert: 0 utilisateurs, 1 staff
     :param file_label: libellé du type de fichier attendu dans le message d'erreur
-    :return: dictionnaire JSON pour le JavaScript de la page
+    :return: dictionnaire JSON pour le JavaScript de la page.
     """
     form = UploadStaffsForm(request.POST, request.FILES)
     upload = request.FILES.get("file")
@@ -356,7 +366,10 @@ def _upload_file(request, allowed_extensions, type_insert, file_label):
         }
 
     if UploadUserFile.objects.filter(base_name_file=name).exists():
-        return {"isValid": False, "message": f"Erreur : - Le fichier {name}, a déjà été téléversé !"}
+        return {
+            "isValid": False,
+            "message": f"Erreur : - Le fichier {name}, a déjà été téléversé !",
+        }
 
     file = form.save(commit=False)
     file.base_name_file = name
@@ -381,7 +394,7 @@ def _upload_file(request, allowed_extensions, type_insert, file_label):
 
 
 def _delete_upload(pk, type_insert):
-    """Suppression (ajax) d'un fichier téléversé de l'utilisateur"""
+    """Suppression (ajax) d'un fichier téléversé de l'utilisateur."""
     data = {"success": "ko"}
 
     try:
@@ -396,12 +409,13 @@ def _delete_upload(pk, type_insert):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class InsertStaffs(FormView):
-    """Ecran de téléversement des fichiers csv d'Admin délégués (staff)"""
+    """Ecran de téléversement des fichiers csv d'Admin délégués (staff)."""
 
     form_class = InsertStaffsForm
     template_name = "users/import_staffs_user.html"
 
     def get_context_data(self, **kwargs):
+        """Ajoute au contexte les fichiers de salariés déjà téléversés."""
         context = super().get_context_data(**kwargs)
         context["files_upload"] = UploadUserFile.objects.filter(
             user=self.request.user, type_insert=STAFF_INSERT
@@ -410,13 +424,14 @@ class InsertStaffs(FormView):
         return context
 
     def post(self, *_args, **_kwargs):
+        """Réceptionne le fichier csv des salariés."""
         return JsonResponse(_upload_file(self.request, {"csv"}, STAFF_INSERT, "un csv"))
 
 
 @require_http_methods(["POST"])
 @csrf_protect
 def delete_staffs_upload_file(request, pk):
-    """Suppression d'un fichier csv de staff téléversé"""
+    """Suppression d'un fichier csv de staff téléversé."""
     if not is_ajax(request):
         return redirect("home")
 
@@ -426,7 +441,7 @@ def delete_staffs_upload_file(request, pk):
 @require_http_methods(["POST"])
 @csrf_protect
 def staff_integrations(request):
-    """Lancement (ajax) de l'intégration des fichiers csv de staff téléversés"""
+    """Lancement (ajax) de l'intégration des fichiers csv de staff téléversés."""
     if not is_ajax(request):
         return redirect("home")
 
@@ -438,7 +453,7 @@ def staff_integrations(request):
 @csrf_protect
 @login_required
 def groups_access_staff(request):
-    """Choix des groupes auxquels les Admin délégués (staff) ont accès"""
+    """Choix des groupes auxquels les Admin délégués (staff) ont accès."""
     form = GroupAccessStaffForm(request.POST or None)
 
     if form.is_valid():
@@ -453,12 +468,13 @@ def groups_access_staff(request):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class InsertUsers(FormView):
-    """Ecran de téléversement des fichiers excel d'utilisateurs"""
+    """Ecran de téléversement des fichiers excel d'utilisateurs."""
 
     form_class = InsertStaffsForm
     template_name = "users/import_users_user.html"
 
     def get_context_data(self, **kwargs):
+        """Ajoute au contexte les fichiers d'utilisateurs déjà téléversés."""
         context = super().get_context_data(**kwargs)
         context["files_upload"] = UploadUserFile.objects.filter(
             user=self.request.user, type_insert=USERS_INSERT
@@ -467,6 +483,7 @@ class InsertUsers(FormView):
         return context
 
     def post(self, *_args, **_kwargs):
+        """Réceptionne le fichier Excel des utilisateurs."""
         return JsonResponse(
             _upload_file(self.request, {"xls", "xlsx"}, USERS_INSERT, "un fichier excel")
         )
@@ -475,7 +492,7 @@ class InsertUsers(FormView):
 @require_http_methods(["POST"])
 @csrf_protect
 def delete_users_upload_file(request, pk):
-    """Suppression d'un fichier excel d'utilisateurs téléversé"""
+    """Suppression d'un fichier excel d'utilisateurs téléversé."""
     if not is_ajax(request):
         return redirect("home")
 
@@ -485,7 +502,7 @@ def delete_users_upload_file(request, pk):
 @require_http_methods(["POST"])
 @csrf_protect
 def users_integrations(request):
-    """Lancement (ajax) de l'intégration des fichiers excel d'utilisateurs téléversés"""
+    """Lancement (ajax) de l'intégration des fichiers excel d'utilisateurs téléversés."""
     if not is_ajax(request):
         return redirect("home")
 
@@ -497,7 +514,7 @@ def users_integrations(request):
 @csrf_protect
 @login_required
 def change_email_view(request):
-    """Changement de son adresse email, puis déconnexion"""
+    """Changement de son adresse email, puis déconnexion."""
     level = 20
     form = ChangeEmailForm(request.POST or None)
 

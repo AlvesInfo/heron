@@ -1,6 +1,6 @@
-"""
-FR : Module de mise à jour des éléments nécessaires à la facturation
-EN : Module for updating the elements necessary for invoicing
+"""FR : Module de mise à jour des éléments nécessaires à la facturation.
+
+EN : Module for updating the elements necessary for invoicing.
 
 Commentaire:
 
@@ -10,10 +10,10 @@ created by: Paulo ALVES
 modified at: 2023-03-27
 modified by: Paulo ALVES
 """
+
 import os
 import platform
 import sys
-from datetime import datetime
 import time
 
 import django
@@ -32,13 +32,13 @@ django.setup()
 from django.db import connection, transaction
 from django.utils import timezone
 
-from heron.loggers import LOGGER_IMPORT
 from apps.data_flux.trace import get_trace
+from heron.loggers import LOGGER_IMPORT
 
 
 @transaction.atomic
 def centers_invoices_update():
-    """Mise à jour des Centrales pour la facturation"""
+    """Mise à jour des Centrales pour la facturation."""
     trace_name = "Mise à jour des Centrales pour la facturation"
     file_name = "insert into ..."
     application_name = "centers_invoices_update"
@@ -97,10 +97,10 @@ def centers_invoices_update():
             coalesce("cpc"."city_holder", '') as "city_holder",
             coalesce("cpc"."bank", '') as "bank",
             coalesce("cpc"."iban", '') as "iban"
-        from "centers_purchasing_childcenterpurchase" "cpc"  
+        from "centers_purchasing_childcenterpurchase" "cpc"
         left join "accountancy_vatregimesage" "av"
         on "cpc"."vat_regime_center" = "av"."uuid_identification"
-        left join "invoices_centersinvoices" "ic" 
+        left join "invoices_centersinvoices" "ic"
         on "ic"."code_center" = "cpc"."code"
         and coalesce("ic"."comment_center", '') = coalesce("cpc"."comment", '')
         and coalesce("ic"."legal_notice_center", '') = coalesce("cpc"."legal_notice", '')
@@ -130,7 +130,7 @@ def centers_invoices_update():
 
 @transaction.atomic
 def signboards_invoices_update():
-    """Mise à jour des Enseignes pour la facturation"""
+    """Mise à jour des Enseignes pour la facturation."""
     trace_name = "Mise à jour des Enseignes pour la facturation"
     file_name = "insert into ..."
     application_name = "signboards_invoices_update"
@@ -175,7 +175,7 @@ def signboards_invoices_update():
 
 @transaction.atomic
 def parties_invoices_update():
-    """Mise à jour des parties prenantes dans la facturation"""
+    """Mise à jour des parties prenantes dans la facturation."""
     trace_name = "Mise à jour des parties prenante dans la facturation"
     file_name = "insert into ..."
     application_name = "parties_invoices_update"
@@ -187,34 +187,34 @@ def parties_invoices_update():
         # On met dabord à jour les champs dont on a besoins dans la table centers_clients_maison
         sql_update_ccm = """
         update "centers_clients_maison" "ccm"
-        set 
-            "invoice_entete" = 	case 
-                                    when 
-                                        "ccm"."invoice_entete" isnull 
-                                        or 
-                                        "ccm"."invoice_entete" = '' 
+        set
+            "invoice_entete" = 	case
+                                    when
+                                        "ccm"."invoice_entete" isnull
+                                        or
+                                        "ccm"."invoice_entete" = ''
                                     then "ccm"."intitule"
                                     else "ccm"."invoice_entete"
                                 end,
-            "immeuble" = case 
-                    when "ccm"."immeuble" isnull or UPPER("ccm"."immeuble") = 'NONE' 
-                    then '' 
-                    else "ccm"."immeuble" 
+            "immeuble" = case
+                    when "ccm"."immeuble" isnull or UPPER("ccm"."immeuble") = 'NONE'
+                    then ''
+                    else "ccm"."immeuble"
                 end,
-            "adresse" = case 
-                    when "ccm"."adresse" isnull or UPPER("ccm"."adresse") = 'NONE' 
-                    then '' 
-                    else "ccm"."adresse" 
+            "adresse" = case
+                    when "ccm"."adresse" isnull or UPPER("ccm"."adresse") = 'NONE'
+                    then ''
+                    else "ccm"."adresse"
                 end,
-            "code_postal" = case 
+            "code_postal" = case
                     when "ccm"."code_postal" isnull or UPPER("ccm"."code_postal") = 'NONE'
-                    then '' 
-                    else "ccm"."code_postal" 
+                    then ''
+                    else "ccm"."code_postal"
                 end,
-            "ville" = case 
+            "ville" = case
                     when "ccm"."ville" isnull or UPPER("ccm"."ville") = 'NONE'
-                    then '' 
-                    else "ccm"."ville" 
+                    then ''
+                    else "ccm"."ville"
                 end
         """
         cursor.execute(sql_update_ccm)
@@ -222,31 +222,31 @@ def parties_invoices_update():
         # On met dabord à jour les champs dont on a besoins dans la table book_society
         slq_update_bs = """
         update "book_society" "bs"
-        set 
-            "invoice_entete" = case 
-                                when "bs"."invoice_entete" isnull or "bs"."invoice_entete" = '' 
-                                then  case when "bs"."name" isnull then '' else "bs"."name" end 
+        set
+            "invoice_entete" = case
+                                when "bs"."invoice_entete" isnull or "bs"."invoice_entete" = ''
+                                then  case when "bs"."name" isnull then '' else "bs"."name" end
                                 else "bs"."invoice_entete"
                               end,
-            "immeuble" = case 
+            "immeuble" = case
                             when "bs"."immeuble" isnull or UPPER("bs"."immeuble") = 'NONE'
-                            then '' 
-                            else "bs"."immeuble" 
+                            then ''
+                            else "bs"."immeuble"
                          end,
-            "adresse" = case 
+            "adresse" = case
                             when "bs"."adresse" isnull or UPPER("bs"."adresse") = 'NONE'
-                            then '' 
-                            else "bs"."adresse" 
+                            then ''
+                            else "bs"."adresse"
                         end,
-            "code_postal" = case 
+            "code_postal" = case
                                 when "bs"."code_postal" isnull or UPPER("bs"."code_postal") = 'NONE'
-                                then '' 
-                                else "bs"."code_postal" 
+                                then ''
+                                else "bs"."code_postal"
                             end,
-            "ville" = case 
+            "ville" = case
                         when "bs"."ville" isnull or UPPER("bs"."ville") = 'NONE'
-                        then '' 
-                        else "bs"."ville" 
+                        then ''
+                        else "bs"."ville"
                       end
         """
         cursor.execute(slq_update_bs)
@@ -281,7 +281,7 @@ def parties_invoices_update():
             coalesce("isi"."uuid_identification", gen_random_uuid()) as "uuid_identification",
             -- CCT
             "ccm"."cct",
-            "ccm"."intitule" as "name_cct", 
+            "ccm"."intitule" as "name_cct",
             "ccm"."immeuble" as "immeuble_cct",
             "ccm"."adresse" as "adresse_cct",
             "ccm"."code_postal" as "code_postal_cct",
@@ -299,8 +299,8 @@ def parties_invoices_update():
             coalesce("ccm"."vat_cee_number", '') as "vat_cee_number_cct",
             coalesce("bs"."vat_cee_number", '') as "vat_cee_number_client"
         from "centers_clients_maison" "ccm"
-        left join "book_society" "bs"  
-        on "ccm"."third_party_num" = "bs"."third_party_num" 
+        left join "book_society" "bs"
+        on "ccm"."third_party_num" = "bs"."third_party_num"
         left join "countries_country" "com"
         on "com"."country" = "ccm"."pays"
         left join "countries_country" "bsm"
@@ -325,7 +325,7 @@ def parties_invoices_update():
         and "isi"."payment_condition_client" = coalesce("ap"."name", '')
         and "isi"."vat_cee_number_cct" = coalesce("ccm"."vat_cee_number", '')
         and "isi"."vat_cee_number_client" = coalesce("bs"."vat_cee_number", '')
-        on conflict ("uuid_identification") 
+        on conflict ("uuid_identification")
         DO UPDATE SET "created_at" = EXCLUDED."created_at"
         """
         cursor.execute(sql_create)
@@ -336,9 +336,9 @@ def parties_invoices_update():
 
 
 def process_update():
-    """
-    Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices
-    pour figer l'historique des parties prenantes dans la facturation
+    """Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices.
+
+    pour figer l'historique des parties prenantes dans la facturation.
     """
     processings_list = [
         centers_invoices_update,
@@ -352,8 +352,8 @@ def process_update():
         try:
             trace = processing()
 
-        except Exception as except_error:
-            LOGGER_IMPORT.exception(f"Exception Générale: {processing.__name__}\n{except_error!r}")
+        except Exception:
+            LOGGER_IMPORT.exception("Exception Générale: %s", processing.__name__)
 
         finally:
             # En cas d'exception le traitement n'a pas renvoyé sa trace (trace reste None) :
@@ -365,7 +365,7 @@ def process_update():
 
 if __name__ == "__main__":
     while True:
-        maintenant = datetime.now()
+        maintenant = timezone.localtime()
         heure = maintenant.hour
         minute = maintenant.minute
 

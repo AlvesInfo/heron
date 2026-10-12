@@ -1,6 +1,6 @@
-"""
-FR : Module de génération du fichier BBGR Receptions
-EN : BBGR Receptions file generation module
+"""FR : Module de génération du fichier BBGR Receptions.
+
+EN : BBGR Receptions file generation module.
 
 Commentaire:
 
@@ -10,39 +10,39 @@ created by: Paulo ALVES
 modified at: 2023-01-04
 modified by: Paulo ALVES
 """
+
 from uuid import UUID
 
-from psycopg2 import sql
 from django.db import connection, transaction
+from psycopg2 import sql
 
 from heron.loggers import LOGGER_EDI
-
 
 HISTORIC_RECEPTIONS_ID = 17964
 
 
 @transaction.atomic
 def insert_bbgr_receptions_file(uuid_identification: UUID):
-    """Intégration des lignes de la table des Réceptions
+    """Intégration des lignes de la table des Réceptions.
+
     :param uuid_identification: uuid_identification de la trace
     :return:
     """
-
     with connection.cursor() as cursor:
         # ID Minimum pour le premier import
         sql_id = sql.SQL(
             """
-            select 
+            select
                 max(max_id) as max_id
             from (
-                select  
-                    coalesce(max(bi_id), %(historic_id)s) as max_id 
-                from edi_ediimport ee 
+                select
+                    coalesce(max(bi_id), %(historic_id)s) as max_id
+                from edi_ediimport ee
                 where flow_name = 'BbgrReceptions'
-                union all 
-                select 
-                    coalesce(max(bi_id), %(historic_id)s) as max_id 
-                from invoices_invoicecommondetails 
+                union all
+                select
+                    coalesce(max(bi_id), %(historic_id)s) as max_id
+                from invoices_invoicecommondetails
                 where flow_name = 'BbgrReceptions'
             ) req
             """
@@ -70,18 +70,18 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
             sql_insert_retours = sql.SQL(
                 """
                 with vat as (
-                    select 
+                    select
                         rate
-                    from accountancy_vatratsage av 
+                    from accountancy_vatratsage av
                     where vat = '001'
                     and exists (
-                        select 1 
-                        from accountancy_vatratsage avv 
-                        group by avv.vat 
+                        select 1
+                        from accountancy_vatratsage avv
+                        group by avv.vat
                         having max(avv.vat_start_date) = av.vat_start_date and avv.vat = av.vat
                     )
                 )
-                insert into edi_ediimport 
+                insert into edi_ediimport
                 (
                     "uuid_identification",
                     "created_at",
@@ -133,10 +133,10 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
                    date_trunc('month', entered_date) as "delivery_date",
                    max("id") as "invoice_number",
                    date_trunc('month', entered_date) as "invoice_date",
-                   case 
-                        when sum("entered_valorise") >= 0 
-                        then '380' 
-                        else '381' 
+                   case
+                        when sum("entered_valorise") >= 0
+                        then '380'
+                        else '381'
                     end as "invoice_type",
                    'EUR' as "devise",
                    "type_article"||'-'||"famille" as "reference_article",
@@ -149,13 +149,13 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
                    sum("entered_valorise") as "net_amount",
                    (select rate from vat) as "vat_rate",
                    round(
-                        ((select rate from vat)::numeric/100) 
-                        * 
+                        ((select rate from vat)::numeric/100)
+                        *
                         sum("entered_valorise")::numeric, 2
                     )::numeric as "vat_amount",
                    round(
-                        ((select rate from vat)::numeric/100) 
-                        * 
+                        ((select rate from vat)::numeric/100)
+                        *
                         sum("entered_valorise")::numeric, 2
                     )::numeric + sum("entered_valorise") as "amount_with_vat",
                    "type_article" as "axe_pro_supplier",
@@ -167,7 +167,7 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
                    0 as "item_weight"
                 from "heron_bi_receptions_bbgr"
                 where "id" > %(min_id)s
-                group by "famille", "type_article", date_trunc('month', entered_date) 
+                group by "famille", "type_article", date_trunc('month', entered_date)
                 order by max("id")
                 """
             )

@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql, pour les factures de ventes Prestation
-EN : Module of sql queries, for sales Prestation invoices
+"""FR : Module des requêtes sql, pour les factures de ventes Prestation.
+
+EN : Module of sql queries, for sales Prestation invoices.
 
 Commentaire:
 
@@ -10,13 +10,13 @@ created by: Paulo ALVES
 modified at: 2023-03-16
 modified by: Paulo ALVES
 """
-from psycopg2 import sql
 
+from psycopg2 import sql
 
 SQL_HEADER = sql.SQL(
     """
-    select 
-        "axe_prj", 
+    select
+        "axe_prj",
         "axe_rfa",
         "libelle",
         sum("net_amount_00") as "net_amount_00",
@@ -24,29 +24,29 @@ SQL_HEADER = sql.SQL(
         sum("net_amount_02") as "net_amount_02",
         sum("net_amount") as "net_amount"
     from (
-        select 
+        select
             -- AFIN D'AFFICHER SIGNIA SUR L'AXE PRJ QUAND C'EST SIEMENS
-            case 
-                when "is2"."axe_prj" = 'SIEMENS' 
-                then "is2"."axe_prj_name" 
-                else "is2"."axe_prj" 
+            case
+                when "is2"."axe_prj" = 'SIEMENS'
+                then "is2"."axe_prj_name"
+                else "is2"."axe_prj"
             end as "axe_prj",
-            "is2"."axe_rfa", 
-            "grouping_goods", 
+            "is2"."axe_rfa",
+            "grouping_goods",
             "libelle",
             case when "vat" not in ('001', '002') then "net_amount" else 0 end as "net_amount_00",
             case when "vat" = '002' then "net_amount" else 0 end as "net_amount_01",
             case when "vat" = '001' then "net_amount" else 0 end as "net_amount_02",
             "net_amount"
-        from "invoices_saleinvoicedetail" "is2" 
+        from "invoices_saleinvoicedetail" "is2"
         join "invoices_invoicecommondetails" "ii"
         on "ii"."import_uuid_identification" = "is2"."import_uuid_identification"
         where "uuid_invoice" = %(uuid_invoice)s
     ) "head"
-    group by 
+    group by
         "axe_prj",
-        "axe_rfa", 
-        "libelle" 
+        "axe_rfa",
+        "libelle"
     order by "axe_prj",
              "axe_rfa"
     """
@@ -54,7 +54,7 @@ SQL_HEADER = sql.SQL(
 
 SQL_RESUME_HEADER = sql.SQL(
     """
-    select 
+    select
         sum("net_amount_00") as "net_amount_00",
         sum("vat_amount_00") as "vat_amount_00",
         sum("ttc_amount_00") as "ttc_amount_00",
@@ -68,13 +68,13 @@ SQL_RESUME_HEADER = sql.SQL(
         sum("vat_amount") as "vat_amount",
         sum("amount_with_vat") as "amount_with_vat"
     from (
-        select 
+        select
             case when "vat" not in ('001', '002') then "net_amount" else 0 end as "net_amount_00",
             case when "vat" not in ('001', '002') then "vat_amount" else 0 end as "vat_amount_00",
-            case 
-                when "vat" not in ('001', '002') 
-                then "amount_with_vat" 
-                else 0 
+            case
+                when "vat" not in ('001', '002')
+                then "amount_with_vat"
+                else 0
             end as "ttc_amount_00",
             case when "vat" = '002' then "net_amount" else 0 end as "net_amount_01",
             case when "vat" = '002' then "vat_amount" else 0 end as "vat_amount_01",
@@ -84,8 +84,8 @@ SQL_RESUME_HEADER = sql.SQL(
             case when "vat" = '001' then "amount_with_vat" else 0 end as "ttc_amount_02",
             "net_amount",
             "vat_amount",
-            "amount_with_vat" 
-        from "invoices_saleinvoicedetail" 
+            "amount_with_vat"
+        from "invoices_saleinvoicedetail"
         where "uuid_invoice" = %(uuid_invoice)s
     ) "head"
     """

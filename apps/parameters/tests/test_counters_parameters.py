@@ -1,10 +1,12 @@
-"""
-FR : Tests de la numérotation des compteurs : préfixes et suffixes (dates, tiers, cct)
+"""FR : Tests de la numérotation des compteurs : préfixes et suffixes (dates, tiers, cct)
+
+
 EN : Counters prefix / suffix tests
 
 created at: 2023-03-11, réécrit le 2026-10-11
 created by: Paulo ALVES
 """
+
 import pendulum
 import pytest
 

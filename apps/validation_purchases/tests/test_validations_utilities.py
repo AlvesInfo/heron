@@ -1,4 +1,5 @@
 """Tests des utilitaires de validation (multi-magasins, identifiants fournisseurs, traces, période)"""
+
 import datetime
 import logging
 
@@ -86,8 +87,9 @@ def test_create_edi_validation_erreur(monkeypatch, caplog):
     def boom(**kwargs):
         raise RuntimeError("boom")
 
-    with patched_attrs(monkeypatch, validations_utilities.EdiValidation.objects, get_or_create=boom), caplog.at_level(
-        logging.ERROR, logger="edi"
+    with (
+        patched_attrs(monkeypatch, validations_utilities.EdiValidation.objects, get_or_create=boom),
+        caplog.at_level(logging.ERROR, logger="edi"),
     ):
         assert create_edi_validation() is None
 

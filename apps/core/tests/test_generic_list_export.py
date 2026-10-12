@@ -1,4 +1,5 @@
 """Tests de l'export Excel générique de liste (apps.core.excel_outputs.generic_list_export)"""
+
 import io
 import logging
 
@@ -11,8 +12,18 @@ from apps.core.excel_outputs.generic_list_export import KO_MESSAGE, excel_list_e
 from conftest import patched_attrs
 
 COLUMNS = [
-    {"entete": "Code", "f_entete": {**f_entetes, "bg_color": "#dce7f5"}, "f_ligne": {**f_ligne, "align": "center"}, "width": 10},
-    {"entete": "Libellé", "f_entete": {**f_entetes, "bg_color": "#dce7f5"}, "f_ligne": {**f_ligne, "align": "left"}, "width": 40},
+    {
+        "entete": "Code",
+        "f_entete": {**f_entetes, "bg_color": "#dce7f5"},
+        "f_ligne": {**f_ligne, "align": "center"},
+        "width": 10,
+    },
+    {
+        "entete": "Libellé",
+        "f_entete": {**f_entetes, "bg_color": "#dce7f5"},
+        "f_ligne": {**f_ligne, "align": "left"},
+        "width": 40,
+    },
 ]
 ROWS = [("A", "Alpha"), ("B", "Bêta"), ("C", "Gamma")]
 
@@ -27,7 +38,9 @@ def read_sheet(file_io):
 def test_export_standard():
     file_io = io.BytesIO()
 
-    result = excel_list_export(file_io, "liste.xlsx", sheet_name="LISTE", title="MA LISTE", columns=COLUMNS, rows=ROWS)
+    result = excel_list_export(
+        file_io, "liste.xlsx", sheet_name="LISTE", title="MA LISTE", columns=COLUMNS, rows=ROWS
+    )
 
     assert result == ok_message("liste.xlsx")
     workbook, sheet, cells = read_sheet(file_io)
@@ -47,7 +60,13 @@ def test_export_rows_callable_et_paysage():
         return iter(ROWS)
 
     result = excel_list_export(
-        file_io, "liste.xlsx", sheet_name="L", title="T", columns=COLUMNS, rows=rows, orientation="landscape"
+        file_io,
+        "liste.xlsx",
+        sheet_name="L",
+        title="T",
+        columns=COLUMNS,
+        rows=rows,
+        orientation="landscape",
     )
 
     assert "OK" in result
@@ -61,8 +80,15 @@ def test_export_entetes_fusionnees_et_decalage():
     file_io = io.BytesIO()
 
     result = excel_list_export(
-        file_io, "liste.xlsx", sheet_name="L", title="T", columns=COLUMNS, rows=ROWS,
-        header_row=4, merged_headers=[(0, 1, "Groupe", COLUMNS[0]["f_entete"])], in_memory=True,
+        file_io,
+        "liste.xlsx",
+        sheet_name="L",
+        title="T",
+        columns=COLUMNS,
+        rows=ROWS,
+        header_row=4,
+        merged_headers=[(0, 1, "Groupe", COLUMNS[0]["f_entete"])],
+        in_memory=True,
     )
 
     assert "OK" in result
@@ -70,7 +96,9 @@ def test_export_entetes_fusionnees_et_decalage():
     assert cells[3][0] == "Groupe"
     assert cells[4][:2] == ["Code", "Libellé"]
     assert cells[5][0] == "A"
-    assert "A1:B1" in [str(r) for r in sheet.merged_cells.ranges] or any("A4" in str(r) for r in sheet.merged_cells.ranges)
+    assert "A1:B1" in [str(r) for r in sheet.merged_cells.ranges] or any(
+        "A4" in str(r) for r in sheet.merged_cells.ranges
+    )
 
 
 @pytest.mark.parametrize("odd_first", [False, True])
@@ -79,8 +107,14 @@ def test_export_alternance_des_formats(odd_first):
     file_io = io.BytesIO()
 
     excel_list_export(
-        file_io, "liste.xlsx", sheet_name="L", title="T", columns=COLUMNS, rows=ROWS,
-        odd_color="#F2F2F2", odd_first=odd_first,
+        file_io,
+        "liste.xlsx",
+        sheet_name="L",
+        title="T",
+        columns=COLUMNS,
+        rows=ROWS,
+        odd_color="#F2F2F2",
+        odd_first=odd_first,
     )
 
     _, sheet, _ = read_sheet(file_io)
@@ -97,7 +131,9 @@ def test_export_erreur_requete_renvoie_ko(caplog):
         raise RuntimeError("requête impossible")
 
     with caplog.at_level(logging.ERROR, logger="export_excel"):
-        result = excel_list_export(io.BytesIO(), "liste.xlsx", sheet_name="L", title="T", columns=COLUMNS, rows=rows)
+        result = excel_list_export(
+            io.BytesIO(), "liste.xlsx", sheet_name="L", title="T", columns=COLUMNS, rows=rows
+        )
 
     assert result == KO_MESSAGE
     assert result is not KO_MESSAGE
@@ -108,10 +144,13 @@ def test_export_erreur_ecriture_renvoie_ko(monkeypatch, caplog):
     def boom(*args, **kwargs):
         raise ValueError("boom")
 
-    with patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom), caplog.at_level(
-        logging.ERROR, logger="export_excel"
+    with (
+        patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom),
+        caplog.at_level(logging.ERROR, logger="export_excel"),
     ):
-        result = excel_list_export(io.BytesIO(), "liste.xlsx", sheet_name="L", title="T", columns=COLUMNS, rows=ROWS)
+        result = excel_list_export(
+            io.BytesIO(), "liste.xlsx", sheet_name="L", title="T", columns=COLUMNS, rows=ROWS
+        )
 
     assert result == KO_MESSAGE
 
@@ -120,7 +159,9 @@ def test_export_hide_zero():
     """Les zéros peuvent être masqués sur la feuille"""
     file_io = io.BytesIO()
 
-    excel_list_export(file_io, "liste.xlsx", sheet_name="L", title="T", columns=COLUMNS, rows=ROWS, hide_zero=True)
+    excel_list_export(
+        file_io, "liste.xlsx", sheet_name="L", title="T", columns=COLUMNS, rows=ROWS, hide_zero=True
+    )
 
     _, sheet, _ = read_sheet(file_io)
     assert sheet.sheet_view.showZeros is False
@@ -161,8 +202,15 @@ def test_columns_callable_et_writer_sans_entetes():
         return [4 + count]
 
     result = excel_list_export(
-        file_io, "liste.xlsx", sheet_name="L", title="T", columns=lambda: with_headers(COLUMNS, {0: "Réf"}),
-        rows=ROWS, write_headers=False, writer=writer, footer=PAGE_NUMBERS_FOOTER,
+        file_io,
+        "liste.xlsx",
+        sheet_name="L",
+        title="T",
+        columns=lambda: with_headers(COLUMNS, {0: "Réf"}),
+        rows=ROWS,
+        write_headers=False,
+        writer=writer,
+        footer=PAGE_NUMBERS_FOOTER,
     )
 
     assert "OK" in result
@@ -171,7 +219,9 @@ def test_columns_callable_et_writer_sans_entetes():
     assert cells[3][0] is None  # pas d'entêtes de colonnes
     assert cells[4][0] == "A"
     assert cells[7][0] == "FIN"
-    assert sheet.HeaderFooter.oddFooter.right.text == "&P/&N" or "&P" in str(sheet.oddFooter.right.text)
+    assert sheet.HeaderFooter.oddFooter.right.text == "&P/&N" or "&P" in str(
+        sheet.oddFooter.right.text
+    )
     assert [b.id for b in sheet.row_breaks.brk] == [7]
 
 
@@ -179,8 +229,15 @@ def test_after_rows_recoit_la_plage_ecrite():
     calls = []
 
     excel_list_export(
-        io.BytesIO(), "liste.xlsx", sheet_name="L", title="T", columns=COLUMNS, rows=ROWS,
-        after_rows=lambda excel, sheet, first_row, nb_rows: calls.append((sheet, first_row, nb_rows)),
+        io.BytesIO(),
+        "liste.xlsx",
+        sheet_name="L",
+        title="T",
+        columns=COLUMNS,
+        rows=ROWS,
+        after_rows=lambda excel, sheet, first_row, nb_rows: calls.append(
+            (sheet, first_row, nb_rows)
+        ),
     )
 
     assert calls == [(1, 4, 3)]
@@ -190,7 +247,14 @@ def test_excel_sheets_export_plusieurs_feuilles():
     file_io = io.BytesIO()
     specs = [
         SheetSpec(name="UNE", title="Première", columns=COLUMNS, rows=ROWS[:1]),
-        SheetSpec(name="DEUX", title="Seconde", columns=COLUMNS, rows=ROWS, extra_formatting={"not_display_zero": True}, hide_zero=True),
+        SheetSpec(
+            name="DEUX",
+            title="Seconde",
+            columns=COLUMNS,
+            rows=ROWS,
+            extra_formatting={"not_display_zero": True},
+            hide_zero=True,
+        ),
     ]
 
     result = excel_sheets_export(file_io, "classeur.xlsx", specs, in_memory=True)

@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'import Sage des pays (schéma djantic, fonction d'import, post-traitement, boucle)
+"""FR : Tests de l'import Sage des pays (schéma djantic, fonction d'import, post-traitement, boucle)
+
+
      et des fixtures de pays
 EN : Tests for countries Sage import and data fixtures
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import csv
 import datetime
 import logging
@@ -32,7 +34,25 @@ FILE_NAME = "ZBICRY_journalier.heron"
 
 def _row(code, name, cee="1", cee_date="", cee_date_quit=""):
     """Ligne du fichier ZBICRY : 17 colonnes, booléens Sage 2 / 1, dates ddmmyy"""
-    return [code, name, code, "99", code, f"{code}A", "250", "FRA", cee, cee_date, cee_date_quit, "", "EUR", "", "", "", ""]
+    return [
+        code,
+        name,
+        code,
+        "99",
+        code,
+        f"{code}A",
+        "250",
+        "FRA",
+        cee,
+        cee_date,
+        cee_date_quit,
+        "",
+        "EUR",
+        "",
+        "",
+        "",
+        "",
+    ]
 
 
 # SCHÉMA ===========================================================================================
@@ -41,7 +61,12 @@ def _row(code, name, cee="1", cee_date="", cee_date_quit=""):
 def test_schema_config_et_nettoyage():
     """Colonnes du fichier, tildes et troncature, booléen Sage, dates ddmmyy ou 1900-01-01 par défaut"""
     validated = CountrySageSchema(
-        country="FR", country_name="France~~France", country_iso_num="250", cee="2", cee_date="010195", cee_date_quit=""
+        country="FR",
+        country_name="France~~France",
+        country_iso_num="250",
+        cee="2",
+        cee_date="010195",
+        cee_date_quit="",
     ).dict()
 
     assert CountrySageSchema.Config.model is Country
@@ -85,10 +110,20 @@ def test_pays_sage_cree_la_trace_et_appelle_make_insert(sage_file, monkeypatch):
 
     model, flow_name, source, call_trace, validator, loader, kwargs = calls[0]
     assert isinstance(trace, Trace)
-    assert (trace.trace_name, trace.flow_name, trace.application_name) == ("Mise à jour des Pays Sage", "pays_sage", "countries_imports_import_sage")
+    assert (trace.trace_name, trace.flow_name, trace.application_name) == (
+        "Mise à jour des Pays Sage",
+        "pays_sage",
+        "countries_imports_import_sage",
+    )
     assert trace.comment == f"import journalier {FILE_NAME} des Pays Sage"
     assert "Pas d'erreurs" in to_print
-    assert (model, flow_name, source, call_trace, validator) == (Country, "pays_sage", file, trace, CountrySageSchema)
+    assert (model, flow_name, source, call_trace, validator) == (
+        Country,
+        "pays_sage",
+        file,
+        trace,
+        CountrySageSchema,
+    )
     assert loader == {"trace": trace, "add_fields_dict": {}}
     assert kwargs == {}
 
@@ -96,7 +131,9 @@ def test_pays_sage_cree_la_trace_et_appelle_make_insert(sage_file, monkeypatch):
 @pytest.mark.integration
 def test_integration_pays_sage_insertion_puis_upsert(sage_file):
     """Chaîne data_flux réelle : création, dates vides annulées par le post-traitement, puis mise à jour"""
-    file = sage_file([_row("FR", "France", cee="2", cee_date="010195"), _row("US", "Etats~~Unis", cee="1")])
+    file = sage_file(
+        [_row("FR", "France", cee="2", cee_date="010195"), _row("US", "Etats~~Unis", cee="1")]
+    )
 
     trace, to_print = pays_sage(file)
 
@@ -104,15 +141,40 @@ def test_integration_pays_sage_insertion_puis_upsert(sage_file):
     usa = Country.objects.get(pk="US")
     assert "Pas d'erreurs" in to_print
     assert trace.errors is False
-    assert (france.country_name, france.cee, france.cee_date, france.cee_date_quit) == ("France", True, datetime.date(1995, 1, 1), None)
-    assert (usa.country_name, usa.cee, usa.cee_date, usa.country_iso_num) == ("Etats", False, None, 250)
+    assert (france.country_name, france.cee, france.cee_date, france.cee_date_quit) == (
+        "France",
+        True,
+        datetime.date(1995, 1, 1),
+        None,
+    )
+    assert (usa.country_name, usa.cee, usa.cee_date, usa.country_iso_num) == (
+        "Etats",
+        False,
+        None,
+        250,
+    )
 
-    trace, _ = pays_sage(sage_file([_row("FR", "France métropolitaine", cee="2", cee_date="010195", cee_date_quit="311220")]))
+    trace, _ = pays_sage(
+        sage_file(
+            [
+                _row(
+                    "FR",
+                    "France métropolitaine",
+                    cee="2",
+                    cee_date="010195",
+                    cee_date_quit="311220",
+                )
+            ]
+        )
+    )
 
     france.refresh_from_db()
     assert trace.errors is False
     assert Country.objects.count() == 2
-    assert (france.country_name, france.cee_date_quit) == ("France métropolitaine", datetime.date(2020, 12, 31))
+    assert (france.country_name, france.cee_date_quit) == (
+        "France métropolitaine",
+        datetime.date(2020, 12, 31),
+    )
 
 
 def test_post_traitement_annule_les_dates_sentinelles(make_country):
@@ -187,7 +249,10 @@ def test_process_sans_fichier():
 def test_process_type_error_sans_trace(sage_dirs, monkeypatch, caplog):
     (sage_dirs.archive / FILE_NAME).write_text("contenu", encoding="utf8")
 
-    with patched_attrs(monkeypatch, imports_loop, processing_dict={FILE_NAME: lambda file: None}), caplog.at_level(logging.ERROR, logger="imports"):
+    with (
+        patched_attrs(monkeypatch, imports_loop, processing_dict={FILE_NAME: lambda file: None}),
+        caplog.at_level(logging.ERROR, logger="imports"),
+    ):
         imports_loop.process()
 
     assert "TypeError" in caplog.text
@@ -200,7 +265,10 @@ def test_process_exception_generale_sans_trace(sage_dirs, monkeypatch, caplog):
 
     (sage_dirs.archive / FILE_NAME).write_text("contenu", encoding="utf8")
 
-    with patched_attrs(monkeypatch, imports_loop, processing_dict={FILE_NAME: _boom}), caplog.at_level(logging.ERROR, logger="imports"):
+    with (
+        patched_attrs(monkeypatch, imports_loop, processing_dict={FILE_NAME: _boom}),
+        caplog.at_level(logging.ERROR, logger="imports"),
+    ):
         imports_loop.process()
 
     assert f"Exception Générale: {FILE_NAME}" in caplog.text
@@ -226,7 +294,18 @@ def test_process_exception_apres_trace_marque_la_trace(sage_dirs, caplog):
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [("true", True), ("OUI", True), ("1", True), ("false", False), ("non", False), ("0", False), ("peut-être", "peut-être"), (3, True), (0, False), (None, None)],
+    [
+        ("true", True),
+        ("OUI", True),
+        ("1", True),
+        ("false", False),
+        ("non", False),
+        ("0", False),
+        ("peut-être", "peut-être"),
+        (3, True),
+        (0, False),
+        (None, None),
+    ],
 )
 def test_validate_boolean(value, expected):
     assert validate_boolean(value) == expected
@@ -249,7 +328,13 @@ def test_fixtures_pays_charge_le_fichier(make_country):
     france = Country.objects.get(pk="FR")
     usa = Country.objects.get(pk="US")
     assert Country.objects.count() == len({row[1] for row in rows})
-    assert (france.country_name, france.currency_sigle, france.currency_name, france.currency_iso, france.cee) == ("FRANCE", "€", "Euro", "EUR", True)
+    assert (
+        france.country_name,
+        france.currency_sigle,
+        france.currency_name,
+        france.currency_iso,
+        france.cee,
+    ) == ("FRANCE", "€", "Euro", "EUR", True)
     assert france.phone_indicatif is None
     assert (usa.country_name, usa.phone_indicatif, usa.cee) == ("ETATS UNIS", "1", False)
     assert Country.objects.get(pk="GB").country_name == "ANGLETERRE"

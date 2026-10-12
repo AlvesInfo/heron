@@ -1,4 +1,4 @@
-"""Module d'imports de fixtures en base au premier démarrage de l'application
+"""Module d'imports de fixtures en base au premier démarrage de l'application.
 
 Commentaire:
 
@@ -8,8 +8,9 @@ created by: Paulo ALVES
 modified at: 2022-03-03
 modified by: Paulo ALVES
 """
-from pathlib import Path
+
 import csv
+from pathlib import Path
 
 from django.conf import settings
 
@@ -17,9 +18,10 @@ from apps.countries.models import Country
 
 
 def validate_boolean(value):
-    """Parsing pour les valeurs qui doivent être booléennes en base
+    """Parsing pour les valeurs qui doivent être booléennes en base.
+
     :param value: valeur à parser
-    :return: valeur booléenne associée
+    :return: valeur booléenne associée.
     """
     if isinstance(value, str):
         if value.lower() in {"0", "false", "no", "n", "non"}:
@@ -32,7 +34,8 @@ def validate_boolean(value):
 
 
 def fixtures_pays():
-    """Fonction d'ajout de fixtures pour la table Country, depuis pays_fixtures.csv
+    """Fonction d'ajout de fixtures pour la table Country, depuis pays_fixtures.csv.
+
     (nom ; code ; sigle devise ; nom devise ; code devise ; indicatif ; cee ; rang devise).
     Un pays déjà présent n'est pas modifié ; la première ligne d'un code répété est conservée.
     """

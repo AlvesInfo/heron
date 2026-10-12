@@ -1,6 +1,6 @@
-"""
-FR : Module de validation par djantic
-EN : Sage X3 import validation forms module
+"""FR : Module de validation par djantic.
+
+EN : Sage X3 import validation forms module.
 
 Commentaire:
 
@@ -10,38 +10,38 @@ created by: Paulo ALVES
 modified at: 2022-02-17
 modified by: Paulo ALVES
 """
+
 import datetime
 import uuid
-from typing import Optional
 
 from django.utils import timezone
 from djantic import ModelSchema
 
-from apps.core.validations.pydantic_validators_base import (
-    NullZeroDecimalFieldBase,
-    SageTruncateStrFieldsBase,
-    SageDateFieldsBase,
-    SageDefaultDateFieldsBase,
-    SageNullFalseBooleanFieldsBase,
-    SageNullBooleanFieldsBase,
-)
 from apps.accountancy.models import (
     AccountSage,
     AxeSage,
-    SectionSage,
-    VatRegimeSage,
-    VatSage,
-    VatRatSage,
-    ModeReglement,
-    PaymentCondition,
-    TabDivSage,
     CategorySage,
     CurrencySage,
+    ModeReglement,
+    PaymentCondition,
+    SectionSage,
+    TabDivSage,
+    VatRatSage,
+    VatRegimeSage,
+    VatSage,
+)
+from apps.core.validations.pydantic_validators_base import (
+    NullZeroDecimalFieldBase,
+    SageDateFieldsBase,
+    SageDefaultDateFieldsBase,
+    SageNullBooleanFieldsBase,
+    SageNullFalseBooleanFieldsBase,
+    SageTruncateStrFieldsBase,
 )
 
 
 class AccountSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
-    """Schema Djantic pour validation du modèle AccountSage"""
+    """Schema Djantic pour validation du modèle AccountSage."""
 
     now = timezone.now()
     created_at: datetime.datetime = now
@@ -49,25 +49,29 @@ class AccountSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     uuid_identification: uuid.UUID = uuid.uuid4()
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = AccountSage
-        include = list(model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-            "uuid_identification",
-        ]
+        include = [*model.get_columns_import(), "created_at", "modified_at", "uuid_identification"]
 
 
 class AxeSageSchema(ModelSchema, SageTruncateStrFieldsBase):
+    """Schéma de validation des axes Sage."""
+
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = AxeSage
-        include = list(model.get_columns_import()) + ["created_at", "modified_at"]
+        include = [*model.get_columns_import(), "created_at", "modified_at"]
 
 
 class SectionSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
+    """Schéma de validation des sections analytiques Sage."""
+
     chargeable: bool = False
     active: bool = False
     now = timezone.now()
@@ -75,18 +79,18 @@ class SectionSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     uuid_identification: uuid.UUID = uuid.uuid4()
-    cpy_fcy: Optional[str] = None
+    cpy_fcy: str | None = None
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = SectionSage
-        include = list(model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-            "uuid_identification",
-        ]
+        include = [*model.get_columns_import(), "created_at", "modified_at", "uuid_identification"]
 
 
 class VatRegimeSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
+    """Schéma de validation des régimes de TVA Sage."""
+
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
@@ -94,23 +98,25 @@ class VatRegimeSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseB
     legislation: str = ""
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = VatRegimeSage
-        include = list(model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-            "uuid_identification",
-        ]
+        include = [*model.get_columns_import(), "created_at", "modified_at", "uuid_identification"]
 
 
 class VatSageSchema(ModelSchema, SageTruncateStrFieldsBase):
+    """Schéma de validation des codes TVA Sage."""
+
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     auuid: uuid.UUID
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = VatSage
-        include = list(model.get_columns_import()) + ["created_at", "modified_at"]
+        include = [*model.get_columns_import(), "created_at", "modified_at"]
 
 
 class VatRatSageSchema(
@@ -120,6 +126,8 @@ class VatRatSageSchema(
     SageNullFalseBooleanFieldsBase,
     NullZeroDecimalFieldBase,
 ):
+    """Schéma de validation des taux de TVA Sage."""
+
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
@@ -128,31 +136,38 @@ class VatRatSageSchema(
     auuid: uuid.UUID
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = VatRatSage
-        include = list(model.get_columns_import()) + ["created_at", "modified_at"]
+        include = [*model.get_columns_import(), "created_at", "modified_at"]
 
 
 class ModeReglementSchema(ModelSchema, SageTruncateStrFieldsBase):
+    """Schéma de validation des modes de règlement Sage."""
+
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = ModeReglement
-        include = list(model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-        ]
+        include = [*model.get_columns_import(), "created_at", "modified_at"]
 
 
 class PaymentConditionSchema(ModelSchema, SageTruncateStrFieldsBase):
+    """Schéma de validation des conditions de paiement Sage."""
+
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = PaymentCondition
-        include = list(model.get_columns_import()) + ["created_at", "modified_at"]
+        include = [*model.get_columns_import(), "created_at", "modified_at"]
 
 
 class TabDivSageSchema(
@@ -161,23 +176,31 @@ class TabDivSageSchema(
     SageNullFalseBooleanFieldsBase,
     NullZeroDecimalFieldBase,
 ):
+    """Schéma de validation des tables diverses Sage."""
+
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = TabDivSage
-        include = list(model.get_columns_import()) + ["created_at", "modified_at"]
+        include = [*model.get_columns_import(), "created_at", "modified_at"]
 
 
 class CategorySageSchema(ModelSchema, SageTruncateStrFieldsBase):
+    """Schéma de validation des catégories Sage."""
+
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = CategorySage
-        include = list(model.get_columns_import()) + ["created_at", "modified_at"]
+        include = [*model.get_columns_import(), "created_at", "modified_at"]
 
 
 class CurrencySageSchema(
@@ -187,15 +210,15 @@ class CurrencySageSchema(
     SageNullBooleanFieldsBase,
     NullZeroDecimalFieldBase,
 ):
+    """Schéma de validation des devises Sage."""
+
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     uuid_identification: uuid.UUID = uuid.uuid4()
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = CurrencySage
-        include = list(model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-            "uuid_identification",
-        ]
+        include = [*model.get_columns_import(), "created_at", "modified_at", "uuid_identification"]

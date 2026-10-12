@@ -1,10 +1,9 @@
-"""
-Django settings for heron project.
-"""
+"""Django settings for heron project."""
+
 import sys
 from pathlib import Path
 
-from decouple import Csv, AutoConfig
+from decouple import AutoConfig, Csv
 from django.utils.translation import gettext_lazy as _
 
 from heron.utils.directories import lazy_mkdir
@@ -75,10 +74,12 @@ WHITELIST = config("ALLOWED_HOSTS", cast=Csv())
 DOMAIN = config("DOMAIN", default="acuitis.com")
 # Domaine servant les fichiers statiques (polices, logos) aux gabarits PDF WeasyPrint
 PDF_STATIC_DOMAIN = config("PDF_STATIC_DOMAIN", default="http://127.0.0.1:3000")
+# Domaine utilisé par les gabarits en mode debug (liens absolus), par défaut celui des statiques
+DOMAIN_DEBUG = config("DOMAIN_DEBUG", default=PDF_STATIC_DOMAIN)
 
 TYPE_OF_BASE = config("TYPE_OF_BASE", default="")
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 # REPERTOIRE DES LOGS
 LOG_DIR = (
@@ -165,8 +166,7 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             Path(BASE_DIR) / "heron/templates/heron",
-            Path(BASE_DIR)
-            / "apps/data_flux/templates",
+            Path(BASE_DIR) / "apps/data_flux/templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -193,7 +193,7 @@ TEMPLATES = [
                 "heron.processors.in_maa",
                 "heron.processors.in_unisson",
                 "heron.processors.type_of_base",
-                "heron.processors.unread_notifications_count"
+                "heron.processors.unread_notifications_count",
             ]
         },
     }
@@ -212,9 +212,9 @@ DATABASES = {
         "client_encoding": "UTF8",
         # Gestion du pool de connexions par pgbouncer
         "CONN_MAX_AGE": 0,
-        'OPTIONS': {
-             'sslmode': 'disable',
-         },
+        "OPTIONS": {
+            "sslmode": "disable",
+        },
     },
     "heron": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -362,4 +362,4 @@ CELERYD_MAX_TASKS_PER_CHILD = 100  # Redémarre le worker après 100 tâches
 # Le système utilise du polling AJAX pour afficher la progression des tâches Celery
 # Les progressions sont stockées dans le modèle SSEProgress (apps/core/models)
 # Le frontend interroge l'API REST toutes les 500ms pour récupérer l'état
-# Documentation: apps/core/README_PROGRESS.md
+# Documentation dans apps/core/README_PROGRESS.md

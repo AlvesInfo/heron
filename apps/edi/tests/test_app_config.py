@@ -1,6 +1,5 @@
-"""
-Tests de la configuration de l'app edi et de l'import de ses paquets vides
-"""
+"""Tests de la configuration de l'app edi et de l'import de ses paquets vides"""
+
 import importlib
 
 import pytest

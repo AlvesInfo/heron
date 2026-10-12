@@ -1,31 +1,33 @@
-"""
-Module context_processors de django, pour alimenter l'ensemble des templates
-    Date de création : 02/11/2019
-    Créateur : Paulo ALVES
-    Date de modification : 02/11/2019
-    Correcteur : Paulo ALVES
+"""Module context_processors de django, pour alimenter l'ensemble des templates.
+
+Date de création : 02/11/2019
+Créateur : Paulo ALVES
+Date de modification : 02/11/2019
+Correcteur : Paulo ALVES.
 """
 
-from datetime import date
+import contextlib
 from collections import OrderedDict
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.contrib.auth.models import Group
-from apps.users.models import AuthGroupName
-from apps.core.bin.notifications import get_unread_count
+from django.contrib.sites.models import Site
+from django.utils import timezone
 
+from apps.core.bin.notifications import get_unread_count
+from apps.users.models import AuthGroupName
 
 
 def debug(_):
-    """Retourne l'indicateur DEBUG pour les gabarits"""
+    """Retourne l'indicateur DEBUG pour les gabarits."""
     return {"environnement_debug": settings.DEBUG}
 
 
 def title(request):
-    """Retourne le dictionnaire de context avec le titre de l'application
+    """Retourne le dictionnaire de context avec le titre de l'application.
+
     :param request: object request
-    :return: context dict
+    :return: context dict.
     """
     dic = {}
 
@@ -36,20 +38,21 @@ def title(request):
 
 
 def user_group(request):
-    """Retourne le dictionnaire de context du groupe auquel appartient l'user
+    """Retourne le dictionnaire de context du groupe auquel appartient l'user.
+
     :param request: object request
-    :return: context dict
+    :return: context dict.
     """
-    dic = {"user_group": tuple(request.user.groups.values_list("name", flat=True))}
-    return dic
+    return {"user_group": tuple(request.user.groups.values_list("name", flat=True))}
 
 
 def groups_processor(request):
-    """Retourne le dictionnaire de context du nom des groupes
+    """Retourne le dictionnaire de context du nom des groupes.
+
     :param request: object request
-    :return: context dict
+    :return: context dict.
     """
-    dic = {"groups": []}
+    dic: dict[str, list] = {"groups": []}
 
     if request:
         rows_groupes = Group.objects.all().values_list("name")
@@ -59,9 +62,10 @@ def groups_processor(request):
 
 
 def groupes_processor(request):
-    """Retourne le dictionnaire de context des groupes auquel appartient l'user
+    """Retourne le dictionnaire de context des groupes auquel appartient l'user.
+
     :param request: object request
-    :return: context dict
+    :return: context dict.
     """
     if request.user.is_superuser:
         rows_groupes = AuthGroupName.objects.exclude(group__name__iexact="Admin").values_list(
@@ -83,150 +87,142 @@ def groupes_processor(request):
     return {"groupes": groupes}
 
 
-def in_acuitis(reqquest):
-    """
-    Retoune True si l'user appartient à la centrale fille Acuitis
-    :param reqquest: request au sens django
-    :return: bool
+def in_acuitis(request):
+    """Retoune True si l'user appartient à la centrale fille Acuitis.
+
+    :param request: request au sens django
+    :return: bool.
     """
     centers_list = []
 
-    try:
-        centers_list = reqquest.user.code_child_center.split("|")
-    except AttributeError:
-        # 'AnonymousUser' object has no attribute 'code_child_center'
-        ...
+    # 'AnonymousUser' object has no attribute 'code_child_center'
+    with contextlib.suppress(AttributeError):
+        centers_list = request.user.code_child_center.split("|")
 
     return {"in_acuitis": "ACF" in centers_list or "*" in centers_list}
 
 
-def in_ari(reqquest):
-    """
-    Retoune True si l'user appartient à la centrale fille ARI
-    :param reqquest: request au sens django
-    :return: bool
+def in_ari(request):
+    """Retoune True si l'user appartient à la centrale fille ARI.
+
+    :param request: request au sens django
+    :return: bool.
     """
     centers_list = []
 
-    try:
-        centers_list = reqquest.user.code_child_center.split("|")
-    except AttributeError:
-        # 'AnonymousUser' object has no attribute 'code_child_center'
-        ...
+    # 'AnonymousUser' object has no attribute 'code_child_center'
+    with contextlib.suppress(AttributeError):
+        centers_list = request.user.code_child_center.split("|")
 
     return {"in_ari": "ARI" in centers_list or "*" in centers_list}
 
 
-def in_do(reqquest):
-    """
-    Retoune True si l'user appartient à la centrale fille ARI
-    :param reqquest: request au sens django
-    :return: bool
+def in_do(request):
+    """Retoune True si l'user appartient à la centrale fille ARI.
+
+    :param request: request au sens django
+    :return: bool.
     """
     centers_list = []
 
-    try:
-        centers_list = reqquest.user.code_child_center.split("|")
-    except AttributeError:
-        # 'AnonymousUser' object has no attribute 'code_child_center'
-        ...
+    # 'AnonymousUser' object has no attribute 'code_child_center'
+    with contextlib.suppress(AttributeError):
+        centers_list = request.user.code_child_center.split("|")
 
     return {"in_do": "DO" in centers_list or "*" in centers_list}
 
 
-def in_ga(reqquest):
-    """
-    Retoune True si l'user appartient à la centrale fille Grand Audition
-    :param reqquest: request au sens django
-    :return: bool
+def in_ga(request):
+    """Retoune True si l'user appartient à la centrale fille Grand Audition.
+
+    :param request: request au sens django
+    :return: bool.
     """
     centers_list = []
 
-    try:
-        centers_list = reqquest.user.code_child_center.split("|")
-    except AttributeError:
-        # 'AnonymousUser' object has no attribute 'code_child_center'
-        ...
+    # 'AnonymousUser' object has no attribute 'code_child_center'
+    with contextlib.suppress(AttributeError):
+        centers_list = request.user.code_child_center.split("|")
 
     return {"in_ga": "GAF" in centers_list or "*" in centers_list}
 
 
-def in_maa(reqquest):
-    """
-    Retoune True si l'user appartient à la centrale fille MAA
-    :param reqquest: request au sens django
-    :return: bool
+def in_maa(request):
+    """Retoune True si l'user appartient à la centrale fille MAA.
+
+    :param request: request au sens django
+    :return: bool.
     """
     centers_list = []
 
-    try:
-        centers_list = reqquest.user.code_child_center.split("|")
-    except AttributeError:
-        # 'AnonymousUser' object has no attribute 'code_child_center'
-        ...
+    # 'AnonymousUser' object has no attribute 'code_child_center'
+    with contextlib.suppress(AttributeError):
+        centers_list = request.user.code_child_center.split("|")
 
     return {"in_maa": "MAA" in centers_list or "*" in centers_list}
 
 
-def in_unisson(reqquest):
-    """
-    Retoune True si l'user appartient à la centrale fille Unisson
-    :param reqquest: request au sens django
-    :return: bool
+def in_unisson(request):
+    """Retoune True si l'user appartient à la centrale fille Unisson.
+
+    :param request: request au sens django
+    :return: bool.
     """
     centers_list = []
 
-    try:
-        centers_list = reqquest.user.code_child_center.split("|")
-    except AttributeError:
-        # 'AnonymousUser' object has no attribute 'code_child_center'
-        ...
+    # 'AnonymousUser' object has no attribute 'code_child_center'
+    with contextlib.suppress(AttributeError):
+        centers_list = request.user.code_child_center.split("|")
 
     return {"in_unisson": "UNI" in centers_list or "*" in centers_list}
 
 
 def date_du_jour(request):
-    """Retourne le dictionnaire de context la date du jour
+    """Retourne le dictionnaire de context la date du jour.
+
     :param request: object request
-    :return: context dict
+    :return: context dict.
     """
     dic = {}
 
     if request:
-        dic = {"date_du_jour": date.today()}
+        dic = {"date_du_jour": timezone.localdate()}
 
     return dic
 
 
 def annee_du_jour(request):
-    """Retourne le dictionnaire de context l'année de la date du jour
+    """Retourne le dictionnaire de context l'année de la date du jour.
+
     :param request: object request
-    :return: context dict
+    :return: context dict.
     """
     dic = {}
 
     if request:
-        dic = {"annee_du_jour": date.today().year}
+        dic = {"annee_du_jour": timezone.localdate().year}
 
     return dic
 
 
-def domain_site(_):
-    """Retourne le domaine du site
-    :return: context dict
+def domain_site(request):
+    """Retourne le domaine du site, avec le schéma de la requête (http ou https).
+
+    :return: context dict.
     """
-    return {"domain_site": f"http://{Site.objects.get_current().domain}"}
+    return {"domain_site": f"{request.scheme}://{Site.objects.get_current().domain}"}
 
 
 def domain_debug(_):
-    """Retourne le domaine du site
-    :return: context dict
+    """Retourne le domaine du site.
+
+    :return: context dict.
     """
-    return {"domain_debug": "http://127.0.0.1:3000"}
+    return {"domain_debug": settings.DOMAIN_DEBUG}
 
 
 def user_paulo(request):
-    """Retourne si l'user est paulo"""
+    """Retourne si l'user est paulo."""
     try:
         user_mail = request.user.email
     except AttributeError:
@@ -236,12 +232,12 @@ def user_paulo(request):
 
 
 def type_of_base(_):
-    """Retourne le texte si l'on est dans la base de test formation"""
+    """Retourne le texte si l'on est dans la base de test formation."""
     return {"type_of_base": settings.TYPE_OF_BASE}
 
 
 def unread_notifications_count(request):
-    """Retourne le nombre de notifications non lues pour le badge cloche"""
+    """Retourne le nombre de notifications non lues pour le badge cloche."""
     if not request.user.is_authenticated:
         return {"unread_notifications_count": 0}
 

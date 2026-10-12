@@ -1,3 +1,5 @@
+"""Loggers nommés du projet heron."""
+
 import logging
 from logging.config import dictConfig
 

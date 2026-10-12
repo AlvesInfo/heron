@@ -1,3 +1,5 @@
+"""Routes URL de l'application parameters."""
+
 from django.urls import path
 
 from apps.parameters.views import (
@@ -5,47 +7,47 @@ from apps.parameters.views import (
     CategoriesList,
     CategoryCreate,
     CategoryUpdate,
-    categories_export_list,
+    ControlRebillingCreate,
+    # CONTROLE DE REFACTURATION
+    ControlRebillingList,
+    ControlRebillingUpdate,
+    # Catégories et Axes par défaut pour les articles
+    DefaultAxeAricleUpdate,
+    EmailCreate,
+    # EMAILS
+    EmailList,
+    EmailUpdate,
+    ExchangeCreate,
+    ExchangesList,
+    ExchangeUpdate,
+    FunctionCreate,
+    # Function pour la génération des factures
+    FunctionsList,
+    FunctionUpdate,
+    NatureCreate,
+    # NATURE/GENRE
+    NaturesList,
+    NatureUpdate,
+    NumberingCreate,
+    # Numérotation
+    NumberingsList,
+    NumberingUpdate,
     # Rubriques Presta
     SubCategoryCreate,
     SubCategoryUpdate,
-    delete_sub_category,
-    # Catégories et Axes par défaut pour les articles
-    DefaultAxeAricleUpdate,
     axe_articles_defaut_export_list,
-    # Function pour la génération des factures
-    FunctionsList,
-    FunctionCreate,
-    FunctionUpdate,
-    functions_export_list,
+    categories_export_list,
+    control_rebilling_export_list,
+    delete_control_rebilling,
+    delete_sub_category,
     function_delete,
-    # Numérotation
-    NumberingsList,
-    NumberingCreate,
-    NumberingUpdate,
-    numberings_export_list,
-    numbering_delete,
-    # NATURE/GENRE
-    NaturesList,
-    NatureCreate,
-    NatureUpdate,
-    natures_export_list,
+    functions_export_list,
     nature_delete,
-    # EMAILS
-    EmailList,
-    EmailCreate,
-    EmailUpdate,
+    natures_export_list,
+    numbering_delete,
+    numberings_export_list,
     # EXCHANGE RATE
     period_select_exchange,
-    ExchangesList,
-    ExchangeCreate,
-    ExchangeUpdate,
-    # CONTROLE DE REFACTURATION
-    ControlRebillingList,
-    ControlRebillingCreate,
-    ControlRebillingUpdate,
-    delete_control_rebilling,
-    control_rebilling_export_list,
 )
 
 app_name = "apps.parameters"

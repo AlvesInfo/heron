@@ -1,6 +1,6 @@
-"""
-FR : Module des formulaires de validation des imports des factures, pour les updates
-EN : Imported invoices forms module, for updates
+"""FR : Module des formulaires de validation des imports des factures, pour les updates.
+
+EN : Imported invoices forms module, for updates.
 
 Commentaire:
 

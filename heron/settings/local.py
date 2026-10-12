@@ -1,28 +1,30 @@
-# coding: utf-8
-from pathlib import Path
-import gc
+"""Réglages de développement local."""
 
-from heron.settings.base import INSTALLED_APPS, MIDDLEWARE, LOG_DIR
+import gc
 import logging
+from pathlib import Path
+
+from decouple import Csv
+
+from heron.settings.base import INSTALLED_APPS, LOG_DIR, MIDDLEWARE, config
 
 allocs, g1, g2 = gc.get_threshold()
-gc.set_threshold(100_000, g1*5, g2*10)
+gc.set_threshold(100_000, g1 * 5, g2 * 10)
 
 DEBUG = True
 
-INTERNAL_IPS = ["10.9.2.109", "10.9.2.109:8080", "localhost", "127.0.0.1", "localhost:8080", "127.0.0.1:8080"]
-
-DOMAINS_WHITELIST = ["10.9.2.109", "10.9.2.109:8080", "localhost", "127.0.0.1", "localhost:8080", "127.0.0.1:8080"]
+# Hôtes du poste de développement (barre de debug, redirections ?next=) : LOCAL_HOSTS du .env
+LOCAL_HOSTS = config(
+    "LOCAL_HOSTS", default="localhost,127.0.0.1,localhost:8080,127.0.0.1:8080", cast=Csv()
+)
+INTERNAL_IPS = LOCAL_HOSTS
+DOMAINS_WHITELIST = LOCAL_HOSTS
 
 THIRD_PARTY_APPS = ["debug_toolbar"]
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 
-MIDDLEWARE = (
-    ["debug_toolbar.middleware.DebugToolbarMiddleware"]
-    + MIDDLEWARE
-    + []
-)
+MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware", *MIDDLEWARE]
 
 LOG_FILE = (Path(LOG_DIR) / "developpement.log").resolve()
 LOG_EDI_FILE = (Path(LOG_DIR) / "edi_file.log").resolve()
@@ -86,14 +88,14 @@ LOGGING = {
             "filename": LOG_FILE,
             "formatter": "verbose",
         },
-        # Send in import_logfile
+        # envoi vers import_logfile
         "import_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
             "filename": LOG_IMPORT_FILE,
             "formatter": "verbose",
         },
-        # Send in import_logfile
+        # envoi vers import_logfile
         "edi_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
@@ -125,35 +127,35 @@ LOGGING = {
         "loader_logfile_flux": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/loaders_flux.log",
+            "filename": f"{LOG_DIR!s}/loaders_flux.log",
             "formatter": "data_flux",
         },
         # Send in validation data_flux
         "validation_logfile_flux": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/validation_flux.log",
+            "filename": f"{LOG_DIR!s}/validation_flux.log",
             "formatter": "data_flux",
         },
         # Send in postgres_save data_flux
         "postgres_save_logfile_flux": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/postgres_save_flux.log",
+            "filename": f"{LOG_DIR!s}/postgres_save_flux.log",
             "formatter": "data_flux",
         },
         # Send in timer_heron
         "timer_heron": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/timer_heron.log",
+            "filename": f"{LOG_DIR!s}/timer_heron.log",
             "formatter": "verbose",
         },
         # Send in invoices generation or printing
         "invoices_flux": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/invoices_flux.log",
+            "filename": f"{LOG_DIR!s}/invoices_flux.log",
             "formatter": "invoices_flux",
         },
     },

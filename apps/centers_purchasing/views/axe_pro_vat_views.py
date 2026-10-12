@@ -1,6 +1,6 @@
-"""
-FR : Module Dictionnaire Centrale Filles/Axe Pro/TVA
-EN : Central Daughters/Axe Pro/VAT Dictionary Module
+"""FR : Module Dictionnaire Centrale Filles/Axe Pro/TVA.
+
+EN : Central Daughters/Axe Pro/VAT Dictionary Module.
 
 Commentaire:
 
@@ -10,31 +10,32 @@ created by: Paulo ALVES
 modified at: 2023-03-11
 modified by: Paulo ALVES
 """
+
 import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.centers_purchasing.excel_outputs.output_excel_axe_pro_vat_list import (
     excel_liste_axe_vat,
 )
-from apps.centers_purchasing.models import ApplicableProVat
 from apps.centers_purchasing.forms import (
-    ApplicableProVatForm,
     ApplicableProVatDeleteForm,
+    ApplicableProVatForm,
 )
+from apps.centers_purchasing.models import ApplicableProVat
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from heron.loggers import LOGGER_VIEWS
 
 # Module Dictionnaire Centrale Filles/Axe Pro/TVA
 
 
 class AxeProVatList(ListView):
-    """View de la liste du Dictionnaire Centrale Filles/Axe Pro/TVA de facturation"""
+    """View de la liste du Dictionnaire Centrale Filles/Axe Pro/TVA de facturation."""
 
     model = ApplicableProVat
     context_object_name = "axes_pro_vat"
@@ -43,7 +44,7 @@ class AxeProVatList(ListView):
 
 
 class AxeProVatCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création du Dictionnaire Centrale Filles/Axe Pro/TVA de facturation"""
+    """CreateView de création du Dictionnaire Centrale Filles/Axe Pro/TVA de facturation."""
 
     model = ApplicableProVat
     form_class = ApplicableProVatForm
@@ -57,12 +58,12 @@ class AxeProVatCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:axe_pro_vat_list")
-        context[
-            "titre_table"
-        ] = "Création d'un nouveau dictionnaire Centrale Filles/Axe Pro/TVA de facturation"
+        context["titre_table"] = (
+            "Création d'un nouveau dictionnaire Centrale Filles/Axe Pro/TVA de facturation"
+        )
         return context
 
     def get_success_url(self):
@@ -70,7 +71,7 @@ class AxeProVatCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return reverse("centers_purchasing:axe_pro_vat_list")
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -78,7 +79,7 @@ class AxeProVatCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 
 class AxeProVatUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView d'update du Dictionnaire Centrale Filles/Axe Pro/TVA de facturation"""
+    """UpdateView d'update du Dictionnaire Centrale Filles/Axe Pro/TVA de facturation."""
 
     model = ApplicableProVat
     form_class = ApplicableProVatForm
@@ -92,20 +93,20 @@ class AxeProVatUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:axe_pro_vat_list")
-        context[
-            "titre_table"
-        ] = "Mise à jour d'un dictionnaire Centrale Filles/Axe Pro/TVA de facturation"
+        context["titre_table"] = (
+            "Mise à jour d'un dictionnaire Centrale Filles/Axe Pro/TVA de facturation"
+        )
         return context
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_purchasing:axe_pro_vat_list")
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -113,8 +114,7 @@ class AxeProVatUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 def axe_pro_vat_delete(request):
-    """Vue ajax de suppresion d'une ligne de la table"""
-
+    """Vue ajax de suppresion d'une ligne de la table."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -132,21 +132,20 @@ def axe_pro_vat_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"axe_pro_vat_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("axe_pro_vat_delete, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def axe_pro_vat_export_list(_):
-    """
-    Export Excel de la liste du Dictionnaire Centrale Filles/Axe Pro/TVA de facturation
-    :return: response_file
+    """Export Excel de la liste du Dictionnaire Centrale Filles/Axe Pro/TVA de facturation.
+
+    :return: response_file.
     """
     try:
         today = pendulum.now()
         file_name = (
-            f"LISTING_DES_CENTRALE_AXE_PRO_TVA_"
-            f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+            f"LISTING_DES_CENTRALE_AXE_PRO_TVA_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
         )
 
         return response_file(excel_liste_axe_vat, file_name, CONTENT_TYPE_EXCEL)

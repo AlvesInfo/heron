@@ -1,27 +1,25 @@
-"""
-Views des rfa à prendre sur l'axe RFA
-"""
+"""Views des rfa à prendre sur l'axe RFA."""
+
 import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.bin.change_traces import trace_mark_delete
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.rfa.models import SectionRfa
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.rfa.excel_outputs.rfa_sections import excel_list_rfa_sections
-from apps.rfa.forms import SectionRfaForm, DeleteSectionRfaForm
+from apps.rfa.forms import DeleteSectionRfaForm, SectionRfaForm
+from apps.rfa.models import SectionRfa
+from heron.loggers import LOGGER_EXPORT_EXCEL, LOGGER_VIEWS
 
 
 # ECRANS DES AXE RFA ===============================================================================
 class SectionRfaList(ListView):
-    """View de la liste des axes RFA à prendre"""
+    """View de la liste des axes RFA à prendre."""
 
     model = SectionRfa
     context_object_name = "rfa_parameters"
@@ -30,18 +28,16 @@ class SectionRfaList(ListView):
 
 
 class SectionRfaCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView des axes RFA à prendre"""
+    """CreateView des axes RFA à prendre."""
 
     model = SectionRfa
     form_class = SectionRfaForm
     template_name = "rfa/sections_rfa_update.html"
     success_message = "L'Axe RFA %(axe_rfa)s a été créé avec success"
-    error_message = (
-        "L'Axe RFA %(axe_rfa)s n'a pu être créé, une erreur c'est produite"
-    )
+    error_message = "L'Axe RFA %(axe_rfa)s n'a pu être créé, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("rfa:sections_rfa_list")
@@ -53,7 +49,7 @@ class SectionRfaCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return reverse("rfa:sections_rfa_list")
 
     def form_valid(self, form):
-        """Ajout d'user à la sauvegarde du formulaire"""
+        """Ajout d'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -61,19 +57,16 @@ class SectionRfaCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 
 class SectionRfaUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView des axes RFA à prendre"""
+    """UpdateView des axes RFA à prendre."""
 
     model = SectionRfa
     form_class = SectionRfaForm
     template_name = "rfa/sections_rfa_update.html"
     success_message = "L'Axe RFA %(axe_rfa)s a été modifiée avec success"
-    error_message = (
-        "L'Axe RFA %(axe_rfa)s n'a pu être modifiée, une erreur c'est produite"
-    )
+    error_message = "L'Axe RFA %(axe_rfa)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
         """Insert the form into the context dict."""
-
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Mise à jour Axe RFA à Prendre dans le calcul de RFA"
         context["chevron_retour"] = reverse("rfa:sections_rfa_list")
@@ -83,8 +76,8 @@ class SectionRfaUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("rfa:sections_rfa_list")
 
-    def form_valid(self, form, **kwargs):
-        """Ajout d'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout d'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -93,11 +86,11 @@ class SectionRfaUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 @transaction.atomic
 def section_rfa_delete(request):
-    """Suppression des exclusions des section_rfas pour les RFA
-    :param request: Request Django
-    :return: view
-    """
+    """Suppression des exclusions des section_rfas pour les RFA.
 
+    :param request: Request Django
+    :return: view.
+    """
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -115,23 +108,21 @@ def section_rfa_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"section_rfa_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("section_rfa_delete, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def section_rfa_export_list(_):
-    """
-    Export Excel de la liste des Exclusions RFA des section_rfas
+    """Export Excel de la liste des Exclusions RFA des section_rfas.
+
     :param _: Request Django
-    :return: response_file
+    :return: response_file.
     """
     try:
-
         today = pendulum.now()
         file_name = (
-            "LISTING_DES_AXES_RFA_A_PRENDRE_"
-            f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+            f"LISTING_DES_AXES_RFA_A_PRENDRE_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
         )
 
         return response_file(excel_list_rfa_sections, file_name, CONTENT_TYPE_EXCEL)

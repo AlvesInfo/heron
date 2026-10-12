@@ -1,8 +1,7 @@
-"""
-Modèles de base de données générales pour l'ensemble de l'application
-"""
-import uuid
+"""Modèles de base de données générales pour l'ensemble de l'application."""
+
 import json
+import uuid
 
 from django.conf import settings
 from django.db import models
@@ -12,14 +11,14 @@ from apps.core.bin.encoders import PersonalizedDjangoJSONEncoder
 
 
 class PicklerFiles(models.Model):
-    """Modèle servant à stocker les fichier ou objets pickler"""
+    """Modèle servant à stocker les fichier ou objets pickler."""
 
     uuid_identification = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     pickle_file = models.FileField(upload_to="pickler/")
 
 
 class ChangesTrace(models.Model):
-    """Table de stockage de toutes les modifications en json"""
+    """Table de stockage de toutes les modifications en json."""
 
     DELETE = 0
     CREATE = 1

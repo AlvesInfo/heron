@@ -1,6 +1,6 @@
-"""
-FR : Module de génération de l'entête des factures en pdf
-EN : Module for generating invoices in pdf
+"""FR : Module de génération de l'entête des factures en pdf.
+
+EN : Module for generating invoices in pdf.
 
 Commentaire:
 
@@ -11,24 +11,23 @@ modified at: 2023-04-11
 modified by: Paulo ALVES
 """
 
-from typing import AnyStr
 from pathlib import Path
 
-from django.template.loader import render_to_string
 from django.conf import settings
+from django.template.loader import render_to_string
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
-from apps.invoices.models import SaleInvoice
 from apps.centers_purchasing.models import ChildCenterPurchase
+from apps.invoices.models import SaleInvoice
 
 
-def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
-    """
-    Generation de la page de resumé de facture
+def summary_invoice_pdf(cct: str, pdf_path: Path) -> None:
+    """Generation de la page de resumé de facture.
+
     :param cct: Maison facturée
     :param pdf_path: Path du fichier pdf
-    :return: None
+    :return: None.
     """
     sale = SaleInvoice.objects.filter(
         cct=cct, final=False, printed=False, type_x3__in=(1, 2)
@@ -45,7 +44,9 @@ def summary_invoice_pdf(cct: AnyStr, pdf_path: Path) -> None:
 
     context = {
         "invoices": sale,
-        "logo": str(first_sale.signboard.logo_signboard).replace("logos/", "") if first_sale else "",
+        "logo": str(first_sale.signboard.logo_signboard).replace("logos/", "")
+        if first_sale
+        else "",
         "domain": settings.PDF_STATIC_DOMAIN,
         "center_puchase": center_puchase,
     }

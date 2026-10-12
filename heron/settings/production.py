@@ -1,29 +1,24 @@
-# coding: utf-8
+"""Réglages de production."""
+
 import gc
 import logging
 
-from heron.settings.base import Path, BASE_DIR, INSTALLED_APPS, MIDDLEWARE, WHITELIST, LOG_DIR, config
+from decouple import Csv
+
+from heron.settings.base import INSTALLED_APPS, LOG_DIR, MIDDLEWARE, WHITELIST, Path, config
 
 allocs, g1, g2 = gc.get_threshold()
 gc.set_threshold(100_000, g1 * 5, g2 * 10)
 
 DEBUG = False
 
-# Statiques des PDF servis par le serveur lui-même (instance formation sur le port 8080)
-PDF_STATIC_DOMAIN = config(
-    "PDF_STATIC_DOMAIN",
-    default="http://10.9.2.109" if BASE_DIR.name == "heron" else "http://10.9.2.109:8080",
-)
+# Domaine servant les statiques (polices, logos) aux PDF : obligatoire dans le .env de production
+# (instance principale ou instance formation, chacune avec son propre .env)
+PDF_STATIC_DOMAIN = config("PDF_STATIC_DOMAIN")
 
-DOMAINS_WHITELIST = [
-    "10.9.2.109",
-    "localhost",
-    "127.0.0.1",
-    WHITELIST,
-    "10.9.2.109:8080",
-    "localhost:8080",
-    "127.0.0.1:8080",
-]
+# Hôtes autorisés pour les redirections absolues (?next=) : ALLOWED_HOSTS + hôtes avec port
+# déclarés dans DOMAINS_WHITELIST du .env (ex. instance formation :8080)
+DOMAINS_WHITELIST = [*WHITELIST, *config("DOMAINS_WHITELIST", default="", cast=Csv())]
 
 THIRD_PARTY_APPS = [
     "django_clamd",
@@ -31,19 +26,12 @@ THIRD_PARTY_APPS = [
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 
-MIDDLEWARE = [] + MIDDLEWARE + ["axes.middleware.AxesMiddleware"]
+MIDDLEWARE = [*MIDDLEWARE, "axes.middleware.AxesMiddleware"]
 
 SESSION_COOKIE_AGE = 36000
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
-# SESSION_SAVE_EVERY_REQUEST = True
-
-# SECURE_CONTENT_TYPE_NOSNIFF = True
-# SECURE_BROWSER_XSS_FILTER = True
-# X_FRAME_OPTIONS = "DENY"
-
-# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# Durcissement https (cookies secure, HSTS, proxy SSL header, X-Frame-Options) volontairement
+# absent : l'application est servie en http sur le réseau interne ; à activer avec le passage en https
 
 AUTHENTICATION_BACKENDS = [
     # AxesBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
@@ -140,91 +128,91 @@ LOGGING = {
         "production_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/django.log",
+            "filename": f"{LOG_DIR!s}/django.log",
             "formatter": "verbose",
         },
         # Send in timer_heron
         "timer_heron": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/timer_heron.log",
+            "filename": f"{LOG_DIR!s}/timer_heron.log",
             "formatter": "verbose",
         },
-        # Send in import_logfile
+        # envoi vers import_logfile
         "import_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/import_logfile.log",
+            "filename": f"{LOG_DIR!s}/import_logfile.log",
             "formatter": "verbose",
         },
-        # Send in import_logfile
+        # envoi vers import_logfile
         "edi_logfile": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/edi_logfile.log",
+            "filename": f"{LOG_DIR!s}/edi_logfile.log",
             "formatter": "verbose",
         },
         # Send it in a connexion-file
         "connexion-file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/connexion.log",
+            "filename": f"{LOG_DIR!s}/connexion.log",
             "formatter": "verbose",
         },
         # error_views
         "error_views": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/error_views.log",
+            "filename": f"{LOG_DIR!s}/error_views.log",
             "formatter": "verbose",
         },
         # export_excel
         "export_excel": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/export_excel.log",
+            "filename": f"{LOG_DIR!s}/export_excel.log",
             "formatter": "verbose",
         },
         # Send in loader data_flux
         "loader_logfile_flux": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/loaders_flux.log",
+            "filename": f"{LOG_DIR!s}/loaders_flux.log",
             "formatter": "data_flux",
         },
         # Send in validation data_flux
         "validation_logfile_flux": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/validation_flux.log",
+            "filename": f"{LOG_DIR!s}/validation_flux.log",
             "formatter": "data_flux",
         },
         # Send in postgres_save data_flux
         "postgres_save_logfile_flux": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/postgres_save_flux.log",
+            "filename": f"{LOG_DIR!s}/postgres_save_flux.log",
             "formatter": "data_flux",
         },
         # Send in invoices generation or printing
         "invoices_flux": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/invoices_flux.log",
+            "filename": f"{LOG_DIR!s}/invoices_flux.log",
             "formatter": "invoices_flux",
         },
         # Send in send email
         "send_email": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/send_email.log",
+            "filename": f"{LOG_DIR!s}/send_email.log",
             "formatter": "send_email",
         },
         # export files X3
         "export_x3": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": f"{str(LOG_DIR)}/export_files_x3.log",
+            "filename": f"{LOG_DIR!s}/export_files_x3.log",
             "formatter": "export_x3",
         },
     },
@@ -262,7 +250,7 @@ LOGGING = {
     },
 }
 
-MIDDLEWARE = [] + MIDDLEWARE + []
+MIDDLEWARE = [*MIDDLEWARE]
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "accounts/logout/"

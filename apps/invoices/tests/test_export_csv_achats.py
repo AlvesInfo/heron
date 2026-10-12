@@ -1,5 +1,6 @@
 # pylint: disable=E0401,W0621,W0611
 """Tests de l'export csv des achats (COPY PostgreSQL)"""
+
 import io
 import logging
 
@@ -16,7 +17,9 @@ PERIOD = (pendulum.parse("2026-01-01"), pendulum.parse("2026-01-31"))
 def test_get_achats(make_invoice, make_purchase_detail, make_cct, make_article, make_society):
     invoice = make_invoice()
     make_purchase_detail(invoice, make_cct("AF0001"))
-    make_article(reference="ART-1", society=make_society("FOUR001", is_client=False), famille="MONTURES")
+    make_article(
+        reference="ART-1", society=make_society("FOUR001", is_client=False), famille="MONTURES"
+    )
     file_io = io.BytesIO()
 
     result = export_csv_achats.get_achats(file_io, "achats.csv", *PERIOD)
@@ -28,12 +31,16 @@ def test_get_achats(make_invoice, make_purchase_detail, make_cct, make_article, 
     assert "MONTURES" in line
 
 
-def test_get_achats_hors_periode(make_invoice, make_purchase_detail, make_cct, make_article, make_society):
+def test_get_achats_hors_periode(
+    make_invoice, make_purchase_detail, make_cct, make_article, make_society
+):
     make_purchase_detail(make_invoice(), make_cct("AF0001"))
     make_article(reference="ART-1", society=make_society("FOUR001", is_client=False))
     file_io = io.BytesIO()
 
-    export_csv_achats.get_achats(file_io, "achats.csv", pendulum.parse("2025-01-01"), pendulum.parse("2025-01-31"))
+    export_csv_achats.get_achats(
+        file_io, "achats.csv", pendulum.parse("2025-01-01"), pendulum.parse("2025-01-31")
+    )
 
     assert len(file_io.getvalue().decode().strip().split("\n")) == 1  # entête seule
 
@@ -52,6 +59,8 @@ def test_get_achats_erreur(monkeypatch, caplog):
     assert "achats.csv" in caplog.text
 
 
-@pytest.mark.parametrize(("node", "expected"), [("MSI", r"C:\SitesWeb\heron"), ("serveur", "/home/paulo/heron")])
+@pytest.mark.parametrize(
+    ("node", "expected"), [("MSI", r"C:\SitesWeb\heron"), ("serveur", "/home/paulo/heron")]
+)
 def test_base_dir_selon_la_machine(monkeypatch, node, expected):
     assert reload_with_node(monkeypatch, export_csv_achats, node) == expected

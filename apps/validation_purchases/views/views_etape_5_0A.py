@@ -1,22 +1,23 @@
+"""Vues de l'étape 5.0.A de la validation des achats : fournisseurs par client."""
+
 import pendulum
 from django.db import connection
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from heron.loggers import LOGGER_VIEWS
+from apps.centers_clients.models import Maison
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.validation_purchases.excel_outputs.excel_suppliers_m_vs_m1 import (
     excel_suppliers_m_vs_m1,
 )
-from apps.centers_clients.models import Maison
-
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 5.A - Contrôle Fournisseurs M vs M-1
 
 
 def suppliers_m_purchases(request, client):
-    """View de l'étape 5.A - Contrôle Fournisseurs M vs M-1"""
+    """View de l'étape 5.A - Contrôle Fournisseurs M vs M-1."""
     with connection.cursor() as cursor:
         sql_context_file = "apps/validation_purchases/sql_files/sql_suppliers_m_vs_m1.sql"
         elements = query_file_dict_cursor(
@@ -26,7 +27,7 @@ def suppliers_m_purchases(request, client):
         mois = 4
 
         for _ in range(4):
-            mois_dict[f"M{mois-1}"] = (
+            mois_dict[f"M{mois - 1}"] = (
                 (
                     pendulum.now()
                     .subtract(months=mois)
@@ -51,10 +52,12 @@ def suppliers_m_purchases(request, client):
 
 
 def suppliers_m_purchases_export(request, client):
-    """Export Excel du Contrôle Fournisseurs M vs M-1
+    """Export Excel du Contrôle Fournisseurs M vs M-1.
+
     :param client: CCT client X3
     :param request: Request Django
-    :return: response_file"""
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()

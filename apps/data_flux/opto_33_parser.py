@@ -1,6 +1,6 @@
-"""
-FR : Module de parsing des fichiers OPTO 33 (https://edi-optique.org/standards-opto/facture/)
-EN : Parsing module for OPTO 33 (https://edi-optique.org/standards-opto/facture/)
+"""FR : Module de parsing des fichiers OPTO 33 (https://edi-optique.org/standards-opto/facture/).
+
+EN : Parsing module for OPTO 33 (https://edi-optique.org/standards-opto/facture/).
 
 Commentaire:
 
@@ -10,36 +10,23 @@ created by: Paulo ALVES
 modified at: 2022-04-20
 modified by: Paulo ALVES
 """
+
 import re
-from datetime import datetime
-from typing import AnyStr, Callable, Generator
-from pathlib import Path
+from collections.abc import Callable, Generator
 from copy import deepcopy
+from datetime import datetime
+from pathlib import Path
 
-# --------------------------------------------------------------------------------------------------
-# import os
-# import sys
-#
-# BASE_DIR = "/Users/paulo/SitesWeb/heron/"
-# sys.path.insert(0, BASE_DIR)
-# sys.path.append(BASE_DIR)
-# sys.path.insert(1, "/Users/paulo/SitesWeb/heron/apps")
-# sys.path.append("/Users/paulo/SitesWeb/heron/apps")
-#
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
-# --------------------------------------------------------------------------------------------------
-
-from apps.data_flux.utilities import encoding_detect
 from apps.data_flux.exceptions import (
     OptoDateError,
-    OptoLinesError,
-    OptoQualifierError,
     OptoIdError,
-    # OptoNumberError,
+    OptoLinesError,
     OptoParserError,
-    PathTypeError,
+    OptoQualifierError,
     PathFileError,
+    PathTypeError,
 )
+from apps.data_flux.utilities import encoding_detect
 
 INVOICE_DICT = {
     "supplier": "",
@@ -79,39 +66,48 @@ INVOICE_DICT = {
 }
 
 
-def edi_iso_date_format(qualifier_date: str, date_value: AnyStr) -> str:
-    """
-    FR: Fonction pour parser la date au format edi vers un format iso_date
+OPTO_DATE_FORMATS = {
+    "2": "%d%m%y",
+    "3": "%m%d%y",
+    "101": "%y%m%d",
+    "102": "%Y%m%d",
+    "201": "%y%m%d%H%M",
+    "202": "%y%m%d%H%M%S",
+    "203": "%Y%m%d%H%M",
+    "204": "%Y%m%d%H%M%S",
+    "301": "%y%m%d%H%M%z",
+    "302": "%y%m%d%H%M%S%z",
+    "303": "%Y%m%d%H%M%z",
+    "304": "%Y%m%d%H%M%S%z",
+}
+
+
+def _date_format(qualifier_date: str) -> str:
+    """Format strptime du qualifiant de date EDI, ValueError si le qualifiant est inconnu."""
+    date_format = OPTO_DATE_FORMATS.get(qualifier_date.replace("'", ""))
+
+    if date_format is None:
+        raise ValueError
+
+    return date_format
+
+
+def edi_iso_date_format(qualifier_date: str, date_value: str) -> str:
+    """FR: Fonction pour parser la date au format edi vers un format iso_date.
+
     EN: Function to parse the date in edi format to iso_date format
         :param qualifier_date: qualifiant de la date
         :param date_value: date arrivée du fichier
-        :return: date au format iso_date "2022-12-25"
+        :return: date au format iso_date "2022-12-25".
 
     """
     try:
-        dict_format_dates = {
-            "2": "%d%m%y",
-            "3": "%m%d%y",
-            "101": "%y%m%d",
-            "102": "%Y%m%d",
-            "201": "%y%m%d%H%M",
-            "202": "%y%m%d%H%M%S",
-            "203": "%Y%m%d%H%M",
-            "204": "%Y%m%d%H%M%S",
-            "301": "%y%m%d%H%M%z",
-            "302": "%y%m%d%H%M%S%z",
-            "303": "%Y%m%d%H%M%z",
-            "304": "%Y%m%d%H%M%S%z",
-        }
-        date_format = dict_format_dates.get(qualifier_date.replace("'", ""))
-
-        if date_format is None:
-            raise ValueError
+        date_format = _date_format(qualifier_date)
 
         if date_value == "00000000":
             iso_date = "1900-01-01"
         else:
-            iso_date = datetime.strptime(date_value, date_format).date().isoformat()
+            iso_date = datetime.strptime(date_value, date_format).date().isoformat()  # noqa: DTZ007 (date sans heure)
 
     except ValueError as except_error:
         raise OptoDateError(f"{date_value} is not in edi date format dictionnary") from except_error
@@ -120,13 +116,14 @@ def edi_iso_date_format(qualifier_date: str, date_value: AnyStr) -> str:
 
 
 class EDIQualifierParser:
-    """Qualifier pour l'EDI opto 33"""
+    """Qualifier pour l'EDI opto 33."""
 
     def __init__(self, edi_file: Path):
+        """Mémorise le nom du fichier EDI analysé."""
         self.edi_file = edi_file.name
 
     def parse_qualifier(self, qualifier: str, data: list) -> dict:
-        """Parsing des function à appliquer en fonction des qualifiers"""
+        """Parsing des function à appliquer en fonction des qualifiers."""
         try:
             method = getattr(self, f"cmd_{qualifier.lower()}")
             return method(data)
@@ -136,9 +133,9 @@ class EDIQualifierParser:
         return {}
 
     def cmd_unh(self, data: list) -> dict:
-        """
-        Parsing du qualifier UNH, contenant l'en-tête financial_document
-            Example:
+        """Parsing du qualifier UNH, contenant l'en-tête financial_document.
+
+        Example:
                  UNH+426914+INVOIC:D:96B:UN:OPTO33 =>
                 data = "('426914', 'INVOIC:D:96B:UN:OPTO3')"
                 # 426914 = financial_document number
@@ -149,7 +146,8 @@ class EDIQualifierParser:
                     'metadata': ('INVOIC', 'D', '96B', 'UN')
                     'format': 'OPTO33'
                 }
-        :param data: ligne UNH à parser
+        :param data: ligne UNH à parser.
+
         """
         try:
             num, metadata = data
@@ -168,9 +166,9 @@ class EDIQualifierParser:
         }
 
     def cmd_bgm(self, data: list) -> dict:
-        """
-        PARSE BGM : num and invoice type
-        :param data: list of values
+        """PARSE BGM : num and invoice type.
+
+        :param data: list of values.
         """
         try:
             invoice_type, invoice_number, _ = data
@@ -187,9 +185,9 @@ class EDIQualifierParser:
         }
 
     def cmd_dtm(self, data: list) -> dict:
-        """
-        PARSE DTM : balise EDI pour les Dates
-        :param data: list of values
+        """PARSE DTM : balise EDI pour les Dates.
+
+        :param data: list of values.
         """
         try:
             dtm_dict = {
@@ -212,14 +210,13 @@ class EDIQualifierParser:
         )
 
     def cmd_nad(self, data: list) -> dict:
-        """
-        PASE NAD : balise EDI pour l'indication des acteurs de la facture
-        :param data: list of values
-        """
+        """PASE NAD : balise EDI pour l'indication des acteurs de la facture.
 
+        :param data: list of values.
+        """
         try:
             if data[0] not in ["BY", "SU", "PR", "II"]:
-                return ""
+                return {}
 
             nad_qualifier, ident, qualifier_ident, first_name, name, *elements = data
 
@@ -234,7 +231,7 @@ class EDIQualifierParser:
             # NAD+BY, peut être placé dans les lignes de facturation, cela indique le magasin livré
             # Mais nous ne prenons que l'indicateur NAD dans la partie entête de la facture
             if data[0] == "BY" and len(data) < 5:
-                return ""
+                return {}
 
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier NAD : {data!r}"
@@ -268,9 +265,9 @@ class EDIQualifierParser:
         return partner_dict
 
     def cmd_moa(self, data: list) -> dict:
-        """
-        PARSE MOA : balise EDI pour les Montants du resume
-        :param data: list of values
+        """PARSE MOA : balise EDI pour les Montants du resume.
+
+        :param data: list of values.
         """
         try:
             moa_dict = {
@@ -290,9 +287,9 @@ class EDIQualifierParser:
         return {test_moa: amount.replace("'", "")} if test_moa else {}
 
     def cmd_moal(self, data: list) -> dict:
-        """
-        PARSE MOA : balise EDI pour les Montants des lignes
-        :param data: list of values
+        """PARSE MOA : balise EDI pour les Montants des lignes.
+
+        :param data: list of values.
         """
         try:
             moa_dict = {
@@ -324,9 +321,9 @@ class EDIQualifierParser:
         return {test_moa: amount} if test_moa else {}
 
     def cmd_lin(self, data: list) -> dict:
-        """
-        PARSE LIN : balise EDI pour les lignes
-        :param data: list of values
+        """PARSE LIN : balise EDI pour les lignes.
+
+        :param data: list of values.
         """
         try:
             if data[-1] in {"20", "21"}:
@@ -341,7 +338,6 @@ class EDIQualifierParser:
             ) from except_error
 
         if line_type != "20":
-
             if type_code in {"EN", "EAN"}:
                 return {"ean_code": code_article.replace("'", "")}
 
@@ -350,9 +346,9 @@ class EDIQualifierParser:
         return {}
 
     def cmd_rff(self, data: list) -> dict:
-        """
-        PARSE RFF : balise EDI pour les références de livraison ou commande
-        :param data: list of values
+        """PARSE RFF : balise EDI pour les références de livraison ou commande.
+
+        :param data: list of values.
         """
         try:
             rff_dict = {
@@ -362,12 +358,11 @@ class EDIQualifierParser:
                 "ACD": "comment",
             }
             if len(data) == 1:
-                return ""
+                return {}
 
             rff_qualifier, reference, *_ = data
 
         except ValueError as except_error:
-            # print(data)
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier RFF : {data!r}"
                 f", pour le fichier {self.edi_file!r}"
@@ -378,9 +373,9 @@ class EDIQualifierParser:
         return {test_rff: reference} if test_rff else {}
 
     def cmd_imd(self, data: list) -> dict:
-        """
-        PARSE IMD : balise EDI pour les statistiques et libellés des articles
-        :param data: list of values
+        """PARSE IMD : balise EDI pour les statistiques et libellés des articles.
+
+        :param data: list of values.
         """
         try:
             imd_qualifier, id_qualifier, stat, *libelle = data
@@ -400,9 +395,9 @@ class EDIQualifierParser:
         }
 
     def cmd_qty(self, data: list) -> dict:
-        """
-        PARSE QTY : balise EDI pour quantités
-        :param data: list of values
+        """PARSE QTY : balise EDI pour quantités.
+
+        :param data: list of values.
         """
         try:
             qty_qualifier, qty, *_ = data
@@ -421,9 +416,9 @@ class EDIQualifierParser:
         }
 
     def cmd_pri(self, data: list) -> dict:
-        """
-        PARSE PRI : balise EDI pour les prix de référence de l'article
-        :param data: list of values
+        """PARSE PRI : balise EDI pour les prix de référence de l'article.
+
+        :param data: list of values.
         """
         try:
             pri_dict = {
@@ -448,9 +443,9 @@ class EDIQualifierParser:
         return {}
 
     def cmd_tax(self, data: list) -> dict:
-        """
-        PARSE TAX : balise EDI pour le taux de tva
-        :param data: list of values
+        """PARSE TAX : balise EDI pour le taux de tva.
+
+        :param data: list of values.
         """
         try:
             tax_qualifier, *_, tax = data
@@ -469,13 +464,12 @@ class EDIQualifierParser:
         }
 
     def cmd_footer(self, data: list) -> dict:
-        """Parse the DOCUMENT footer
+        """Parse the DOCUMENT footer.
 
         Args:
             data: the string of + concatenated data
 
         Example:
-
             UNZ+25+1863 =>
 
             data = "('25', '1863')"
@@ -487,8 +481,8 @@ class EDIQualifierParser:
                 'document_id': '1863',
                 'financial_documents_count': 25,
             }
-        """
 
+        """
         try:
             count, doc_id = data
         except ValueError as except_error:
@@ -509,41 +503,39 @@ class EDIQualifierParser:
 
 
 class EdiOpoto33Parser:
-    """Parser des fichiers de type EDI optique Opto33"""
+    """Parser des fichiers de type EDI optique Opto33."""
 
     def __init__(
         self,
         edi_file: Path,
         cleaner: Callable = (lambda x: x.replace("?", "").replace("  ", "")),
     ):
-        """
-        Instanciation de la classe
-            :param edi_file: Path du fichier edi à intégrer
-            :param cleaner: fonction de nettoyage du texte
+        """Instanciation de la classe.
+
+        :param edi_file: Path du fichier edi à intégrer
+        :param cleaner: fonction de nettoyage du texte.
         """
         if not isinstance(edi_file, Path):
             raise PathTypeError(
-                "EdiOpoto33Parser - edi_file :"
-                f"{edi_file} - "
-                "doit etre une instance de pathlib.Path"
+                f"EdiOpoto33Parser - edi_file :{edi_file} - doit etre une instance de pathlib.Path"
             )
 
         if not edi_file.is_file():
             raise PathFileError(
-                "EdiOpoto33Parser - edi_file :" f"{edi_file} - " "edi_file doit etre un fichier"
+                f"EdiOpoto33Parser - edi_file :{edi_file} - edi_file doit etre un fichier"
             )
 
         self.edi_file = edi_file
         self.cmd_parser = EDIQualifierParser(self.edi_file)
         self.cleaner = cleaner
-        self.document = {}
+        self.document: dict = {}
 
     @staticmethod
-    def extract_entries(lines: str) -> Generator:
-        """
-        Générateur ligne à ligne du fichier EDI opto 33 (factures)
-            :param lines: lignes du fichier
-            :return: code_parser, ligne
+    def extract_entries(lines: list) -> Generator:
+        """Générateur ligne à ligne du fichier EDI opto 33 (factures).
+
+        :param lines: lignes du fichier
+        :return: code_parser, ligne.
         """
         for line in lines:
             qualifier = line[:3]
@@ -553,23 +545,71 @@ class EdiOpoto33Parser:
                 yield qualifier, data
 
     def entete_resume_parser(self, elements: list, invoice_dict: dict, detail: str) -> None:
-        """Extraction des éléments de l'entête et du résumé"""
+        """Extraction des éléments de l'entête et du résumé."""
         try:
             for element in elements:
                 qualifier, *data = element
                 element_dict = self.cmd_parser.parse_qualifier(qualifier, data)
 
                 if element_dict:
-                    # print(element_dict)
                     invoice_dict.update(element_dict)
 
         except ValueError as except_error:
             raise OptoQualifierError(
-                f"Impossible de parser {detail}: " f"{str(elements)!r}"
+                f"Impossible de parser {detail}: {str(elements)!r}"
             ) from except_error
 
+    @staticmethod
+    def _split_qualifier(element, what: str):
+        """Sépare un élément EDI en (qualifier, éléments) ; OptoQualifierError s'il est vide."""
+        try:
+            qualifier, *elements = element
+
+        except ValueError as except_error:
+            raise OptoQualifierError(
+                f"Impossible de parser {what} : {str(element)!r}"
+            ) from except_error
+
+        return qualifier, elements
+
+    def _parse_article_element(
+        self, article_element, invoice_detail_dict: dict, bl_dict: dict, qualifier_port_emb: str
+    ) -> str:
+        """Applique un élément d'une ligne article au détail de facture (ou au BL).
+
+        :return: le type de frais (port / emballage) attendu par le prochain montant MOA.
+        """
+        qualifier, elements = self._split_qualifier(
+            article_element, "article_element en qualifier, *elements"
+        )
+        element_cal = elements[0]
+        qualifier = "MOAL" if qualifier == "MOA" else qualifier
+
+        if qualifier in {"RFF", "DTM"} and element_cal in {"AAK", "35"}:
+            bl_dict.update(self.cmd_parser.parse_qualifier(qualifier, elements))
+
+        if qualifier == "ALC":
+            test_element = str(elements[-1]).replace("'", "")
+            return {"PC": "packaging_amount", "FC": "transport_amount"}.get(test_element, "")
+
+        if qualifier == "MOAL" and element_cal == "8" and qualifier_port_emb:
+            price_dict = self.cmd_parser.parse_qualifier(qualifier, elements)
+
+            if price_dict.get("net_amount") != "0":
+                invoice_detail_dict[qualifier_port_emb] = price_dict.get("emb_port_price")
+
+                del price_dict["emb_port_price"]
+                invoice_detail_dict.update(price_dict)
+
+            return ""
+
+        if element_cal != "8":
+            invoice_detail_dict.update(self.cmd_parser.parse_qualifier(qualifier, elements))
+
+        return qualifier_port_emb
+
     def line_parser(self, articles: list, invoice_dict: dict, invoices_list: list) -> None:
-        """Extraction des éléments des lignes"""
+        """Extraction des éléments des lignes."""
         invoice_detail_dict = deepcopy(invoice_dict)
         bl_dict = {
             "delivery_number": None,
@@ -578,62 +618,16 @@ class EdiOpoto33Parser:
 
         # Parser des lignes
         for element in articles:
-            try:
-                qualifier, *line_elements = element
-
-                # Parsing du qualifier LIN pour ajout de la référence article ou code_ean
-                line, *line_data = qualifier
-
-            except ValueError as except_error:
-                raise OptoQualifierError(
-                    f"Impossible de parser element ou qualifier : " f"{str(element)!r}"
-                ) from except_error
-
+            qualifier, line_elements = self._split_qualifier(element, "element ou qualifier")
+            # Parsing du qualifier LIN pour ajout de la référence article ou code_ean
+            line, line_data = self._split_qualifier(qualifier, "element ou qualifier")
             article_dict = self.cmd_parser.parse_qualifier(line, line_data)
             qualifier_port_emb = ""
 
             for article_element in line_elements:
-                try:
-                    qualifier, *elements = article_element
-
-                except ValueError as except_error:
-                    raise OptoQualifierError(
-                        f"Impossible de parser article_element en qualifier, *elements: "
-                        f"{str(article_element)!r}"
-                    ) from except_error
-
-                element_cal = elements[0]
-                qualifier = "MOAL" if qualifier == "MOA" else qualifier
-
-                if qualifier in {"RFF", "DTM"} and element_cal in {"AAK", "35"}:
-                    bl_dict.update(self.cmd_parser.parse_qualifier(qualifier, elements))
-
-                if qualifier == "ALC":
-                    test_element = str(elements[-1]).replace("'", "")
-
-                    if test_element == "PC":
-                        qualifier_port_emb = "packaging_amount"
-
-                    elif test_element == "FC":
-                        qualifier_port_emb = "transport_amount"
-
-                    else:
-                        qualifier_port_emb = ""
-
-                elif qualifier == "MOAL" and element_cal == "8" and qualifier_port_emb:
-                    price_dict = self.cmd_parser.parse_qualifier(qualifier, elements)
-
-                    if price_dict.get("net_amount") != "0":
-                        invoice_detail_dict[qualifier_port_emb] = price_dict.get("emb_port_price")
-
-                        del price_dict["emb_port_price"]
-                        # print(price_dict)
-                        invoice_detail_dict.update(price_dict)
-
-                    qualifier_port_emb = ""
-
-                elif element_cal != "8":
-                    invoice_detail_dict.update(self.cmd_parser.parse_qualifier(qualifier, elements))
+                qualifier_port_emb = self._parse_article_element(
+                    article_element, invoice_detail_dict, bl_dict, qualifier_port_emb
+                )
 
             if article_dict:
                 invoice_detail_dict.update(article_dict)
@@ -643,13 +637,13 @@ class EdiOpoto33Parser:
                 invoice_detail_dict = deepcopy(invoice_dict)
 
     def extract_invoices(self, invoices: list) -> Generator:
-        """
-        Extraction des factures une à une
-            :param invoices: générator des factures une à une
-            :return: générateur des dictionaire des éléments des factures
+        """Extraction des factures une à une.
+
+        :param invoices: générator des factures une à une
+        :return: générateur des dictionaire des éléments des factures.
         """
         try:
-            invoices_list = []
+            invoices_list: list = []
 
             for invoice in self.invoices(invoices):
                 try:
@@ -674,14 +668,14 @@ class EdiOpoto33Parser:
 
             yield from invoices_list
 
-        except (OptoLinesError, Exception) as except_error:
+        except Exception as except_error:
             raise OptoLinesError("Erreur dans l'extraction des factures") from except_error
 
     @staticmethod
     def invoices(lines: list) -> Generator:
-        """
-        Générateur des éléments des factures, factures par factures
-        :param lines: lignes des fichiers
+        """Générateur des éléments des factures, factures par factures.
+
+        :param lines: lignes des fichiers.
         """
         for line in lines:
             yield [
@@ -694,17 +688,18 @@ class EdiOpoto33Parser:
             ]
 
     def parse(self) -> dict:
-        """
-        Fontion de parsing du fichier bancaire
-            :return: {"file_name": "", "edi_financial_documents": []}
+        """Fontion de parsing du fichier bancaire.
+
+        :return: {"file_name": "", "edi_financial_documents": []}.
         """
         encoding = encoding_detect(self.edi_file) or "ascii"
 
-        with open(self.edi_file, encoding=encoding) as file:
+        with Path(self.edi_file).open(encoding=encoding) as file:
             text = file.read().strip()
             try:
                 _, header, *invoices, footer = re.split(
-                    r"[\n|'](?=UNB)|[\n|'](?=UNH)|[\n|'](?=UNZ)" if text[:3] == "UNA"
+                    r"[\n|'](?=UNB)|[\n|'](?=UNH)|[\n|'](?=UNZ)"
+                    if text.startswith("UNA")
                     # Certains fichiers EDI n'ont pas l'entête UNA
                     else r"(?=UNB)|[\n|'](?=UNH)|[\n|'](?=UNZ)",
                     text,
@@ -721,41 +716,16 @@ class EdiOpoto33Parser:
 
             # ANNULATION DE LA VALIDATION CAR JULBO NE RESPECTE PAS ID INTERCHANGE
             # On vérifie l'ID d'interchage
-            if str(header[1][4]).replace("'", "") != footer_parse.get("document_id").replace(
-                "'", ""
-            ):
-                # print(self.edi_file.name)
-                # print(header, footer_parse.get("document_id"))
+            if str(header[1][4]).replace("'", "") != str(
+                footer_parse.get("document_id") or ""
+            ).replace("'", ""):
                 raise OptoIdError(
                     rf"l'ID du fichier Edi '{self.edi_file.name}' en entête (UNB) "
                     r"et en pied de page (UNZ) sont différents"
                 )
 
-            # On vérifie que le nombre de factures est celui annoncé
-            # if len(re.findall(r"UNH(?=\+)", text)) != footer_count_invoices:
-            #     raise OptoNumberError(
-            #         r"Il n'y a pas dans le fichier le nombre de factures "
-            #         r"annoncé dans le pied de page (UNZ), "
-            #         f"dans le fichier {self.edi_file.name!r}"
-            #     )
-
-            # ANNULATION DE LA VALIDATION CAR CooperVision NE RESPECTE PAS LE NOMBRE DE LIGNES
-            # errors_list = []
-            #
-            # # On vérifie que toutes les lignes de factures sont présentes.
-            # for line in self.invoices(invoices):
-            #     entete, *_, resume = line
-            #
-            #     if len([_ for lis in line for _ in lis]) != int(resume[0][1]):
-            #         errors_list.append(entete[1][2])
-            #
-            # if errors_list:
-            #     raise OptoNumberError(
-            #         f"Le nombre de lignes des factures/avoirs : {', '.join(errors_list)!r} "
-            #         "ne correpond pas au "
-            #         "nombre de lignes indiquées dans leur résumé (UNT), "
-            #         f"dans le fichier {self.edi_file.name!r}"
-            #     )
+            # Pas de contrôle du nombre de factures annoncé (UNZ) ni du nombre de lignes par
+            # facture (UNT) : CooperVision et d'autres fournisseurs ne les respectent pas
 
             return {
                 "header": header,
@@ -764,15 +734,3 @@ class EdiOpoto33Parser:
                 "get_columns": INVOICE_DICT,
                 "count_invoices": footer_count_invoices,
             }
-
-
-if __name__ == '__main__':
-    """"""
-    # file = Path("/Users/paulo/Downloads/FR45517780870.txt")
-    # e = EdiOpoto33Parser(file)
-    # content = e.parse()
-    # iv = content["invoices"]
-    # for d in iv:
-    #     print(d.get("invoice_number"))
-    #     if not d.get("reference_article"):
-    #         print(d)

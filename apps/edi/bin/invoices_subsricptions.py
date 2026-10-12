@@ -1,7 +1,7 @@
-"""
-Génération des factures d'abonnements: Royalties, Meuleuse, Publicité, Prestations
+"""Génération des factures d'abonnements: Royalties, Meuleuse, Publicité, Prestations.
+
 FR : Module de génération des factures de Royalties
-EN : Royalties invoice generation module
+EN : Royalties invoice generation module.
 
 Commentaire:
 
@@ -11,23 +11,24 @@ created by: Paulo ALVES
 modified at: 2023-03-03
 modified by: Paulo ALVES
 """
-from typing import AnyStr, Dict
+
 from uuid import UUID, uuid4
 
-from psycopg2 import sql
 from django.utils import timezone
+from psycopg2 import sql
 
-from apps.core.functions.functions_setups import connection
-from apps.core.functions.functions_postgresql import query_execute
-from apps.data_flux.trace import get_trace
-from heron.loggers import LOGGER_EDI
-from apps.users.models import User
 from apps.compta.bin.generate_ca import set_ca
+from apps.core.functions.functions_postgresql import query_execute
+from apps.core.functions.functions_setups import connection
+from apps.data_flux.trace import get_trace
 from apps.invoices.sql_files.sql_subscriptions import SQL_SUBSCRIPTIONS
+from apps.users.models import User
+from heron.loggers import LOGGER_EDI
 
 
 def set_invoice_amounts(flow_name: str):
-    """Set des totaux par flow names, car il peut y avoir plusieurs fois le même type d'abonnement
+    """Set des totaux par flow names, car il peut y avoir plusieurs fois le même type d'abonnement.
+
     par flow name
     :param flow_name: non de l'abonnemment
     :return:
@@ -46,13 +47,13 @@ def set_invoice_amounts(flow_name: str):
                     "flow_name",
                     "supplier",
                     "invoice_number",
-                    sum(net_amount) as invoice_amount_without_tax, 
-                    sum(vat_amount) as invoice_amount_tax, 
+                    sum(net_amount) as invoice_amount_without_tax,
+                    sum(vat_amount) as invoice_amount_tax,
                     sum(amount_with_vat) as invoice_amount_with_tax
                 from "edi_ediimport"
                 where "flow_name" = %(flow_name)s
-                group by 
-                        "third_party_num", 
+                group by
+                        "third_party_num",
                         "flow_name",
                         "supplier",
                         "invoice_number"
@@ -66,8 +67,9 @@ def set_invoice_amounts(flow_name: str):
         cursor.execute(sql_update, {"flow_name": flow_name})
 
 
-def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
-    """Insert en base les abonnements
+def set_data(dte_d: str, dte_f: str, user_uuid: UUID, flow_name: str):
+    """Insert en base les abonnements.
+
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
     :param user_uuid: UUID de l'utilisateur lançant la génération
@@ -75,7 +77,7 @@ def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
     :return:
     """
     set_ca(dte_d, dte_f, user_uuid)
-    rows = query_execute(
+    return query_execute(
         connection,
         SQL_SUBSCRIPTIONS,
         {
@@ -86,11 +88,11 @@ def set_data(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID, flow_name: Dict):
             "created_by": user_uuid,
         },
     )
-    return rows
 
 
-def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
-    """Génération de factures de redevance Meuleuse
+def meuleuse(dte_d: str, dte_f: str, user_uuid: UUID):
+    """Génération de factures de redevance Meuleuse.
+
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
     :param user_uuid: UUID de l'utilisateur lançant la génération
@@ -109,9 +111,9 @@ def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         rows = set_data(dte_d, dte_f, user_uuid, flow_name)
         set_invoice_amounts(flow_name)
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception("Exception Générale")
 
     if error:
         trace.errors = True
@@ -134,8 +136,9 @@ def meuleuse(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     return trace, to_print
 
 
-def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
-    """Génération de factures de Prestations
+def services(dte_d: str, dte_f: str, user_uuid: UUID):
+    """Génération de factures de Prestations.
+
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
     :param user_uuid: UUID de l'utilisateur lançant la génération
@@ -154,9 +157,9 @@ def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         rows = set_data(dte_d, dte_f, user_uuid, flow_name)
         set_invoice_amounts(flow_name)
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception("Exception Générale")
 
     if error:
         trace.errors = True
@@ -177,8 +180,9 @@ def services(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     return trace, to_print
 
 
-def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
-    """Génération de factures de redevance de Pubilicité
+def publicity(dte_d: str, dte_f: str, user_uuid: UUID):
+    """Génération de factures de redevance de Pubilicité.
+
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
     :param user_uuid: UUID de l'utilisateur lançant la génération
@@ -197,9 +201,9 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         rows = set_data(dte_d, dte_f, user_uuid, flow_name)
         set_invoice_amounts(flow_name)
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception("Exception Générale")
 
     if error:
         trace.errors = True
@@ -223,8 +227,9 @@ def publicity(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
     return trace, to_print
 
 
-def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
-    """Génération de factures de Royalties
+def royalties(dte_d: str, dte_f: str, user_uuid: UUID):
+    """Génération de factures de Royalties.
+
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
     :param user_uuid: UUID de l'utilisateur lançant la génération
@@ -243,9 +248,9 @@ def royalties(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
         rows = set_data(dte_d, dte_f, user_uuid, flow_name)
         set_invoice_amounts(flow_name)
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception("Exception Générale")
 
     if error:
         trace.errors = True

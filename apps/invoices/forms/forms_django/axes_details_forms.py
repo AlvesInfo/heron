@@ -1,19 +1,18 @@
-"""
-Forms des dictionnaires Axe Pro/Regroupement de facturation
-"""
+"""Forms des dictionnaires Axe Pro/Regroupement de facturation."""
+
 from django import forms
 
+from apps.invoices.models import AxesDetails, EnteteDetails
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
-from apps.invoices.models import EnteteDetails, AxesDetails
 
 
 class EnteteDetailsForm(forms.ModelForm):
-    """Formulaires de la liste des dictionnaires Entêtes Détails de facturation"""
+    """Formulaires de la liste des dictionnaires Entêtes Détails de facturation."""
 
     use_required_attribute = False
 
     class Meta:
-        """class Meta du form django"""
+        """class Meta du form django."""
 
         model = EnteteDetails
         fields = [
@@ -23,12 +22,12 @@ class EnteteDetailsForm(forms.ModelForm):
 
 
 class EnteteDetailsDeleteForm(forms.ModelForm):
-    """Formulaire de suppression d'une entête de détails (l'id doit exister)"""
+    """Formulaire de suppression d'une entête de détails (l'id doit exister)."""
 
     id = forms.ModelChoiceField(queryset=EnteteDetails.objects.all())
 
     class Meta:
-        """class Meta du form django"""
+        """class Meta du form django."""
 
         model = EnteteDetails
         fields = [
@@ -37,12 +36,12 @@ class EnteteDetailsDeleteForm(forms.ModelForm):
 
 
 class AxesDetailsForm(forms.ModelForm):
-    """Formulaires de la liste des dictionnaires Axe Pro/Détails de facturation"""
+    """Formulaires de la liste des dictionnaires Axe Pro/Détails de facturation."""
 
     use_required_attribute = False
 
     class Meta:
-        """class Meta du form django"""
+        """class Meta du form django."""
 
         model = AxesDetails
         fields = [
@@ -56,12 +55,12 @@ class AxesDetailsForm(forms.ModelForm):
 
 
 class AxesDetailsDeleteForm(forms.ModelForm):
-    """Formulaire de suppression d'un couple axe pro / entête (l'id doit exister)"""
+    """Formulaire de suppression d'un couple axe pro / entête (l'id doit exister)."""
 
     id = forms.ModelChoiceField(queryset=AxesDetails.objects.all())
 
     class Meta:
-        """class Meta du form django"""
+        """class Meta du form django."""
 
         model = AxesDetails
         fields = [

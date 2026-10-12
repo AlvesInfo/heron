@@ -1,5 +1,5 @@
-"""
-FR : Client HTTP du serveur Factur-X (projet facturx_server, API de facturx-fr).
+"""FR : Client HTTP du serveur Factur-X (projet facturx_server, API de facturx-fr).
+
      heron ne peut pas importer facturx-fr (Python 3.12 / Pydantic v2) : la génération
      est déléguée au micro-service via son API, avec la seule dépendance ``requests``.
 EN : HTTP client for the Factur-X server (facturx_server project, facturx-fr API).
@@ -12,8 +12,9 @@ created by: Paulo ALVES
 modified at: 2026-10-10
 modified by: Paulo ALVES
 """
+
 import json
-from typing import Any, AnyStr, Dict, List, Optional
+from typing import Any
 
 import requests
 from django.conf import settings
@@ -22,15 +23,17 @@ from heron.loggers import LOGGER_INVOICES
 
 
 class FacturXClientError(Exception):
-    """Erreur renvoyée par le serveur Factur-X ou erreur de communication"""
+    """Erreur renvoyée par le serveur Factur-X ou erreur de communication."""
 
-    def __init__(self, message: str, status: Optional[int] = None, details: Any = None):
+    def __init__(self, message: str, status: int | None = None, details: Any | None = None):
+        """Mémorise le message, le statut HTTP et le détail de l'erreur."""
         super().__init__(message)
         self.message = message
         self.status = status
         self.details = details
 
     def __str__(self) -> str:
+        """Message d'erreur avec le statut HTTP et le détail s'ils sont connus."""
         text = self.message
         if self.status is not None:
             text = f"[{self.status}] {text}"
@@ -40,9 +43,9 @@ class FacturXClientError(Exception):
 
     @staticmethod
     def _format_details(details: Any) -> str:
-        """Formate les détails (erreurs Pydantic ou schématron) en texte lisible"""
+        """Formate les détails (erreurs Pydantic ou schématron) en texte lisible."""
         if isinstance(details, list):
-            lines: List[str] = []
+            lines: list[str] = []
             for detail in details[:20]:
                 if isinstance(detail, dict):
                     loc = ".".join(str(part) for part in detail.get("loc", []))
@@ -56,16 +59,18 @@ class FacturXClientError(Exception):
 
 
 class FacturXClient:
-    """Client de l'API HTTP de génération Factur-X"""
+    """Client de l'API HTTP de génération Factur-X."""
 
     def __init__(
         self,
-        base_url: Optional[AnyStr] = None,
-        api_key: Optional[AnyStr] = None,
-        profile: Optional[AnyStr] = None,
-        timeout: Optional[int] = None,
-        validate: Optional[bool] = None,
+        base_url: str | None = None,
+        api_key: str | None = None,
+        profile: str | None = None,
+        timeout: int | None = None,
+        *,
+        validate: bool | None = None,
     ):
+        """Configure l'url, la clé d'API, le profil et le délai du client Factur-X."""
         self.base_url = str(base_url or settings.FACTURX_SERVER_URL).rstrip("/")
         self.api_key = str(api_key if api_key is not None else settings.FACTURX_API_KEY)
         self.profile = str(profile or settings.FACTURX_PROFILE)
@@ -74,8 +79,8 @@ class FacturXClient:
         self.session = requests.Session()
 
     @property
-    def headers(self) -> Dict[str, str]:
-        """En-têtes d'authentification"""
+    def headers(self) -> dict[str, str]:
+        """En-têtes d'authentification."""
         return {"Authorization": f"Bearer {self.api_key}"} if self.api_key else {}
 
     def _url(self, path: str) -> str:
@@ -83,7 +88,7 @@ class FacturXClient:
 
     @staticmethod
     def _raise_for_error(response: requests.Response) -> None:
-        """Convertit une réponse en erreur si le statut n'est pas 2xx"""
+        """Convertit une réponse en erreur si le statut n'est pas 2xx."""
         if response.ok:
             return
 
@@ -101,8 +106,8 @@ class FacturXClient:
             details=payload.get("details"),
         )
 
-    def health(self) -> Dict[str, Any]:
-        """Vérifie que le serveur répond et renvoie ses informations"""
+    def health(self) -> dict[str, Any]:
+        """Vérifie que le serveur répond et renvoie ses informations."""
         try:
             response = self.session.get(
                 self._url("health/"), headers=self.headers, timeout=self.timeout
@@ -116,29 +121,30 @@ class FacturXClient:
         return response.json()
 
     def is_available(self) -> bool:
-        """Renvoie True si le serveur est joignable et la clé acceptée"""
+        """Renvoie True si le serveur est joignable et la clé acceptée."""
         try:
             return self.health().get("status") == "ok"
         except FacturXClientError as error:
-            LOGGER_INVOICES.warning(f"Serveur Factur-X indisponible : {error}")
+            LOGGER_INVOICES.warning("Serveur Factur-X indisponible : %s", error)
             return False
 
     def generate(
         self,
-        invoice: Dict[str, Any],
+        invoice: dict[str, Any],
         pdf_bytes: bytes,
-        profile: Optional[AnyStr] = None,
-        validate: Optional[bool] = None,
-        file_name: AnyStr = "facture.pdf",
+        profile: str | None = None,
+        *,
+        validate: bool | None = None,
+        file_name: str = "facture.pdf",
     ) -> bytes:
-        """
-        Génère le PDF Factur-X d'une facture
+        """Génère le PDF Factur-X d'une facture.
+
         :param invoice: facture au format JSON-compatible (schéma facturx_fr.models.Invoice)
         :param pdf_bytes: contenu du PDF source
         :param profile: profil Factur-X (défaut settings.FACTURX_PROFILE)
         :param validate: valider le XML avant embarquement
         :param file_name: nom du fichier PDF transmis
-        :return: contenu du PDF Factur-X
+        :return: contenu du PDF Factur-X.
         """
         should_validate = self.validate if validate is None else validate
         data = {

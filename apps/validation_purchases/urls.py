@@ -1,68 +1,19 @@
+"""Routes URL de l'application validation_purchases."""
+
 from django.urls import path
 
 from apps.validation_purchases.views import (
-    # 2.1 Intégration
-    integration_purchases,
-    purchase_without_suppliers,
-    purchase_without_suppliers_update,
-    integration_supplier_validation,
-    delete_supplier_edi_import,
-    integration_purchases_export,
-    alls_details_purchases_export,
-    integration_validation,
-    big_category_change,
     CreateIntegrationControl,
     UpdateIntegrationControl,
-    # 2.1.A LISTING FACTURES
-    integration_supplier_purchases,
-    cct_change,
-    delete_invoice_purchase,
-    integration_supplier_purchases_export,
-    # 2.1.B - DETAILS FACTURES
-    details_purchase,
-    delete_line_details_purchase,
-    details_purchases_export,
-    # 2.2 - FACTURES SANS CCT
-    without_cct_purchases,
-    without_cct_purchases_export,
-    # 3.1 - FAMILLES ARTICLES
-    families_invoices_purchases,
-    families_invoices_purchases_export,
-    supplier_details_invoices_purchases_export,
-    families_validation,
+    alls_details_purchases_export,
     # 3.1 A - FAMILLES ARTICLES / FACTURES
     articles_families_invoices_purchases,
     articles_families_invoices_purchases_export,
-    # 3.2 - CONTROLE CCT Franchiseurs
-    cct_franchiseurs_purchases,
-    cct_franchiseurs_purchases_export,
-    franchiseurs_validation,
-    # 3.3 - Nouveaux Clients
-    clients_news_purchases,
-    clients_news_purchases_export,
-    clients_news_validation,
-    # 3.5 - Abonnements
-    subscriptions_purchases,
-    subscriptions_purchases_export,
-    subscriptions_validation,
-    # 3.6 - Contrôle période RFA
-    control_rfa_period,
-    control_rfa_period_export,
-    control_rfa_period_validation,
-    # 5.0 - Contrôle Refac M M-1 par CCT
-    refac_cct_purchases,
-    refac_cct_purchases_export,
-    refac_cct_validation,
-    # 5.A - Contrôle Fournisseurs M vs M-1
-    suppliers_m_purchases,
-    suppliers_m_purchases_export,
-    # 5.B - Contrôle Details Fournisseurs M vs M-1
-    third_suppliers_m_purchases,
-    third_suppliers_m_purchases_export,
     # 5.1 Fournisseurs M vs M-1
     balance_suppliers_purchases,
     balance_suppliers_purchases_export,
     balance_suppliers_purchases_validation,
+    big_category_change,
     # 5.3 - Contrôle CA Cosium / Ventes Héron
     ca_cct,
     ca_cct_export,
@@ -70,26 +21,77 @@ from apps.validation_purchases.views import (
     # 5.3A - Contrôle CA Cosium / Ventes Héron par familles
     ca_familly_cct,
     ca_familly_cct_export,
-    # 5.5
-    invoices_purchases_export_globals,
-    # 6.0 Export achats fournisseurs EDI
-    suppliers_edi_purchases,
+    cct_change,
+    # 3.2 - CONTROLE CCT Franchiseurs
+    cct_franchiseurs_purchases,
+    cct_franchiseurs_purchases_export,
+    # 3.3 - Nouveaux Clients
+    clients_news_purchases,
+    clients_news_purchases_export,
+    clients_news_validation,
+    # 3.6 - Contrôle période RFA
+    control_rfa_period,
+    control_rfa_period_export,
+    control_rfa_period_validation,
+    delete_invoice_purchase,
+    delete_line_details_purchase,
+    delete_supplier_edi_import,
+    # 2.1.B - DETAILS FACTURES
+    details_purchase,
+    details_purchases_export,
     edi_import_purchases_export,
     edi_import_purchases_export_csv,
-    # 6.1 Export RFA Mensuelles
-    rfa_mensuelles,
-    rfa_generated_export,
+    # 3.1 - FAMILLES ARTICLES
+    families_invoices_purchases,
+    families_invoices_purchases_export,
+    families_validation,
+    franchiseurs_validation,
+    # 2.1 Intégration
+    integration_purchases,
+    integration_purchases_export,
+    # 2.1.A LISTING FACTURES
+    integration_supplier_purchases,
+    integration_supplier_purchases_export,
+    integration_supplier_validation,
+    integration_validation,
+    # 5.5
+    invoices_purchases_export_globals,
+    purchase_without_suppliers,
+    purchase_without_suppliers_update,
+    # 5.0 - Contrôle Refac M M-1 par CCT
+    refac_cct_purchases,
+    refac_cct_purchases_export,
+    refac_cct_validation,
     # RFA
     rfa_cct_invoices_purchases,
     rfa_cct_invoices_purchases_export,
+    rfa_generated_export,
+    # 6.1 Export RFA Mensuelles
+    rfa_mensuelles,
     rfa_prj_invoices_purchases,
     rfa_prj_invoices_purchases_export,
-    sage_controls_globals_purchases,
-    validation_purchases_export_globals,
     sage_controls_details_purchases,
-    validation_purchases_export_details,
     sage_controls_familles_purchases,
+    sage_controls_globals_purchases,
+    # 3.5 - Abonnements
+    subscriptions_purchases,
+    subscriptions_purchases_export,
+    subscriptions_validation,
+    supplier_details_invoices_purchases_export,
+    # 6.0 Export achats fournisseurs EDI
+    suppliers_edi_purchases,
+    # 5.A - Contrôle Fournisseurs M vs M-1
+    suppliers_m_purchases,
+    suppliers_m_purchases_export,
+    # 5.B - Contrôle Details Fournisseurs M vs M-1
+    third_suppliers_m_purchases,
+    third_suppliers_m_purchases_export,
+    validation_purchases_export_details,
     validation_purchases_export_familles,
+    validation_purchases_export_globals,
+    # 2.2 - FACTURES SANS CCT
+    without_cct_purchases,
+    without_cct_purchases_export,
 )
 
 app_name = "apps.validation_purchases"

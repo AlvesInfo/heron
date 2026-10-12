@@ -1,5 +1,5 @@
-"""
-Module de loaders pour traitements des flux à intégrer en BDD, avec une pré-validation.
+"""Module de loaders pour traitements des flux à intégrer en BDD, avec une pré-validation.
+
 Ces flux renvoient des modes de consommation du flux, tels que :
     - read() : list des données
     - read_list() : dictionnaire de données
@@ -24,36 +24,37 @@ created by: Paulo ALVES
 modified at: 2021-10-30
 modified by: Paulo ALVES
 """
+
+import csv
 import io
 import uuid
-from typing import Dict, Any
-import csv
 from operator import itemgetter
+from typing import Any
 
-from .utilities import excel_file_to_csv_string_io, file_to_csv_string_io
 from .exceptions import (
-    IterFileToInsertError,
-    GetAddDictError,
-    ExcelToCsvError,
-    FileToCsvError,
-    ExcelToCsvFileError,
     CsvFileToStringIoError,
+    ExcelToCsvError,
+    ExcelToCsvFileError,
+    FileToCsvError,
+    GetAddDictError,
+    IterFileToInsertError,
 )
-from .models import Line, Error
+from .models import Error, Line
 from .opto_33_parser import EdiOpoto33Parser
+from .utilities import excel_file_to_csv_string_io, file_to_csv_string_io
 
 
 class TemplateDataLoader:
-    """Template Loader de data, après les avoir cleaner et modififiées à la vollée"""
+    """Template Loader de data, après les avoir cleaner et modififiées à la vollée."""
 
     def __init__(
         self,
         source: Any,
-        columns_dict: Dict,
+        columns_dict: dict,
         first_line: int = 1,
-        params_dict: Dict = None,
+        params_dict: dict | None = None,
     ):
-        """Initialisation de la class"""
+        """Initialisation de la class."""
         self.source = source
         self.columns_dict = columns_dict
         self.first_line = first_line
@@ -61,58 +62,61 @@ class TemplateDataLoader:
         self.trace = self.params_dict.get("trace")
 
     def __enter__(self):
-        """Pré context manager"""
+        """Pré context manager."""
         return self
 
-    def open(self, flux_params_dict: Dict = None):
-        """Méthode d'ouverture du flux de données"""
+    def open(self, flux_params_dict: dict | None = None):
+        """Méthode d'ouverture du flux de données."""
         raise NotImplementedError
 
-    def read(self, all_lines: bool = False):
-        """Méthode de lecture du flux de données au format io.StringIO"""
+    def read(self, *, all_lines: bool = False):
+        """Méthode de lecture du flux de données au format io.StringIO."""
         raise NotImplementedError
 
-    def read_list(self, all_lines: bool = False):
-        """Méthode de lecture du flux de données, sous forme d'un tableau (list en python)"""
+    def read_list(self, *, all_lines: bool = False):
+        """Méthode de lecture du flux de données, sous forme d'un tableau (list en python)."""
         raise NotImplementedError
 
-    def read_dict(self, all_lines: bool = False):
-        """Méthode de lecture du flux de données sous forme d'un dictionnaire"""
+    def read_dict(self, *, all_lines: bool = False):
+        """Méthode de lecture du flux de données sous forme d'un dictionnaire."""
         raise NotImplementedError
 
     def close(self):
-        """Méthode de fermeture du flux de données"""
+        """Méthode de fermeture du flux de données."""
         raise NotImplementedError
 
-    def load(self, read_methode: str = "data", all_lines: bool = False):
-        """
-        Générateur du flux de données
+    def load(self, read_methode: str = "data", *, all_lines: bool = False):
+        """Générateur du flux de données.
+
         :param read_methode: Data pour un flux texte et data_dict pour un flux de dictionnaire
         :param all_lines:    Si dans le flux il y a des lignes vides :
                                 all_lines = False -> shorcut l'itération des lignes vides
-                                all_lines = True -> iterre même sur des lignes vides
+                                all_lines = True -> iterre même sur des lignes vides.
         """
         self.open(self.params_dict)
 
         if read_methode == "data":
-            yield from self.read(all_lines)
+            yield from self.read(all_lines=all_lines)
             return
 
         if read_methode == "data_list":
-            yield from self.read_list(all_lines)
+            yield from self.read_list(all_lines=all_lines)
             return
 
         if read_methode == "data_dict":
-            yield from self.read_dict(all_lines)
+            yield from self.read_dict(all_lines=all_lines)
             return
 
         self.close()
 
     def trace_add_line_error(
-        self, insertion_type: str = "Unknown", num_line: int = None, designation: str = None,
-            error_dict=None
+        self,
+        insertion_type: str = "Unknown",
+        num_line: int | None = None,
+        designation: str | None = None,
+        error_dict=None,
     ):
-        """Ajoute d'une ligne sur la trace"""
+        """Ajoute d'une ligne sur la trace."""
         if error_dict is None:
             error_dict = {}
 
@@ -125,42 +129,39 @@ class TemplateDataLoader:
         }
         uuid_line_identification = uuid.uuid4()
         line = Line.objects.create(
-            **{
-                "uuid_identification": uuid_line_identification,
-                "trace": self.trace,
-                "insertion_type": insertion_type,
-                "num_line": num_line,
-                "designation": designation or insertion_dict.get(insertion_type),
-            }
+            uuid_identification=uuid_line_identification,
+            trace=self.trace,
+            insertion_type=insertion_type,
+            num_line=num_line,
+            designation=designation or insertion_dict.get(insertion_type),
         )
         line.save()
 
-        error = Error.objects.create(**{**{"line": line}, **error_dict})
+        error = Error.objects.create(**{"line": line, **error_dict})
         error.save()
 
     def __exit__(self, tipe, value, traceback):
-        """Post context manager, pour fermer la source de données
+        """Post context manager, pour fermer la source de données.
+
         :param tipe:      Valeur du type venant de la sortie de la classe
         :param value:     Valeur venant de la sortie de la classe
-        :param traceback: Traceback sur une éventuele exception de la sortie de la classe
+        :param traceback: Traceback sur une éventuele exception de la sortie de la classe.
         """
         self.close()
 
 
 class FileLoader(TemplateDataLoader):
-    """
-    Fileloader pour importer un fichier de type Path et le cleanner en vue d'une insertion en base
-    """
+    """Fileloader pour importer un fichier de type Path et le cleanner en vue d'une insertion en base."""
 
     def __init__(
         self,
         source: Any,
-        columns_dict: Dict,
+        columns_dict: dict,
         first_line: int = 1,
-        params_dict: Dict = None,
+        params_dict: dict | None = None,
     ):
-        """
-        :param source:          Fichier source à transfomer
+        r""":param source:          Fichier source à transfomer
+
         :param columns_dict:    Plusieurs choix possibles pour :
                                 - Récupérer le nombre de colonnes dans l'ordre du fichier
                                     {"db_col_1" : None, "db_col_2" : None, ..., }
@@ -222,13 +223,13 @@ class FileLoader(TemplateDataLoader):
 
         self._get_csv_reader()
 
-    def open(self, flux_params_dict: Dict = None):
-        """Surcharge de la méthode open, mais nous n'en avons pas besoins"""
+    def open(self, flux_params_dict: dict | None = None):
+        """Surcharge de la méthode open, mais nous n'en avons pas besoins."""
 
     def _set_io(self):
-        """
-        Ecriture des données brutes dans le fichier self.csv_io de type io.StringIO de l'instance.
-        Il y aura un prétraitement si le fichier envoyé est un fichier à plat ou un fichier Excel
+        """Ecriture des données brutes dans le fichier self.csv_io de type io.StringIO de l'instance.
+
+        Il y aura un prétraitement si le fichier envoyé est un fichier à plat ou un fichier Excel.
         """
         try:
             if str(self.source.suffix).lower() in {".xls", ".xlsx"}:
@@ -250,8 +251,7 @@ class FileLoader(TemplateDataLoader):
 
         except CsvFileToStringIoError as except_error:
             comment = (
-                f"une erreur dans la transformation du fichier {self.source.name!r} "
-                "en csv StringIO"
+                f"une erreur dans la transformation du fichier {self.source.name!r} en csv StringIO"
             )
             if self.trace:
                 self.trace.errors = True
@@ -260,8 +260,8 @@ class FileLoader(TemplateDataLoader):
             raise FileToCsvError(comment) from except_error
 
     def _get_csv_reader(self):
-        """
-        Le csv.reader étant un générateur, on initialise self.csv_reader à chaque fois,
+        """Le csv.reader étant un générateur, on initialise self.csv_reader à chaque fois,.
+
         afin de pouvoir faire des opérations comme next() dessus.
         """
         self.csv_io.seek(self.first_line)
@@ -274,14 +274,14 @@ class FileLoader(TemplateDataLoader):
         )
 
     def _trace_comment(self, comment):
-        """Marque la trace en erreur avec le commentaire, si une trace est suivie"""
+        """Marque la trace en erreur avec le commentaire, si une trace est suivie."""
         if self.trace:
             self.trace.errors = True
             self.trace.comment = comment
             self.trace.save()
 
     def _check_nb_columns(self):
-        """Check si on a le nombre de colonnes suffisantes"""
+        """Check si on a le nombre de colonnes suffisantes."""
         self._get_csv_reader()
 
         try:
@@ -307,11 +307,11 @@ class FileLoader(TemplateDataLoader):
             raise IterFileToInsertError(comment)
 
     def _get_check_columns(self, header_on_demand, header_in_file):
-        """
-        Check des colonnes, si l'on a les mêmes dans le fichier et celles demandées.
+        """Check des colonnes, si l'on a les mêmes dans le fichier et celles demandées.
+
         Si invalid alors on raise une erreur
         :param header_on_demand: set des colonnes demandées
-        :param header_in_file: set des colonnes de la bdd
+        :param header_in_file: set des colonnes de la bdd.
         """
         if not set(header_on_demand).issubset(set(header_in_file)):
             values = ", ".join(
@@ -330,22 +330,20 @@ class FileLoader(TemplateDataLoader):
             raise IterFileToInsertError(comment)
 
     def get_positons_for_none_columns(self):
-        """
-        Position des colonnes demandées dans l'attribut d'instance self.columns_dict,
-        dans la même position que le fichier
-        :return: Liste des positions des colonnes
-        """
-        postion_list = list(range(len(self.columns_dict)))
+        """Position des colonnes demandées dans l'attribut d'instance self.columns_dict,.
 
-        return postion_list
+        dans la même position que le fichier
+        :return: Liste des positions des colonnes.
+        """
+        return list(range(len(self.columns_dict)))
 
     @staticmethod
     def _get_sanitaze(header_lit):
-        """
-        :param header_lit: List des entêtes du fichier
+        """:param header_lit: List des entêtes du fichier
+
         :return: liste des entêtes du fichier cleannées
         """
-        sanitaze = [
+        return [
             str(value)
             .strip()
             .lower()
@@ -356,27 +354,22 @@ class FileLoader(TemplateDataLoader):
             .replace("°", "")
             for value in header_lit
         ]
-        return sanitaze
 
     def get_positions_if_columns_named(self):
-        """
-        Position des colonnes nommées dans l'attribut d'instance self.columns_dict
-        :return: Liste des positions des colonnes
+        """Position des colonnes nommées dans l'attribut d'instance self.columns_dict.
+
+        :return: Liste des positions des colonnes.
         """
         header_list_in_file = self._get_sanitaze(next(self.csv_reader))
         header_on_demand = list(self.columns_dict.values())
         self._get_check_columns(header_on_demand, header_list_in_file)
-        postion_list = [header_list_in_file.index(value) for value in self.columns_dict.values()]
-
-        return postion_list
+        return [header_list_in_file.index(value) for value in self.columns_dict.values()]
 
     def get_header(self):
-        """
-        :return: Liste des positions des colonnes
-        """
+        """:return: Liste des positions des colonnes"""
         self._check_nb_columns()
         self._get_csv_reader()
-        columns_type = list(self.columns_dict.values())[0]
+        columns_type = next(iter(self.columns_dict.values()))
 
         # Si l'on a des noms de colonnes du fichier à récupérer
         if isinstance(columns_type, (str,)):
@@ -391,9 +384,7 @@ class FileLoader(TemplateDataLoader):
 
     @property
     def get_add_dict(self):
-        """
-        :return: Dictionnaire des noms d'attributs et valeurs à ajouter à la vollée dans le fichier
-        """
+        """:return: Dictionnaire des noms d'attributs et valeurs à ajouter à la vollée dans le fichier"""
         try:
             add_dict = {
                 key: value[0](**value[1]) if isinstance(value, (tuple,)) else value
@@ -411,26 +402,24 @@ class FileLoader(TemplateDataLoader):
 
     @property
     def get_add_values(self):
-        """
-        :return: Liste des valeurs à ajouter à la vollée dans le fichier
-        """
-        add_list = [
+        """:return: Liste des valeurs à ajouter à la vollée dans le fichier"""
+        return [
             value[0](**value[1]) if isinstance(value, (tuple,)) else value
             for value in self.params_dict.get("add_fields_dict", {}).values()
         ]
-        return add_list
 
     @staticmethod
     def _values(postion_list, line):
-        """Valeurs des colonnes demandées, toujours sous forme de liste (itemgetter renvoie un
-        scalaire pour une seule position, ce qui découpait la valeur caractère par caractère)
+        """Valeurs des colonnes demandées, toujours sous forme de liste (itemgetter renvoie un.
+
+        scalaire pour une seule position, ce qui découpait la valeur caractère par caractère).
         """
         values = itemgetter(*postion_list)(line)
 
         return [values] if len(postion_list) == 1 else list(values)
 
     def _is_skipped(self, line, all_lines):
-        """Ligne vide (sauf all_lines) ou écartée par exclude_rows_dict (colonne absente ignorée)"""
+        """Ligne vide (sauf all_lines) ou écartée par exclude_rows_dict (colonne absente ignorée)."""
         if not any(line) and not all_lines:
             return True
 
@@ -440,12 +429,12 @@ class FileLoader(TemplateDataLoader):
             for index, value in self.params_dict.get("exclude_rows_dict", {}).items()
         )
 
-    def read(self, all_lines=False):
-        """
-        Méthode de lecture du flux de donées au format io.StringIO
+    def read(self, *, all_lines=False):
+        """Méthode de lecture du flux de donées au format io.StringIO.
+
         :param all_lines: Si dans le fichier il y a des lignes vides :
                             all_lines = False -> shorcut l'itération des lignes vides
-                            all_lines = True -> iterre même sur des lignes vides
+                            all_lines = True -> iterre même sur des lignes vides.
         """
         postion_list = self.get_header()
 
@@ -456,19 +445,18 @@ class FileLoader(TemplateDataLoader):
 
             try:
                 if self.params_dict.get("add_fields_dict", {}):
-
-                    yield f'{self.params_dict.get("delimiter", ";")}'.join(
+                    yield f"{self.params_dict.get('delimiter', ';')}".join(
                         [
-                            f'"{str(value)}"'
+                            f'"{value!s}"'
                             for value in self._values(postion_list, line) + self.get_add_values
                         ]
                     )
                 else:
-                    yield f'{self.params_dict.get("delimiter", ";")}'.join(
-                        [f'"{str(value)}"' for value in self._values(postion_list, line)]
+                    yield f"{self.params_dict.get('delimiter', ';')}".join(
+                        [f'"{value!s}"' for value in self._values(postion_list, line)]
                     )
 
-            except IndexError:
+            except IndexError as error:
                 if self.trace:
                     error_dict = {
                         "attr_name": "",
@@ -476,31 +464,30 @@ class FileLoader(TemplateDataLoader):
                             "La ligne ne contient pas le même nombre de colonne que les autres"
                         ),
                         "data_expected": "",
-                        "data_received": ";".join(line)
+                        "data_received": ";".join(line),
                     }
                     self.trace_add_line_error("Errors", i, error_dict=error_dict)
 
-                raise IterFileToInsertError("Le fichier contient une ligne non conforme")
+                raise IterFileToInsertError("Le fichier contient une ligne non conforme") from error
 
-    def make_io(self, csv_io: io.StringIO, all_lines=False):
-        """
-        Ecrit le csv dans le fichier de type io.StringIO envoyé
+    def make_io(self, csv_io: io.StringIO, *, all_lines=False):
+        """Ecrit le csv dans le fichier de type io.StringIO envoyé.
+
         :param csv_io: Fichier de type io.StringIO
         :param all_lines: Si dans le fichier il y a des lignes vides :
                             all_lines = False -> shorcut l'itération des lignes vides
-                            all_lines = True -> iterre même sur des lignes vides
+                            all_lines = True -> iterre même sur des lignes vides.
         """
-        for line in self.read(all_lines):
-            csv_io.write(line + "\n")
+        csv_io.writelines(line + "\n" for line in self.read(all_lines=all_lines))
 
         csv_io.seek(0)
 
-    def read_list(self, all_lines: bool = False):
-        """
-        Méthode de lecture du flux de données, sous forme d'un tableau (list en python)
+    def read_list(self, *, all_lines: bool = False):
+        """Méthode de lecture du flux de données, sous forme d'un tableau (list en python).
+
         :param all_lines: Si dans le fichier il y a des lignes vides :
                             all_lines = False -> shorcut l'itération des lignes vides
-                            all_lines = True -> iterre même sur des lignes vides
+                            all_lines = True -> iterre même sur des lignes vides.
         """
         postion_list = self.get_header()
 
@@ -510,13 +497,12 @@ class FileLoader(TemplateDataLoader):
                 continue
 
             try:
-
                 if self.params_dict.get("add_fields_dict", {}):
                     yield self._values(postion_list, line) + self.get_add_values
                 else:
                     yield self._values(postion_list, line)
 
-            except IndexError:
+            except IndexError as error:
                 if self.trace:
                     error_dict = {
                         "attr_name": "",
@@ -524,19 +510,19 @@ class FileLoader(TemplateDataLoader):
                             "La ligne ne contient pas le même nombre de colonne que les autres"
                         ),
                         "data_expected": "",
-                        "data_received": ";".join(line)
+                        "data_received": ";".join(line),
                     }
                     self.trace_add_line_error("Errors", i, error_dict=error_dict)
 
-                raise IterFileToInsertError("Le fichier contient une ligne non conforme")
+                raise IterFileToInsertError("Le fichier contient une ligne non conforme") from error
 
-    def read_dict(self, all_lines=False):
-        """
-        Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer
+    def read_dict(self, *, all_lines=False):
+        """Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer.
+
         :param all_lines: Si dans le fichier il y a des lignes vides
                             all_lines=False, shorcut l'itération des lignes vides
                             all_lines=True, iterre même sur des lignes vides
-        :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
+        :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value.
         """
         postion_list = self.get_header()
 
@@ -546,16 +532,23 @@ class FileLoader(TemplateDataLoader):
                 continue
 
             try:
-
                 if self.params_dict.get("add_fields_dict", {}):
                     yield {
-                        **dict(zip(list(self.columns_dict), self._values(postion_list, line))),
+                        **dict(
+                            zip(
+                                list(self.columns_dict),
+                                self._values(postion_list, line),
+                                strict=False,
+                            )
+                        ),
                         **self.get_add_dict,
                     }
                 else:
-                    yield dict(zip(list(self.columns_dict), self._values(postion_list, line)))
+                    yield dict(
+                        zip(list(self.columns_dict), self._values(postion_list, line), strict=False)
+                    )
 
-            except IndexError:
+            except IndexError as error:
                 if self.trace:
                     error_dict = {
                         "attr_name": "",
@@ -563,14 +556,14 @@ class FileLoader(TemplateDataLoader):
                             "La ligne ne contient pas le même nombre de colonne que les autres"
                         ),
                         "data_expected": "",
-                        "data_received": ";".join(line)
+                        "data_received": ";".join(line),
                     }
                     self.trace_add_line_error("Errors", i, error_dict=error_dict)
 
-                raise IterFileToInsertError("Le fichier contient une ligne non conforme")
+                raise IterFileToInsertError("Le fichier contient une ligne non conforme") from error
 
     def close(self):
-        """Fermeture du buffer io.StringIO"""
+        """Fermeture du buffer io.StringIO."""
         try:
             if not self.csv_io.closed:
                 self.csv_io.close()
@@ -580,19 +573,17 @@ class FileLoader(TemplateDataLoader):
 
 
 class Opto33Loader(TemplateDataLoader):
-    """
-    Opto33Loader pour importer un fichier opto33 et le cleanner en vue d'une insertion en base
-    """
+    """Opto33Loader pour importer un fichier opto33 et le cleanner en vue d'une insertion en base."""
 
     def __init__(
         self,
         source: Any,
-        columns_dict: Dict,
+        columns_dict: dict,
         first_line: int = 1,
-        params_dict: Dict = None,
+        params_dict: dict | None = None,
     ):
-        """
-        :param source:          Fichier source à transfomer
+        r""":param source:          Fichier source à transfomer
+
         :param columns_dict:    Plusieurs choix possibles pour :
                                 - Récupérer le nombre de colonnes dans l'ordre du fichier
                                     {"db_col_1" : None, "db_col_2" : None, ..., }
@@ -606,17 +597,17 @@ class Opto33Loader(TemplateDataLoader):
         """
         super().__init__(source, columns_dict, first_line, params_dict)
         self.opto_parse = EdiOpoto33Parser(source).parse()
-        self.source_header = list(self.opto_parse.get("get_columns"))
+        self.source_header = list(self.opto_parse.get("get_columns") or [])
 
-    def open(self, flux_params_dict: Dict = None):
-        """Surcharge de la méthode open, mais nous n'en avons pas besoins"""
+    def open(self, flux_params_dict: dict | None = None):
+        """Surcharge de la méthode open, mais nous n'en avons pas besoins."""
 
     def _get_check_columns(self, header_on_demand, header_in_file):
-        """
-        Check des colonnes, si l'on a les mêmes dans le fichier et celles demandées.
+        """Check des colonnes, si l'on a les mêmes dans le fichier et celles demandées.
+
         Si invalid alors on raise une erreur
         :param header_on_demand: set des colonnes demandées
-        :param header_in_file: set des colonnes de la bdd
+        :param header_in_file: set des colonnes de la bdd.
         """
         if not set(header_on_demand).issubset(set(header_in_file)):
             values = ", ".join(
@@ -635,9 +626,9 @@ class Opto33Loader(TemplateDataLoader):
             raise IterFileToInsertError(comment)
 
     def get_positions_if_columns_named(self):
-        """
-        Position des colonnes nommées dans l'attribut d'instance self.columns_dict
-        :return: Liste des positions des colonnes
+        """Position des colonnes nommées dans l'attribut d'instance self.columns_dict.
+
+        :return: Liste des positions des colonnes.
         """
         header_list_in_file = self.source_header
         header_on_demand = list(self.columns_dict.values())
@@ -646,16 +637,12 @@ class Opto33Loader(TemplateDataLoader):
         return header_on_demand
 
     def get_header(self):
-        """
-        :return: Liste des positions des colonnes
-        """
+        """:return: Liste des positions des colonnes"""
         return self.get_positions_if_columns_named()
 
     @property
     def get_add_dict(self):
-        """
-        :return: Dictionnaire des noms d'attributs et valeurs à ajouter à la vollée dans le fichier
-        """
+        """:return: Dictionnaire des noms d'attributs et valeurs à ajouter à la vollée dans le fichier"""
         try:
             add_dict = {
                 key: value[0](**value[1]) if isinstance(value, (tuple,)) else value
@@ -673,53 +660,49 @@ class Opto33Loader(TemplateDataLoader):
 
     @property
     def get_add_values(self):
-        """
-        :return: Liste des valeurs à ajouter à la vollée dans le fichier
-        """
-        add_list = [
+        """:return: Liste des valeurs à ajouter à la vollée dans le fichier"""
+        return [
             value[0](**value[1]) if isinstance(value, (tuple,)) else value
             for value in self.params_dict.get("add_fields_dict", {}).values()
         ]
-        return add_list
 
-    def read(self, all_lines=None):
-        """
-        Méthode de lecture du flux de donées au format io.StringIO
-        :param all_lines: Pas utilisé
+    def read(self, *, all_lines=None):  # noqa: ARG002 (interface commune des loaders)
+        """Méthode de lecture du flux de donées au format io.StringIO.
+
+        :param all_lines: Pas utilisé.
         """
         postion_list = self.get_header()
 
         # on renvoie pour chaque ligne du fichier les données au format csv
-        for line in self.opto_parse.get("invoices"):
+        for line in self.opto_parse.get("invoices") or []:
             values = [str(line.get(key)) for key in postion_list]
 
             if self.params_dict.get("add_fields_dict", {}):
                 values += [str(value) for value in self.get_add_values]
 
-            yield f'{self.params_dict.get("delimiter", ";")}'.join(values)
+            yield f"{self.params_dict.get('delimiter', ';')}".join(values)
 
     def make_io(
         self,
         csv_io: io.StringIO,
     ):
+        """Ecrit le csv dans le fichier de type io.StringIO envoyé.
+
+        :param csv_io: Fichier de type io.StringIO.
         """
-        Ecrit le csv dans le fichier de type io.StringIO envoyé
-        :param csv_io: Fichier de type io.StringIO
-        """
-        for line in self.read():
-            csv_io.write(line + "\n")
+        csv_io.writelines(line + "\n" for line in self.read())
 
         csv_io.seek(0)
 
-    def read_list(self, all_lines=None):
-        """
-        Méthode de lecture du flux de données, sous forme d'un tableau (list en python)
-        :param all_lines: Pas utilisé
+    def read_list(self, *, all_lines=None):  # noqa: ARG002 (interface commune des loaders)
+        """Méthode de lecture du flux de données, sous forme d'un tableau (list en python).
+
+        :param all_lines: Pas utilisé.
         """
         postion_list = self.get_header()
 
         # on renvoie pour chaque ligne du fichier les données dans un tableau, une liste
-        for line in self.opto_parse.get("invoices"):
+        for line in self.opto_parse.get("invoices") or []:
             values = [str(line.get(key)) for key in postion_list]
 
             if self.params_dict.get("add_fields_dict", {}):
@@ -727,17 +710,16 @@ class Opto33Loader(TemplateDataLoader):
 
             yield values
 
-    def read_dict(self, all_lines=None):
-        """
-        Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer
+    def read_dict(self, *, all_lines=None):  # noqa: ARG002 (interface commune des loaders)
+        """Générateurs du dictionaire des lignes de l'io.StringIO, avec le nom des colonnes à récupérer.
+
         :param all_lines: Pas utilisé
-        :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value
+        :return: Générateur des lignes du fichier retraitées sous forme de dictionnaire key: value.
         """
         postion_list = self.get_header()
 
         # on renvoie pour chaque ligne du fichier le dictionnaire de données
-        for line in self.opto_parse.get("invoices"):
-            # print(line)
+        for line in self.opto_parse.get("invoices") or []:
             if self.params_dict.get("add_fields_dict", {}):
                 yield {
                     **{key: str(line.get(key)) for key in postion_list},
@@ -747,4 +729,4 @@ class Opto33Loader(TemplateDataLoader):
                 yield {key: str(line.get(key)) for key in postion_list}
 
     def close(self):
-        """Fermeture du buffer io.StringIO"""
+        """Fermeture du buffer io.StringIO."""

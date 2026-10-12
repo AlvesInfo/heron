@@ -1,30 +1,29 @@
-"""
-Forms des Parameters
-"""
+"""Forms des Parameters."""
 
 from django import forms
 from django.db.models import Exists, OuterRef
 
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.accountancy.models import AccountSage
-from apps.book.models import Society
 from apps.articles.models import (
     Article,
     ArticleAccount,
 )
+from apps.book.models import Society
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
 class ArticleForm(forms.ModelForm):
-    """Form de gestion des articles"""
+    """Form de gestion des articles."""
 
     use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
+        """Rend la sous-catégorie facultative."""
         super().__init__(*args, **kwargs)
         self.fields["sub_category"].required = False
 
     class Meta:
-        """class Meta django"""
+        """class Meta django."""
 
         model = Article
         fields = [
@@ -76,9 +75,10 @@ class ArticleForm(forms.ModelForm):
 
 
 class ArticleSearchForm(forms.ModelForm):
-    """Pour le Filtre de recherche des articles"""
+    """Pour le Filtre de recherche des articles."""
 
     def __init__(self, *args, **kwargs):
+        """Ajoute les champs de recherche d'articles."""
         super().__init__(*args, **kwargs)
 
         reference_icontains = forms.CharField(
@@ -107,7 +107,7 @@ class ArticleSearchForm(forms.ModelForm):
         self.fields["sub_category"].required = False
 
     class Meta:
-        """class Meta django"""
+        """class Meta django."""
 
         model = Article
         fields = ("third_party_num", "big_category", "sub_category")
@@ -119,12 +119,12 @@ class ArticleSearchForm(forms.ModelForm):
 
 
 class ArticleAccountForm(forms.ModelForm):
-    """Form pour les comptes par taux de tva des articles"""
+    """Form pour les comptes par taux de tva des articles."""
 
     use_required_attribute = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = ArticleAccount
         fields = (
@@ -142,8 +142,8 @@ class ArticleAccountForm(forms.ModelForm):
 
 
 class ArticleAccountUpdateForm(forms.ModelForm):
-    """
-    Form de modification des comptes d'achat et de vente d'un article / centrale / tva.
+    """Form de modification des comptes d'achat et de vente d'un article / centrale / tva.
+
     Les comptes proposés sont ceux du plan Sage X3 FRA, le compte actuel reste
     sélectionnable même s'il n'est pas dans ce plan.
     """
@@ -158,6 +158,7 @@ class ArticleAccountUpdateForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
+        """Alimente les listes de comptes comptables du plan FRA."""
         super().__init__(*args, **kwargs)
         accounts_choices = [
             (account, f"{account} - {name or ''}")
@@ -168,7 +169,7 @@ class ArticleAccountUpdateForm(forms.ModelForm):
         accounts_set = {account for account, _ in accounts_choices}
 
         for field_name in ("purchase_account", "sale_account"):
-            choices = [("", "---------")] + accounts_choices
+            choices = [("", "---------"), *accounts_choices]
             actual_account = getattr(self.instance, field_name, None)
 
             if actual_account and actual_account not in accounts_set:
@@ -177,26 +178,26 @@ class ArticleAccountUpdateForm(forms.ModelForm):
             self.fields[field_name].choices = choices
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = ArticleAccount
         fields = ("purchase_account", "sale_account")
 
 
 class DeleteArticleAccountForm(forms.ModelForm):
-    """Form pour la suppression des comptes par taux de tva des articles"""
+    """Form pour la suppression des comptes par taux de tva des articles."""
 
     id = forms.ModelChoiceField(queryset=ArticleAccount.objects.all())
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = ArticleAccount
         fields = ("id",)
 
 
 class ArticleAccountSupplierForm(forms.Form):
-    """Form de sélection du fournisseur pour l'export des articles avec comptes"""
+    """Form de sélection du fournisseur pour l'export des articles avec comptes."""
 
     third_party_num = forms.ModelChoiceField(
         required=True,

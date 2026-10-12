@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour les Numérotations
+"""Module d'export du fichier excel pour les Numérotations.
 
 Commentaire:
 
@@ -11,14 +11,13 @@ modified by: Paulo ALVES
 
 import io
 
-from apps.parameters.models import Nature
-from apps.parameters.excel_outputs.output_excel_filles_columns import columns_list_nature
 from apps.core.excel_outputs.generic_list_export import excel_list_export
+from apps.parameters.excel_outputs.output_excel_filles_columns import columns_list_nature
+from apps.parameters.models import Nature
 
 
 def get_row():
-    """Class qui renvoie les bonnes colonnes pour le fichier Excel"""
-
+    """Class qui renvoie les bonnes colonnes pour le fichier Excel."""
     yield from [
         (
             row.get("name"),
@@ -40,7 +39,7 @@ def get_row():
 
 
 def excel_liste_natures(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des Natures/Genres"""
+    """Fonction de génération du fichier de liste des Natures/Genres."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     columns = columns_list_nature

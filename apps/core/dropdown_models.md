@@ -25,12 +25,14 @@ L'Api appelle l'end-point, placé dans core/urls.py
 from django.urls import path
 
 from apps.core.views import api_models_query
-urlpatterns = [
-    path(
-        "api_models_query/<str:models>/<str:query>/", api_models_query, name="api_models_query"
-    ),
-],
 
+urlpatterns = (
+    [
+        path(
+            "api_models_query/<str:models>/<str:query>/", api_models_query, name="api_models_query"
+        ),
+    ],
+)
 ```
  placée dans core/urls.py
 La vue : api_models_query

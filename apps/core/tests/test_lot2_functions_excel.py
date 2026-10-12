@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des utilitaires Excel (functions_excel, functions_excel_optimized, excel_outputs/excel_writer)
+"""FR : Tests des utilitaires Excel (functions_excel, functions_excel_optimized, excel_outputs/excel_writer)
+
+
 EN : Tests for Excel utilities
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import csv
 import datetime
 import glob
@@ -44,7 +46,7 @@ FIXTURES = Path(__file__).resolve().parent / "test_fixtures"
 XHTML = (
     "<html><body><table>"
     "<tr><td><span>Tiers</span></td><td><span>Montant=;</span></td><td></td></tr>"
-    "<tr><td><span>FOUR001</span></td><td><span>12,5\"</span></td><td><span>x\n\r</span></td></tr>"
+    '<tr><td><span>FOUR001</span></td><td><span>12,5"</span></td><td><span>x\n\r</span></td></tr>'
     "</table></body></html>"
 )
 
@@ -73,7 +75,11 @@ def no_log(monkeypatch):
     """Capture les écritures de log de functions_excel au lieu d'écrire dans files/"""
     lines = []
 
-    with patched_attrs(monkeypatch, functions_excel, write_log=lambda fichier, ligne: lines.append((fichier, ligne))):
+    with patched_attrs(
+        monkeypatch,
+        functions_excel,
+        write_log=lambda fichier, ligne: lines.append((fichier, ligne)),
+    ):
         yield lines
 
 
@@ -188,8 +194,14 @@ def test_make_csv_convertit_tous_les_classeurs(tmp_path):
 
     treated = ExcelToCsv(rep=str(tmp_path)).make_csv()
 
-    assert sorted(Path(file).name for file in treated) == [f"{prefix}classeur.csv", f"{prefix}export.csv"]
-    assert _read_csv(tmp_path / f"{prefix}export.csv") == [["Tiers", "Montant", ""], ["FOUR001", "12,5", "x"]]
+    assert sorted(Path(file).name for file in treated) == [
+        f"{prefix}classeur.csv",
+        f"{prefix}export.csv",
+    ]
+    assert _read_csv(tmp_path / f"{prefix}export.csv") == [
+        ["Tiers", "Montant", ""],
+        ["FOUR001", "12,5", "x"],
+    ]
     assert (tmp_path / "classeur.xlsx").exists()
 
 
@@ -199,7 +211,9 @@ def test_make_csv_un_fichier_sans_date_avec_suppression(tmp_path):
     _xlsx(tmp_path / "autre.xlsx", [["b"], [2]])
     (tmp_path / "classeur.csv").write_text("ancien", encoding="utf8")
 
-    treated = ExcelToCsv(rep=str(tmp_path), file_name="classeur.xlsx", first_date=None, deletion=True, header=False).make_csv()
+    treated = ExcelToCsv(
+        rep=str(tmp_path), file_name="classeur.xlsx", first_date=None, deletion=True, header=False
+    ).make_csv()
 
     assert treated == [str(tmp_path / "classeur.csv")]
     assert _read_csv(treated[0]) == [["1"]]
@@ -242,7 +256,9 @@ def test_make_csv_erreur_module_journalisee(tmp_path, monkeypatch):
     with patched_attrs(monkeypatch, glob, glob=_boom):
         assert ExcelToCsv(rep=str(tmp_path), log=str(log)).make_csv() == []
 
-    assert "Erreur de conversion fichiers .xls en .csv : répertoire illisible" in log.read_text(encoding="utf8")
+    assert "Erreur de conversion fichiers .xls en .csv : répertoire illisible" in log.read_text(
+        encoding="utf8"
+    )
 
 
 # GENERIC EXCEL ====================================================================================
@@ -388,7 +404,15 @@ def test_excel_writer_titre_date_et_entetes(tmp_path):
     "dict_args",
     [
         None,
-        {"sens": "landscape", "centrer": False, "repeat_row": (0, 2), "fit_page": (1, 0), "not_display_zero": True, "paper": "A3", "marge": 0.5},
+        {
+            "sens": "landscape",
+            "centrer": False,
+            "repeat_row": (0, 2),
+            "fit_page": (1, 0),
+            "not_display_zero": True,
+            "paper": "A3",
+            "marge": 0.5,
+        },
     ],
 )
 def test_excel_writer_mise_en_page(tmp_path, dict_args):

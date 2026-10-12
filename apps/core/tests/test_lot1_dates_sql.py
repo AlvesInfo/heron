@@ -1,14 +1,17 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des utilitaires de dates (functions_dates.py) et sql (functions_sql.py) de core
+"""FR : Tests des utilitaires de dates (functions_dates.py) et sql (functions_sql.py) de core
+
+
 EN : Tests for core date and sql helpers
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import datetime
 
 import pytest
+from django.utils import timezone
 
 from apps.core.functions.functions_dates import (
     DATE_FORMATS,
@@ -25,7 +28,6 @@ from apps.core.functions.functions_dates import (
     validate_date,
 )
 from apps.core.functions.functions_sql import clean_id
-
 
 # DATES ============================================================================================
 
@@ -84,7 +86,8 @@ def test_date_string_series():
 
 def test_time_string_series():
     """Secondes écoulées depuis le 01/01/2000, en texte"""
-    before = int((datetime.datetime.now() - datetime.datetime(2000, 1, 1)).total_seconds())
+    past = datetime.datetime(2000, 1, 1, tzinfo=datetime.UTC)
+    before = int((timezone.now() - past).total_seconds())
 
     value = time_string_series()
 

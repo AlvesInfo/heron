@@ -1,6 +1,6 @@
-"""
-FR : Module de génération des Roylaties, Pubicités et Prestations sous task Celery
-EN : Module for generating Roylaties, Advertisements and Services under task Celery
+"""FR : Module de génération des Roylaties, Pubicités et Prestations sous task Celery.
+
+EN : Module for generating Roylaties, Advertisements and Services under task Celery.
 
 Commentaire:
 

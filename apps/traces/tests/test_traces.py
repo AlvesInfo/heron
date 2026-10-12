@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'app traces (écran paginé des traces EDI et export Excel)
+"""FR : Tests de l'app traces (écran paginé des traces EDI et export Excel)
+
+
 EN : Tests for traces app
 
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import importlib
 import io
 
@@ -26,10 +28,22 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def traces(make_trace):
     """Une trace en erreur (ligne + erreur détaillée), une trace saine sans commentaire"""
-    failed = make_trace(trace_name="Import BBGR", file_name="bbgr.csv", errors=True, comment="<p>2 lignes <b>rejetées</b></p>")
-    line = Line.objects.create(trace=failed, insertion_type="Errors", num_line=12, designation="Facture 123")
+    failed = make_trace(
+        trace_name="Import BBGR",
+        file_name="bbgr.csv",
+        errors=True,
+        comment="<p>2 lignes <b>rejetées</b></p>",
+    )
+    line = Line.objects.create(
+        trace=failed, insertion_type="Errors", num_line=12, designation="Facture 123"
+    )
     Error.objects.create(
-        line=line, attr_name="invoice_date", file_column="Date", message="Date invalide", data_expected="AAAA-MM-JJ", data_received="31/13/2026"
+        line=line,
+        attr_name="invoice_date",
+        file_column="Date",
+        message="Date invalide",
+        data_expected="AAAA-MM-JJ",
+        data_received="31/13/2026",
     )
     clean = make_trace(trace_name="Import Sage", file_name="sage.csv", comment=None)
     return {"failed": failed, "clean": clean}
@@ -70,7 +84,11 @@ def test_ecran_sans_trace(logged_client):
     response = logged_client.get(reverse("traces:edi_traces"))
 
     assert response.status_code == 200
-    assert (response.context["num_items"], response.context["start_index"], response.context["end_index"]) == (0, 0, 0)
+    assert (
+        response.context["num_items"],
+        response.context["start_index"],
+        response.context["end_index"],
+    ) == (0, 0, 0)
 
 
 def test_lignes_export(traces):

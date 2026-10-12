@@ -722,6 +722,549 @@ Petites corrections à passer app par app, en même temps que D0 :
 
 ---
 
+## D27 — Sonar PyCharm, lot du 2026-10-12 `[x]`
+
+- **Source** : capture du plugin SonarQube (8 nouvelles alertes sur 4 fichiers, 153 anciennes sur
+  86 fichiers dont une vingtaine visibles).
+- **Nouvelles alertes, traitées** : `production.py` S1313/S5332 (IP et http codés dans le défaut
+  de `PDF_STATIC_DOMAIN`) -> plus de défaut en production, la variable est **obligatoire dans le
+  `.env` du serveur** (`PDF_STATIC_DOMAIN=http://10.9.2.109`, `:8080` pour l'instance formation),
+  sinon `UndefinedValueError` au démarrage ; `rfa_views.rfa_generation` S3776 (17) -> découpée en
+  `_have_new_articles`, `_set_message`, `_launch_generation` ; S5778 (plusieurs invocations dans un
+  `pytest.raises`) dans `test_app_models_forms.py` (2) et `test_periods.py` (1).
+- **Anciennes alertes visibles, traitées** : `check_celery.handle` S3776 (16) -> `_wait_until_idle`,
+  `_write_status`, `_write_details` ; `accountancy/validations/djantic_sage.py` (module d'essai :
+  `main()`, `essai_SectionSagechema`, bloc `__main__` sur un chemin Windows, 52 lignes commentées)
+  supprimé avec son test ; `emails.prepare_mail` S1172 : le paramètre `email_text` est désormais
+  utilisé (partie texte fournie par l'appelant, formatée avec le contexte, repli sur le texte
+  extraite du html) ; S125 : `# sql_maison` (edi_post_processing_pool), `# ...`
+  (essais_import_sage) et **101 lignes `# print(...)` / `# LOGGER_EXPORT_EXCEL.exception(mogrify)`**
+  supprimées dans 33 modules (exports Excel de validation_purchases et autres).
+- **Reste** : `ruff --select ERA001` signale encore 279 commentaires « code » (dont beaucoup de faux
+  positifs : dictionnaires de colonnes commentés dans `function_imports`, `familles_stat_fixtures`,
+  `opto_33_parser`) ; fonctions de complexité > 15 restantes (script
+  `uv run --with cognitive-complexity`) : `book/views/identifiers_views.supplier_cct_identifier` (21),
+  `core/functions/functions_excel.make_csv` (34), `core/validations/pydantic_validators_base.input_format_date`
+  (16), `data_flux/make_inserts.make_insert` (16), `data_flux/opto_33_parser.line_parser` (34),
+  `heron/management/commands/init_directories.handle` (25). À traiter sur la liste Sonar complète.
+
+---
+
+## D28 — Sonar PyCharm, lot du 2026-10-12 (anciennes alertes, 2e capture) `[x]`
+
+- **Source** : capture « 123 older issues in 64 files », partie visible (fichiers a..i) : 30 alertes
+  dans 20 fichiers.
+- **Traité** : S1481 variables `test_a` / `to_print` inutilisées -> `_` (`export_od_inv`,
+  `export_x3_odana_invoices`, `countries/loops/imports_loop`) ; S112 exceptions génériques ->
+  `ExportX3Error` (`invoices/bin/export_x3`) et `FileNotFoundError` (`functions_postgresql`) ;
+  S1542/S117 nommage -> `generate_exports_x3` (le nom de route `invoices:generate_exports_X3` est
+  conservé), variable locale `supplier_cct_formset` ; S125 code commenté retiré
+  (`familles_stat_fixtures`, `core/bin/import_files`, `import_ventes_cosium`, bloc `'''` de 30
+  lignes de code mort en fin de `function_imports`) ; S108 bloc `if POST: pass` de
+  `files_import_views` ; S7500/S8519 compréhensions et `list(...)[0]` -> `list(...)` /
+  `next(iter(...))` (`users/forms`, `function_imports`, `functions_excel`) ; S5799 chaînes
+  concaténées implicitement (`functions_excel`) ; S4790 `hashlib.md5(..., usedforsecurity=False)`
+  (clé de cache, `functions_excel_optimized`) ; S7498 `dict()` -> `{}` ; S7512 boucle sur le
+  dictionnaire ; S8786 expression régulière de `separate_edi` sans retour arrière
+  (`UNA.{6}\n?` : le segment UNA est de longueur fixe, 6 caractères de service après « UNA » ;
+  l'ancien `(?=UNA:\+).*[\n|']` avalait toute la ligne jusqu'au dernier « ' », donc tous les
+  segments d'un fichier EDI écrit sur une seule ligne) ; S3776 `functions_excel.make_csv` (34) -> `_csv_file_name` + `_convert_file`,
+  `identifiers_views.supplier_cct_identifier` (21) -> `_apply_cct_identifiers`.
+- **Volontairement non modifié** : cookie `download_complete_<token>` (S3330/S2092) : il est lu
+  par le JavaScript de la page (donc pas `HttpOnly`) et l'application est servie en http interne
+  (donc pas `secure`) ; il ne porte aucune donnée ; commentaire ajouté dans
+  `functions_http_response.py`.
+- **Reste** (non visible sur la capture, mesuré au script) : complexité > 15 pour
+  `pydantic_validators_base.input_format_date` (16), `data_flux/make_inserts.make_insert` (16),
+  `opto_33_parser.line_parser` (34), `heron/.../init_directories.handle` (25) ; ERA001 : 272.
+
+---
+
+## D29 — Sonar PyCharm, lot du 2026-10-12 (anciennes alertes, 3e capture, fichiers e..n) `[x]`
+
+- **Traité** : S125 code commenté (`essais_import_sage`, `familles_stat_fixtures` : fonction
+  commentée de 70 lignes, `invoice_reassignment_views` `# import pdb`, `imports_loop_pool` et
+  `invoices_insertions` : blocs `__main__` de débogage avec email et date codés (S930 appel à
+  `invoices_insertion` sans `job_id`), `articles/models`, `od/models`, `make_inserts`) ; S3776
+  `init_directories.handle` (25) -> `_module_paths`, `_directories_to_create`, `_create` ;
+  `make_inserts.make_insert` (16) -> choix du modèle des colonnes sans `if/else` ; S112
+  `InvoicesInsertionError` (`invoices_insertions`) ; S1135 : les deux `TODO` d'`invoices_insertions`
+  (pré-contrôle non joué, champs manquants non contrôlés) deviennent des commentaires « Limitation
+  connue », reportés ci-dessous ; S5886/S5655 annotations fausses (`get_loader_params_dict -> dict`,
+  `set_data(flow_name: str)`) ; S8519 `next(iter(...))` (`data_flux/loader`) ; S7519
+  `dict.fromkeys` ; S1066 `if` fusionnés (`login_middleware`) ; S117 `user_model`
+  (`notifications`) ; S1940 `!=` (`numberings_views`) ; S1313 adresses IP : `local.py` lit
+  `LOCAL_HOSTS` du `.env` (`INTERNAL_IPS` et `DOMAINS_WHITELIST`), `production.py` construit
+  `DOMAINS_WHITELIST` depuis `ALLOWED_HOSTS` + `DOMAINS_WHITELIST` du `.env` (hôtes avec port).
+  **Bug corrigé au passage** : `production.DOMAINS_WHITELIST` contenait la liste `WHITELIST`
+  imbriquée comme élément (jamais comparable, et `set()` impossible depuis D25). Variables
+  ajoutées au `.env` local et documentées dans `env/env.txt` ; en production, sans
+  `DOMAINS_WHITELIST` dans le `.env`, seuls les hôtes d'`ALLOWED_HOSTS` sont acceptés pour un
+  `?next=` absolu (les `?next=` relatifs ne sont pas concernés).
+- **Limitations connues (ex-TODO d'`invoices_insertions`)** : le pré-contrôle n'est pas joué dans
+  `invoices_insertion` ; pas de contrôle des champs éventuellement manquants (TVA, régime, collectif).
+- **Non modifié** : cookie `download_complete_<token>` (voir D28).
+- **Reste** : complexité > 15 : `pydantic_validators_base.input_format_date` (16),
+  `opto_33_parser.line_parser` (34).
+- **Méthode** : l'IDE reformate les fichiers modifiés (guillemets doubles, listes multi-lignes) pendant
+  le travail : relire le fichier juste avant chaque remplacement.
+
+---
+
+## D30 — Sonar PyCharm, lot du 2026-10-12 (anciennes alertes, 4e capture, fichiers f..o) `[x]`
+
+- **Traité** : S7496 `set([...])` -> ensembles en compréhension (`od/imports/od_a_passer`, 4) ;
+  `data_flux/opto_33_parser` : S125 (amorçage `sys.path` commenté, import commenté, bloc
+  `__main__` de débogage sur un fichier de Téléchargements), S3776 `line_parser` (33) ->
+  `_split_qualifier` + `_parse_article_element`, S5886 `cmd_nad` / `cmd_rff` renvoient `{}` au lieu
+  de `""` quand il n'y a rien à extraire (comme `parse_qualifier`, trois assertions de tests
+  adaptées), S6659 `text.startswith("UNA")`, S5713 `except (OptoLinesError, Exception)` ->
+  `except Exception`, S5655 `extract_entries(lines: list)`. Dernière fonction au-dessus du seuil
+  de complexité traitée aussi : `pydantic_validators_base.input_format_date` (16) -> boucle sur
+  `DATE_FORMATS` ; **plus aucune fonction du projet au-dessus de 15**.
+- **Non modifié** : cookie `download_complete_<token>` (voir D28).
+- **Environnement** : `pyproject.toml` modifié par l'utilisateur le 2026-10-12 à 11:36
+  (`requires-python = "==3.14"`, pytest-django 4.14, pylint-django 2.8) : `uv run` refuse désormais
+  le venv 3.11 ; les vérifications de ce lot sont passées par `.venv/bin/python -m pytest`,
+  `.venv/bin/ruff` et `uv run --no-project --python 3.11`.
+
+---
+
+## D31 — Environnement : retour à Python 3.11 et nouvelle configuration outillage `[x]`
+
+- **Constat du 2026-10-12** : `pyproject.toml` passé par l'utilisateur à `requires-python ~=3.14`
+  (+ pytest 9.1.1, pytest-django 4.14, pytest-cov 7.1, coverage 7.16, ruff 0.17 avec ~45 familles
+  de règles, black 26, pylint 4.1, mypy 2.4 + plugin pydantic, bandit, pre-commit). `uv sync` a
+  recréé le venv en 3.14 et échoué sur `python-calamine` ; vérifié : **Django 3.2.25 ne démarre
+  pas sous Python 3.13+** (`django/http/request.py` importe `cgi`, module supprimé). Python 3.14
+  impliquerait Django 5.2 LTS et le relèvement de 7 paquets sans roue 3.14 (calamine, psycopg2,
+  lxml 6, pyyaml, pandas 2.3, pendulum 3, pydantic 1.10) : chantier D6 élargi, non lancé.
+- **Décision de l'utilisateur** : retour à 3.11. `requires-python = ">=3.11"`, `target-version =
+  "py311"`, `mypy python_version = "3.11"`, `uv python pin 3.11`, `uv sync` ; les nouvelles versions
+  des outils de dev sont conservées. Suite complète : 2 963 tests, 100 % lignes + branches.
+- **Effet de bord corrigé** : la règle isort (`I`) de la nouvelle configuration, appliquée par l'IDE,
+  a réordonné `apps/accountancy/models/__init__.py` (`pieces` avant `sage`) -> import circulaire,
+  Django ne démarrait plus hors pytest. `pieces.py` importe désormais `CodePlanSage` depuis
+  `apps.accountancy.models.sage` (indépendant de l'ordre du `__init__`). Les autres `__init__`
+  de paquets (views, forms) ont aussi été réordonnés : la suite passe, mais tout nouvel import
+  intra-paquet doit viser le sous-module, pas le paquet.
+- **Mesures avec la nouvelle configuration** : `ruff check apps heron conftest.py` : 40 395 alertes
+  (S101 assert dans les tests 6 696, ANN001 5 837, D400/D415 4 133 chacune, ANN201 3 366, W291 2 624,
+  PIE800 1 569, D205, D212, D103…) ; `mypy apps heron conftest.py` : le plugin `pydantic.mypy` de
+  pydantic 1.9.0 ne sait pas lire la version « 2.4.0 » de mypy (plantage immédiat) ; sans le
+  plugin : 501 erreurs dans 141 fichiers (no-any-return 104, assignment 75, union-attr 73,
+  var-annotated 44, valid-type 40, arg-type 38 ; fichiers les plus touchés : api_gmail/config.py 28,
+  invoices_insertions.py 17, core/bin/echeances.py 15, api_get_models.py 14). À arbitrer :
+  périmètre des règles ruff (exclure S101/ANN/D des tests au minimum) et retrait du plugin pydantic
+  tant que pydantic < 1.10.
+
+---
+
+## D32 — Pipeline qualité (`scripts/pre_check.py`, pre-commit, mypy, xenon) `[x]`
+
+- **Constat du 2026-10-12** : `scripts/pre_check.py` et `.pre-commit-config.yaml` ajoutés par
+  l'utilisateur depuis un autre projet (cibles `src tests`, inexistantes ici) ; `uv sync` cassé par
+  un `[build-system] uv_build` (disposition `src/` attendue) ; `uv run ruff format .` et
+  `uv run ruff check . --fix` déjà appliqués par l'utilisateur sur 661 fichiers (suite relancée :
+  2 963 tests, 100 %, rien de cassé).
+- **Fait** : `[tool.uv] package = false` (application, pas de paquet à construire) ; cibles du
+  script et de pre-commit -> `apps heron conftest.py scripts`, mypy sans argument (cibles dans
+  `[tool.mypy].files`) ; `ignore = ["E501", "D203", "D213"]` (règles incompatibles avec D211/D212,
+  plus d'avertissement) ; `[tool.mypy]` : plugins pydantic (version de mypy illisible par pydantic
+  1.9) et Django (`Query.get_select_mask` absent de Django 3.2, plantage interne) désactivés avec
+  explication, `django-stubs==6.1.2` dans un groupe de dépendances `typing` non installé par
+  défaut (sans plugin : 2 090 erreurs au lieu de 487, dont 1 332 `var-annotated` sur les champs de
+  modèles) ; xenon : seuils `--max-absolute C --max-modules B --max-average A`, tests / migrations /
+  essais exclus (les seuils B/A/A du script d'origine signalaient 160 modules, dont 60 fichiers de
+  tests) ; les deux modules restés en rang C découpés : `core/bin/import_files.import_file_process`
+  (`_call_hook`, `_translated_file`, `_cleanup_translated`, `_archive_source`, `_finish_trace`,
+  messages inchangés) et `data_flux/make_inserts.make_insert` (`_insert_file`, familles
+  d'exceptions regroupées, journal `<NomClasse> : ...` inchangé). Pipeline : `uv pip check` OK,
+  mypy 487 erreurs (à traiter), ruff 36 039 alertes avec la configuration étendue (à arbitrer),
+  xenon OK.
+- **Blocs encore en rang C hors tests (radon, 16)** : `has_change`, `trace_mark_delete`,
+  `PersonalizedDjangoJSONEncoder` (core), `generate_facturx_invoice`, `finalize_period`,
+  `build_facturx_invoice`, `launch_celery_send_invoice_mails_gmail` (invoices), `Maison.clean`,
+  `get_row` (book stats), `cmd_nad`, `PostgresDjangoUpsert.insertion`,
+  `Validation.get_validation_instance` (data_flux), `imports_loop.process` (accountancy),
+  `_write_sheet` (core) : sous le seuil retenu, à découper au fil de l'eau.
+- **Périmètre ruff des tests (décision du 2026-10-12)** : `per-file-ignores` pour `conftest.py`,
+  `apps/*/tests/*`, `heron/tests/*` : `S101`, `ANN`, `D`, puis `PLR2004`, `PLC0415`, `SLF001`,
+  `PLR0913`, `PLR0917`, `EM101`, `TRY003` (règles de production sans objet dans les tests) ;
+  bit exécutable retiré de 999 fichiers `.py` (`EXE002`, `manage.py` conservé). Résultat :
+  36 039 -> 14 892 alertes au total, 274 dans les tests (ICN001 `datetime` -> `dt` 77, ERA001 75,
+  DTZ001/DTZ011 29, FBT 36, RUF043 11, S108 `/tmp` 6, S106 6, S608 5…), à traiter ensuite.
+- **Corrections mécaniques du code (2026-10-12)** : espaces en fin de ligne retirés partout, y
+  compris dans les chaînes SQL et docstrings (`W291/W293 --unsafe-fixes`, 2 642) ; docstrings :
+  point final ajouté aux résumés (`D400/D415`, ~5 000), ligne vide insérée après le résumé
+  (script AST, 1 732 docstrings dans 485 fichiers, puis `D205 --unsafe-fixes`), `D212/D200/D209/
+  D210` ; `D401` ignoré (mode impératif anglais, docstrings en français). Suite complète relancée :
+  2 963 tests, 100 %. Total : 14 891 -> 5 657 alertes.
+
+---
+
+## D33 — Sonar PyCharm, lot du 2026-10-12 (anciennes alertes, 5e capture, fichiers p..v) `[x]`
+
+- **Traité** : S125 code commenté (`postgres_save` prints, `edi/tasks` `post_vacuum`,
+  `production.py` : options https commentées remplacées par un commentaire en prose) ; S1135 : les
+  trois `TODO` (`postgres_save` validation des clés existantes, `set_hand_invoices` ligne créée
+  malgré l'échec des fonctions suivantes, `validation` clés étrangères / unicité) deviennent des
+  « Limitation connue » ; S5332 `processors.domain_site` prend le schéma de la requête
+  (`request.scheme`), `domain_debug` lit `settings.DOMAIN_DEBUG` (défaut `PDF_STATIC_DOMAIN`) ;
+  S3358 conditionnelles imbriquées des trois validateurs de troncature -> `_truncated(value,
+  max_length)` ; S1172 `GmailSender.create_message` utilise `body_text` (partie texte fournie,
+  repli sur le texte du html, comme `prepare_mail`) ; **S2077 corrigé pour de bon** :
+  `add_news_cct_sage` interpolait `third_party_num` dans le SQL (`select '{third_party_num}'`),
+  désormais paramètre `%(third_party_num)s` ; S2208 `transfert_receptions` importe le module
+  d'amorçage explicitement ; S6559 `fields = "__all__"` : `validation_by_serializers.py` (module
+  d'essai, `DjangoForm` « test », `main()`) supprimé avec ses 2 tests, `EdiImportAllForm` (sans
+  usage applicatif) supprimé avec son assertion de test ; S3752 `trace_edi_list` décorée
+  `require_http_methods(["GET"])`.
+- Tests touchés (changement de comportement ou code supprimé) : `heron/tests/test_processors.py`
+  (`domain_site` reçoit une requête), `apps/edi/tests/test_validations.py`,
+  `apps/validation_purchases/tests/test_forms.py`.
+
+---
+
+## D34 — Fin de téléchargement des exports sans cookie (S3330 / S2092) `[x]`
+
+- **Constat** : dernière alerte Sonar restante : le cookie `download_complete_<jeton>` posé par
+  `response_file` pour que le JavaScript des écrans « ventes / achats à finaliser » arrête
+  l'indicateur de téléchargement ne pouvait être ni `HttpOnly` (lu par le JavaScript) ni `secure`
+  (http interne).
+- **Fait le 2026-10-12** : plus de cookie. `response_file(..., download_token=, session=)` pose
+  un marqueur `download_complete_<jeton>` dans la session (stockée en base, donc partagée entre les
+  processus gunicorn, contrairement au cache locmem) ; nouvelle vue `core:download_status/<jeton>/`
+  (`GET` seulement) qui renvoie `{"complete": bool}` et consomme le marqueur ; les deux gabarits
+  (`sage_heron_purchases.html`, `sage_heron_sales.html`) interrogent cette vue toutes les 500 ms
+  (`$.getJSON`) au lieu de lire `document.cookie` ; les vues d'export passent `request.session`.
+  Tests adaptés (`core` lot 3 et 4, `validation_sales`, `validation_purchases` étape 5) + test de
+  la vue de statut (consommation unique, 405 en POST).
+
+---
+
+## D35 — mypy à zéro erreur `[x]`
+
+- **Point de départ (2026-10-12)** : 481 erreurs dans 127 fichiers avec la configuration ajoutée par
+  l'utilisateur (`warn_return_any`, `warn_unreachable`, etc.).
+- **Configuration** (`[tool.mypy]`, commentée dans le pyproject) : `warn_return_any = false` tant que
+  l'ORM Django n'est pas typé (sans plugin tout QuerySet / dict renvoie `Any` : 104 faux positifs) ;
+  `exclude` étendu à `heron/bin/` et `heron/env/` ; pendulum 2 traité comme non typé
+  (`follow_imports = "skip"` : ses stubs déclarent `parse()` en `Date | Time | Duration` et
+  `pendulum.date` / `instance` ne sont pas des types, ~50 faux positifs).
+- **Codemods** : `no_implicit_optional` (paramètres `x: str = None` -> `str | None`, ~60 sites) ;
+  **`AnyStr` remplacé par `str`** dans 51 fichiers : `typing.AnyStr` est un TypeVar `bytes | str`
+  et non « n'importe quelle chaîne », d'où des dizaines d'erreurs `str-bytes-safe`, `type-var`,
+  `arg-type`.
+- **Corrections manuelles (~120 sites)** : annotations invalides (`-> X.objects` -> `QuerySet`,
+  `-> iter` -> `Iterator` / `list`, `-> (a, b)` et `-> [a, b]` -> `tuple[a, b]`, `: datetime` /
+  `: pendulum` / `: os.path` modules, `-> fonction`, listes de classes en annotation dans
+  `validation.py` -> `tuple` / `Any`) ; `urlpatterns: list = []` dans les apps sans route ;
+  conteneurs vides annotés (`extra_context: dict`, `lines: list`…) ; gardes `None`
+  (`caller_frame()` partagé dans `change_traces` pour `inspect.currentframe().f_back`, `self.object`,
+  `edi_objects or []`, `assert self.creds is not None` dans l'authentification Gmail,
+  `active_action` dans la boucle RFA) ; accès `dict["clé"]` au lieu de `.get()` quand la clé est
+  obligatoire (`checks.py`, `set_hand_invoices`, chemins des PDF) ; `exclude_update_fields=set()` ;
+  générateurs PDF annotés `-> None` et `pdf_path: Path` ; `-> None` sur trois fonctions
+  d'`invoices_insertions` qui ne renvoyaient rien malgré `-> bool` ; `ChildCenterMixin.model:
+  type | None` ; `constr(...)` de pydantic v1 ignoré dans un test (`type: ignore[valid-type]`) ;
+  `_BoomPath(PosixPath)` dans les tests heron. Résultat : **`uv run mypy` : Success, 1 215
+  fichiers**, suite complète 2 962 tests à 100 %.
+- **Complément : corps des fonctions non annotées** (`check_untyped_defs = true` pour le code de
+  production ; désactivé par surcharge pour `apps.*.tests`, `heron.tests`, `conftest` dont les
+  doubles et `SimpleNamespace` sont volontairement non typés). Les 14 notes « annotation-unchecked »
+  disparaissent et 86 erreurs supplémentaires ont été corrigées : attributs de vue déclarés dans les
+  mixins (`request: HttpRequest`, `object: Any`, `model: Any`, plus de `= None` typé `None` : 141
+  fausses erreurs `"None" has no attribute "user"`), `processing_dict[file.name](file)` au lieu de
+  `.get()(file)` dans les trois boucles d'import, `sql_file.open("r") as sql_file` (variable `Path`
+  écrasée par le fichier ouvert) renommée dans 4 exports, conteneurs typés (`context`, `dic`,
+  `base_dict: dict[str, Any]`, `CATEGORIES_DICT`, `MODEL_DICT: dict[str, Callable]`,
+  `columns_*: list[dict[str, Any]]`), accès obligatoires en `[...]`, `TRUE_VALUES` / `FALSE_VALUES`
+  / `NULL_VALUES` étendus au niveau de la classe `NullBooleanField` (plus de mutation d'attributs de
+  classe à chaque appel), `super().post/form_valid/form_invalid` du mixin en `type: ignore[misc]`,
+  ligne `seek(0)` dupliquée supprimée dans `Validation.validate`. `uv run mypy` : Success.
+
+---
+
+## D36 — ruff : arbitrage du périmètre et traitement ERA001 / BLE001 / E402 / F403 `[x]`
+
+- **Décisions de l'utilisateur (2026-10-12)** : `RUF012` (listes de classe des Meta Django) et
+  `D104` (paquets vides) ignorés ; `ANN` différé au chantier Django 4.2 (ignoré avec date) ;
+  `ERA001`, `BLE001`, `E402`, `F403` à traiter.
+- **E402 (134 -> 0)** : tous dans des scripts autonomes (loops, bin, imports, data_fixtures,
+  `functions_setups`, `heron/settings/test.py`) où `django.setup()` précède les imports du projet :
+  `per-file-ignores` par motif de répertoire, avec commentaire.
+- **F403 (166 -> 0)** : uniquement des `__init__.py` qui ré-exportent leurs modules par import
+  étoile (views, forms, models) : `"**/__init__.py" = ["F403", "F401"]`.
+- **BLE001 (171 -> 0)** : `logger-objects` déclare les quatorze loggers de `heron.loggers`, ce qui
+  rend conformes les `except Exception` suivis de `LOGGER_X.exception(...)` (154 cas) ; les 17
+  restants : `.error(...)` -> `.exception(...)` (trace conservée : SSE, jauges, Gmail),
+  exceptions précises (`OSError`, `ValueError`) pour le chargement / la sauvegarde du token Gmail et
+  la création de répertoires, `contextlib.suppress` avant la relance dans `edi/tasks`, un `noqa`
+  motivé sur la boucle de réessai d'envoi Gmail.
+- **ERA001 (204 -> 0)** : classe commentée de 160 lignes en fin de `function_imports.py` et fichier
+  `apps/core/tests/test_function_imports.py` (entièrement commenté, couverture assurée par
+  `test_lot2_function_imports.py`) supprimés ; blocs commentés retirés (contrôles désactivés
+  d'`opto_33_parser` remplacés par un commentaire en prose, `mogrify` de débogage, `__main__` de
+  `edi_pre_processing_pool` à chemins Windows / Téléchargements, catégorie « rfa » de la saisie
+  manuelle, routes SSE commentées d'`invoices/urls`, ancienne version du middleware, `pprint_dict`,
+  divers appels et clés commentés) ; cinq commentaires en prose reformulés (faux positifs : parenthèses
+  ou deux-points pris pour du code).
+- Résultat : ruff 5 643 -> 1 830 alertes (voir statistiques ci-dessous), mypy Success, suite
+  complète 2 962 tests à 100 %.
+
+---
+
+## D37 — ruff lot 2 : journalisation (G004 / TRY401 / LOG004), UP045, PTH123 `[x]`
+
+- **Décisions de l'utilisateur (2026-10-12)** : `ruff check --fix` lancé sur tout le périmètre
+  (corrections sûres seulement, les 166 « unsafe » ne sont pas appliquées) ; `TRY003`, `EM101`,
+  `EM102` (messages littéraux dans les `raise`), `ICN001` (alias d'import imposés) et `PLR2004`
+  (valeurs littérales dans les comparaisons) ajoutés aux `ignore` avec commentaire.
+- **G004 (223 -> 0)** : les f-strings passées aux loggers sont converties en formatage différé
+  `%s` / `%r` par un script AST (arguments extraits dans l'ordre, expressions conservées) ; le
+  rendu des messages est inchangé.
+- **TRY401 (22 -> 0)** : l'exception n'est plus répétée dans le message des
+  `LOGGER_X.exception(...)` (la trace la porte déjà) : messages raccourcis en libellé fixe
+  (`"TypeError"`, `"Erreur mise à jour progression"`, `"wsau_file"`,
+  `"Exception Générale RFA: %s"` avec le fournisseur).
+- **LOG004 (25 -> 0)** : `.exception(...)` hors d'un bloc `except` remplacé par `.error(...)`
+  (il n'y a pas de trace à joindre).
+- **UP045** : `Optional[X]` -> `X | None` par correction automatique.
+- **PTH123 (13 fichiers -> 0)** : `open(chemin)` -> `Path(chemin).open(...)` ; dans les tests
+  Gmail le `patch` vise désormais `pathlib.Path.open`.
+- **mypy** : l'attribut `get_object` fourni par la vue est déclaré sur `ChangeTraceMixin`
+  (`get_object: Callable[..., Any]`) après que `ruff --fix` a remplacé le `getattr`.
+- **Tests adaptés (changement de comportement des messages de log, signalé)** :
+  `core/test_lot4_import_files.py` (libellé `"TypeError"`), `articles/test_bin.py` et
+  `centers_purchasing/test_data_fixtures_excel.py` (exception lue dans `record.exc_info`),
+  `edi/test_imports_pool.py`
+  (`"wsau_file"`), `edi/test_tasks.py` (messages sans suffixe `: verrou impossible`),
+  `invoices/test_api_gmail.py` (`Path.open`), `rfa/test_bin.py` (deux assertions lisent
+  l'exception dans `record.exc_info` au lieu du message), `heron/test_views_middleware.py`
+  (`message % args`).
+- Résultat : ruff 1 830 -> 1 035 alertes (G004, TRY401, LOG004, UP045, PTH123 à 0), mypy
+  Success, suite complète 2 962 tests à 100 % (lignes et branches).
+- **Reste ruff (top)** : D100 125, D101 69, RET504 63, ARG002 55, FBT002 49, SLF001 44,
+  D102 41, D106 37, RUF005 36, D107 34, PLR0913 30, PLR0917 29, FBT001 26, DTZ001 20, D103 19.
+
+---
+
+## D38 — ruff lot 3 : docstrings manquantes (D100 / D101 / D102 / D103 / D106 / D107) `[x]`
+
+- **Périmètre** : 325 docstrings ajoutées dans 172 fichiers, rédigées une par une en français
+  (une phrase, point final) : 125 modules (D100), 69 classes (D101), 41 méthodes (D102),
+  19 fonctions (D103), 37 classes imbriquées `Meta` / `Config` (D106), 34 `__init__` (D107).
+- **Méthode** : script AST (`docstrings_add.py`, job tmp) qui insère la docstring devant la
+  première instruction du corps (`node.body[0]`, indentation respectée) ; textes de convention
+  pour les motifs répétitifs (`apps.py`, `admin.py`, `urls.py`, `Meta` de formulaire ou de
+  modèle, `Config` djantic, vues `views_etape_x_y` de validation_purchases), texte rédigé à la
+  main pour tout le reste (formulaires, modèles users, validateurs pydantic, filtres de templates,
+  `__init__` de formulaires et de classes utilitaires).
+- **Modules vides ou squelettes Django** (`# Create your views here.`, `loggers.py` vides,
+  `heron/settings/clients.py`, `staging.py`, `heron/tasks.py`) : docstring « réservé » ou
+  « aucun pour l'instant », fichiers conservés (apps réservées, cf. mémoire).
+- `ruff format` relancé sur les fichiers touchés (ligne vide après la docstring de classe) ;
+  aucun test modifié, aucun comportement changé.
+- Résultat : ruff 1 035 -> 710 alertes, mypy Success, xenon OK, suite complète 2 962 tests à
+  100 %.
+- **Reste ruff (top)** : RET504 63, ARG002 55, FBT002 49, SLF001 44, RUF005 36, PLR0913 30,
+  PLR0917 29, FBT001 26, DTZ001 20, N805 18, DTZ005 15, DTZ011 14, D105 14, D400/D415 14.
+
+---
+
+## D39 — ruff lot 4 : RET504, ARG002, FBT001 / FBT002 (/ FBT003) `[x]`
+
+- **RET504 (63 -> 0)** : correctif ruff « unsafe » appliqué après relecture du diff : la variable
+  intermédiaire assignée juste avant le `return` disparaît (`queryset = ... ; return queryset` ->
+  `return ...`) ; deux `return` remontent dans un bloc `with` (curseur), sans changement de
+  comportement.
+- **ARG002 (55 -> 0)** : 32 `form_valid(self, form, **kwargs)` ramenés à la signature Django
+  `form_valid(self, form)` ; `get_queryset(self, **kwargs)` -> `get_queryset(self)` ;
+  `Form.clean(self, *args, **kwargs)` -> `clean(self)` ; paramètres imposés par Django mais
+  inutilisés préfixés d'un tiret bas (`_request`, `*_args`, `**_kwargs`, `_cleaned_data`,
+  `_value` des champs à valeur par défaut, `**_options` des commandes) ; les trois loaders OPTO 33
+  (`read`, `read_list`, `read_dict`) gardent `all_lines` pour l'interface commune avec un `noqa`
+  motivé.
+- **FBT001 / FBT002 (26 / 49 -> 0)** : les paramètres booléens deviennent *keyword-only* (`*,`
+  inséré avant le premier booléen) dans 23 fonctions et méthodes de production ; appels
+  positionnels corrigés : `_account_lines`, `_content_errors`, `_finish_trace`, `_rows_to_insert`,
+  `excel_excel_to_csv` / `excel_xhtml_to_csv` (depuis `ExcelToCsv.make_csv`), `self.read*(all_lines)`
+  des loaders, `_create_user(..., is_superuser=True, is_staff=True)`. Les appels des vues, des
+  tâches et des tests utilisaient déjà des mots-clés.
+- **FBT003** : un appel positionnel corrigé dans le `__main__` d'`od_a_passer`.
+- **Décision (à confirmer)** : `FBT001` / `FBT002` / `FBT003` ajoutés aux `per-file-ignores` des
+  tests (`conftest.py`, `apps/*/tests/*`, `heron/tests/*`) : les fabriques et doubles de test
+  portent légitimement des drapeaux booléens (`in_progress=False`, `fail=False`, `with_a=True`), et
+  la consigne est de ne pas réécrire les tests.
+- **Changement d'API interne (signalé)** : les fonctions ci-dessus n'acceptent plus leurs booléens
+  en positionnel ; aucun test modifié, la suite complète les couvre à 100 %.
+- Résultat : ruff 710 -> 500 alertes, mypy Success, xenon OK, suite complète 2 962 tests à 100 %.
+- **Reste ruff (top)** : SLF001 44, RUF005 36, PLR0913 30, PLR0917 27, DTZ001 20, N805 18,
+  DTZ005 15, DTZ011 14, D105 14, D400/D415 14, TRY301 13, SIM105 13.
+
+---
+
+## D40 — ruff lot 5 : SLF001, RUF005, PLR0913 / PLR0917 `[x]`
+
+- **SLF001 (44 -> 0)** : toutes les alertes visent `Model._meta` et `Model._default_manager`,
+  API publiques documentées de Django : `[tool.ruff.lint.flake8-self] ignore-names`, avec
+  commentaire. Aucun autre accès à un membre privé dans le code de production.
+- **RUF005 (36 -> 0)** : correctif ruff « unsafe » (`a + [b]` -> `[*a, b]`) puis retrait des
+  `list()` devenus redondants dans les `Config.include` djantic (`[*model.get_columns_import(),
+  "created_at", ...]`) ; les `urlpatterns` de quatre `urls.py` (listes par bloc commenté
+  concaténées par `+`) réécrits en une liste avec dépaquetage `*[...]` comme `heron/urls.py`, dont
+  le `+ static(...)` final devient `*static(...)` ; `MIDDLEWARE` des settings sans `[] +`. Une
+  assertion de test (`edi/test_pre_processing.py`) réécrite à l'identique par le correctif
+  (`[*header[:16], "vat_regime"]`), signalée.
+- **PLR0913 / PLR0917 (30 / 27 -> 0)** : les signatures à six paramètres sont des aides
+  xlsxwriter (classeur, feuille, ligne, colonne, valeurs, format) et des imports de fichiers
+  (modèle, flux, source, trace, validateur, paramètres), appelées positionnellement par le code et
+  par les tests (non modifiables) : `[tool.ruff.lint.pylint] max-positional-args = 6`,
+  `max-args = 8`, commentés. Au-delà, les options passent en mots-clés : `make_insert(..., *,
+  extend_model, insert_mode)` (six appels de `book/imports/imports_sage.py` passent
+  `extend_model=`), `_insert_file` ramené à huit paramètres (il renvoie les lignes en erreur, le
+  compte rendu est composé par `make_insert`, texte identique), `send_mail(server, mail_to,
+  subject, *, email_text, email_html, context, attachement_file_list)`,
+  `get_pagination_buttons(acutal_page, nbre_pages, *, nbre_boutons, ...)`.
+- Résultat : ruff 500 -> 363 alertes, mypy Success, xenon OK, suite complète 2 962 tests à
+  100 %.
+- **Reste ruff (top)** : DTZ001 20, N805 18, DTZ005 15, DTZ011 14, D105 14, D400/D415 14,
+  TRY301 13, SIM105 13, PLR0915 8, PLR0911 4.
+
+---
+
+## D41 — ruff lot 6 : dates naïves DTZ001 / DTZ005 / DTZ011 `[x]`
+
+- **Contexte** : `USE_TZ = True`, `TIME_ZONE = "Europe/Paris"` ; les appels naïfs de production
+  passent par `django.utils.timezone` : `timezone.localtime()` (heure locale consciente) pour les
+  horodatages de logs et les boucles qui testent l'heure et la minute de lancement (cinq scripts
+  `loops`), `timezone.localdate()` pour la date du jour (préfixe de fichier `date_debut_nom_fichier`,
+  `DefaultDateTodayField`, processeurs de contexte `date_du_jour` / `annee_du_jour`,
+  `date_string_series`), `timezone.now()` pour les calculs de durée.
+- **Changement de comportement (signalé)** : `time_string_series` compte désormais les secondes
+  écoulées depuis le 01/01/2000 00:00 **UTC** à partir d'un `now` conscient (auparavant horloge
+  murale locale naïve, décalée d'une heure selon l'heure d'été) ; la fonction n'est appelée que par
+  son test, adapté au même calcul (`heron/core/tests/test_lot1_dates_sql.py`).
+- **Sentinelle Sage** : `DEFAULT_DATE = datetime.datetime(1900, 1, 1)` des schémas djantic reste
+  naïve à dessein (écrite telle quelle dans les colonnes date par COPY, une valeur consciente
+  serait décalée au fuseau de la connexion) : `noqa: DTZ001` commenté.
+- **Tests** : `DTZ` ajouté aux `per-file-ignores` des tests (dates de fixtures naïves comparées aux
+  sorties, `date.today()` dans les assertions), consigne de ne pas réécrire les tests.
+- **Non traité** : `DTZ007` (7) : `strptime` de dates sans heure (formats Sage, Excel, OPTO 33),
+  naïves par nature.
+- Résultat : ruff 363 -> 314 alertes, mypy Success, xenon OK, suite complète 2 962 tests à 100 %.
+- **Reste ruff (top)** : N805 18, D105 14, D400/D415 14, TRY301 13, SIM105 13, RUF043 11,
+  G003 11, S608 10, RUF015 8, PLR0915 8, DTZ007 7.
+
+---
+
+## D42 — ruff lot 7 : N805, D105, D400 / D415 `[x]`
+
+- **N805 (18 -> 0)** : les méthodes visées sont des validateurs pydantic v1 (`@validator`), qui
+  reçoivent `cls` : `pydantic.validator`, `pydantic.root_validator` et le ré-export
+  `apps.core.validations.pydantic_validators_base.validator` (ruff ne suit pas les ré-exports)
+  ajoutés à `classmethod-decorators`, commentés.
+- **D105 (14 -> 0)** : docstrings des méthodes magiques : `__str__` des modèles (« Texte renvoyé
+  dans les selects et à l'affichage de l'objet. »), `__enter__` / `__exit__` du chronomètre
+  `Timer`, `__str__` de `FacturXClientError`.
+- **D400 / D415 (14 -> 0)** : première ligne des docstrings terminée par un point au lieu de
+  « : » ou « ; », la suite commence par une majuscule ; docstring vide « FR : / EN : » de
+  `AccountingTypeSage` (conteneur réservé) remplacée par une phrase ; coquille « postgesql »
+  corrigée.
+- Résultat : ruff 314 -> 254 alertes, mypy Success, xenon OK, suite complète 2 962 tests à 100 %.
+- **Reste ruff (top)** : TRY301 13, SIM105 13, RUF043 11, G003 11, S608 10, RUF015 8, PLR0915 8,
+  DTZ007 7.
+
+---
+
+## D43 — ruff lot 8 : zéro alerte sur `uv run ruff check --fix apps heron conftest.py scripts` `[x]`
+
+- **Commande de référence** (demande de l'utilisateur) : `uv run ruff check --fix apps heron
+  conftest.py scripts` doit rendre « All checks passed! » ; 254 alertes traitées en deux vagues.
+- **Tests : `per-file-ignores`** (consigne de ne pas réécrire les tests) : `RUF043` (motifs
+  `pytest.raises`), `S105`/`S106`/`S107`/`S108` (mots de passe, jetons et chemins factices),
+  `S301`/`S608` (pickle et SQL d'insertion de fixtures), `S603`/`S607` (sous-processus de
+  contrôle), `PLW0108`, `C901`, `C416`, `FURB171` (doubles de test).
+- **Configuration justifiée** : `N818` ignoré (noms d'exceptions historiques `*Exception`
+  importés par les tests) ; `N999` ignoré pour `apps/users/Exceptions.py` et les modules
+  `views_etape_*A/B.py` (importés par les tests et l'URLconf) ; `allowed-confusables` pour les
+  tables d'homoglyphes de `functions_utilitaires`.
+- **`noqa` motivés** : `DTZ007` (7 `strptime` de dates sans heure), `S101` (4 gardes de type
+  mypy), `S301` (pickle d'un fichier produit par l'application), `PLC0415` (import différé des
+  settings dans `init_directories`), `E741` (attribut `l` du module de fixtures articles, remplacé
+  par les tests), `PTH207` (`glob.glob` de `ExcelToCsv.make_csv`, remplacé par les tests).
+- **Points d'injection des tests conservés** : les vues articles appellent
+  `articles_update_account.update_articles_accounts()` et
+  `articles_without_account.import_articles_without_account()` par leur module (les tests
+  remplacent l'attribut du module) ; `import_maisons_bi` compte les lignes avec `len(rows)`.
+- **Corrections de code (sans changement de comportement)** : RUF036, UP031, INT001 (`_("…%s") %`),
+  E741, EXE001 (shebang retiré), B007/PLW2901 (variables de boucle), N806 (variables locales en
+  minuscules), PLW0127 (`functions_setups` ré-exporte via `__all__`), PLW0603 (`traceback`
+  devient local), RET503/RET504, RUF015 (`cursor.fetchall()[0]`), PTH (`Path` dans
+  `functions_excel`, `functions_logs`, `functions_utilitaires`), D205/D210/D301/D419, INP001
+  (`heron/templatetags/__init__.py`), S108 (`tempfile.gettempdir()`), PERF401 (compréhensions),
+  PLC0415 (imports remontés en tête), B904 (`raise … from error`), TRY300 (`else:`), TRY400
+  (`.exception` sans répéter l'erreur), G003 (formatage `%s` des logs), SIM102/103/105/108/117/118/212,
+  FURB110, F841.
+- **S608** : les requêtes des exports Excel (`GetRows`) et de `add_news_cct_sage` sont composées
+  avec `psycopg2.sql` (`sql.Identifier` pour les tables, `sql.SQL` pour les fragments constants).
+- **TRY301** : les `raise` sortent des blocs `try` vers des fonctions dédiées
+  (`_date_format`, `_require_prepared_kwargs`, `_require_columns`, `_raise_file_errors`,
+  `_require_function`, `_check_export_type`, `_check_inside`), comportement identique.
+- **PLR0911** : les quatre vues `*_launch` de compta partagent `_launch_post` (contrôles, jauge
+  SSE, thread) ; seule `royalties_launch` dépose aussi l'erreur de formulaire en session
+  (`session_form_error=True`), comme avant.
+- **PLR0915 / C901** : `invoices_insertion` (124 instructions) découpée en `_prepare_insertion`,
+  `_InsertionSteps` (journal, jauge, chronométrage), `_run_insertion_steps`, `_insert_purchases`,
+  `_insert_sales` : mêmes messages de jauge, mêmes journaux, mêmes transactions ;
+  `set_sales_invoices` -> `_sales_line` ; `finalize_period` -> `_finalize_blocking_redirect` ;
+  `generate_facturx_invoice` -> `_facturx_server_status` ; `insert_users` -> `_insert_one_user` ;
+  encodeur JSON -> `_datetime_to_json` / `_time_to_json` ; exports X3 -> `open_export_file`
+  (base_export_x3_functions).
+- **Racine du dépôt** (`scripts/pre_check.py` lance `ruff check . --fix`) : docstrings sur
+  `essais.py` (vide, bit exécutable retiré) et `main.py` (gabarit `uv init`), `noqa: PLC0415`
+  sur l'import différé du `manage.py` standard de Django, `files/` (données) ajouté à
+  `extend-exclude`.
+- **mypy sans notes** : `disable_error_code = ["annotation-unchecked"]` sur la surcharge des
+  tests (corps non annotés non vérifiés, la note était sans effet) ; motif `pendulum.*` retiré de
+  la surcharge pendulum (section inutilisée, seul le paquet est importé).
+- Résultat : ruff 254 -> 0 (`ruff check .` et `scripts/pre_check.py` au vert), mypy Success,
+  xenon OK, suite complète 2 962 tests à 100 %.
+
+---
+
+## D44 — Sonar JavaScript : jeton de téléchargement des templates Sage `[x]`
+
+- `sage_heron_purchases.html` et `sage_heron_sales.html` : `generateToken` sort de
+  `$(document).ready` (S7721) et le jeton est tiré de `crypto.getRandomValues` au lieu de
+  `Math.random` (S2245) ; format accepté par la route `core:download_status/<str:token>/`.
+
+---
+
+## D45 — Dépendances : django-celery-results 2.6.0, django-dynamic-preferences 1.16.0 `[x]`
+
+- **Motif** : deux `RemovedInDjango41Warning` (`default_app_config`) émis par ces paquets au
+  chargement des applications.
+- **django-celery-results 2.2.0 -> 2.6.0** (exige Django >= 3.2.25) : `default_app_config` n'est
+  plus déclaré sous Django 3.2 ; **quatre migrations à appliquer en production** (`0011` à `0014` :
+  `periodic_task_name`, `date_started`, index, statut) par `manage.py migrate django_celery_results`.
+- **django-dynamic-preferences 1.12.0 -> 1.16.0** (dernière version compatible Django 3.2, la 1.17
+  exige Django 4.2 ; entraîne persisting-theory 1.0) : déclare encore `default_app_config`, la
+  dépréciation est filtrée dans `[tool.pytest.ini_options].filterwarnings` jusqu'au chantier
+  Django 4.2 (sans effet avant Django 4.1). Aucune migration en attente.
+- Résultat : `uv pip check` OK, suite complète 2 962 tests à 100 %, zéro avertissement.
+
+---
+
+## D46 — Sonar S5779 : plus d'`assert` dans un `try` qui attrape `AssertionError` `[x]`
+
+- `GmailAuthenticator._refresh_token` reçoit les credentials en paramètre (l'appelant les a déjà
+  contrôlés), `rfa_generation_launch` interroge l'action puis boucle tant qu'elle est en cours :
+  les deux `assert` de rétrécissement de type disparaissent sans branche supplémentaire.
+
+---
+
 ## Suivi
 
 | Directive | État | Date | Commentaire |
@@ -753,3 +1296,23 @@ Petites corrections à passer app par app, en même temps que D0 :
 | D24 rfa | x | 2026-10-12 | 73 tests, 100 % ; contrôles RFA (produit cartésien), exclusion client, redirection ignorée ; projet 2 897 tests (avec D25), 100 % |
 | D25 users | x | 2026-10-12 | 48 tests, 100 % ; 12 bugs (groupes, profil, intégrations en masse) ; projet 2 897 tests, 100 %, toutes les apps couvertes |
 | D26 heron (paquet projet) | x | 2026-10-12 | 62 tests, 100 % ; 23 filtres morts, vues dupliquées, numbers_format ; projet 2 968 tests, 100 % |
+| D27 Sonar lot 3 | x | 2026-10-12 | 8 nouvelles + anciennes visibles ; PDF_STATIC_DOMAIN obligatoire en prod ; projet 2 963 tests, 100 % |
+| D28 Sonar lot 4 | x | 2026-10-12 | 30 anciennes alertes (a..i) ; make_csv et supplier_cct_identifier découpées ; projet 2 963 tests, 100 % |
+| D29 Sonar lot 5 | x | 2026-10-12 | anciennes alertes (e..n) ; DOMAINS_WHITELIST de production corrigée ; projet 2 963 tests, 100 % |
+| D30 Sonar lot 6 | x | 2026-10-12 | anciennes alertes (f..o) ; line_parser et input_format_date découpées, plus de fonction > 15 ; projet 2 963 tests, 100 % |
+| D31 environnement 3.11 | x | 2026-10-12 | retour à 3.11 après tentative 3.14 (Django 3.2 incompatible) ; import circulaire accountancy corrigé ; ruff 40 395 / mypy 501 avec la nouvelle config ; projet 2 963 tests, 100 % |
+| D32 pipeline qualité | x | 2026-10-12 | pre_check/pre-commit adaptés, package = false, xenon C/B/A hors tests OK, mypy 487 ; projet 2 963 tests, 100 % |
+| D33 Sonar lot 7 | x | 2026-10-12 | anciennes alertes (p..v) ; injection SQL add_news_cct_sage corrigée ; projet 2 961 tests, 100 % |
+| D34 téléchargement sans cookie | x | 2026-10-12 | marqueur en session + vue core:download_status ; dernière alerte Sonar levée ; projet 2 962 tests, 100 % |
+| D35 mypy | x | 2026-10-12 | 481 -> 0 erreurs (AnyStr -> str, no_implicit_optional, annotations, gardes None) ; projet 2 962 tests, 100 % |
+| D36 ruff lot 1 | x | 2026-10-12 | ERA001/BLE001/E402/F403 à 0, RUF012/D104 ignorés, ANN différé ; ruff 5 643 -> 1 830 ; projet 2 962 tests, 100 % |
+| D37 ruff lot 2 | x | 2026-10-12 | G004/TRY401/LOG004/UP045/PTH123 à 0, ruff --fix appliqué, TRY003/EM10x/ICN001/PLR2004 ignorés ; ruff 1 830 -> 1 035 ; projet 2 962 tests, 100 % |
+| D38 ruff lot 3 docstrings | x | 2026-10-12 | 325 docstrings (D100/D101/D102/D103/D106/D107) dans 172 fichiers ; ruff 1 035 -> 710 ; projet 2 962 tests, 100 % |
+| D39 ruff lot 4 | x | 2026-10-12 | RET504/ARG002/FBT001/FBT002 à 0 (booléens keyword-only, signatures Django rétablies), FBT ignoré dans les tests ; ruff 710 -> 500 ; projet 2 962 tests, 100 % |
+| D40 ruff lot 5 | x | 2026-10-12 | SLF001 (_meta ignoré), RUF005 (dépaquetage, urls.py), PLR0913/0917 (seuils 8/6, options en mots-clés) ; ruff 500 -> 363 ; projet 2 962 tests, 100 % |
+| D41 ruff lot 6 dates | x | 2026-10-12 | DTZ001/005/011 à 0 via django.utils.timezone (localtime/localdate/now), DTZ ignoré dans les tests, DEFAULT_DATE naïve justifiée ; ruff 363 -> 314 ; projet 2 962 tests, 100 % |
+| D42 ruff lot 7 | x | 2026-10-12 | N805 (validateurs pydantic en classmethod-decorators), D105 et D400/D415 à 0 ; ruff 314 -> 254 ; projet 2 962 tests, 100 % |
+| D43 ruff lot 8 | x | 2026-10-12 | `ruff check --fix apps heron conftest.py scripts` à 0 alerte (254 traitées : refactorings invoices_insertion / vues compta, psycopg2.sql, ignores tests justifiés) ; projet 2 962 tests, 100 % |
+| D44 Sonar JS | x | 2026-10-12 | generateToken hors du ready, crypto.getRandomValues (S7721/S2245) dans les deux templates Sage |
+| D45 dépendances | x | 2026-10-12 | django-celery-results 2.6.0 (4 migrations à passer en production), django-dynamic-preferences 1.16.0 (dépréciation filtrée) ; projet 2 962 tests, 100 %, 0 avertissement |
+| D46 Sonar S5779 | x | 2026-10-12 | assert retirés de _refresh_token et rfa_generation_launch (paramètre / boucle while) ; projet 2 962 tests, 100 % |

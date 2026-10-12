@@ -1,6 +1,6 @@
-"""
-FR : Module de validation par djantic
-EN : Sage X3 import validation forms module
+"""FR : Module de validation par djantic.
+
+EN : Sage X3 import validation forms module.
 
 Commentaire:
 
@@ -10,31 +10,32 @@ created by: Paulo ALVES
 modified at: 2022-05-10
 modified by: Paulo ALVES
 """
+
 import datetime
 import uuid
 
 from django.utils import timezone
 from djantic import ModelSchema
 
-from apps.core.validations.pydantic_validators_base import (
-    SageTruncateStrFieldsBase,
-    SageNullFalseBooleanFieldsBase,
-)
 from apps.book.models import (
+    BookAdressesSage,
+    BookBanksSage,
+    BookContactsSage,
+    BpcBookSage,
     BprBookSage,
     BpsBookSage,
-    BpcBookSage,
-    BookAdressesSage,
     CodeContactsSage,
-    BookContactsSage,
-    BookBanksSage,
+)
+from apps.core.validations.pydantic_validators_base import (
+    SageNullFalseBooleanFieldsBase,
+    SageTruncateStrFieldsBase,
 )
 
 
 class BprBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
-    """
-    Schema Djantic pour validation du modèle Society (BPR)
-    Validation de l'import ZBIBPR des Tiers Génériques Sage X3
+    """Schema Djantic pour validation du modèle Society (BPR).
+
+    Validation de l'import ZBIBPR des Tiers Génériques Sage X3.
     """
 
     now = timezone.now()
@@ -43,20 +44,17 @@ class BprBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     country: str
 
     class Config:
-        """class Config du models au sens django"""
+        """class Config du models au sens django."""
 
         base_model = BprBookSage
         model = base_model.model
-        include = list(base_model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-        ]
+        include = [*base_model.get_columns_import(), "created_at", "modified_at"]
 
 
 class BpsBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
-    """
-    Schema Djantic pour validation du modèle Society (BPS)
-    Validation de l'import ZBIBPS des Tiers Génériques Sage X3
+    """Schema Djantic pour validation du modèle Society (BPS).
+
+    Validation de l'import ZBIBPS des Tiers Génériques Sage X3.
     """
 
     now = timezone.now()
@@ -65,20 +63,17 @@ class BpsBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     payment_condition_supplier: str
 
     class Config:
-        """class Config du models au sens django"""
+        """class Config du models au sens django."""
 
         base_model = BpsBookSage
         model = base_model.model
-        include = list(base_model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-        ]
+        include = [*base_model.get_columns_import(), "created_at", "modified_at"]
 
 
 class BpcBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
-    """
-    Schema Djantic pour validation du modèle Society (BPC)
-    Validation de l'import ZBIBPC des Tiers Génériques Sage X3
+    """Schema Djantic pour validation du modèle Society (BPC).
+
+    Validation de l'import ZBIBPC des Tiers Génériques Sage X3.
     """
 
     now = timezone.now()
@@ -87,22 +82,19 @@ class BpcBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     payment_condition_client: str
 
     class Config:
-        """class Config du models au sens django"""
+        """class Config du models au sens django."""
 
         base_model = BpcBookSage
         model = base_model.model
-        include = list(base_model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-        ]
+        include = [*base_model.get_columns_import(), "created_at", "modified_at"]
 
 
 class BookAdressesSageSchema(
     ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase
 ):
-    """
-    Schema Djantic pour validation du modèle Society-Adress
-    Validation de l'import ZBIADDR des Tiers Génériques Sage X3
+    """Schema Djantic pour validation du modèle Society-Adress.
+
+    Validation de l'import ZBIADDR des Tiers Génériques Sage X3.
     """
 
     now = timezone.now()
@@ -112,22 +104,19 @@ class BookAdressesSageSchema(
     country: str
 
     class Config:
-        """class Config du models au sens django"""
+        """class Config du models au sens django."""
 
         base_model = BookAdressesSage
         model = base_model.model
-        include = list(base_model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-        ]
+        include = [*base_model.get_columns_import(), "created_at", "modified_at"]
 
 
 class CodeContactsSageSchema(
     ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase
 ):
-    """
-    Schema Djantic pour validation du modèle Society-Code-Contact
-    Validation de l'import ZBICONTACT des Tiers Génériques Sage X3
+    """Schema Djantic pour validation du modèle Society-Code-Contact.
+
+    Validation de l'import ZBICONTACT des Tiers Génériques Sage X3.
     """
 
     now = timezone.now()
@@ -138,11 +127,12 @@ class CodeContactsSageSchema(
     country: str
 
     class Config:
-        """class Config du models au sens django"""
+        """class Config du models au sens django."""
 
         base_model = CodeContactsSage
         model = base_model.model
-        include = list(base_model.get_columns_import()) + [
+        include = [
+            *base_model.get_columns_import(),
             "created_at",
             "modified_at",
             "uuid_identification",
@@ -152,9 +142,9 @@ class CodeContactsSageSchema(
 class BookContactsSageSchema(
     ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase
 ):
-    """
-    Schema Djantic pour validation du modèle Society-Contact
-    Validation de l'import ZBICONTCRM des Tiers Génériques Sage X3
+    """Schema Djantic pour validation du modèle Society-Contact.
+
+    Validation de l'import ZBICONTCRM des Tiers Génériques Sage X3.
     """
 
     now = timezone.now()
@@ -165,11 +155,12 @@ class BookContactsSageSchema(
     country: str
 
     class Config:
-        """class Config du models au sens django"""
+        """class Config du models au sens django."""
 
         base_model = BookContactsSage
         model = base_model.model
-        include = list(base_model.get_columns_import()) + [
+        include = [
+            *base_model.get_columns_import(),
             "created_at",
             "modified_at",
             "uuid_identification",
@@ -177,9 +168,9 @@ class BookContactsSageSchema(
 
 
 class BookBanksSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
-    """
-    Schema Djantic pour validation du modèle Society-Contact
-    Validation de l'import ZBIBANK des Tiers Génériques Sage X3
+    """Schema Djantic pour validation du modèle Society-Contact.
+
+    Validation de l'import ZBIBANK des Tiers Génériques Sage X3.
     """
 
     now = timezone.now()
@@ -189,11 +180,8 @@ class BookBanksSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseB
     country: str
 
     class Config:
-        """class Config du models au sens django"""
+        """class Config du models au sens django."""
 
         base_model = BookBanksSage
         model = base_model.model
-        include = list(base_model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-        ]
+        include = [*base_model.get_columns_import(), "created_at", "modified_at"]

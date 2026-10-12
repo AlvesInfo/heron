@@ -1,6 +1,5 @@
-"""
-Tests de la génération des factures d'abonnements (royalties, meuleuses, publicité, prestations)
-"""
+"""Tests de la génération des factures d'abonnements (royalties, meuleuses, publicité, prestations)"""
+
 import logging
 from decimal import Decimal
 
@@ -19,27 +18,43 @@ GENERATORS = [
 
 
 def test_set_invoice_amounts_sums_lines_by_invoice(make_edi_import):
-    common = {"third_party_num": "ZROY", "flow_name": "ROYALTIES", "supplier": "Royalties", "invoice_number": "R1"}
+    common = {
+        "third_party_num": "ZROY",
+        "flow_name": "ROYALTIES",
+        "supplier": "Royalties",
+        "invoice_number": "R1",
+    }
     first = make_edi_import(net_amount=10, vat_amount=2, amount_with_vat=12, **common)
     second = make_edi_import(net_amount=20, vat_amount=4, amount_with_vat=24, **common)
     other = make_edi_import(
-        net_amount=5, vat_amount=1, amount_with_vat=6, third_party_num="ZROY", flow_name="MEULEUSE",
-        supplier="Meuleuse", invoice_number="M1",
+        net_amount=5,
+        vat_amount=1,
+        amount_with_vat=6,
+        third_party_num="ZROY",
+        flow_name="MEULEUSE",
+        supplier="Meuleuse",
+        invoice_number="M1",
     )
 
     invoices_subsricptions.set_invoice_amounts("ROYALTIES")
 
     for line in (first, second):
         line.refresh_from_db()
-        assert (line.invoice_amount_without_tax, line.invoice_amount_tax, line.invoice_amount_with_tax) == (
-            Decimal("30"), Decimal("6"), Decimal("36"),
+        assert (
+            line.invoice_amount_without_tax,
+            line.invoice_amount_tax,
+            line.invoice_amount_with_tax,
+        ) == (
+            Decimal(30),
+            Decimal(6),
+            Decimal(36),
         )
 
     other.refresh_from_db()
     assert other.invoice_amount_without_tax == 0
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 def test_set_data_runs_ca_then_subscriptions_query(monkeypatch):
     calls = []
 
@@ -50,7 +65,9 @@ def test_set_data_runs_ca_then_subscriptions_query(monkeypatch):
         calls.append(("query", sql_query, params))
         return 3
 
-    with patched_attrs(monkeypatch, invoices_subsricptions, set_ca=_set_ca, query_execute=_query_execute):
+    with patched_attrs(
+        monkeypatch, invoices_subsricptions, set_ca=_set_ca, query_execute=_query_execute
+    ):
         rows = invoices_subsricptions.set_data("2026-01-01", "2026-01-31", "uuid-user", "ROYALTIES")
 
     assert rows == 3
@@ -58,7 +75,10 @@ def test_set_data_runs_ca_then_subscriptions_query(monkeypatch):
     assert calls[1][1] is invoices_subsricptions.SQL_SUBSCRIPTIONS
     params = calls[1][2]
     assert (params["dte_d"], params["dte_f"], params["flow_name"], params["created_by"]) == (
-        "2026-01-01", "2026-01-31", "ROYALTIES", "uuid-user",
+        "2026-01-01",
+        "2026-01-31",
+        "ROYALTIES",
+        "uuid-user",
     )
     assert "uuid_identification" in params
 
@@ -73,7 +93,10 @@ def test_generators_success(monkeypatch, make_user, generator, flow_name, label)
         return 5
 
     with patched_attrs(
-        monkeypatch, invoices_subsricptions, set_data=_set_data, set_invoice_amounts=lambda flow: seen.update(amounts=flow)
+        monkeypatch,
+        invoices_subsricptions,
+        set_data=_set_data,
+        set_invoice_amounts=lambda flow: seen.update(amounts=flow),
     ):
         trace, to_print = generator("2026-01-01", "2026-01-31", user.uuid_identification)
 
@@ -92,7 +115,10 @@ def test_generators_without_subscriptions(monkeypatch, make_user, generator, flo
     user = make_user()
 
     with patched_attrs(
-        monkeypatch, invoices_subsricptions, set_data=lambda *_args: 0, set_invoice_amounts=lambda flow: None
+        monkeypatch,
+        invoices_subsricptions,
+        set_data=lambda *_args: 0,
+        set_invoice_amounts=lambda flow: None,
     ):
         trace, to_print = generator("2026-01-01", "2026-01-31", user.uuid_identification)
 
@@ -108,8 +134,9 @@ def test_generators_exception(monkeypatch, make_user, caplog, generator, flow_na
     def _boom(*_args):
         raise RuntimeError("sql cassé")
 
-    with patched_attrs(monkeypatch, invoices_subsricptions, set_data=_boom), caplog.at_level(
-        logging.ERROR, logger="edi"
+    with (
+        patched_attrs(monkeypatch, invoices_subsricptions, set_data=_boom),
+        caplog.at_level(logging.ERROR, logger="edi"),
     ):
         trace, to_print = generator("2026-01-01", "2026-01-31", user.uuid_identification)
 
@@ -127,7 +154,11 @@ def test_generator_exception_keeps_existing_comment(monkeypatch, make_user, make
     def _boom(*_args):
         raise RuntimeError("x")
 
-    with patched_attrs(monkeypatch, invoices_subsricptions, set_data=_boom, get_trace=lambda *_a: trace):
-        result, _ = invoices_subsricptions.royalties("2026-01-01", "2026-01-31", user.uuid_identification)
+    with patched_attrs(
+        monkeypatch, invoices_subsricptions, set_data=_boom, get_trace=lambda *_a: trace
+    ):
+        result, _ = invoices_subsricptions.royalties(
+            "2026-01-01", "2026-01-31", user.uuid_identification
+        )
 
     assert result.comment == "déjà là. Une erreur c'est produite veuillez consulter les logs"

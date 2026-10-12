@@ -1,6 +1,6 @@
-"""
-FR : Module des models pour l'import des fichiers
-EN : Models module for importing files
+"""FR : Module des models pour l'import des fichiers.
+
+EN : Models module for importing files.
 
 Commentaire:
 
@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 import uuid
 
 from django.db import models
@@ -20,10 +21,10 @@ HTML_COLORS = (("#FF0000", "red"), ("#00B050", "green"))
 
 
 class ShaImportInvoicesFiles(DatesTable):
-    """
-    Tables de vérification des sha512 des fichiers de factures founisseurs déjà importés.
+    """Tables de vérification des sha512 des fichiers de factures founisseurs déjà importés.
+
     FR : Table des Sha512
-    EN : Sha512 Import Invoices Files table
+    EN : Sha512 Import Invoices Files table.
     """
 
     id_sha512_file = models.TextField(unique=True)
@@ -33,20 +34,20 @@ class ShaImportInvoicesFiles(DatesTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return self.file_name or ""
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["file_name"]
 
 
 class ErrorsShaImportFIles(DatesTable):
-    """
-    Tables de stockage des erreurs sur les fichiers importés.
+    """Tables de stockage des erreurs sur les fichiers importés.
+
     FR : Table des erreurs des fichiers Sha512
-    EN : Errors Sha512 Import FIles table
+    EN : Errors Sha512 Import FIles table.
     """
 
     sha_file = models.ForeignKey(
@@ -67,10 +68,10 @@ class ErrorsShaImportFIles(DatesTable):
     html_color = models.CharField(null=True, blank=True, choices=HTML_COLORS, max_length=7)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.sha_file or ''} - {self.file_line or ''} - {self.column or ''}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["sha_file", "file_line"]

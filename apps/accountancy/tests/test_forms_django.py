@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des formulaires Django de validation des imports Sage (forms/forms_django)
+"""FR : Tests des formulaires Django de validation des imports Sage (forms/forms_django)
+
+
 EN : Tests for Django validation forms of Sage imports
 
 Commentaire:
@@ -11,6 +12,7 @@ toute autre valeur = null.
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import datetime
 
 import pytest
@@ -113,7 +115,13 @@ def test_axe_sage_form_nom_obligatoire():
 def test_vat_sage_form_valide():
     """VatSageForm accepte un auuid et crée la taxe"""
     form = VatSageForm(
-        data={"vat": "001", "name": "TVA 20~~%", "short_name": "20", "vat_regime": "FRA", "auuid": AUUID}
+        data={
+            "vat": "001",
+            "name": "TVA 20~~%",
+            "short_name": "20",
+            "vat_regime": "FRA",
+            "auuid": AUUID,
+        }
     )
 
     assert form.is_valid(), form.errors
@@ -123,7 +131,15 @@ def test_vat_sage_form_valide():
 
 def test_vat_sage_form_auuid_invalide():
     """Un auuid non uuid est rejeté"""
-    form = VatSageForm(data={"vat": "001", "name": "n", "short_name": "s", "vat_regime": "FRA", "auuid": "pas-un-uuid"})
+    form = VatSageForm(
+        data={
+            "vat": "001",
+            "name": "n",
+            "short_name": "s",
+            "vat_regime": "FRA",
+            "auuid": "pas-un-uuid",
+        }
+    )
 
     assert not form.is_valid()
     assert set(form.errors) == {"auuid"}
@@ -155,7 +171,15 @@ def test_payment_condition_form_valide():
 
 def test_category_sage_form_valide():
     """CategorySageForm crée une catégorie"""
-    form = CategorySageForm(data={"initial": "C", "code": "CLI", "name": "Clients~~x", "short_name": "CLI", "cur": "EUR"})
+    form = CategorySageForm(
+        data={
+            "initial": "C",
+            "code": "CLI",
+            "name": "Clients~~x",
+            "short_name": "CLI",
+            "cur": "EUR",
+        }
+    )
 
     assert form.is_valid(), form.errors
     assert form.save().name == "Clients"
@@ -210,7 +234,15 @@ def test_currency_sage_form_date_iso_refusee():
     [
         (
             AccountSageForm,
-            {"code_plan_sage": "FRA", "account": "411000", "name": "Clients~~x", "short_name": "Cli", "collective": "2", "analytic": "2", "nb_axes": "0"},
+            {
+                "code_plan_sage": "FRA",
+                "account": "411000",
+                "name": "Clients~~x",
+                "short_name": "Cli",
+                "collective": "2",
+                "analytic": "2",
+                "nb_axes": "0",
+            },
             {"collective", "analytic"},
         ),
         (
@@ -220,12 +252,27 @@ def test_currency_sage_form_date_iso_refusee():
         ),
         (
             VatRegimeSageForm,
-            {"vat_regime": "FRA", "active": "2", "name": "n", "short_name": "s", "vat_code": "001", "sale_class": "x", "regime_type": "t", "legislation": "FRA"},
+            {
+                "vat_regime": "FRA",
+                "active": "2",
+                "name": "n",
+                "short_name": "s",
+                "vat_code": "001",
+                "sale_class": "x",
+                "regime_type": "t",
+                "legislation": "FRA",
+            },
             {"active"},
         ),
         (
             VatRatSageForm,
-            {"vat": "001", "vat_start_date": "010123", "rate": "20", "exoneration": "2", "auuid": AUUID},
+            {
+                "vat": "001",
+                "vat_start_date": "010123",
+                "rate": "20",
+                "exoneration": "2",
+                "auuid": AUUID,
+            },
             {"exoneration"},
         ),
         (TabDivSageForm, _tab_div_data(), {"def_val", "active"}),
@@ -243,13 +290,20 @@ def test_formulaires_avec_booleens_sage_vrai(make_axe, make_vat, form_class, dat
     assert form.save().pk is not None
 
 
-@pytest.mark.parametrize(
-    ("sage_value", "expected"), [("1", False), ("", None), ("zzz", None)]
-)
+@pytest.mark.parametrize(("sage_value", "expected"), [("1", False), ("", None), ("zzz", None)])
 def test_formulaires_avec_booleens_sage_faux_ou_null(sage_value, expected):
     """1 (faux Sage) → False ; vide ou inconnu → None, sans bloquer le formulaire"""
     form = VatRegimeSageForm(
-        data={"vat_regime": "FRA", "active": sage_value, "name": "n", "short_name": "s", "vat_code": "001", "sale_class": "x", "regime_type": "t", "legislation": "FRA"}
+        data={
+            "vat_regime": "FRA",
+            "active": sage_value,
+            "name": "n",
+            "short_name": "s",
+            "vat_code": "001",
+            "sale_class": "x",
+            "regime_type": "t",
+            "legislation": "FRA",
+        }
     )
 
     assert form.is_valid(), form.errors
@@ -260,7 +314,15 @@ def test_formulaires_avec_booleens_sage_faux_ou_null(sage_value, expected):
 def test_formulaires_avec_booleens_sage_sans_la_cle():
     """Sans la clé booléenne dans les données, la valeur est None"""
     form = VatRegimeSageForm(
-        data={"vat_regime": "FRA", "name": "n", "short_name": "s", "vat_code": "001", "sale_class": "x", "regime_type": "t", "legislation": "FRA"}
+        data={
+            "vat_regime": "FRA",
+            "name": "n",
+            "short_name": "s",
+            "vat_code": "001",
+            "sale_class": "x",
+            "regime_type": "t",
+            "legislation": "FRA",
+        }
     )
 
     assert form.is_valid(), form.errors
@@ -270,7 +332,9 @@ def test_formulaires_avec_booleens_sage_sans_la_cle():
 def test_section_sage_form_axe_inconnu(make_axe):
     """Le champ axe est une ModelChoiceField sur le code axe (to_field)"""
     make_axe("BU")
-    form = SectionSageForm(data={"axe": "ZZZ", "section": "S1", "name": "n", "short_name": "s", "chargeable": "2"})
+    form = SectionSageForm(
+        data={"axe": "ZZZ", "section": "S1", "name": "n", "short_name": "s", "chargeable": "2"}
+    )
 
     assert not form.is_valid()
     assert "axe" in form.errors
@@ -279,7 +343,15 @@ def test_section_sage_form_axe_inconnu(make_axe):
 
 def test_vat_rat_sage_form_vat_inconnue():
     """Le champ vat impose une VatSage existante"""
-    form = VatRatSageForm(data={"vat": "999", "vat_start_date": "010123", "rate": "20", "exoneration": "2", "auuid": AUUID})
+    form = VatRatSageForm(
+        data={
+            "vat": "999",
+            "vat_start_date": "010123",
+            "rate": "20",
+            "exoneration": "2",
+            "auuid": AUUID,
+        }
+    )
 
     assert not form.is_valid()
     assert set(form.errors) == {"vat"}
@@ -305,9 +377,13 @@ def test_tab_div_sage_form_tous_les_champs_sont_obligatoires():
         (SectionSageForm, SectionSage, list(SectionSage.get_columns_import())[:7]),
         (VatRegimeSageForm, VatRegimeSage, list(VatRegimeSage.get_columns_import())),
         (VatSageForm, VatSage, list(VatSage.get_columns_import())),
-        (VatRatSageForm, VatRatSage, [c for c in VatRatSage.get_columns_import() if c != "vat_regime"]),
+        (
+            VatRatSageForm,
+            VatRatSage,
+            [c for c in VatRatSage.get_columns_import() if c != "vat_regime"],
+        ),
         (PaymentConditionForm, PaymentCondition, list(PaymentCondition.get_columns_import())),
-        (TabDivSageForm, TabDivSage, [*list(TabDivSage.get_columns_import()), "active"]),
+        (TabDivSageForm, TabDivSage, [*TabDivSage.get_columns_import(), "active"]),
         (CategorySageForm, CategorySage, list(CategorySage.get_columns_import())),
         (CurrencySageForm, CurrencySage, list(CurrencySage.get_columns_import())),
     ],

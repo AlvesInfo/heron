@@ -1,9 +1,9 @@
 """Tests des modèles invoices"""
+
 import datetime
 
 import pytest
 from django.db import IntegrityError
-
 
 pytestmark = pytest.mark.django_db
 

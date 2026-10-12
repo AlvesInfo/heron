@@ -1,8 +1,8 @@
-"""
-FR : Module des modèles de comptabilité sage pour validation et vérifications
+"""FR : Module des modèles de comptabilité sage pour validation et vérifications.
+
      des élements à importer de Sage X3
 EN : Sage accounting models module for validation and verifications
-     elements to import of Sage X3
+     elements to import of Sage X3.
 
 Commentaire:
 
@@ -12,6 +12,7 @@ created by: Paulo ALVES
 modified at: 2021-09-09
 modified by: Paulo ALVES
 """
+
 import uuid
 
 from django.db import models
@@ -20,17 +21,14 @@ from heron.models import FlagsTable
 
 
 class AccountingTypeSage:
-    """
-    FR :
-    EN :
-    """
+    """Type comptable Sage : conteneur réservé, sans attribut pour l'instant."""
 
 
 class AccountSage(FlagsTable):
-    """
-    Table des comptes Sage X3 - GACCOUNT
+    """Table des comptes Sage X3 - GACCOUNT.
+
     FR : Comptes au sens comptable de Sage X3
-    EN : Accounts in the accounting sense of Sage X3
+    EN : Accounts in the accounting sense of Sage X3.
     """
 
     code_plan_sage = models.CharField(max_length=10)  # COA
@@ -74,17 +72,17 @@ class AccountSage(FlagsTable):
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIACCOUNT_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "code_plan_sage": 0,
@@ -122,26 +120,26 @@ class AccountSage(FlagsTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"code_plan_sage", "account"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.account} - {self.code_plan_sage}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["code_plan_sage", "account"]
         index_together = [
@@ -151,10 +149,10 @@ class AccountSage(FlagsTable):
 
 
 class CctSage(FlagsTable):
-    """
-    Table des sections CACCE Sage X3, on ne prends que l'axe cct
+    """Table des sections CACCE Sage X3, on ne prends que l'axe cct.
+
     FR : Section au sens Sage X3
-    EN : Sections in the sense of Sage X3
+    EN : Sections in the sense of Sage X3.
     """
 
     cct = models.CharField(unique=True, max_length=15)
@@ -170,20 +168,20 @@ class CctSage(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.cct}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["cct"]
 
 
 class VatRegimeSage(FlagsTable):
-    """
-    Table des régimes de TVA Sage X3
+    """Table des régimes de TVA Sage X3.
+
     FR : TVA au sens de Sage X3
-    EN : VAT as defined by Sage X3
+    EN : VAT as defined by Sage X3.
     ======================================================================
     champ          | model attr.              | table SAGE    | Champ Sage
     ======================================================================
@@ -211,17 +209,17 @@ class VatRegimeSage(FlagsTable):
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIREG_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "vat_regime": 0,
@@ -236,36 +234,36 @@ class VatRegimeSage(FlagsTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"vat_regime", "legislation"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.vat_regime} - {self.legislation or ''}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         unique_together = (("vat_regime", "legislation"),)
         ordering = ["vat_regime", "name"]
 
 
 class VatSage(FlagsTable):
-    """
-    Table des taux et nom de TVA Sage X3
+    """Table des taux et nom de TVA Sage X3.
+
     FR : TVA au sens de Sage X3
-    EN : VAT as defined by Sage X3
+    EN : VAT as defined by Sage X3.
     ========================================================
     champ           | model attr. | table SAGE | Champ Sage
     ========================================================
@@ -284,17 +282,17 @@ class VatSage(FlagsTable):
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the directory of the Sage X3 server.
         """
         return "ZBIVAT_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "vat": 0,
@@ -306,26 +304,26 @@ class VatSage(FlagsTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"vat"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.vat} - {self.vat_regime}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["vat"]
         unique_together = (("vat", "auuid"),)
@@ -342,10 +340,10 @@ class VatSage(FlagsTable):
 
 
 class VatRatSage(FlagsTable):
-    """
-    Table des taux et nom de TVA Sage X3
+    """Table des taux et nom de TVA Sage X3.
+
     FR : TVA au sens de Sage X3
-    EN : VAT as defined by Sage X3
+    EN : VAT as defined by Sage X3.
     =========================================================================
     champ               | model attr.    | table SAGE    | Champ Sage
     =========================================================================
@@ -371,17 +369,17 @@ class VatRatSage(FlagsTable):
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIRATVAT_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "vat": 0,
@@ -394,34 +392,35 @@ class VatRatSage(FlagsTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"auuid"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.vat} - {self.vat_start_date} - {self.rate}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["vat", "-vat_start_date"]
 
 
 class ModeReglement(FlagsTable):
-    """Table des modes de règlements
+    """Table des modes de règlements.
+
     FR : Table des modes de règlements au sens de Sage X3
-    EN : Table of payment methods as defined by Sage X3
+    EN : Table of payment methods as defined by Sage X3.
     =============================================================================
     champ               | model attr.       | table SAGE    | Champ Sage
     =============================================================================
@@ -442,17 +441,17 @@ class ModeReglement(FlagsTable):
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIMODREG_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "code": 0,
@@ -464,36 +463,36 @@ class ModeReglement(FlagsTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"uuid_identification"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.code} - {self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["code"]
 
 
 class PaymentCondition(FlagsTable):
-    """
-    Table des conditions de Paiement Sage X3, dans cette table il y a les détails, il faut donc
+    """Table des conditions de Paiement Sage X3, dans cette table il y a les détails, il faut donc.
+
     en prévalidation ne renvoyer que les différentes conditions de paiement
     FR : Conditions de Paiement au sens de Sage X3
-    EN : Payment Terms as defined by Sage X3
+    EN : Payment Terms as defined by Sage X3.
     =============================================================================
     champ               | model attr.       | table SAGE    | Champ Sage
     =============================================================================
@@ -529,17 +528,17 @@ class PaymentCondition(FlagsTable):
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIPTE_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "code": 0,
@@ -557,50 +556,50 @@ class PaymentCondition(FlagsTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"auuid"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.code} - {self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["code"]
 
 
 class TabDivQuerySet(models.QuerySet):
-    """
-    FR : Retourne le Queryset managé
-    EN : Returns the Managed Queryset
+    """FR : Retourne le Queryset managé.
+
+    EN : Returns the Managed Queryset.
     """
 
     def budget(self):
-        """
-        FR : Retourne les sections pour l'axe RFA de Sage X3
-        EN : Returns the sections for the RFA axis of Sage X3
+        """FR : Retourne les sections pour l'axe RFA de Sage X3.
+
+        EN : Returns the sections for the RFA axis of Sage X3.
         """
         return self.filter(num_table="6100")
 
 
 class TabDivSage(FlagsTable):
-    """
-    Table divers de Sage X3
+    """Table divers de Sage X3.
+
     pour les budgets la table est la 6100
     FR : Table divers au sens de Sage X3
-    EN : Miscellaneous table as defined by Sage X3
+    EN : Miscellaneous table as defined by Sage X3.
     ===========================================================
     champ          | model attr.   | table SAGE    | Champ Sage
     ===========================================================
@@ -655,17 +654,17 @@ class TabDivSage(FlagsTable):
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIDIV_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "num_table": 0,
@@ -707,26 +706,26 @@ class TabDivSage(FlagsTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"num_table", "code"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.code} - {self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["code"]
         index_together = [
@@ -736,10 +735,10 @@ class TabDivSage(FlagsTable):
 
 
 class CategorySage(FlagsTable):
-    """
-    Table des catégories Clients et Fournisseurs de Sage X3
+    """Table des catégories Clients et Fournisseurs de Sage X3.
+
     FR : Table Catégorie définie par Sage X3
-    EN : Catégories table as defined by Sage X3
+    EN : Catégories table as defined by Sage X3.
     =================================================================
     champ          | model attr.   | table SAGE    | Champ Sage
     =================================================================
@@ -759,17 +758,17 @@ class CategorySage(FlagsTable):
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBICATC_journalier.heron", "ZBICATS_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "initial": 0,
@@ -781,36 +780,36 @@ class CategorySage(FlagsTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"initial", "code"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.code} - {self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["code"]
         unique_together = (("initial", "code"),)
 
 
 class CurrencySage(FlagsTable):
-    """
-    Table des devises TABCHANGE de Sage X3
+    """Table des devises TABCHANGE de Sage X3.
+
     FR : Table des devises définie par Sage X3
-    EN : Currency table as defined by Sage X3
+    EN : Currency table as defined by Sage X3.
     =================================================================
     champ          | model attr.            | table SAGE | Champ Sage
     =================================================================
@@ -840,17 +839,17 @@ class CurrencySage(FlagsTable):
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBICUR_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "currency_current": 0,
@@ -865,39 +864,40 @@ class CurrencySage(FlagsTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"currency_current", "currency_change", "exchange_date"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.currency_current} - {self.currency_change}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["currency_current", "currency_change", "exchange_date"]
         unique_together = (("currency_current", "currency_change", "exchange_date"),)
 
 
 class CodePlanSage(models.Model):
-    """
-    Table des plans de compte Sage
+    """Table des plans de compte Sage.
+
     FR : Plan de compte au sens comptable de Sage X3
-    EN : Chart of accounts in the accounting sense of Sage X3
+    EN : Chart of accounts in the accounting sense of Sage X3.
     """
 
     code_plan_sage = models.CharField(primary_key=True, max_length=10)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return self.code_plan_sage

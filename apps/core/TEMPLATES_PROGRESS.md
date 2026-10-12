@@ -235,7 +235,7 @@ Pour signaler une erreur dans votre tâche:
 progress.update_progress(
     processed=1,
     failed=1,  # ← Compteur d'erreurs
-    message="Erreur sur l'item X"
+    message="Erreur sur l'item X",
 )
 ```
 
@@ -252,10 +252,10 @@ Vous pouvez définir des messages personnalisés lors de la création du job:
 progress = SSEProgress.objects.create(
     job_id=job_id,
     user_id=user_id,
-    task_type='import',
+    task_type="import",
     total_items=100,
-    custom_title='Import de fichiers EDI',  # Titre de la jauge
-    completion_message='Import terminé : 98 fichiers importés avec succès!'  # Message final
+    custom_title="Import de fichiers EDI",  # Titre de la jauge
+    completion_message="Import terminé : 98 fichiers importés avec succès!",  # Message final
 )
 ```
 
@@ -279,8 +279,7 @@ Format automatique:
 @shared_task(name="ma_tache")
 def ma_tache(job_id, user_id):
     progress = SSEProgress.objects.create(
-        job_id=job_id, user_id=user_id,
-        task_type='mon_type', total_items=100
+        job_id=job_id, user_id=user_id, task_type="mon_type", total_items=100
     )
     progress.mark_as_started()
 
@@ -298,8 +297,7 @@ def ma_tache(job_id, user_id):
 @shared_task(name="ma_tache")
 def ma_tache(job_id, user_id, items):
     progress = SSEProgress.objects.create(
-        job_id=job_id, user_id=user_id,
-        task_type='mon_type', total_items=len(items)
+        job_id=job_id, user_id=user_id, task_type="mon_type", total_items=len(items)
     )
     progress.mark_as_started()
 
@@ -307,17 +305,10 @@ def ma_tache(job_id, user_id, items):
         try:
             # Traitement
             traiter_item(item)
-            progress.update_progress(
-                processed=1,
-                message=f"Item {idx}/{len(items)} traité"
-            )
+            progress.update_progress(processed=1, message=f"Item {idx}/{len(items)} traité")
         except Exception as e:
             # Continuer malgré l'erreur
-            progress.update_progress(
-                processed=1,
-                failed=1,
-                message=f"Erreur item {idx}: {str(e)}"
-            )
+            progress.update_progress(processed=1, failed=1, message=f"Erreur item {idx}: {str(e)}")
 
     progress.mark_as_completed()
     return {"status": "success", "job_id": job_id}
@@ -372,9 +363,9 @@ new ProgressPolling('jauge', job_id, {
 # Vue
 @login_required
 def import_fichiers(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         job_id = str(uuid.uuid4())
-        fichiers = request.FILES.getlist('fichiers')
+        fichiers = request.FILES.getlist("fichiers")
 
         # Sauvegarder les fichiers temporairement
         fichier_paths = []
@@ -383,25 +374,22 @@ def import_fichiers(request):
             fichier_paths.append(path)
 
         task_import_fichiers.delay(job_id, request.user.id, fichier_paths)
-        return JsonResponse({'success': True, 'job_id': job_id})
+        return JsonResponse({"success": True, "job_id": job_id})
 
-    return render(request, 'import_fichiers.html')
+    return render(request, "import_fichiers.html")
+
 
 # Tâche
 @shared_task(name="import_fichiers")
 def task_import_fichiers(job_id, user_id, fichier_paths):
     progress = SSEProgress.objects.create(
-        job_id=job_id, user_id=user_id,
-        task_type='file_import', total_items=len(fichier_paths)
+        job_id=job_id, user_id=user_id, task_type="file_import", total_items=len(fichier_paths)
     )
     progress.mark_as_started()
 
     for idx, path in enumerate(fichier_paths, 1):
         importer_fichier(path)
-        progress.update_progress(
-            processed=1,
-            message=f"Fichier {idx}/{len(fichier_paths)} importé"
-        )
+        progress.update_progress(processed=1, message=f"Fichier {idx}/{len(fichier_paths)} importé")
 
     progress.mark_as_completed()
     return {"status": "success", "job_id": job_id}
@@ -414,8 +402,7 @@ def task_import_fichiers(job_id, user_id, fichier_paths):
 @shared_task(name="envoi_emails")
 def task_envoi_emails(job_id, user_id, destinataires):
     progress = SSEProgress.objects.create(
-        job_id=job_id, user_id=user_id,
-        task_type='email_sending', total_items=len(destinataires)
+        job_id=job_id, user_id=user_id, task_type="email_sending", total_items=len(destinataires)
     )
     progress.mark_as_started()
 
@@ -423,13 +410,11 @@ def task_envoi_emails(job_id, user_id, destinataires):
         try:
             envoyer_email(dest)
             progress.update_progress(
-                processed=1,
-                message=f"Email {idx}/{len(destinataires)} envoyé à {dest['email']}"
+                processed=1, message=f"Email {idx}/{len(destinataires)} envoyé à {dest['email']}"
             )
         except Exception as e:
             progress.update_progress(
-                processed=1, failed=1,
-                message=f"Erreur email {dest['email']}: {str(e)}"
+                processed=1, failed=1, message=f"Erreur email {dest['email']}: {str(e)}"
             )
 
     progress.mark_as_completed()
@@ -437,7 +422,7 @@ def task_envoi_emails(job_id, user_id, destinataires):
         "status": "success",
         "job_id": job_id,
         "sent": progress.success_count,
-        "failed": progress.failed_items
+        "failed": progress.failed_items,
     }
 ```
 
@@ -447,15 +432,16 @@ def task_envoi_emails(job_id, user_id, destinataires):
 # Vue
 @login_required
 def export_donnees(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         job_id = str(uuid.uuid4())
-        date_debut = request.POST.get('date_debut')
-        date_fin = request.POST.get('date_fin')
+        date_debut = request.POST.get("date_debut")
+        date_fin = request.POST.get("date_fin")
 
         task_export.delay(job_id, request.user.id, date_debut, date_fin)
-        return JsonResponse({'success': True, 'job_id': job_id})
+        return JsonResponse({"success": True, "job_id": job_id})
 
-    return render(request, 'export_donnees.html')
+    return render(request, "export_donnees.html")
+
 
 # Tâche
 @shared_task(name="export_donnees")
@@ -464,8 +450,7 @@ def task_export(job_id, user_id, date_debut, date_fin):
     donnees = recuperer_donnees(date_debut, date_fin)
 
     progress = SSEProgress.objects.create(
-        job_id=job_id, user_id=user_id,
-        task_type='data_export', total_items=len(donnees)
+        job_id=job_id, user_id=user_id, task_type="data_export", total_items=len(donnees)
     )
     progress.mark_as_started()
 
@@ -475,17 +460,14 @@ def task_export(job_id, user_id, date_debut, date_fin):
 
     for idx, ligne in enumerate(donnees, 1):
         ecrire_ligne_excel(ws, idx, ligne)
-        progress.update_progress(
-            processed=1,
-            message=f"Ligne {idx}/{len(donnees)} exportée"
-        )
+        progress.update_progress(processed=1, message=f"Ligne {idx}/{len(donnees)} exportée")
 
     # Sauvegarder
-    fichier_path = f'/tmp/export_{job_id}.xlsx'
+    fichier_path = f"/tmp/export_{job_id}.xlsx"
     wb.save(fichier_path)
 
     progress.mark_as_completed()
-    progress.metadata = {'fichier_path': fichier_path}
+    progress.metadata = {"fichier_path": fichier_path}
     progress.save()
 
     return {"status": "success", "job_id": job_id, "fichier": fichier_path}
@@ -532,7 +514,9 @@ curl http://localhost:8000/core/sse-progress/active/
 ```python
 # Dans votre tâche
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 @shared_task(name="ma_tache")
 def ma_tache(job_id, user_id):

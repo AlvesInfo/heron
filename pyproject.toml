@@ -1,9 +1,10 @@
 [project]
 name = "heron"
-version = "0.1.1"
-description = "Add your description here"
+version = "1.0.0"
+description = "Outils crm de refacturation"
 readme = "README.md"
 requires-python = ">=3.11"
+
 dependencies = [
     # --- Framework & serveur
     "django==3.2.25",
@@ -16,13 +17,13 @@ dependencies = [
     # --- Apps Django tierces (INSTALLED_APPS)
     "django-axes==5.31.0",
     "django-celery-beat==2.2.1",
-    "django-celery-results==2.2.0",
+    "django-celery-results==2.6.0",
     "django-chartjs==2.3.0",  # fournit le module chartjs ; le paquet chartjs==1.2 écrasait ses fichiers
     "django-ckeditor==6.2.0",
     "django-clamd==0.4.0",  # settings production
     "django-crispy-forms==1.14.0",
     "crispy-forms-semantic-ui==0.2.0",
-    "django-dynamic-preferences==1.12.0",
+    "django-dynamic-preferences==1.16.0",
     "django-eventstream==4.5.1",
     "django-extensions==3.1.5",
     "django-filter==21.1",
@@ -60,6 +61,9 @@ dependencies = [
 ]
 
 [tool.uv]
+# Application Django (apps/ + heron/ à la racine, pas de src/) : uv installe les dépendances
+# sans construire ni installer le projet lui-même (le build-system uv_build attendrait src/heron/)
+package = false
 # Versions transitives figées au niveau d'avant le nettoyage du 2026-10-10 : la montée de
 # versions se fera après la mise en place des tests (directive D6). À retirer à ce moment-là.
 constraint-dependencies = [
@@ -78,16 +82,35 @@ constraint-dependencies = [
 ]
 
 [dependency-groups]
+
 dev = [
-    "pytest==7.1.1",
-    "pytest-django==4.5.2",
-    "pytest-cov==3.0.0",
-    "coverage==7.6.12",
+    {include-group = "quality"},
+    {include-group = "test"}
+]
+
+quality = [
+    "bandit[toml]==1.9.4",
+    "mypy==2.4.0",
+    "pre-commit==4.6.2",
+    "ruff==0.17.0",
+]
+
+# Types Django pour mypy : groupe séparé, à installer (uv sync --group typing) et à activer dans
+# [tool.mypy] avec Django >= 4.2 ; sans son plugin les stubs n'apportent que du bruit (voir D31)
+typing = [
+    "django-stubs==6.1.2",
+]
+
+test = [
+    "pytest==9.1.1",
+    "pytest-django==4.14.0",
+    "pytest-cov==7.1.0",
+    "coverage==7.16.2",
     "django-debug-toolbar==3.2.4",
-    "black==22.1.0",
-    "pylint==2.13.1",
-    "pylint-django==2.5.3",
-    "ruff==0.9.5",
+    "black==26.10.1",
+    "pylint==4.1.3",
+    "pylint-django==2.8.0",
+    "ruff==0.17.0",
 ]
 
 [tool.pylint.main]
@@ -123,18 +146,102 @@ disable = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-extend-exclude = ["migrations", "apps/*/tests/essais", "apps/*/essais", "heron/bin"]
+# files/ : données et exports (jamais modifié par l'outillage)
+extend-exclude = ["migrations", "apps/*/tests/essais", "apps/*/essais", "heron/bin", "files"]
 
 [tool.ruff.lint]
 # Règles proches de celles de SonarLint pour les tests (imports, paramètres et variables inutilisés,
 # style pytest, simplifications) ; lancer : uv run ruff check conftest.py apps/*/tests
-select = ["F", "E", "W", "B", "PT", "SIM", "ARG", "PLW", "PLC", "N", "UP", "RET", "RUF"]
-ignore = ["E501"]
+select = ["F", "E", "W", "B", "PT", "SIM", "ARG", "PLW", "PLC", "N", "UP", "RET", "RUF",    "A",
+    "ANN",
+    "ARG",
+    "ASYNC",  # flake8-async
+    "B",  # flake8-bugbear
+    "BLE",
+    "C",  # flake8-comprehensions
+    "C4",
+    "C90",
+    "D",
+    "DTZ",
+    "E",  # pycodestyle errors
+    "EM",
+    "ERA",
+    "EXE",
+    "F",  # pyflakes
+    "FAST",
+    "FBT",
+    "FURB",
+    "G",
+    "I",  # isort
+    "ICN",
+    "INP",
+    "INT",
+    "ISC",
+    "LOG",
+    "N",
+    "PERF",
+    "PGH",
+    "PIE",
+    "PL",
+    "PT",
+    "PTH",
+    "Q",
+    "RET",
+    "RSE",
+    "RUF",
+    "S",
+    "SIM",
+    "SLF",
+    "TID",
+    "TRY",
+    "UP",  # pyupgrade
+    "W",  # pycodestyle warnings
+    "YTT"
+]
+# D203/D213 sont incompatibles avec D211/D212 (style black) : ruff les ignorerait avec un avertissement
+# D401 (mode impératif) juge des docstrings anglaises : sans objet pour des docstrings en français.
+# RUF012 : listes/dicts de classe des Meta Django et formulaires (faux positifs).
+# D104 : paquets vides (__init__.py) non documentés.
+# ANN : annotations de type différées au chantier Django 4.2 (django-stubs donnera les types) (2026-10-12).
+# TRY003 / EM101 / EM102 : messages littéraux dans les raise (style, 2026-10-12) ; ICN001 : alias
+# d'import imposés (datetime as dt) non retenus ; PLR2004 : valeurs littérales dans les comparaisons.
+# N818 : noms d'exceptions historiques (suffixe Exception) importés par les tests.
+ignore = ["E501", "D203", "D213", "D401", "RUF012", "D104", "ANN", "TRY003", "EM101", "EM102", "ICN001", "PLR2004", "N818"]
+# Tables d'homoglyphes de functions_utilitaires (RUF001) : caractères voulus.
+allowed-confusables = ["ı", "ſ", "Ƅ", "ƍ"]
+# Loggers du projet reconnus par BLE001 : un `except Exception` suivi de LOGGER_X.exception(...) est admis
+logger-objects = [
+    "heron.loggers.LOGGER_IMPORT", "heron.loggers.LOGGER_EXPORT_EXCEL", "heron.loggers.LOGGER_VIEWS",
+    "heron.loggers.LOGGER_DJANGO", "heron.loggers.LOGGER_PRODUCTION", "heron.loggers.LOGGER_CONNEXION",
+    "heron.loggers.LOGGER_TIMER_HERON", "heron.loggers.LOGGER_EDI", "heron.loggers.LOGGER_LOADER",
+    "heron.loggers.LOGGER_VALIDATION", "heron.loggers.LOGGER_POSTGRES_SAVE", "heron.loggers.LOGGER_INVOICES",
+    "heron.loggers.LOGGER_EMAIL", "heron.loggers.LOGGER_X3",
+]
 
 [tool.ruff.lint.per-file-ignores]
-# Fixtures demandées pour leur effet de bord et callbacks factices : paramètres volontairement inutilisés
-"conftest.py" = ["ARG001"]
-"apps/*/tests/*" = ["ARG001", "ARG002", "ARG005", "SIM117"]
+# Paquets qui ré-exportent leurs modules (views, forms, models) par import étoile
+"**/__init__.py" = ["F403", "F401"]
+# Noms de modules historiques (majuscules) importés par les tests et l'URLconf (N999)
+"apps/users/Exceptions.py" = ["N999"]
+"apps/validation_purchases/views/views_etape_*[AB].py" = ["N999"]
+# Scripts autonomes (cron, supervisor) : django.setup() précède les imports du projet
+"apps/*/loops/*.py" = ["E402"]
+"apps/*/bin/*.py" = ["E402"]
+"apps/*/imports/*.py" = ["E402"]
+"apps/*/data_fixtures/*.py" = ["E402"]
+"apps/core/functions/functions_setups.py" = ["E402"]
+"heron/settings/test.py" = ["E402"]
+# Tests : assert est l'outil (S101), pas d'annotations ni de docstrings exigées (ANN, D) ;
+# fixtures demandées pour leur effet de bord et callbacks factices : paramètres volontairement inutilisés
+# Règles pensées pour le code de production, sans objet dans les tests : valeurs littérales dans
+# les assert (PLR2004), imports à la demande dans les fabriques (PLC0415), accès aux membres privés
+# (SLF001), fixtures à nombreux paramètres (PLR0913/PLR0917), messages littéraux des raise factices
+# (EM101/TRY003), fabriques et doubles de test à drapeaux booléens positionnels (FBT001/FBT002/FBT003), dates de fixtures naïves (DTZ), motifs
+# pytest.raises (RUF043), mots de passe / jetons / chemins factices (S105-S108), pickle et SQL de
+# fixtures (S301, S608), sous-processus de contrôle (S603, S607), doubles (PLW0108, C901, C416, FURB171)
+"conftest.py" = ["ARG001", "S101", "ANN", "D", "PLR2004", "PLC0415", "SLF001", "PLR0913", "PLR0917", "EM101", "TRY003", "FBT001", "FBT002", "FBT003", "DTZ", "RUF043", "S105", "S106", "S107", "S108", "S301", "S603", "S607", "S608", "PLW0108", "C901", "C416", "FURB171"]
+"apps/*/tests/*" = ["ARG001", "ARG002", "ARG005", "SIM117", "S101", "ANN", "D", "PLR2004", "PLC0415", "SLF001", "PLR0913", "PLR0917", "EM101", "TRY003", "FBT001", "FBT002", "FBT003", "DTZ", "RUF043", "S105", "S106", "S107", "S108", "S301", "S603", "S607", "S608", "PLW0108", "C901", "C416", "FURB171"]
+"heron/tests/*" = ["ARG001", "ARG002", "ARG005", "SIM117", "S101", "ANN", "D", "PLR2004", "PLC0415", "SLF001", "PLR0913", "PLR0917", "EM101", "TRY003", "FBT001", "FBT002", "FBT003", "DTZ", "RUF043", "S105", "S106", "S107", "S108", "S301", "S603", "S607", "S608", "PLW0108", "C901", "C416", "FURB171"]
 "apps/parameters/tests/test_counters_parameters.py" = ["E402"]
 
 [tool.pytest.ini_options]
@@ -176,6 +283,9 @@ markers = [
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::UserWarning:axes",
+    # django-dynamic-preferences 1.16 (dernière version compatible Django 3.2) déclare encore
+    # default_app_config : dépréciation sans effet avant Django 4.1, filtrée jusqu'au chantier Django 4.2
+    "ignore:'dynamic_preferences' defines default_app_config:django.utils.deprecation.RemovedInDjango41Warning",
 ]
 
 [tool.coverage.run]
@@ -222,3 +332,109 @@ exclude_lines = [
     "pragma: no cover",
     "if __name__ == .__main__.:",
 ]
+
+[tool.bandit]
+skips = []
+
+[tool.mypy]
+python_version = "3.11"
+# Cibles par défaut : le projet est une application (apps/ + heron/), pas de src/ ni tests/
+files = ["apps", "heron", "conftest.py"]
+exclude = ["/migrations/", "/essais/", "heron/bin/", "heron/env/"]
+# Plugins désactivés tant que les versions d'exécution ne suivent pas :
+# - pydantic.mypy (pydantic 1.9) ne sait pas lire la version de mypy 2.x ;
+# - mypy_django_plugin (django-stubs 6.x) appelle Query.get_select_mask(), absent de Django 3.2
+#   (plantage interne sur les .only() / .defer()) : à activer avec Django >= 4.2 (directive D6).
+#   Sans le plugin, les stubs seuls imposent d'annoter chaque champ de modèle (1 300 erreurs) :
+#   django-stubs est dans le groupe de dépendances « typing », non installé par défaut.
+# plugins = ["mypy_django_plugin.main", "pydantic.mypy"]
+
+warn_redundant_casts = true
+warn_unused_ignores = true
+# Désactivé tant que l'ORM Django n'est pas typé (plugin django-stubs inactif, voir ci-dessus) :
+# toute valeur venant d'un QuerySet ou d'un dict est Any, l'avertissement serait du bruit
+warn_return_any = false
+warn_unreachable = true
+warn_unused_configs = true
+# Les corps des fonctions non annotées sont vérifiés aussi (la majorité du code hérité)
+check_untyped_defs = true
+follow_imports = "silent"
+ignore_missing_imports = true
+
+# Tests : doubles, espions et SimpleNamespace volontairement non typés, seuls les corps annotés
+# sont vérifiés (le code de production l'est intégralement)
+[[tool.mypy.overrides]]
+module = ["apps.*.tests.*", "apps.*.tests", "heron.tests.*", "heron.tests", "conftest"]
+check_untyped_defs = false
+# sans vérification des corps non annotés, mypy signalerait chaque annotation locale (note sans effet)
+disable_error_code = ["annotation-unchecked"]
+
+# pendulum 2 : ses annotations déclarent parse() en Date | Time | Duration et date()/instance()
+# ne sont pas des types ; la bibliothèque est traitée comme non typée jusqu'à pendulum 3
+# (seul le paquet est importé par le projet : pas de motif « pendulum.* », sinon section inutilisée)
+[[tool.mypy.overrides]]
+module = ["pendulum"]
+follow_imports = "skip"
+
+# Réglage du plugin Django de mypy, pour quand il sera activé
+[tool.django-stubs]
+django_settings_module = "heron.settings.test"
+
+# [tool.pydantic-mypy]
+# init_forbid_extra = true
+# init_typed = true
+# warn_required_dynamic_aliases = true
+
+# Assume Python 3.14
+target-version = "py311"
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.pep8-naming]
+# Allow Pydantic's `@validator` decorator to trigger class method treatment.
+# pydantic v1 : `validator` / `root_validator` reçoivent `cls` ; `validator` est aussi ré-exporté par
+# apps.core.validations.pydantic_validators_base (ruff ne suit pas les ré-exports)
+classmethod-decorators = [
+    "classmethod",
+    "pydantic.field_validator",
+    "pydantic.validator",
+    "pydantic.root_validator",
+    "apps.core.validations.pydantic_validators_base.validator",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 9
+
+[tool.ruff.lint.flake8-self]
+# `Model._meta` et `Model._default_manager` sont des API publiques documentées de Django (SLF001)
+ignore-names = ["_meta", "_default_manager"]
+
+[tool.ruff.lint.pylint]
+# Les aides xlsxwriter (classeur, feuille, ligne, colonne, valeurs, format) et les imports de
+# fichiers (modèle, flux, source, trace, validateur, paramètres) portent légitimement six
+# positionnels ; au-delà les options passent en mots-clés (2026-10-12).
+max-positional-args = 6
+max-args = 8
+
+[tool.ruff.lint.isort]
+known-third-party = ["fastapi", "pydantic", "starlette"]
+known-first-party = ["svc_workflow", "tests"]
+combine-as-imports = true
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+[build-system]
+requires = ["uv_build==0.13.0"]
+build-backend = "uv_build"

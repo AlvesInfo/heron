@@ -1,5 +1,4 @@
-"""
-ASGI config for heron project.
+"""ASGI config for heron project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -8,28 +7,27 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 """
 
 import os
+
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'heron.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 
 # Initialize Django ASGI application early to ensure apps are loaded
 django_asgi_app = get_asgi_application()
 
 
 async def application(scope, receive, send):
-    """
-    ASGI application with lifespan protocol support
-    """
-    if scope['type'] == 'lifespan':
+    """ASGI application with lifespan protocol support."""
+    if scope["type"] == "lifespan":
         # Handle lifespan events
         while True:
             message = await receive()
-            if message['type'] == 'lifespan.startup':
+            if message["type"] == "lifespan.startup":
                 # Startup event
-                await send({'type': 'lifespan.startup.complete'})
-            elif message['type'] == 'lifespan.shutdown':
+                await send({"type": "lifespan.startup.complete"})
+            elif message["type"] == "lifespan.shutdown":
                 # Shutdown event
-                await send({'type': 'lifespan.shutdown.complete'})
+                await send({"type": "lifespan.shutdown.complete"})
                 return
     else:
         # Pass other requests to Django

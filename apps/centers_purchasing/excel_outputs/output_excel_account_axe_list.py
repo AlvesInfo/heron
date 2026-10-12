@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel des Comptes par Centrale fille, Catégorie, Axe Pro, et TVA
+"""Module d'export du fichier excel des Comptes par Centrale fille, Catégorie, Axe Pro, et TVA.
 
 Commentaire:
 
@@ -8,14 +8,14 @@ created by: Paulo ALVES
 modified at: 2023-01-21
 modified by: Paulo ALVES
 """
-import io
-from typing import AnyStr
 
+import io
+
+from apps.centers_purchasing.models import AccountsAxeProCategory
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
-from apps.centers_purchasing.models import AccountsAxeProCategory
 from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 columns = [
@@ -23,15 +23,11 @@ columns = [
         "entete": "Centrale\nFille",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -39,15 +35,11 @@ columns = [
         "entete": "Nom Centrale",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 20,
     },
@@ -55,15 +47,11 @@ columns = [
         "entete": "Rang\nCat.",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 6,
     },
@@ -71,15 +59,11 @@ columns = [
         "entete": "Catégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 20,
     },
@@ -87,15 +71,11 @@ columns = [
         "entete": "Rang\nRub.",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 6,
     },
@@ -103,15 +83,11 @@ columns = [
         "entete": "Rubrique Presta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 20,
     },
@@ -119,15 +95,11 @@ columns = [
         "entete": "Axe PRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -135,15 +107,11 @@ columns = [
         "entete": "Nom Axe PRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 20,
     },
@@ -151,15 +119,11 @@ columns = [
         "entete": "Plan\nTVA X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 7,
     },
@@ -167,15 +131,11 @@ columns = [
         "entete": "TVA X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 7,
     },
@@ -183,15 +143,11 @@ columns = [
         "entete": "Plan\nAchats",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 7,
     },
@@ -199,15 +155,11 @@ columns = [
         "entete": "Compte\nAchats",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -215,15 +167,11 @@ columns = [
         "entete": "Plan\nVentes",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 7,
     },
@@ -231,15 +179,11 @@ columns = [
         "entete": "Compte\nVentes",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -247,12 +191,11 @@ columns = [
 
 
 def get_clean_rows(code_child_center):
-    """
-    Fonction qui renvoie les éléments pour le fichier Excel
+    """Fonction qui renvoie les éléments pour le fichier Excel.
+
     :param code_child_center: child_center manipulables par l'user
     :return:
     """
-
     queryset = AccountsAxeProCategory.objects.all()
 
     if code_child_center != "*":
@@ -260,20 +203,20 @@ def get_clean_rows(code_child_center):
 
     return [
         (
-           dict_row.get("child_center__code", ""),
-           dict_row.get("child_center__name", ""),
-           str(dict_row.get("big_category__ranking", "")).zfill(2),
-           dict_row.get("big_category__name", ""),
-           str(dict_row.get("sub_category__ranking", "")).zfill(2).replace("None", ""),
-           dict_row.get("sub_category__name", ""),
-           dict_row.get("axe_pro__section", ""),
-           dict_row.get("axe_pro__name", ""),
-           dict_row.get("vat__vat_regime", ""),
-           dict_row.get("vat__vat", ""),
-           dict_row.get("purchase_account__code_plan_sage", ""),
-           dict_row.get("purchase_account__account", ""),
-           dict_row.get("sale_account__code_plan_sage", ""),
-           dict_row.get("sale_account__account", ""),
+            dict_row.get("child_center__code", ""),
+            dict_row.get("child_center__name", ""),
+            str(dict_row.get("big_category__ranking", "")).zfill(2),
+            dict_row.get("big_category__name", ""),
+            str(dict_row.get("sub_category__ranking", "")).zfill(2).replace("None", ""),
+            dict_row.get("sub_category__name", ""),
+            dict_row.get("axe_pro__section", ""),
+            dict_row.get("axe_pro__name", ""),
+            dict_row.get("vat__vat_regime", ""),
+            dict_row.get("vat__vat", ""),
+            dict_row.get("purchase_account__code_plan_sage", ""),
+            dict_row.get("purchase_account__account", ""),
+            dict_row.get("sale_account__code_plan_sage", ""),
+            dict_row.get("sale_account__account", ""),
         )
         for dict_row in queryset.values(
             "child_center__code",
@@ -294,18 +237,18 @@ def get_clean_rows(code_child_center):
     ]
 
 
-def excel_liste_account_axe(
-    file_io: io.BytesIO, file_name: AnyStr, code_child_center: AnyStr
-) -> dict:
-    """Fonction de génération du fichier
-des Comptes par Centrale fille, Catégorie, Axe Pro, et TVA"""
+def excel_liste_account_axe(file_io: io.BytesIO, file_name: str, code_child_center: str) -> dict:
+    """Fonction de génération du fichier.
+
+    des Comptes par Centrale fille, Catégorie, Axe Pro, et TVA.
+    """
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
 
     return excel_list_export(
         file_io,
         file_name,
-        sheet_name='COMPTES CENTRALES',
+        sheet_name="COMPTES CENTRALES",
         title=titre,
         columns=columns,
         rows=get_clean_rows(code_child_center),

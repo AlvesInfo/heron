@@ -1,4 +1,5 @@
 """Tests des contrôles préalables à la génération des abonnements"""
+
 import datetime
 import importlib
 import platform
@@ -68,7 +69,9 @@ def test_get_ca_exists_respecte_la_periode(make_vente):
     assert get_ca_exists("2023-01-01", "2023-01-31") is False
 
 
-@pytest.mark.parametrize(("node", "expected"), [("MSI", r"C:\SitesWeb\heron"), ("serveur", "/home/paulo/heron")])
+@pytest.mark.parametrize(
+    ("node", "expected"), [("MSI", r"C:\SitesWeb\heron"), ("serveur", "/home/paulo/heron")]
+)
 def test_base_dir_selon_la_machine(monkeypatch, node, expected):
     monkeypatch.setattr(sys, "path", list(sys.path))
 

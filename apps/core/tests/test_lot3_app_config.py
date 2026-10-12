@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de la configuration de l'app core (apps.py, urls, admin, packages, vues api)
+"""FR : Tests de la configuration de l'app core (apps.py, urls, admin, packages, vues api)
+
+
 EN : Tests for core app configuration
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import importlib
 import logging
 
@@ -49,12 +51,13 @@ def test_modeles_de_l_app():
 
 
 def test_routes_du_module():
-    """10 routes nommées dans l'espace de noms core, sans la vue pdf de test"""
+    """11 routes nommées dans l'espace de noms core, sans la vue pdf de test"""
     names = [pattern.name for pattern in core_urls.urlpatterns]
 
     assert names == [
         "api_models_query",
         "api_models_query_third_party_num",
+        "download_status",
         "list_jobs",
         "active_jobs",
         "job_detail",

@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de la configuration de l'app book (apps.py, urls, admin, packages)
+"""FR : Tests de la configuration de l'app book (apps.py, urls, admin, packages)
+
+
 EN : Tests for book app configuration
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import importlib
 from pathlib import Path
 
@@ -15,10 +17,12 @@ from django.contrib import admin
 from django.db.models import BigAutoField
 
 import apps.book as book_package
-from apps.book import forms as book_forms
-from apps.book import models as book_models
-from apps.book import urls as book_urls
-from apps.book import views as book_views
+from apps.book import (
+    forms as book_forms,
+    models as book_models,
+    urls as book_urls,
+    views as book_views,
+)
 from apps.book.apps import SuppliersBookConfig
 from apps.book.models import base_sage_models, supplier_identifiers_models
 
@@ -72,7 +76,12 @@ def test_routes_du_module():
     assert book_urls.app_name == "apps.book"
     assert len(names) == 16
     assert len(set(names)) == 16
-    assert {"societies_list", "supplier_cct_identifier", "statistique_update", "delete_familly_axes"} <= set(names)
+    assert {
+        "societies_list",
+        "supplier_cct_identifier",
+        "statistique_update",
+        "delete_familly_axes",
+    } <= set(names)
 
 
 @pytest.mark.parametrize(

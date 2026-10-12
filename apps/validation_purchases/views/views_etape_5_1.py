@@ -1,28 +1,29 @@
+"""Vues de l'étape 5.1 de la validation des achats : balance fournisseurs."""
+
 import pendulum
 from django.contrib import messages
 from django.db import connection
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.http import JsonResponse
 from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.edi.models import EdiValidation
 from apps.validation_purchases.excel_outputs.excel_balance_suppliers_purchases import (
     excel_balance_suppliers_purchases,
 )
-from apps.edi.models import EdiValidation
 from apps.validation_purchases.forms import SuppliersValidationForm
-
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 5.1 Fournisseurs M vs M-1
 
 
 def balance_suppliers_purchases(request):
-    """View de l'étape 5.1 Fournisseurs M vs M-1"""
+    """View de l'étape 5.1 Fournisseurs M vs M-1."""
     sql_context_file = "apps/validation_purchases/sql_files/sql_suppliers_invoices_m_m1.sql"
     billing_period = (
         EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first().billing_period
@@ -59,7 +60,7 @@ def balance_suppliers_purchases(request):
 
 
 def balance_suppliers_purchases_export(request):
-    """View de l'étape 5.1 Fournisseurs M vs M-1"""
+    """View de l'étape 5.1 Fournisseurs M vs M-1."""
     """Export Excel de
     :param request: Request Django
     :return: response_file"""
@@ -67,12 +68,12 @@ def balance_suppliers_purchases_export(request):
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                "CONTROLE_FACTURES_FOURNISSEURS_"
-                f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+                f"CONTROLE_FACTURES_FOURNISSEURS_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
             billing_period = (
-                EdiValidation.objects.filter(
-                    Q(final=False) | Q(final__isnull=True)).first().billing_period
+                EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
+                .first()
+                .billing_period
             )
 
             return response_file(
@@ -89,8 +90,7 @@ def balance_suppliers_purchases_export(request):
 
 
 def balance_suppliers_purchases_validation(request):
-    """Validation de l'écran 5.1 Fournisseurs M vs M-1"""
-
+    """Validation de l'écran 5.1 Fournisseurs M vs M-1."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -124,12 +124,12 @@ def balance_suppliers_purchases_validation(request):
 
         except Exception:
             LOGGER_VIEWS.exception(
-                f"Views : balance_suppliers_purchases_validation error : {form.cleaned_data!r}"
+                "Views : balance_suppliers_purchases_validation error : %r", form.cleaned_data
             )
 
     else:
         LOGGER_VIEWS.error(
-            f"Views : balance_suppliers_purchases_validation error, form invalid : {form.errors!r}"
+            "Views : balance_suppliers_purchases_validation error, form invalid : %r", form.errors
         )
 
     messages.add_message(request, level, message)

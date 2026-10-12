@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des vues des Tiers X3 (apps/book/views/book_views.py)
+"""FR : Tests des vues des Tiers X3 (apps/book/views/book_views.py)
+
+
 EN : Tests for third parties views
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import logging
 
 import pytest
@@ -41,7 +43,9 @@ def _form_data(response, **overrides):
 
 @pytest.fixture
 def societies(make_society, make_society_bank):
-    four = make_society("FOUR001", name="Fournisseur", is_client=False, is_supplier=True, in_use=True)
+    four = make_society(
+        "FOUR001", name="Fournisseur", is_client=False, is_supplier=True, in_use=True
+    )
     make_society_bank(four, "FR01")
     default_bank = make_society_bank(four, "FR02", is_default=True)
     make_society("CLI001", name="Client", is_client=True, in_use=True)
@@ -58,7 +62,12 @@ def test_liste_de_tous_les_tiers(logged_client, societies):
 
     assert response.status_code == 200
     assert response.context["in_use"] == "alls"
-    assert [row["third_party_num"] for row in response.context["societies"]] == ["CLI001", "DIV001", "FOUR001", "OLD001"]
+    assert [row["third_party_num"] for row in response.context["societies"]] == [
+        "CLI001",
+        "DIV001",
+        "FOUR001",
+        "OLD001",
+    ]
     assert "Fournisseur" in response.content.decode()
 
 
@@ -69,13 +78,18 @@ def test_liste_des_tiers_utilises(logged_client, societies):
     assert response.status_code == 200
     assert response.context["in_use"] == "in_use"
     assert response.context["nb_paging"] == 100
-    assert [row["third_party_num"] for row in response.context["societies"]] == ["CLI001", "FOUR001"]
+    assert [row["third_party_num"] for row in response.context["societies"]] == [
+        "CLI001",
+        "FOUR001",
+    ]
 
 
 # FICHE TIERS ======================================================================================
 
 
-@pytest.mark.parametrize(("in_use", "back_name"), [("alls", "societies_list"), ("in_use", "societies_list_in_use")])
+@pytest.mark.parametrize(
+    ("in_use", "back_name"), [("alls", "societies_list"), ("in_use", "societies_list_in_use")]
+)
 def test_fiche_tiers_get(logged_client, societies, in_use, back_name):
     """Le chevron de retour et l'url de retour des identifiants dépendent de la liste d'origine"""
     four = societies["four"]
@@ -93,15 +107,24 @@ def test_fiche_tiers_get(logged_client, societies, in_use, back_name):
 
 
 def test_fiche_tiers_inconnu(logged_client):
-    assert logged_client.get(reverse("book:society_update", args=[999999, "alls"])).status_code == 404
+    assert (
+        logged_client.get(reverse("book:society_update", args=[999999, "alls"])).status_code == 404
+    )
 
 
-@pytest.mark.parametrize(("in_use", "back_name"), [("alls", "societies_list"), ("in_use", "societies_list_in_use")])
+@pytest.mark.parametrize(
+    ("in_use", "back_name"), [("alls", "societies_list"), ("in_use", "societies_list_in_use")]
+)
 def test_fiche_tiers_post_modification(logged_client, societies, in_use, back_name):
     """La modification est tracée, l'utilisateur enregistré, retour à la liste d'origine"""
     four = societies["four"]
     url = reverse("book:society_update", args=[four.pk, in_use])
-    data = _form_data(logged_client.get(url), name="Fournisseur renommé", in_use="True", centers_suppliers_indentifier="B|A")
+    data = _form_data(
+        logged_client.get(url),
+        name="Fournisseur renommé",
+        in_use="True",
+        centers_suppliers_indentifier="B|A",
+    )
 
     response = logged_client.post(url, data)
 
@@ -137,7 +160,9 @@ def test_fiche_tiers_post_identifiant_en_doublon(logged_client, societies, make_
     url = reverse("book:society_update", args=[four.pk, "alls"])
 
     with caplog.at_level(logging.ERROR, logger="views"):
-        response = logged_client.post(url, _form_data(logged_client.get(url), centers_suppliers_indentifier="DEJA"))
+        response = logged_client.post(
+            url, _form_data(logged_client.get(url), centers_suppliers_indentifier="DEJA")
+        )
 
     four.refresh_from_db()
     assert response.status_code == 200
@@ -171,7 +196,9 @@ def test_export_des_listes_pregenerees(logged_client, settings, tmp_path, export
 
 
 def test_export_inconnu(logged_client):
-    assert logged_client.get(reverse("book:excel_outputs", args=["export_inconnu"])).status_code == 404
+    assert (
+        logged_client.get(reverse("book:excel_outputs", args=["export_inconnu"])).status_code == 404
+    )
 
 
 # EMAILS EN ERREUR =================================================================================
@@ -196,7 +223,9 @@ def test_export_excel_des_emails_en_erreur(logged_client, make_society):
     response = logged_client.get(reverse("book:excel_errors_emails_outputs"))
 
     assert response.status_code == 200
-    assert response["Content-Disposition"].startswith("attachment; filename=LISTING_DES_EMAILS_EN_ERREUR_")
+    assert response["Content-Disposition"].startswith(
+        "attachment; filename=LISTING_DES_EMAILS_EN_ERREUR_"
+    )
     assert response.content[:2] == b"PK"
 
 
@@ -206,7 +235,10 @@ def test_export_excel_des_emails_en_erreur_echoue(logged_client, monkeypatch, ca
     def _boom(*_args, **_kwargs):
         raise RuntimeError("excel cassé")
 
-    with patched_attrs(monkeypatch, book_views, excel_errors_emails=_boom), caplog.at_level(logging.ERROR, logger="export_excel"):
+    with (
+        patched_attrs(monkeypatch, book_views, excel_errors_emails=_boom),
+        caplog.at_level(logging.ERROR, logger="export_excel"),
+    ):
         response = logged_client.get(reverse("book:excel_errors_emails_outputs"))
 
     assert response.status_code == 302

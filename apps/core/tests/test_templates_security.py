@@ -1,5 +1,9 @@
 """Tests de l'échappement dans les gabarits : plus de filtre safe sur des données, les filtres à
-liste blanche n'acceptent que la mise en forme écrite par le code"""
+
+
+liste blanche n'acceptent que la mise en forme écrite par le code
+"""
+
 import json
 import re
 from pathlib import Path
@@ -33,8 +37,9 @@ def html_templates():
 
     for root in (Path(settings.APPS_DIR), Path(settings.PROJECT_DIR)):
         for template in root.rglob("*.html"):
-            yield str(template.relative_to(base_dir)), template.read_text(
-                encoding="utf8", errors="ignore"
+            yield (
+                str(template.relative_to(base_dir)),
+                template.read_text(encoding="utf8", errors="ignore"),
             )
 
 
@@ -76,9 +81,7 @@ def test_trace_comment_echappe_les_donnees_des_fichiers():
     rendered = render("{{ value|trace_comment }}", value=f"Facture {HOSTILE}<br>rejetée")
 
     assert "<script>" not in rendered
-    assert rendered == (
-        "Facture &lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;<br>rejetée"
-    )
+    assert rendered == ("Facture &lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;<br>rejetée")
     assert render("{{ value|trace_comment }}", value=None) == ""
 
 

@@ -1,7 +1,7 @@
-"""
-Génération du chiffre d'affaires par clients et par AXE_PRO, issus des ventes Cosium
+"""Génération du chiffre d'affaires par clients et par AXE_PRO, issus des ventes Cosium.
+
 FR : Module de génération du chiffre d'affaire par clients, issus des ventes Cosium
-EN : Module for generating turnover by customers, from Cosium sales
+EN : Module for generating turnover by customers, from Cosium sales.
 
 Commentaire:
 
@@ -11,15 +11,16 @@ created by: Paulo ALVES
 modified at: 2023-03-04
 modified by: Paulo ALVES
 """
+
 from uuid import UUID
-from typing import AnyStr
 
-from psycopg2 import sql
 from django.db import connection
+from psycopg2 import sql
 
 
-def delete_ca(dte_d: AnyStr, dte_f: AnyStr):
-    """Suppression du CA Client pour une période donnée
+def delete_ca(dte_d: str, dte_f: str):
+    """Suppression du CA Client pour une période donnée.
+
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
     :return:
@@ -27,25 +28,25 @@ def delete_ca(dte_d: AnyStr, dte_f: AnyStr):
     with connection.cursor() as cursor:
         sql_delete = sql.SQL(
             """
-            delete from "compta_caclients" 
-            where "date_ca" between %(dte_d)s and %(dte_f)s 
+            delete from "compta_caclients"
+            where "date_ca" between %(dte_d)s and %(dte_f)s
             """
         )
         cursor.execute(sql_delete, {"dte_d": dte_d, "dte_f": dte_f})
 
 
-def set_ca(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
-    """Génération du chiffre d'affaires par clients et par AXE_PRO, issus des ventes Cosium
+def set_ca(dte_d: str, dte_f: str, user_uuid: UUID):
+    """Génération du chiffre d'affaires par clients et par AXE_PRO, issus des ventes Cosium.
+
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
     :param user_uuid: Utilisateur lançant la génération
     :return:
     """
     with connection.cursor() as cursor:
-
         sql_insert_statment = sql.SQL(
             """
-            insert into "compta_caclients" 
+            insert into "compta_caclients"
             (
                 "created_at",
                 "modified_at",
@@ -69,7 +70,7 @@ def set_ca(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
                 "ca_ht_devise",
                 "created_by"
             )
-            select 
+            select
                 now() as "created_at",
                 now() as "modified_at",
                 false as "active",
@@ -93,23 +94,21 @@ def set_ca(dte_d: AnyStr, dte_f: AnyStr, user_uuid: UUID):
                 sum("ca_ht_ap_remise_eur")::numeric as "ca_ht_eur",
                 sum("ca_ht_ap_remise")::numeric as "ca_ht_devise",
                 %(user)s as "created_by"
-            from "compta_ventescosium" "cv" 
-            left join "book_supplierfamilyaxes" "bs" 
-            on "cv"."famille_cosium" = "bs"."regex_match" 
+            from "compta_ventescosium" "cv"
+            left join "book_supplierfamilyaxes" "bs"
+            on "cv"."famille_cosium" = "bs"."regex_match"
             where "cv"."date_vente" between %(dte_d)s and %(dte_f)s
             and "bs"."stat_name" = 'COSI001'
             and "code_ean" != 'BON KDO'
-            group by 	
+            group by
                 "code_maison",
                 "code_cosium",
                 "cct_uuid_identification",
                 "bs"."axe_pro"
-            order by 
+            order by
                 "code_maison",
                 "bs"."axe_pro"
             on conflict do nothing
             """
         )
-        cursor.execute(
-            sql_insert_statment, {"dte_d": dte_d, "dte_f": dte_f, "user": user_uuid}
-        )
+        cursor.execute(sql_insert_statment, {"dte_d": dte_d, "dte_f": dte_f, "user": user_uuid})

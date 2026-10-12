@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests du chargeur de fichiers (apps/data_flux/loader.py : TemplateDataLoader et FileLoader)
+"""FR : Tests du chargeur de fichiers (apps/data_flux/loader.py : TemplateDataLoader et FileLoader)
+
+
 EN : Tests for the file loader
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import csv
 import io
 import uuid
@@ -33,7 +35,9 @@ ROWS = [["ACF", "Acuitis", "1.5", "1"], ["GAF", "GrandAudition", "2", "2"]]
 
 def _csv(path, rows, **kwargs):
     with path.open("w", encoding="utf8", newline="") as file:
-        csv.writer(file, delimiter=";", quotechar='"', lineterminator="\n", **kwargs).writerows(rows)
+        csv.writer(file, delimiter=";", quotechar='"', lineterminator="\n", **kwargs).writerows(
+            rows
+        )
 
     return path
 
@@ -58,7 +62,13 @@ def test_template_methodes_a_implementer(make_trace):
     assert template.trace is trace
     assert TemplateDataLoader("source", {"a": None}).trace is None
 
-    for method, args in (("open", ()), ("read", ()), ("read_list", ()), ("read_dict", ()), ("close", ())):
+    for method, args in (
+        ("open", ()),
+        ("read", ()),
+        ("read_list", ()),
+        ("read_dict", ()),
+        ("close", ()),
+    ):
         method_to_call = getattr(template, method)
 
         with pytest.raises(NotImplementedError):
@@ -70,7 +80,9 @@ def test_template_trace_add_line_error(make_trace):
     trace = make_trace()
     template = TemplateDataLoader("source", {"a": None}, params_dict={"trace": trace})
 
-    template.trace_add_line_error("Errors", 3, error_dict={"attr_name": "code", "message": "mauvais"})
+    template.trace_add_line_error(
+        "Errors", 3, error_dict={"attr_name": "code", "message": "mauvais"}
+    )
     template.trace_add_line_error(num_line=4, designation="ligne 4")
     template.trace_add_line_error("Create")
 
@@ -84,7 +96,10 @@ def test_template_trace_add_line_error(make_trace):
 
 def test_template_context_manager_ferme(make_trace):
     """__exit__ appelle close : le template brut lève NotImplementedError"""
-    with pytest.raises(NotImplementedError), TemplateDataLoader("source", {"a": None}, params_dict={}):
+    with (
+        pytest.raises(NotImplementedError),
+        TemplateDataLoader("source", {"a": None}, params_dict={}),
+    ):
         pass
 
 
@@ -93,10 +108,15 @@ def test_template_context_manager_ferme(make_trace):
 
 def test_fileloader_csv_positions_par_ordre(source):
     """Colonnes à None : prises dans l'ordre du fichier, entête sautée par first_line"""
-    with FileLoader(source, {"code": None, "name": None}, first_line=2, params_dict=UTF8) as file_loader:
+    with FileLoader(
+        source, {"code": None, "name": None}, first_line=2, params_dict=UTF8
+    ) as file_loader:
         file_loader.open()
         assert file_loader.get_header() == [0, 1]
-        assert list(file_loader.read_dict()) == [{"code": "ACF", "name": "Acuitis"}, {"code": "GAF", "name": "GrandAudition"}]
+        assert list(file_loader.read_dict()) == [
+            {"code": "ACF", "name": "Acuitis"},
+            {"code": "GAF", "name": "GrandAudition"},
+        ]
 
     assert not hasattr(file_loader, "csv_io")
 
@@ -109,7 +129,9 @@ def test_fileloader_csv_positions_par_index(source):
 
 def test_fileloader_csv_colonnes_nommees(source):
     """Entêtes nettoyées (minuscules, espaces, tabulations, degré) pour retrouver les colonnes"""
-    with FileLoader(source, {"rang": "n_rang", "coef": "coef.", "name": "nom"}, first_line=1, params_dict=UTF8) as file_loader:
+    with FileLoader(
+        source, {"rang": "n_rang", "coef": "coef.", "name": "nom"}, first_line=1, params_dict=UTF8
+    ) as file_loader:
         assert file_loader.get_header() == [3, 2, 1]
         assert list(file_loader.read()) == ['"1";"1.5";"Acuitis"', '"2";"2";"GrandAudition"']
 
@@ -133,7 +155,10 @@ def test_fileloader_excel(tmp_path):
     workbook.save(path)
 
     with FileLoader(path, {"code": "code", "name": "nom"}) as file_loader:
-        assert list(file_loader.read_dict()) == [{"code": "ACF", "name": "Acuitis"}, {"code": "GAF", "name": "GrandAudition"}]
+        assert list(file_loader.read_dict()) == [
+            {"code": "ACF", "name": "Acuitis"},
+            {"code": "GAF", "name": "GrandAudition"},
+        ]
 
 
 def test_fileloader_parametres_csv_et_encodage(tmp_path):
@@ -141,7 +166,12 @@ def test_fileloader_parametres_csv_et_encodage(tmp_path):
     path = tmp_path / "latin.csv"
     path.write_bytes("code,nom\nACF,Aç\n".encode("latin-1"))
 
-    with FileLoader(path, {"code": None, "name": None}, first_line=2, params_dict={"delimiter": ",", "encoding": "latin-1"}) as file_loader:
+    with FileLoader(
+        path,
+        {"code": None, "name": None},
+        first_line=2,
+        params_dict={"delimiter": ",", "encoding": "latin-1"},
+    ) as file_loader:
         assert list(file_loader.read_dict()) == [{"code": "ACF", "name": "Aç"}]
 
 
@@ -150,7 +180,10 @@ def test_fileloader_parametres_csv_et_encodage(tmp_path):
 
 def test_fileloader_lignes_vides_et_exclusions(tmp_path):
     """Lignes vides sautées sauf all_lines ; exclusion sur le contenu d'une colonne (1 = première)"""
-    path = _csv(tmp_path / "f.csv", [["ACF", "Acuitis"], ["", ""], ["GAF", "GrandAudition"], ["TOT", "Total général"]])
+    path = _csv(
+        tmp_path / "f.csv",
+        [["ACF", "Acuitis"], ["", ""], ["GAF", "GrandAudition"], ["TOT", "Total général"]],
+    )
     params = {"exclude_rows_dict": {2: "total", 5: "absente"}}
 
     with FileLoader(path, {"code": None, "name": None}, params_dict=params) as file_loader:
@@ -161,13 +194,23 @@ def test_fileloader_lignes_vides_et_exclusions(tmp_path):
 
 def test_fileloader_champs_ajoutes(source):
     """add_fields_dict : valeurs fixes et fonctions (tuple fonction, arguments), dans les trois lectures"""
-    params = {**UTF8, "add_fields_dict": {"origine": "import", "ident": (uuid.uuid5, {"namespace": uuid.NAMESPACE_DNS, "name": "heron"})}}
+    params = {
+        **UTF8,
+        "add_fields_dict": {
+            "origine": "import",
+            "ident": (uuid.uuid5, {"namespace": uuid.NAMESPACE_DNS, "name": "heron"}),
+        },
+    }
     expected_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, "heron")
 
     with FileLoader(source, {"code": None}, first_line=2, params_dict=params) as file_loader:
         assert file_loader.get_add_dict == {"origine": "import", "ident": expected_uuid}
         assert file_loader.get_add_values == ["import", expected_uuid]
-        assert next(iter(file_loader.read_dict())) == {"code": "ACF", "origine": "import", "ident": expected_uuid}
+        assert next(iter(file_loader.read_dict())) == {
+            "code": "ACF",
+            "origine": "import",
+            "ident": expected_uuid,
+        }
         assert list(file_loader.read_list())[1] == ["GAF", "import", expected_uuid]
         assert next(iter(file_loader.read())) == f'"ACF";"import";"{expected_uuid}"'
 
@@ -176,7 +219,9 @@ def test_fileloader_make_io_et_load(source):
     """make_io écrit le csv nettoyé ; load distribue selon la méthode demandée"""
     buffer = io.StringIO()
 
-    with FileLoader(source, {"code": None, "name": None}, first_line=2, params_dict=UTF8) as file_loader:
+    with FileLoader(
+        source, {"code": None, "name": None}, first_line=2, params_dict=UTF8
+    ) as file_loader:
         file_loader.make_io(buffer)
         assert buffer.getvalue() == '"ACF";"Acuitis"\n"GAF";"GrandAudition"\n'
         assert buffer.tell() == 0
@@ -196,14 +241,22 @@ def test_fileloader_colonnes_nommees_absentes(source, make_trace):
     """Colonne demandée absente : exception et trace commentée"""
     trace = make_trace()
 
-    with FileLoader(source, {"code": "code", "ville": "ville"}, params_dict={"trace": trace, **UTF8}) as file_loader, pytest.raises(IterFileToInsertError, match='"ville"'):
+    with (
+        FileLoader(
+            source, {"code": "code", "ville": "ville"}, params_dict={"trace": trace, **UTF8}
+        ) as file_loader,
+        pytest.raises(IterFileToInsertError, match='"ville"'),
+    ):
         file_loader.get_header()
 
     trace.refresh_from_db()
     assert trace.errors is True
     assert "ne contient pas les colonnes demandées suivantes" in trace.comment
 
-    with FileLoader(source, {"code": "code", "ville": "ville"}, params_dict=UTF8) as file_loader, pytest.raises(IterFileToInsertError):
+    with (
+        FileLoader(source, {"code": "code", "ville": "ville"}, params_dict=UTF8) as file_loader,
+        pytest.raises(IterFileToInsertError),
+    ):
         file_loader.get_header()
 
 
@@ -211,13 +264,21 @@ def test_fileloader_pas_assez_de_colonnes(tmp_path, make_trace):
     trace = make_trace()
     path = _csv(tmp_path / "f.csv", [["ACF"]])
 
-    with FileLoader(path, {"code": None, "name": None}, params_dict={"trace": trace}) as file_loader, pytest.raises(IterFileToInsertError, match="comporte 1 colonne, il est exigé au moins 2 colonnes"):
+    with (
+        FileLoader(path, {"code": None, "name": None}, params_dict={"trace": trace}) as file_loader,
+        pytest.raises(
+            IterFileToInsertError, match="comporte 1 colonne, il est exigé au moins 2 colonnes"
+        ),
+    ):
         file_loader.get_header()
 
     trace.refresh_from_db()
     assert trace.errors is True
 
-    with FileLoader(path, {"code": None, "name": None}) as file_loader, pytest.raises(IterFileToInsertError):
+    with (
+        FileLoader(path, {"code": None, "name": None}) as file_loader,
+        pytest.raises(IterFileToInsertError),
+    ):
         file_loader.get_header()
 
 
@@ -226,7 +287,10 @@ def test_fileloader_fichier_vide(tmp_path, make_trace):
     trace = make_trace()
     path = _csv(tmp_path / "vide.csv", [])
 
-    with FileLoader(path, {"code": None}, params_dict={"trace": trace}) as file_loader, pytest.raises(IterFileToInsertError, match="est vide"):
+    with (
+        FileLoader(path, {"code": None}, params_dict={"trace": trace}) as file_loader,
+        pytest.raises(IterFileToInsertError, match="est vide"),
+    ):
         file_loader.get_header()
 
     trace.refresh_from_db()
@@ -280,7 +344,15 @@ def test_fileloader_champ_ajoute_mal_forme(source, make_trace):
     trace.refresh_from_db()
     assert trace.comment == "La méthode get_add_dict a besoins d'un tuple de 2 élements"
 
-    with FileLoader(source, {"code": None}, first_line=2, params_dict={**UTF8, "add_fields_dict": {"ident": (uuid.uuid4,)}}) as file_loader, pytest.raises(GetAddDictError):
+    with (
+        FileLoader(
+            source,
+            {"code": None},
+            first_line=2,
+            params_dict={**UTF8, "add_fields_dict": {"ident": (uuid.uuid4,)}},
+        ) as file_loader,
+        pytest.raises(GetAddDictError),
+    ):
         _ = file_loader.get_add_dict
 
 
@@ -313,7 +385,10 @@ def test_fileloader_excel_introuvable_ou_invalide(tmp_path, make_trace, monkeypa
 
     (tmp_path / "faux.xls").write_bytes(b"x")
 
-    with patched_attrs(monkeypatch, loader_module, excel_file_to_csv_string_io=_boom), pytest.raises(ExcelToCsvError):
+    with (
+        patched_attrs(monkeypatch, loader_module, excel_file_to_csv_string_io=_boom),
+        pytest.raises(ExcelToCsvError),
+    ):
         FileLoader(tmp_path / "faux.xls", {"code": None})
 
 

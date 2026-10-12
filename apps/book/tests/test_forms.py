@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des formulaires de l'app book (forms_django, forms_serializers)
+"""FR : Tests des formulaires de l'app book (forms_django, forms_serializers)
+
+
 EN : Tests for book forms
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import pytest
 
 from apps.book.forms import (
@@ -46,7 +48,17 @@ def test_society_form_champs_optionnels_et_cases_a_cocher(make_society):
     assert form.use_required_attribute is False
     assert all(
         form.fields[name].required is False
-        for name in ("in_use", "is_multi_billing", "integrable", "chargeable", "od_ana", "default_axe_pro", "stat_name", "email_01", "invoice_entete")
+        for name in (
+            "in_use",
+            "is_multi_billing",
+            "integrable",
+            "chargeable",
+            "od_ana",
+            "default_axe_pro",
+            "stat_name",
+            "email_01",
+            "invoice_entete",
+        )
     )
     assert form.fields["third_party_num"].required is True
 
@@ -54,7 +66,9 @@ def test_society_form_champs_optionnels_et_cases_a_cocher(make_society):
 def test_society_form_normalise_les_identifiants(make_society):
     """Identifiants nettoyés, dédoublonnés et triés"""
     society = make_society("TIERS01")
-    form = SocietyForm(_society_data(society, centers_suppliers_indentifier=" b | a |a||"), instance=society)
+    form = SocietyForm(
+        _society_data(society, centers_suppliers_indentifier=" b | a |a||"), instance=society
+    )
 
     assert form.is_valid(), form.errors
     assert form.cleaned_data["centers_suppliers_indentifier"] == "a|b"
@@ -66,7 +80,9 @@ def test_society_form_identifiant_deja_utilise_par_un_autre_tiers(make_society):
     make_society("AUTRE01", centers_suppliers_indentifier="X|Y")
     society = make_society("TIERS01", centers_suppliers_indentifier="Z")
 
-    form = SocietyForm(_society_data(society, centers_suppliers_indentifier="Y|Z"), instance=society)
+    form = SocietyForm(
+        _society_data(society, centers_suppliers_indentifier="Y|Z"), instance=society
+    )
 
     assert form.is_valid() is False
     assert "Doublons décelés dans Identifiant Centrale :" in form.errors["__all__"][0]
@@ -151,7 +167,20 @@ def test_delete_supplier_family_axes_form(make_supplier_family_axes):
 @pytest.mark.parametrize(
     ("form_class", "model", "sage_booleans"),
     [
-        (BprBookSageForm, Society, {"is_client", "is_agent", "is_prospect", "is_supplier", "is_various", "is_service_provider", "is_transporter", "is_contractor"}),
+        (
+            BprBookSageForm,
+            Society,
+            {
+                "is_client",
+                "is_agent",
+                "is_prospect",
+                "is_supplier",
+                "is_various",
+                "is_service_provider",
+                "is_transporter",
+                "is_contractor",
+            },
+        ),
         (BpsBookSageForm, Society, set()),
         (BpcBookSageForm, Society, set()),
         (BookAdressesSageForm, Address, {"default_adress"}),
@@ -165,14 +194,23 @@ def test_formulaires_sage_booleens(form_class, model, sage_booleans):
     form = form_class()
 
     assert form_class.Meta.model is model
-    assert {name for name, field in form.fields.items() if isinstance(field, SageNullBooleanField)} == sage_booleans
+    assert {
+        name for name, field in form.fields.items() if isinstance(field, SageNullBooleanField)
+    } == sage_booleans
     assert set(form_class.Meta.fields) <= {field.name for field in model._meta.fields}  # pylint: disable=W0212
 
 
 def test_bpr_book_sage_form_valide_un_tiers(make_country):
     make_country("FR")
     form = BprBookSageForm(
-        {"third_party_num": "FOUR001", "name": "Fournisseur", "country": "FR", "is_client": "1", "is_supplier": "2", "is_agent": ""}
+        {
+            "third_party_num": "FOUR001",
+            "name": "Fournisseur",
+            "country": "FR",
+            "is_client": "1",
+            "is_supplier": "2",
+            "is_agent": "",
+        }
     )
 
     assert form.is_valid(), form.errors
@@ -185,7 +223,9 @@ def test_book_banks_sage_form_valide_une_banque(make_society, make_country):
     """Le tiers est désigné par son numéro X3, le pays par son code"""
     make_society("FOUR001")
     make_country("FR")
-    form = BookBanksSageForm({"society": "FOUR001", "account_number": "FR76", "country": "FR", "is_default": "2"})
+    form = BookBanksSageForm(
+        {"society": "FOUR001", "account_number": "FR76", "country": "FR", "is_default": "2"}
+    )
 
     assert form.is_valid(), form.errors
     assert form.save().is_default is True
@@ -196,7 +236,13 @@ def test_book_banks_sage_form_valide_une_banque(make_society, make_country):
 
 @pytest.mark.parametrize(
     ("email", "expected"),
-    [("contact@acuitis.com", True), ("prenom.nom@domaine.fr", True), ("sans-arobase", False), ("", False), ("a@b", False)],
+    [
+        ("contact@acuitis.com", True),
+        ("prenom.nom@domaine.fr", True),
+        ("sans-arobase", False),
+        ("", False),
+        ("a@b", False),
+    ],
 )
 def test_sage_email_form(email, expected):
     assert SageEmailForm(data={"email": email, "third_party_num": "X"}).is_valid() is expected

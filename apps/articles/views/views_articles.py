@@ -1,65 +1,62 @@
-"""
-Views des Articles
-"""
+"""Views des Articles."""
 
 import pendulum
-from django.db import transaction
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db import transaction
 from django.db.models import Count, F
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.html import format_html
+from django.views.generic import CreateView, ListView, UpdateView
 
-from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
-from apps.core.functions.functions_http_response import (
-    response_file,
-    CONTENT_TYPE_EXCEL,
-)
-from apps.core.functions.functions_http import get_pagination_buttons, is_ajax
+from apps.articles.bin.sub_category import check_sub_category
 from apps.articles.excel_outputs.output_excel_articles_list import (
     excel_liste_articles,
 )
-from apps.articles.bin.sub_category import check_sub_category
-from apps.book.models import Society
-from apps.parameters.models import Category
-from apps.articles.models import Article, ArticleAccount
+from apps.articles.filters import ArticleFilter
 from apps.articles.forms import (
+    ArticleAccountForm,
     ArticleForm,
     ArticleSearchForm,
-    ArticleAccountForm,
     DeleteArticleAccountForm,
 )
-from apps.edi.models import EdiImport
+from apps.articles.models import Article, ArticleAccount
+from apps.book.models import Society
 from apps.centers_purchasing.bin.update_account_article import (
     set_update_articles_account,
 )
-from apps.articles.filters import ArticleFilter
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.functions.functions_http import get_pagination_buttons, is_ajax
+from apps.core.functions.functions_http_response import (
+    CONTENT_TYPE_EXCEL,
+    response_file,
+)
+from apps.edi.models import EdiImport
+from apps.parameters.models import Category
+from heron.loggers import LOGGER_EXPORT_EXCEL, LOGGER_VIEWS
 
 
 # ECRANS DES ARTICLES ============================================================================
 class SuppliersArticlesList(ListView):
-    """View de la liste des Fournisseurs ayant des Articles dans la base"""
+    """View de la liste des Fournisseurs ayant des Articles dans la base."""
 
     model = Society
     context_object_name = "suppliers"
     template_name = "articles/suppliers_articles_list.html"
-    extra_context = {}
+    extra_context: dict = {}
 
     def get(self, request, *args, **kwargs):
-        """add context in get request"""
+        """Add context in get request."""
         self.extra_context.update(kwargs)
         categorie = Category.objects.get(slug_name=self.kwargs.get("category")).name
         self.extra_context["titre_table"] = f"Articles : {categorie}"
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        """
-        Return the list of items for this view.
+        """Return the list of items for this view.
+
         The return value must be an iterable and may be an instance of
         `QuerySet` in which case `QuerySet` specific behavior will be enabled.
         """
@@ -80,20 +77,18 @@ class SuppliersArticlesList(ListView):
 
 
 class ArticlesList(ListView):
-    """View de la liste des Articles"""
+    """View de la liste des Articles."""
 
     model = Article
     context_object_name = "articles"
     template_name = "articles/articles_list.html"
-    extra_context = {}
+    extra_context: dict = {}
 
     def get(self, request, *args, **kwargs):
-        """add context in get request"""
+        """Add context in get request."""
         self.extra_context.update(kwargs)
         self.third_party_num = self.extra_context.get("third_party_num")
-        self.category = Category.objects.get(
-            slug_name=self.extra_context.get("category")
-        )
+        self.category = Category.objects.get(slug_name=self.extra_context.get("category"))
         self.extra_context["titre_table"] = (
             f"Articles : {self.category.name} du Tiers {self.third_party_num}"
         )
@@ -102,9 +97,9 @@ class ArticlesList(ListView):
         )
         return super().get(request, *args, **kwargs)
 
-    def get_queryset(self, **kwargs):
-        """Change queryset in context"""
-        queryset = (
+    def get_queryset(self):
+        """Change queryset in context."""
+        return (
             Article.objects.filter(
                 third_party_num=self.third_party_num,
                 big_category__slug_name=self.category.slug_name,
@@ -124,21 +119,17 @@ class ArticlesList(ListView):
             .order_by("-created_at", "reference")[:1000]
         )
 
-        return queryset
-
 
 class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création d'Articles"""
+    """CreateView de création d'Articles."""
 
     model = Article
     form_class = ArticleForm
     template_name = "articles/article_update.html"
     success_message = "L'Article %(reference)s a été créé avec success"
-    error_message = (
-        "L'Article %(reference)s n'a pu être créé, une erreur c'est produite"
-    )
+    error_message = "L'Article %(reference)s n'a pu être créé, une erreur c'est produite"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, _request, *_args, **_kwargs):
         """Handle GET requests: instantiate a blank version of the form."""
         self.third_party_num = self.kwargs.get("third_party_num", "")
         self.category = self.kwargs.get("category", "")
@@ -148,15 +139,13 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
             self.base_create = True
         else:
             self.base_create = False
-            self.third_party_num = Society.objects.get(
-                third_party_num=self.third_party_num
-            )
+            self.third_party_num = Society.objects.get(third_party_num=self.third_party_num)
 
         self.object = None
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
-        """Rajout de third_party_num dans le post"""
+        """Rajout de third_party_num dans le post."""
         self.third_party_num = self.kwargs.get("third_party_num", "")
         self.category = self.kwargs.get("category", "")
 
@@ -165,14 +154,12 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
             self.base_create = True
         else:
             self.base_create = False
-            self.third_party_num = Society.objects.get(
-                third_party_num=self.third_party_num
-            )
+            self.third_party_num = Society.objects.get(third_party_num=self.third_party_num)
         self.object = None
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["article"] = "Article :"
         context["base_create"] = self.base_create
@@ -209,7 +196,7 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         )
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -223,8 +210,7 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return super().form_valid(form)
 
     def form_updated(self):
-        """Action à faire après form_valid save"""
-
+        """Action à faire après form_valid save."""
         # On met à jour les articles des edi table edi_ediimport
         third_party_num = self.object.third_party_num.third_party_num
         reference = self.object.reference
@@ -249,16 +235,14 @@ ARTICLE_UPDATE_CHILD_CENTER = "ACF"
 
 
 class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des Articles"""
+    """UpdateView pour modification des Articles."""
 
     model = Article
     form_class = ArticleForm
     pk_url_kwarg = "pk"
     template_name = "articles/article_update.html"
     success_message = "L'Article %(reference)s a été modifié avec success"
-    error_message = (
-        "L'Article %(reference)s n'a pu être modifié, une erreur c'est produite"
-    )
+    error_message = "L'Article %(reference)s n'a pu être modifié, une erreur c'est produite"
 
     def get(self, request, *args, **kwargs):
         """Handle GET requests: instantiate a blank version of the form."""
@@ -267,7 +251,7 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse(
             "articles:articles_list",
@@ -276,7 +260,7 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
                 self.object.big_category.slug_name,
             ),
         )
-        context["titre_table"] = f"Mise à jour Article {str(self.object)}"
+        context["titre_table"] = f"Mise à jour Article {self.object!s}"
         context["article"] = f"Article Référence : {self.object.reference}"
         context["third_party_num"] = self.object.third_party_num.third_party_num
         context["accounts"] = (
@@ -296,8 +280,8 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             ),
         )
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -311,8 +295,7 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return super().form_valid(form)
 
     def form_updated(self):
-        """Action à faire après form_valid save"""
-
+        """Action à faire après form_valid save."""
         # On met à jour les articles des edi table edi_ediimport
         third_party_num = self.object.third_party_num.third_party_num
         reference = self.object.reference
@@ -333,7 +316,7 @@ class ArticleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 def articles_search_list(request):
-    """Affichage de la page de recherche des articles"""
+    """Affichage de la page de recherche des articles."""
     limit = 50
     queryset = (
         Article.objects.annotate(
@@ -380,7 +363,7 @@ def articles_search_list(request):
         titre_count = " (1 article trouvé)"
 
     if count > 1:
-        titre_count = f" ({str(count)} articles trouvés)"
+        titre_count = f" ({count!s} articles trouvés)"
 
     context = {
         "articles": paginator.get_page(page),
@@ -406,18 +389,16 @@ def articles_search_list(request):
 
 
 def articles_export_list(_, third_party_num, category):
-    """
-    Export Excel de la liste des Articles par Fournisseurs et Catégories
+    """Export Excel de la liste des Articles par Fournisseurs et Catégories.
+
     :param _: Request Django
     :param third_party_num: N° de tiers X3
     :param category: slug_name de la catégorie
-    :return: response_file
+    :return: response_file.
     """
     try:
         today = pendulum.now()
-        file_name = (
-            f"LISTING_DES_ARTICLES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
-        )
+        file_name = f"LISTING_DES_ARTICLES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 
         return response_file(
             excel_liste_articles,
@@ -440,34 +421,34 @@ def articles_export_list(_, third_party_num, category):
 
 # ECRANS DES COMPTES PAR TAUX DE TVA ARTICLES ======================================================
 class ArticleAccountCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Catégories"""
+    """CreateView de création des Catégories."""
 
     model = ArticleAccount
     form_class = ArticleAccountForm
     template_name = "articles/articles_account_vat_update.html"
     success_message = "Le compte par taux de tva %(article)s a été créé avec success"
     error_message = (
-        "Le compte par taux de tva %(article)s "
-        "n'a pu être créé, une erreur c'est produite"
+        "Le compte par taux de tva %(article)s n'a pu être créé, une erreur c'est produite"
     )
 
-    def get(self, request, *args, **kwargs):
-        """Ajout de self.article a l'instance de la vue (404 si l'article n'existe pas)"""
+    def get(self, _request, *_args, **kwargs):
+        """Ajout de self.article a l'instance de la vue (404 si l'article n'existe pas)."""
         self.article = get_object_or_404(Article, pk=kwargs.get("article_pk"))
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
-        """Ajout de self.article a l'instance de la vue (404 si l'article n'existe pas)"""
+        """Ajout de self.article a l'instance de la vue (404 si l'article n'existe pas)."""
         self.object = None
         self.article = get_object_or_404(Article, pk=kwargs.get("article_pk"))
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse(
-            "articles:article_update", kwargs={"third_party_num": self.article.third_party_num_id, "pk": self.article.pk}
+            "articles:article_update",
+            kwargs={"third_party_num": self.article.third_party_num_id, "pk": self.article.pk},
         )
         context["titre_table"] = f"Article : {self.article}"
         context["article"] = self.article
@@ -475,12 +456,14 @@ class ArticleAccountCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return context
 
     def get_success_url(self):
-        """Surcharge de l'url en case de succes pour revenir à la catégorie où l'on était"""
-
-        return reverse("articles:article_update", kwargs={"third_party_num": self.article.third_party_num_id, "pk": self.article.pk})
+        """Surcharge de l'url en case de succes pour revenir à la catégorie où l'on était."""
+        return reverse(
+            "articles:article_update",
+            kwargs={"third_party_num": self.article.third_party_num_id, "pk": self.article.pk},
+        )
 
     def form_valid(self, form):
-        """Niveau de message à la sauvegarde (ArticleAccount n'a pas de champ created_by)"""
+        """Niveau de message à la sauvegarde (ArticleAccount n'a pas de champ created_by)."""
         self.request.session["level"] = 20
 
         return super().form_valid(form)
@@ -488,11 +471,11 @@ class ArticleAccountCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 @transaction.atomic
 def delete_articles_account_vat(request):
-    """Suppression des rubriques prestas
-    :param request: Request Django
-    :return: view
-    """
+    """Suppression des rubriques prestas.
 
+    :param request: Request Django
+    :return: view.
+    """
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -510,8 +493,6 @@ def delete_articles_account_vat(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(
-            f"delete_articles_account_vat, form invalid : {form.errors!r}"
-        )
+        LOGGER_VIEWS.error("delete_articles_account_vat, form invalid : %r", form.errors)
 
     return JsonResponse(data)

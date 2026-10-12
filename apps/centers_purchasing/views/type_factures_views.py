@@ -1,24 +1,23 @@
-"""
-Views des Types de pièces par centales filles
-"""
+"""Views des Types de pièces par centales filles."""
+
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
+from apps.centers_purchasing.forms import TypeFactureDeleteForm, TypeFactureForm
+from apps.centers_purchasing.models import TypeFacture
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.bin.mixins import ChildCenterMixin
-from apps.centers_purchasing.models import TypeFacture
-from apps.centers_purchasing.forms import TypeFactureForm, TypeFactureDeleteForm
-
+from apps.core.functions.functions_http import is_ajax
+from heron.loggers import LOGGER_VIEWS
 
 # ECRANS DES CENTRALES FILLES / Types de Facture ===================================================
 
+
 class TypeFactureList(ChildCenterMixin, ListView):
-    """View de la liste des Types de Factures"""
+    """View de la liste des Types de Factures."""
 
     model = TypeFacture
     context_object_name = "type_factures"
@@ -27,7 +26,7 @@ class TypeFactureList(ChildCenterMixin, ListView):
 
 
 class TypeFactureCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Types de Facture"""
+    """CreateView de création des Types de Facture."""
 
     model = TypeFacture
     form_class = TypeFactureForm
@@ -41,7 +40,7 @@ class TypeFactureCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("centers_purchasing:type_facture_list")
@@ -49,14 +48,14 @@ class TypeFactureCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         self.request.session["level"] = 20
 
         return super().form_valid(form)
 
 
 class TypeFactureUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des Types de Facture"""
+    """UpdateView pour modification des Types de Facture."""
 
     model = TypeFacture
     form_class = TypeFactureForm
@@ -70,7 +69,7 @@ class TypeFactureUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:type_facture_list")
         context["titre_table"] = (
@@ -80,16 +79,15 @@ class TypeFactureUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         )
         return context
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         self.request.session["level"] = 20
 
         return super().form_valid(form)
 
 
 def type_facture_delete(request):
-    """Vue ajax de suppresion d'une ligne de la table"""
-
+    """Vue ajax de suppresion d'une ligne de la table."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -107,6 +105,6 @@ def type_facture_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"type_piece_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("type_piece_delete, form invalid : %r", form.errors)
 
     return JsonResponse(data)

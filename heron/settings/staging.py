@@ -1,1 +1,1 @@
-# coding: utf-8
+"""Réglages de pré-production (réservé)."""

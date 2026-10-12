@@ -1,6 +1,6 @@
-"""
-FR : Module de post-traitement pour vérification des doublons
-EN : Post-processing module for checking duplicates
+"""FR : Module de post-traitement pour vérification des doublons.
+
+EN : Post-processing module for checking duplicates.
 
 Commentaire:
 
@@ -10,23 +10,23 @@ created by: Paulo ALVES
 modified at: 2022-12-16
 modified by: Paulo ALVES
 """
-from typing import AnyStr
 
 from django.db import connection, transaction
 
+from apps.data_flux.models import Trace
 from apps.edi.sql_files.sql_checks import (
     sql_edi_import_duplicates,
     sql_edi_import_duplicates_delete,
     sql_invoices_duplicates,
     sql_invoices_duplicates_delete,
 )
-from apps.data_flux.models import Trace
 
 
 @transaction.atomic
 def edi_import_duplicate_check():
     """Vérification des doublons de factures dans l'import edi (imports en doubles).
-    Doublons causés par le trouple third_party_num, invoice_number, invoice_year
+
+    Doublons causés par le trouple third_party_num, invoice_number, invoice_year.
     """
     with connection.cursor() as cursor:
         cursor.execute(sql_edi_import_duplicates)
@@ -42,8 +42,7 @@ def edi_import_duplicate_check():
                 else "Les ensembles (<div style='padding-left: 20px;'>"
             )
             last_comment = (
-                "</div>) a dèjà été importé.<br>"
-                "Cette facture à été supprimée de l'intégration.<br>"
+                "</div>) a dèjà été importé.<br>Cette facture à été supprimée de l'intégration.<br>"
                 if len(errors_array) == 1
                 else "</div>) ont dèjà été importés.<br>"
                 "Ces factures ont été supprimées de l'intégration.<br>"
@@ -63,9 +62,10 @@ def edi_import_duplicate_check():
 
 @transaction.atomic
 def suppliers_invoices_duplicate_check():
-    """Vérification des doublons de factures dans l'import edi déjà existantes,
+    """Vérification des doublons de factures dans l'import edi déjà existantes,.
+
     dans les factures définitives.
-    Doublons causés par le trouple third_party_num, invoice_number, invoice_year
+    Doublons causés par le trouple third_party_num, invoice_number, invoice_year.
     """
     with connection.cursor() as cursor:
         cursor.execute(sql_invoices_duplicates)
@@ -103,23 +103,24 @@ def suppliers_invoices_duplicate_check():
         cursor.execute(sql_invoices_duplicates_delete)
 
 
-def check_invoice_exists(third_party_num: AnyStr, invoice_number: AnyStr, invoice_year: int):
-    """Vérification des doublons dans edi_ediimport union all invoices_invoice
+def check_invoice_exists(third_party_num: str, invoice_number: str, invoice_year: int):
+    """Vérification des doublons dans edi_ediimport union all invoices_invoice.
+
     Doublons causés par le trouple third_party_num, invoice_number, invoice_year
     :param third_party_num: Tiers X3
     :param invoice_number: N° de la facture
     :param invoice_year: Année de la facture
-    :return: True/False
+    :return: True/False.
     """
     with connection.cursor() as cursor:
         sql_check_invoice_exist = """
         select
-            1 
+            1
         from (
             (
-                select 
+                select
                     1 as "nbre"
-                from "edi_ediimport" "ee" 
+                from "edi_ediimport" "ee"
                 where "ee"."third_party_num" = %(third_party_num)s
                 and "ee"."invoice_number" = %(invoice_number)s
                 and "ee"."invoice_year" = %(invoice_year)s
@@ -127,13 +128,13 @@ def check_invoice_exists(third_party_num: AnyStr, invoice_number: AnyStr, invoic
             )
             union all
             (
-                select 
+                select
                     1 as "nbre"
-                from "invoices_invoicecommondetails" "ii" 
+                from "invoices_invoicecommondetails" "ii"
                 where "ii"."third_party_num"= %(third_party_num)s
                 and "ii"."invoice_number" = %(invoice_number)s
-                and "ii"."invoice_year" = %(invoice_year)s           
-                -- Ajouter car si l'on importe après une première génération 
+                and "ii"."invoice_year" = %(invoice_year)s
+                -- Ajouter car si l'on importe après une première génération
                 -- cela efface toute la table
                 and "ii"."final"= true
                 limit 1
@@ -149,7 +150,4 @@ def check_invoice_exists(third_party_num: AnyStr, invoice_number: AnyStr, invoic
             },
         )
 
-        if cursor.fetchall():
-            return True
-
-        return False
+        return bool(cursor.fetchall())

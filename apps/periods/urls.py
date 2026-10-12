@@ -1,2 +1,3 @@
+"""Routes URL de l'application periods."""
 
-urlpatterns = []
+urlpatterns: list = []

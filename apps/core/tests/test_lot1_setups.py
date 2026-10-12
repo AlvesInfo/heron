@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'amorçage Django des scripts (functions_setups.py) : BASE_DIR selon le système,
+"""FR : Tests de l'amorçage Django des scripts (functions_setups.py) : BASE_DIR selon le système,
+
+
      tolérance au django.setup() déjà réalisé
 EN : Tests for scripts Django bootstrap
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import importlib
 import platform
 import sys
@@ -20,7 +22,11 @@ from conftest import patched_attrs
 
 @pytest.mark.parametrize(
     ("system", "expected"),
-    [("Darwin", "/Users/paulo/SitesWeb/heron"), ("Linux", "/home/paulo/heron"), ("Windows", r"C:\\SitesWeb\\heron")],
+    [
+        ("Darwin", "/Users/paulo/SitesWeb/heron"),
+        ("Linux", "/home/paulo/heron"),
+        ("Windows", r"C:\\SitesWeb\\heron"),
+    ],
 )
 def test_base_dir_selon_le_systeme(monkeypatch, system, expected):
     """Le répertoire du projet est posé en tête de sys.path selon le système d'exploitation"""
@@ -63,7 +69,10 @@ def test_autre_erreur_d_initialisation_remonte(monkeypatch):
         raise RuntimeError("réglages absents")
 
     try:
-        with patched_attrs(monkeypatch, django, setup=_broken), pytest.raises(RuntimeError, match="réglages absents"):
+        with (
+            patched_attrs(monkeypatch, django, setup=_broken),
+            pytest.raises(RuntimeError, match="réglages absents"),
+        ):
             importlib.reload(functions_setups)
     finally:
         importlib.reload(functions_setups)

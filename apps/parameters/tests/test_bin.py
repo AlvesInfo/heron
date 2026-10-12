@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des fonctions de paramétrage (bin/core, bin/exchanges, bin/generic_nums)
+"""FR : Tests des fonctions de paramétrage (bin/core, bin/exchanges, bin/generic_nums)
+
+
 EN : Tests for parameters functions
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import asyncio
 import datetime
 from decimal import Decimal
@@ -68,7 +70,9 @@ def test_get_in_progress():
     assert get_in_progress() is True
     assert get_in_progress(task_name="autre") is False
 
-    TaskResult.objects.filter(pk=task.pk).update(date_created=timezone.now() - datetime.timedelta(hours=2))
+    TaskResult.objects.filter(pk=task.pk).update(
+        date_created=timezone.now() - datetime.timedelta(hours=2)
+    )
     assert get_in_progress() is False
 
 
@@ -107,7 +111,9 @@ def test_have_action_in_progress():
     assert have_action_in_progress() is True
 
 
-def test_have_send_email_et_subscription(make_sale_invoice, make_maison, make_invoice_function, make_article, make_unit):
+def test_have_send_email_et_subscription(
+    make_sale_invoice, make_maison, make_invoice_function, make_article, make_unit
+):
     assert have_send_email_without_finalize() is False
     make_sale_invoice(third_party_num="CLI001", send_email=True, final=False)
     assert have_send_email_without_finalize() is True
@@ -157,7 +163,9 @@ def test_set_message():
 def test_get_counter_num_prefixes_suffixes_et_separateur(make_counter, make_society):
     """Préfixe de date ou de tiers, suffixe, séparateur et remplissage ; compteur incrémenté"""
     make_society("TIERS01")
-    counter = make_counter("factures", num=7, prefix="AAAAMM", suffix="TIERS", lpad_num=4, separateur="-")
+    counter = make_counter(
+        "factures", num=7, prefix="AAAAMM", suffix="TIERS", lpad_num=4, separateur="-"
+    )
     month = datetime.date.today().strftime("%Y%m")
 
     assert get_counter_num(counter, {"suffix": "TIERS01"}) == f"{month}-TIERS01-0007"
@@ -198,7 +206,7 @@ def ventes_suisses(make_country, make_country_currency, make_maison, make_vente)
     france = make_country("FR", "France", currency_iso="EUR")
     maison = make_maison("AF0010", pays=suisse)
     first = make_vente(maison, MONTH)
-    second = make_vente(maison, MONTH, ca_ht_ap_remise=Decimal("50"))
+    second = make_vente(maison, MONTH, ca_ht_ap_remise=Decimal(50))
     euro = make_vente(make_maison("AF0001", pays=france), MONTH)
     return {"maison": maison, "first": first, "second": second, "euro": euro}
 
@@ -211,8 +219,8 @@ def test_set_base_exchange_rate(ventes_suisses, make_country_currency):
 
     rates = {rate.currency_change.code: rate for rate in ExchangeRate.objects.all()}
     assert set(rates) == {"CHF", "EUR"}
-    assert (rates["CHF"].rate, rates["CHF"].rate_month) == (Decimal("0"), MONTH)
-    assert rates["EUR"].rate == Decimal("1")
+    assert (rates["CHF"].rate, rates["CHF"].rate_month) == (Decimal(0), MONTH)
+    assert rates["EUR"].rate == Decimal(1)
 
     set_base_exchange_rate(MONTH)
     assert ExchangeRate.objects.count() == 2
@@ -222,7 +230,9 @@ def test_set_base_exchange_rate(ventes_suisses, make_country_currency):
         sale_month=datetime.date(2026, 2, 1)
     )
     set_base_exchange_rate(datetime.date(2026, 2, 1))
-    assert ExchangeRate.objects.filter(rate_month=datetime.date(2026, 2, 1), currency_change="CHF").exists()
+    assert ExchangeRate.objects.filter(
+        rate_month=datetime.date(2026, 2, 1), currency_change="CHF"
+    ).exists()
 
 
 def test_set_base_exchange_rate_devise_inconnue(ventes_suisses):
@@ -247,8 +257,8 @@ def test_set_exchanges_sales_cosium(ventes_suisses, make_exchange_rate):
     euro = ventes_suisses["euro"]
     euro.refresh_from_db()
     assert first.taux_change_moyen == Decimal("0.5")
-    assert first.ca_ht_ap_remise_eur == Decimal("50")
-    assert first.px_vente_ttc_eur == Decimal("60")
+    assert first.ca_ht_ap_remise_eur == Decimal(50)
+    assert first.px_vente_ttc_eur == Decimal(60)
     assert euro.taux_change_moyen is None
 
 

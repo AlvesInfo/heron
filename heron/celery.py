@@ -1,3 +1,5 @@
+"""Configuration de l'application Celery du projet heron."""
+
 import os
 
 from celery import Celery

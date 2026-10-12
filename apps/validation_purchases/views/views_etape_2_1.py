@@ -1,54 +1,56 @@
+"""Vues de l'étape 2.1 de la validation des achats : intégration des factures fournisseurs."""
+
 import pendulum
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import connection, transaction
+from django.db.models import CharField, Q, Value
+from django.db.models.functions import Cast, Coalesce
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
-from django.db.models import Value, CharField, Q
-from django.db.models.functions import Coalesce, Cast
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_bulk_delete, trace_change
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_change, trace_mark_bulk_delete
 from apps.core.bin.encoders import get_base_64
 from apps.core.functions.functions_dates import get_date_apostrophe
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.data_flux.models import Trace
-from apps.parameters.bin.core import get_in_progress
 from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.edi.bin.edi_utilites import delete_orphans_controls
+from apps.edi.models import EdiImport, EdiImportControl, EdiValidation
+from apps.parameters.bin.core import get_in_progress
+from apps.parameters.models import IconOriginChoice
 from apps.validation_purchases.bin.validations_utilities import (
-    verify_supplier_ident,
-    flag_invoices,
     create_edi_validation,
+    flag_invoices,
+    verify_supplier_ident,
 )
 from apps.validation_purchases.excel_outputs import (
     excel_integration_purchases,
 )
-from apps.edi.models import EdiImport, EdiImportControl, EdiValidation
-from apps.validation_purchases.forms import (
-    DeleteEdiForm,
-    EdiImportControlForm,
-    ControlValidationForm,
-    IntegrationValidationForm,
-)
-from apps.parameters.models import IconOriginChoice
 from apps.validation_purchases.excel_outputs.excel_supplier_invoices_details import (
     excel_invoice_details,
 )
+from apps.validation_purchases.forms import (
+    ControlValidationForm,
+    DeleteEdiForm,
+    EdiImportControlForm,
+    IntegrationValidationForm,
+)
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 2.1 - CONTROLE INTEGRATION
 
 
 def integration_purchases(request):
-    """View de l'étape 2 des écrans de contrôles
+    """View de l'étape 2 des écrans de contrôles.
+
     Visualisation pour la validation des montants par fournisseurs par mois, intégrés ou saisis
     :param request: Request Django
-    :return: view
+    :return: view.
     """
-
     if EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True)).exists():
         return redirect(reverse("validation_purchases:purchase_without_suppliers"))
 
@@ -83,8 +85,7 @@ def integration_purchases(request):
 
         periodes = EdiValidation.objects.filter(final=False).first().billing_period.isoformat()
         periode = (
-            f"Période de facturation :  "
-            f"{pendulum.parse(periodes).format('MMMM YYYY', locale='FR')}"
+            f"Période de facturation :  {pendulum.parse(periodes).format('MMMM YYYY', locale='FR')}"
         )
         context = {
             "titre_table": f"2.1 - Contrôle des Intégrations - {periode} ",
@@ -111,7 +112,7 @@ def integration_purchases(request):
 
 
 class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """View de création de la ligne de contrôle, saisie du relevé founisseur"""
+    """View de création de la ligne de contrôle, saisie du relevé founisseur."""
 
     model = EdiImportControl
     form_class = EdiImportControlForm
@@ -126,7 +127,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
     )
 
     def get_attributes(self, kwargs):
-        """Décode-les parammètres de la variable enc_param passés en base64"""
+        """Décode-les parammètres de la variable enc_param passés en base64."""
         enc_param = get_base_64(kwargs.get("enc_param"))
         self.third_party_num, self.supplier, invoice_month, self.flow_name = enc_param
         self.invoice_month = pendulum.parse(invoice_month)
@@ -138,12 +139,12 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         )
 
     def get(self, request, *args, **kwargs):
-        """On récupère les attributs venant par la méthode get"""
+        """On récupère les attributs venant par la méthode get."""
         self.get_attributes(kwargs)
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
         context["titre_table"] = (
@@ -160,15 +161,16 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         return reverse("validation_purchases:integration_purchases")
 
     def post(self, request, *args, **kwargs):
-        """Methode post"""
+        """Methode post."""
         self.get_attributes(kwargs)
 
         return super().post(request, *args, **kwargs)
 
     @transaction.atomic
     def form_valid(self, form):
-        """Pour la validation, ajout de l'user qui modifie et mise à jour du champ uuid_control,
-        pour faire la relation avec les imports
+        """Pour la validation, ajout de l'user qui modifie et mise à jour du champ uuid_control,.
+
+        pour faire la relation avec les imports.
         """
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
@@ -185,7 +187,7 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
 
 
 class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des factures founisseurs"""
+    """UpdateView pour modification des factures founisseurs."""
 
     model = EdiImportControl
     form_class = EdiImportControlForm
@@ -201,7 +203,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
     )
 
     def get_attributes(self, kwargs):
-        """Décode-les parammètres de la variable enc_param passés en base64"""
+        """Décode-les parammètres de la variable enc_param passés en base64."""
         enc_param = get_base_64(kwargs.get("enc_param"))
         self.third_party_num, self.supplier, invoice_month, self.flow_name = enc_param
         self.invoice_month = pendulum.parse(invoice_month)
@@ -213,18 +215,18 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         )
 
     def get(self, request, *args, **kwargs):
-        """On récupère les attributs venant par la méthode GET"""
+        """On récupère les attributs venant par la méthode GET."""
         self.get_attributes(kwargs)
         self.object = self.get_object()
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        """On récupère les attributs venant par la méthode POST"""
+        """On récupère les attributs venant par la méthode POST."""
         self.get_attributes(kwargs)
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("validation_purchases:integration_purchases")
         context["titre_table"] = (
@@ -241,8 +243,8 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         """Return the URL to redirect to after processing a valid form."""
         return reverse("validation_purchases:integration_purchases")
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -250,8 +252,7 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
 
 
 def integration_supplier_validation(request):
-    """Validation des Fournisseurs un par un, dans l'écran 2.1 Contrôle intégration"""
-
+    """Validation des Fournisseurs un par un, dans l'écran 2.1 Contrôle intégration."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -283,24 +284,22 @@ def integration_supplier_validation(request):
         except (EdiImportControl.DoesNotExist, AttributeError):
             # trace_change lève AttributeError (None.__dict__) quand l'uuid n'existe pas
             LOGGER_VIEWS.exception(
-                f"integration_supplier_validation error, uuid not exists : {form.cleaned_data!r}"
+                "integration_supplier_validation error, uuid not exists : %r", form.cleaned_data
             )
 
     else:
-        LOGGER_VIEWS.error(
-            f"integration_supplier_validation error, form invalid : {form.errors!r}"
-        )
+        LOGGER_VIEWS.error("integration_supplier_validation error, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 @transaction.atomic
 def delete_supplier_edi_import(request):
-    """Suppression de toutes les factures en definitif selon uuid d'import
-    :param request: Request Django
-    :return: view
-    """
+    """Suppression de toutes les factures en definitif selon uuid d'import.
 
+    :param request: Request Django
+    :return: view.
+    """
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -325,18 +324,18 @@ def delete_supplier_edi_import(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.error(f"delete_supplier_edi_import error, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("delete_supplier_edi_import error, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def integration_purchases_export(request):
-    """Export Excel de la liste de la validation des montants par fournisseurs par mois,
+    """Export Excel de la liste de la validation des montants par fournisseurs par mois,.
+
     intégrés ou saisis.
     :param request: Request Django
-    :return: response_file
+    :return: response_file.
     """
-
     try:
         if request.method == "GET":
             today = pendulum.now()
@@ -356,18 +355,18 @@ def integration_purchases_export(request):
 
 
 def alls_details_purchases_export(request, enc_param):
-    """Export Excel de
+    """Export Excel de.
+
     :param request: Request Django
     :param enc_param: Paramètres get de la requête encodée base 64
-    :return: response_file
+    :return: response_file.
     """
     try:
         if request.method == "GET":
             third_party_num, supplier, invoice_month, flow_name = get_base_64(enc_param)
             today = pendulum.now()
             file_name = (
-                f"{third_party_num}_{supplier}_"
-                f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+                f"{third_party_num}_{supplier}_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
             attr_dict = {
                 "third_party_num": third_party_num,
@@ -389,8 +388,7 @@ def alls_details_purchases_export(request, enc_param):
 
 
 def integration_validation(request):
-    """Flag à True de la partie de validation validée"""
-
+    """Flag à True de la partie de validation validée."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -421,11 +419,9 @@ def integration_validation(request):
                 data["message"] = "Les Intégration sont maintenant dé-validées"
 
         except Exception:
-            LOGGER_VIEWS.exception(f"Views : integration_validation error : {form.cleaned_data!r}")
+            LOGGER_VIEWS.exception("Views : integration_validation error : %r", form.cleaned_data)
 
     else:
-        LOGGER_VIEWS.error(
-            f"Views : integration_validation error, form invalid : {form.errors!r}"
-        )
+        LOGGER_VIEWS.error("Views : integration_validation error, form invalid : %r", form.errors)
 
     return JsonResponse(data)

@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des vues des identifiants cct par fournisseur (apps/book/views/identifiers_views.py)
+"""FR : Tests des vues des identifiants cct par fournisseur (apps/book/views/identifiers_views.py)
+
+
 EN : Tests for supplier cct identifiers views
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import logging
 
 import pytest
@@ -30,7 +32,9 @@ def _messages(response):
 
 def _identifiers(third_party_num):
     return dict(
-        SupplierCct.objects.filter(third_party_num=third_party_num).values_list("cct_uuid_identification__cct", "cct_identifier")
+        SupplierCct.objects.filter(third_party_num=third_party_num).values_list(
+            "cct_uuid_identification__cct", "cct_identifier"
+        )
     )
 
 
@@ -47,12 +51,19 @@ def supplier(make_society, make_cct, make_maison, make_supplier_cct):
 
 
 def _url(third_party_num="FOUR001"):
-    return reverse("book:supplier_cct_identifier", args=[third_party_num, set_base_64_str(BACK_URL)])
+    return reverse(
+        "book:supplier_cct_identifier", args=[third_party_num, set_base_64_str(BACK_URL)]
+    )
 
 
 def _formset_data(*rows):
     """Données du formset : (instance, identifiant saisi)"""
-    data = {"form-TOTAL_FORMS": len(rows), "form-INITIAL_FORMS": len(rows), "form-MIN_NUM_FORMS": 0, "form-MAX_NUM_FORMS": len(rows)}
+    data = {
+        "form-TOTAL_FORMS": len(rows),
+        "form-INITIAL_FORMS": len(rows),
+        "form-MIN_NUM_FORMS": 0,
+        "form-MAX_NUM_FORMS": len(rows),
+    }
 
     for index, (instance, identifier) in enumerate(rows):
         data[f"form-{index}-id"] = instance.pk
@@ -73,7 +84,10 @@ def test_identifiants_get(logged_client, supplier):
     assert response.context["count"] == 2
     assert response.context["chevron_retour"] == BACK_URL
     assert response.context["third_party_num"] == "FOUR001"
-    assert [row["cct_uuid_identification__cct"] for row in response.context["queryset"]] == ["AF0001", "AF0002"]
+    assert [row["cct_uuid_identification__cct"] for row in response.context["queryset"]] == [
+        "AF0001",
+        "AF0002",
+    ]
     assert logged_client.session["level"] == 20
 
 
@@ -97,7 +111,10 @@ def test_identifiants_get_en_erreur(logged_client, supplier, monkeypatch, caplog
     def _boom(**_kwargs):
         raise RuntimeError("sql cassé")
 
-    with patched_attrs(monkeypatch, identifiers_views, add_news_cct_sage=_boom), caplog.at_level(logging.ERROR, logger="views"):
+    with (
+        patched_attrs(monkeypatch, identifiers_views, add_news_cct_sage=_boom),
+        caplog.at_level(logging.ERROR, logger="views"),
+    ):
         response = logged_client.get(_url())
 
     assert response.status_code == 200
@@ -121,7 +138,9 @@ def test_identifiants_post_sans_modification(logged_client, supplier):
 
 def test_identifiants_post_modification_tracee(logged_client, supplier, make_edi_import):
     """L'identifiant ajouté est enregistré, tracé, et rattache les imports edi sans cct"""
-    edi = make_edi_import("FOUR001", "ART-1", code_maison="P2", cct_uuid_identification=None, valid=True)
+    edi = make_edi_import(
+        "FOUR001", "ART-1", code_maison="P2", cct_uuid_identification=None, valid=True
+    )
     data = _formset_data((supplier["paris"], "PAR|P2|"), (supplier["lyon"], "LYO|"))
 
     response = logged_client.post(_url(), data)
@@ -135,7 +154,10 @@ def test_identifiants_post_modification_tracee(logged_client, supplier, make_edi
     assert trace.difference["avant"]["cct_identifier"] == "PAR|"
     assert trace.difference["après"]["cct_identifier"] == "PAR|P2|"
     assert SupplierCct.objects.get(pk=supplier["paris"].pk).modified_by == logged_client.user
-    assert EdiImport.objects.get(pk=edi.pk).cct_uuid_identification.cct == supplier["paris"].cct_uuid_identification
+    assert (
+        EdiImport.objects.get(pk=edi.pk).cct_uuid_identification.cct
+        == supplier["paris"].cct_uuid_identification
+    )
 
 
 def test_identifiants_post_identifiant_deja_present_ou_pris(logged_client, supplier):
@@ -169,14 +191,21 @@ def test_identifiants_post_formset_invalide(logged_client, supplier, caplog):
 
 def test_changement_unitaire_hors_ajax(client, logged_client, supplier):
     """Sans ajax ou sans POST : retour à l'accueil"""
-    assert logged_client.post(reverse("book:change_supplier_cct_unit"), {"pk": supplier["paris"].pk}).url == reverse("home")
+    assert logged_client.post(
+        reverse("book:change_supplier_cct_unit"), {"pk": supplier["paris"].pk}
+    ).url == reverse("home")
     assert client.get(reverse("book:change_supplier_cct_unit")).status_code in {302, 403}
 
 
 def test_changement_unitaire_ajoute_le_pipe_final(ajax_client, supplier, make_edi_import):
-    edi = make_edi_import("FOUR001", "ART-1", code_maison="P2", cct_uuid_identification=None, valid=True)
+    edi = make_edi_import(
+        "FOUR001", "ART-1", code_maison="P2", cct_uuid_identification=None, valid=True
+    )
 
-    response = ajax_client.post(reverse("book:change_supplier_cct_unit"), {"pk": supplier["paris"].pk, "cct_identifier": "PAR|P2"})
+    response = ajax_client.post(
+        reverse("book:change_supplier_cct_unit"),
+        {"pk": supplier["paris"].pk, "cct_identifier": "PAR|P2"},
+    )
 
     assert response.status_code == 200
     assert response.json() == {"success": "success"}
@@ -184,11 +213,16 @@ def test_changement_unitaire_ajoute_le_pipe_final(ajax_client, supplier, make_ed
     assert _messages(response) == [(20, "Les identifiants du cct AF0001, on bien été changés.")]
     assert ajax_client.session["level"] == 20
     assert ChangesTrace.objects.get().difference["après"]["cct_identifier"] == "PAR|P2|"
-    assert EdiImport.objects.get(pk=edi.pk).cct_uuid_identification.cct == supplier["paris"].cct_uuid_identification
+    assert (
+        EdiImport.objects.get(pk=edi.pk).cct_uuid_identification.cct
+        == supplier["paris"].cct_uuid_identification
+    )
 
 
 def test_changement_unitaire_efface_l_identifiant(ajax_client, supplier):
-    response = ajax_client.post(reverse("book:change_supplier_cct_unit"), {"pk": supplier["lyon"].pk, "cct_identifier": ""})
+    response = ajax_client.post(
+        reverse("book:change_supplier_cct_unit"), {"pk": supplier["lyon"].pk, "cct_identifier": ""}
+    )
 
     assert response.json() == {"success": "success"}
     assert _identifiers("FOUR001")["AF0002"] is None
@@ -196,10 +230,16 @@ def test_changement_unitaire_efface_l_identifiant(ajax_client, supplier):
 
 @pytest.mark.parametrize(
     ("identifier", "expected"),
-    [("PAR", "Vous n'avez rien modifié !"), ("LYO|", "L'identifiant LYO est déjà utilisé dans le cct AF0002")],
+    [
+        ("PAR", "Vous n'avez rien modifié !"),
+        ("LYO|", "L'identifiant LYO est déjà utilisé dans le cct AF0002"),
+    ],
 )
 def test_changement_unitaire_refuse(ajax_client, supplier, identifier, expected):
-    response = ajax_client.post(reverse("book:change_supplier_cct_unit"), {"pk": supplier["paris"].pk, "cct_identifier": identifier})
+    response = ajax_client.post(
+        reverse("book:change_supplier_cct_unit"),
+        {"pk": supplier["paris"].pk, "cct_identifier": identifier},
+    )
 
     assert response.json() == {"success": "success"}
     assert _messages(response) == [(50, expected)]
@@ -209,8 +249,15 @@ def test_changement_unitaire_refuse(ajax_client, supplier, identifier, expected)
 
 def test_changement_unitaire_trace_sans_changement(ajax_client, supplier, monkeypatch):
     """Si la trace ne constate aucun changement, son message est renvoyé"""
-    with patched_attrs(monkeypatch, identifiers_views, trace_change=lambda *_a, **_k: (False, "Vous n'avez rien modifié !")):
-        response = ajax_client.post(reverse("book:change_supplier_cct_unit"), {"pk": supplier["paris"].pk, "cct_identifier": "NOUVEAU|"})
+    with patched_attrs(
+        monkeypatch,
+        identifiers_views,
+        trace_change=lambda *_a, **_k: (False, "Vous n'avez rien modifié !"),
+    ):
+        response = ajax_client.post(
+            reverse("book:change_supplier_cct_unit"),
+            {"pk": supplier["paris"].pk, "cct_identifier": "NOUVEAU|"},
+        )
 
     assert _messages(response) == [(50, "Vous n'avez rien modifié !")]
     assert ChangesTrace.objects.count() == 0
@@ -218,7 +265,10 @@ def test_changement_unitaire_trace_sans_changement(ajax_client, supplier, monkey
 
 def test_changement_unitaire_formulaire_invalide(ajax_client, supplier, caplog):
     with caplog.at_level(logging.ERROR, logger="views"):
-        response = ajax_client.post(reverse("book:change_supplier_cct_unit"), {"pk": supplier["paris"].pk, "cct_identifier": "x" * 151})
+        response = ajax_client.post(
+            reverse("book:change_supplier_cct_unit"),
+            {"pk": supplier["paris"].pk, "cct_identifier": "x" * 151},
+        )
 
     assert response.json() == {"success": "success"}
     assert _messages(response)[0][0] == 50
@@ -226,7 +276,12 @@ def test_changement_unitaire_formulaire_invalide(ajax_client, supplier, caplog):
 
 
 def test_changement_unitaire_identifiant_inconnu(ajax_client, supplier):
-    assert ajax_client.post(reverse("book:change_supplier_cct_unit"), {"pk": 999999, "cct_identifier": "A|"}).status_code == 404
+    assert (
+        ajax_client.post(
+            reverse("book:change_supplier_cct_unit"), {"pk": 999999, "cct_identifier": "A|"}
+        ).status_code
+        == 404
+    )
 
 
 # EXPORT EXCEL =====================================================================================
@@ -236,7 +291,9 @@ def test_export_des_identifiants(logged_client, supplier):
     response = logged_client.get(reverse("book:export_list_supplier_cct", args=["FOUR001"]))
 
     assert response.status_code == 200
-    assert response["Content-Disposition"].startswith("attachment; filename=Identifiants_cct_FOUR001_")
+    assert response["Content-Disposition"].startswith(
+        "attachment; filename=Identifiants_cct_FOUR001_"
+    )
     assert response.content[:2] == b"PK"
 
 
@@ -252,7 +309,10 @@ def test_export_des_identifiants_en_erreur(logged_client, supplier, monkeypatch,
     def _boom(*_args, **_kwargs):
         raise RuntimeError("excel cassé")
 
-    with patched_attrs(monkeypatch, identifiers_views, excel_liste_supplier_cct=_boom), caplog.at_level(logging.ERROR, logger="views"):
+    with (
+        patched_attrs(monkeypatch, identifiers_views, excel_liste_supplier_cct=_boom),
+        caplog.at_level(logging.ERROR, logger="views"),
+    ):
         response = logged_client.get(reverse("book:export_list_supplier_cct", args=["FOUR001"]))
 
     assert response.status_code == 302
@@ -263,4 +323,7 @@ def test_export_des_identifiants_en_erreur(logged_client, supplier, monkeypatch,
 
 
 def test_export_des_identifiants_tiers_inconnu(logged_client):
-    assert logged_client.post(reverse("book:export_list_supplier_cct", args=["ABSENT"])).status_code == 404
+    assert (
+        logged_client.post(reverse("book:export_list_supplier_cct", args=["ABSENT"])).status_code
+        == 404
+    )

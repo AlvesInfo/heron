@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'app periods (formulaire de mois, modèle Periode, fixtures)
+"""FR : Tests de l'app periods (formulaire de mois, modèle Periode, fixtures)
+
+
 EN : Tests for periods app
 
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import datetime
 import importlib
 
@@ -17,7 +19,14 @@ from django.db.utils import IntegrityError
 from apps.periods import urls as periods_urls
 from apps.periods.apps import PeriodsConfig
 from apps.periods.data_fixtures.insert_fixtures import fixtures_periodes
-from apps.periods.forms import MonthForm, YearForm, YearPassedForm, get_month_choices, get_year_choices, get_year_passed_choices
+from apps.periods.forms import (
+    MonthForm,
+    YearForm,
+    YearPassedForm,
+    get_month_choices,
+    get_year_choices,
+    get_year_passed_choices,
+)
 from apps.periods.models import Periode
 
 
@@ -39,7 +48,9 @@ def test_choix_des_mois():
     expected_initial = f"{previous.start_of('month').date().isoformat()}_{previous.end_of('month').date().isoformat()}"
 
     assert len(choices["periods"]) == 25
-    assert choices["periods"][0][0].startswith(now.subtract(months=12).start_of("month").date().isoformat())
+    assert choices["periods"][0][0].startswith(
+        now.subtract(months=12).start_of("month").date().isoformat()
+    )
     assert choices["initial"][0] == expected_initial
     assert choices["initial"][1] == previous.format("MMMM YYYY", locale="fr").capitalize()
 
@@ -86,7 +97,10 @@ def test_annees_facturees_sans_facture():
     """Sans facture de vente : seule l'année en cours est proposée"""
     year = pendulum.now().year
 
-    assert get_year_passed_choices() == {"initial": (str(year), f"Année {year}"), "periods": [(str(year), f"Année {year}")]}
+    assert get_year_passed_choices() == {
+        "initial": (str(year), f"Année {year}"),
+        "periods": [(str(year), f"Année {year}")],
+    }
     assert YearPassedForm({"periode": str(year)}).is_valid()
     assert YearPassedForm({"periode": str(year - 1)}).is_valid() is False
 
@@ -110,16 +124,19 @@ def test_annees_facturees_depuis_la_premiere_facture(make_sale_invoice):
 
 @pytest.mark.django_db
 def test_modele_periode():
-    periode = Periode.objects.create(
-        year=2026, period_type="Mois", wording="Janvier 2026", start_date=datetime.date(2026, 1, 1), end_date=datetime.date(2026, 1, 31)
-    )
+    values = {
+        "year": 2026,
+        "period_type": "Mois",
+        "wording": "Janvier 2026",
+        "start_date": datetime.date(2026, 1, 1),
+        "end_date": datetime.date(2026, 1, 31),
+    }
+    periode = Periode.objects.create(**values)
 
     assert str(periode) == "2026 - Mois - Janvier 2026"
 
     with pytest.raises(IntegrityError):
-        Periode.objects.create(
-            year=2026, period_type="Mois", wording="Janvier 2026", start_date=datetime.date(2026, 1, 1), end_date=datetime.date(2026, 1, 31)
-        )
+        Periode.objects.create(**values)
 
 
 @pytest.mark.django_db
@@ -130,7 +147,9 @@ def test_fixtures_periodes(monkeypatch):
 
     assert count > 700
     assert Periode.objects.filter(year=2011, period_type="Année").count() == 1
-    assert Periode.objects.get(year=2011, wording="Janvier 2011").end_date == datetime.date(2011, 1, 31)
+    assert Periode.objects.get(year=2011, wording="Janvier 2011").end_date == datetime.date(
+        2011, 1, 31
+    )
 
     fixtures_periodes()
     assert Periode.objects.count() == count

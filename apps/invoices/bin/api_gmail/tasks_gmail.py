@@ -1,6 +1,6 @@
-"""
-FR : Tâches Celery pour l'envoi des factures via l'API Gmail
-EN : Celery tasks for sending invoices via Gmail API
+"""FR : Tâches Celery pour l'envoi des factures via l'API Gmail.
+
+EN : Celery tasks for sending invoices via Gmail API.
 
 Commentaire:
 Ce module contient les tâches Celery pour envoyer les factures
@@ -13,25 +13,27 @@ Avantages par rapport à SMTP:
 - Moins d'erreurs de connexion
 
 created at: 2025-01-10
-created by: Paulo ALVES 
+created by: Paulo ALVES
 """
 
 import time
-from typing import AnyStr, Dict
+from pathlib import Path
 
 import pendulum
-from celery import shared_task
-from django.db.models import Count
 from bs4 import BeautifulSoup
+from celery import shared_task
+from django.db import connection
+from django.db.models import Count
+from pydantic.error_wrappers import ValidationError
 
-from heron.loggers import LOGGER_EMAIL
 from apps.core.bin.clean_celery import clean_memory
-from apps.users.models import User
+from apps.core.functions.functions_setups import settings
+from apps.core.functions.functions_validations import CheckEmail
 from apps.data_flux.trace import get_trace
 from apps.invoices.models import SaleInvoice
 from apps.parameters.models import Email
-from apps.core.functions.functions_setups import settings
-from pathlib import Path
+from apps.users.models import User
+from heron.loggers import LOGGER_EMAIL
 
 from .sender import sender
 
@@ -39,14 +41,14 @@ from .sender import sender
 @shared_task(name="celery_send_invoices_emails_gmail")
 @clean_memory
 def launch_celery_send_invoice_mails_gmail(
-    user_pk: AnyStr, job_id: str, cct: AnyStr = None, period: AnyStr = None
+    user_pk: str, job_id: str, cct: str | None = None, period: str | None = None
 ):
-    """
-    Main pour lancement de l'envoi des factures par mails via l'API Gmail
+    """Main pour lancement de l'envoi des factures par mails via l'API Gmail.
+
     :param user_pk: pk de l'utilisateur qui a lancé le process
     :param job_id: identifiant du job
     :param cct: cct de la facture à envoyer
-    :param period: période de la facturation
+    :param period: période de la facturation.
     """
     LOGGER_EMAIL.info(
         "Début de l'envoi des factures par email via l'API Gmail "
@@ -119,9 +121,7 @@ def launch_celery_send_invoice_mails_gmail(
 
     try:
         # Envoi en masse via l'API Gmail
-        LOGGER_EMAIL.info(
-            "Envoi de %d factures via l'API Gmail...", len(email_list)
-        )
+        LOGGER_EMAIL.info("Envoi de %d factures via l'API Gmail...", len(email_list))
         nb_success, nb_errors, results = sender.send_mass_mail(email_list=email_list, job_id=job_id)
 
         # Mise à jour des factures envoyées avec succès
@@ -191,25 +191,17 @@ def launch_celery_send_invoice_mails_gmail(
         }
 
     except Exception as error:
-        LOGGER_EMAIL.exception(
-            "Erreur lors de l'envoi des factures via l'API Gmail: %s", error
-        )
+        LOGGER_EMAIL.exception("Erreur lors de l'envoi des factures via l'API Gmail")
         return {"success": False, "error": str(error)}
 
 
-def prepare_invoice_email_data(context_dict: Dict):
-    """
-    Prépare les données pour l'envoi d'une facture par email
-    :param context_dict: Dictionnaire des éléments pour l'envoi d'emails
-    :return: Dictionnaire avec les données préparées ou None si erreur
-    """
-    from django.db import connection
-    from apps.core.functions.functions_validations import CheckEmail
-    from pydantic.error_wrappers import ValidationError
+def prepare_invoice_email_data(context_dict: dict):
+    """Prépare les données pour l'envoi d'une facture par email.
 
-    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / context_dict.get(
-        "global_invoice_file"
-    )
+    :param context_dict: Dictionnaire des éléments pour l'envoi d'emails
+    :return: Dictionnaire avec les données préparées ou None si erreur.
+    """
+    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / context_dict["global_invoice_file"]
 
     if not file_path.exists():
         LOGGER_EMAIL.error("Fichier non trouvé: %s", file_path)
@@ -282,11 +274,7 @@ def prepare_invoice_email_data(context_dict: Dict):
             if i == 0:
                 context_email["cct"] = cct_name
                 context_email["synthese"] = (
-                    f"<p "
-                    f'style="'
-                    f"padding: 0;"
-                    f"margin: 0 0 10px 0;"
-                    f'font-size: 11pt;">{synthese}</p>'
+                    f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">{synthese}</p>'
                 )
                 context_email["service"] = service
                 context_email["centrale"] = center
@@ -306,8 +294,7 @@ def prepare_invoice_email_data(context_dict: Dict):
                         pass
 
             context_email["factures"] += (
-                f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">'
-                f"{invoice}</p>"
+                f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">{invoice}</p>'
             )
 
     # Filtre les emails vides
@@ -339,12 +326,12 @@ def prepare_invoice_email_data(context_dict: Dict):
 
 @shared_task(name="send_invoice_email_gmail")
 @clean_memory
-def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
-    """
-    Envoi d'une seule facture par mail via l'API Gmail
+def send_invoice_email_gmail(context_dict: dict, user_pk: int):
+    """Envoi d'une seule facture par mail via l'API Gmail.
+
     Cette tâche peut être utilisée pour envoyer une facture individuelle
     :param context_dict: dictionnaire des éléments pour l'envoi d'emails
-    :param user_pk: pk de l'utilisateur qui a lancé le process
+    :param user_pk: pk de l'utilisateur qui a lancé le process.
     """
     start_initial = time.time()
 
@@ -357,18 +344,13 @@ def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
 
         if not invoice_data:
             to_print = (
-                f"Pas de données valides pour l'email : "
-                f"{context_dict.get('global_invoice_file')}"
+                f"Pas de données valides pour l'email : {context_dict.get('global_invoice_file')}"
             )
         else:
             # Envoi de l'email
-            mail_to, subject, text, html, context, attachments = invoice_data[
-                "email_tuple"
-            ]
+            mail_to, subject, text, html, context, attachments = invoice_data["email_tuple"]
 
-            result = sender.send_message(
-                mail_to, subject, text, html, context, attachments
-            )
+            result = sender.send_message(mail_to, subject, text, html, context, attachments)
 
             file_path = invoice_data["file_path"]
 
@@ -405,16 +387,13 @@ def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
                     comment=f"Erreur lors de l'envoi: {result.error}",
                 )
                 trace.errors = True
-                to_print = (
-                    f"Error - Have Not send invoice email !: {file_path.name} - "
-                )
+                to_print = f"Error - Have Not send invoice email !: {file_path.name} - "
 
             trace.created_by = User.objects.get(pk=user_pk)
 
-    except Exception as except_error:
+    except Exception:
         LOGGER_EMAIL.exception(
-            f"Exception Générale: send_invoice_email_gmail : "
-            f"{context_dict.get('cct')}\n{except_error!r}"
+            "Exception Générale: send_invoice_email_gmail : %s", context_dict.get("cct")
         )
 
     finally:
@@ -423,16 +402,14 @@ def send_invoice_email_gmail(context_dict: Dict, user_pk: int):
             trace.save()
 
     LOGGER_EMAIL.warning(
-        to_print
-        + (
-            f"Envoi de la facture par mail {context_dict.get('cct')} "
-            f": {time.time() - start_initial} s "
-        )
+        "%sEnvoi de la facture par mail %s : %s s ",
+        to_print,
+        context_dict.get("cct"),
+        time.time() - start_initial,
     )
 
     return {
         "Envoi de la facture par mail : ": (
-            f"cct : {str(context_dict.get('cct'))} "
-            f"- {time.time() - start_initial} s"
+            f"cct : {context_dict.get('cct')!s} - {time.time() - start_initial} s"
         )
     }

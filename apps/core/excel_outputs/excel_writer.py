@@ -1,5 +1,6 @@
-"""Module de simplification de l'écriture des titres de feuilles, date d'édition du fichier et
-entêtes
+"""Module de simplification de l'écriture des titres de feuilles, date d'édition du fichier et.
+
+entêtes.
 
 créé le : 22/11/2020
 par : Paulo ALVES
@@ -43,8 +44,9 @@ f_ligne = {
 }
 
 
-def titre_page_writer(excel, sheet, row, col, columns_list, titre, merge=False):
-    """Ecriture sur la feuille excel, du titre général
+def titre_page_writer(excel, sheet, row, col, columns_list, titre, *, merge=False):
+    """Ecriture sur la feuille excel, du titre général.
+
     :param excel: feuille excel
     :param sheet: n° de feuille excel
     :param row: ligne
@@ -52,7 +54,7 @@ def titre_page_writer(excel, sheet, row, col, columns_list, titre, merge=False):
     :param columns_list: liste des colonnes
     :param titre: titre à écrire
     :param merge: si le titre doit être mergé
-    :return: None
+    :return: None.
     """
     nb_col = len(columns_list)
 
@@ -66,13 +68,14 @@ def titre_page_writer(excel, sheet, row, col, columns_list, titre, merge=False):
 
 
 def output_day_writer(excel, sheet, row, col, dict_format=None):
-    """Mise en place de la date d'édition
+    """Mise en place de la date d'édition.
+
     :param excel: feuille excel
     :param sheet: n° de feuille excel
     :param row: ligne
     :param col: colonne
     :param dict_format: dictionnaire des formats souhaités
-    :return: None
+    :return: None.
     """
     formatage = dict_format or f_edit
     edite = f"Edité, le {pendulum.today().format('DD MMMM YYYY', locale='fr')}"
@@ -80,14 +83,15 @@ def output_day_writer(excel, sheet, row, col, dict_format=None):
 
 
 def columns_headers_writer(excel, sheet: int, num_row: int, num_col: int, columns_list):
-    """Ecriture sur la feuille excel, du titre de la feuille"""
+    """Ecriture sur la feuille excel, du titre de la feuille."""
     entetes_list = [dict_row.get("entete") for dict_row in columns_list]
     formats_list = [dict_row.get("f_entete") for dict_row in columns_list]
     excel.write_rows(sheet, num_row, num_col, entetes_list, formats_list)
 
 
 def sheet_formatting(excel, sheet: int, columns_list, dict_args=None):
-    """Formatage des largeurs de colonnes et du format à l'impression
+    """Formatage des largeurs de colonnes et du format à l'impression.
+
     :param excel:
     :param sheet:
     :param columns_list:
@@ -129,4 +133,3 @@ def sheet_formatting(excel, sheet: int, columns_list, dict_args=None):
 
     if not_display_zero:
         excel.excel_sheet(sheet).hide_zero()
-

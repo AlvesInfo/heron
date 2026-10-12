@@ -1,19 +1,18 @@
-"""
-Forms des Parameters
-"""
+"""Forms des Parameters."""
+
 from django import forms
 
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
-from apps.parameters.models import Category, SubCategory, DefaultAxeArticle
+from apps.parameters.models import Category, DefaultAxeArticle, SubCategory
 
 
 class CategoryForm(forms.ModelForm):
-    """Form pour les Grandes catégories"""
+    """Form pour les Grandes catégories."""
 
     use_required_attribute = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = Category
         fields = (
@@ -24,12 +23,12 @@ class CategoryForm(forms.ModelForm):
 
 
 class SubCategoryForm(forms.ModelForm):
-    """Form pour les Rubriques presta'"""
+    """Form pour les Rubriques presta'."""
 
     use_required_attribute = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = SubCategory
         fields = (
@@ -45,31 +44,31 @@ class SubCategoryForm(forms.ModelForm):
 
 
 class DeleteSubCategoryForm(forms.ModelForm):
-    """Form pour la suppression des Rubriques Presta"""
+    """Form pour la suppression des Rubriques Presta."""
 
     # Le champ id (AutoField) n'est pas généré par le ModelForm : déclaré pour valider l'existence
     id = forms.ModelChoiceField(queryset=SubCategory.objects.all())
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = SubCategory
-        fields = ("id", )
+        fields = ("id",)
 
 
 class DefaultAxeArticleForm(forms.ModelForm):
-    """Form d'Update des axes par défaut des articles"""
+    """Form d'Update des axes par défaut des articles."""
 
     use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         self.fields["sub_category"].required = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = DefaultAxeArticle
         fields = (

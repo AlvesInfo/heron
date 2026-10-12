@@ -1,6 +1,5 @@
-"""
-Aides partagées des tests de saisie manuelle (set_hand_invoices, vue create_hand_invoices)
-"""
+"""Aides partagées des tests de saisie manuelle (set_hand_invoices, vue create_hand_invoices)"""
+
 import datetime
 import uuid
 from decimal import Decimal
@@ -9,7 +8,9 @@ from typing import Any
 from apps.accountancy.models import VatRatSage
 
 
-def make_vat_rate(make_vat, vat: str = "001", rate: str = "20", vat_regime: str = "FRA") -> VatRatSage:
+def make_vat_rate(
+    make_vat, vat: str = "001", rate: str = "20", vat_regime: str = "FRA"
+) -> VatRatSage:
     """Taux de TVA Sage applicable depuis 2014 (le tiers vat est créé s'il n'existe pas)"""
     return VatRatSage.objects.create(
         vat=make_vat(vat, vat_regime),

@@ -1,4 +1,4 @@
-"""Module de validation des flux à intégrer en BDD
+"""Module de validation des flux à intégrer en BDD.
 
 Instances de validation implémentées :
     - forms.Form et forms.ModelForm de Django
@@ -14,60 +14,60 @@ created by: Paulo ALVES
 modified at: 2021-10-30
 modified by: Paulo ALVES
 """
+
 import csv
-from itertools import chain
 import uuid
-from typing import Any, Dict, Iterable
+from collections.abc import Iterable
+from itertools import chain
+from typing import Any
 
 import pendulum
 import pydantic
-from pydantic import BaseModel
-from djantic import ModelSchema
-from rest_framework import serializers as seria
-
 from django import forms
 from django.db import connection, models
 from django.db.models import Count, Q
 from django.utils import timezone
+from djantic import ModelSchema
+from pydantic import BaseModel
+from rest_framework import serializers as seria
 
 # noinspection PyCompatibility
 from heron.loggers import LOGGER_VALIDATION
+
 from .exceptions import (
+    FluxtypeError,
+    IsValidError,
     ValidationError,
     ValidationFormError,
-    IsValidError,
-    FluxtypeError,
 )
-from .models import Trace, Line, Error
+from .models import Error, Line, Trace
 
 
 class TraceTemplate:
-    """
-    Implémentation de sauvegarde de traces d'import de flux
-    """
+    """Implémentation de sauvegarde de traces d'import de flux."""
 
-    def __init__(self, params_dict: Dict):
-        """
-        :param params_dict: Dictionnaire des paramètres :
-                            params_dict = {
+    def __init__(self, params_dict: dict):
+        """:param params_dict: Dictionnaire des paramètres :
 
-                                # Instance de trace au cas où l'on veut suivre de bout en bout
-                                "trace": Trace.instance
+        params_dict = {
 
-                                # Numéro de suivi de trace de bout en bout
-                                "trace_uuid": "uuid4"
+            # Instance de trace au cas où l'on veut suivre de bout en bout
+            "trace": Trace.instance
 
-                                # Nom de la trace de bout en bout
-                                "trace_name": "trace_name"
+            # Numéro de suivi de trace de bout en bout
+            "trace_uuid": "uuid4"
 
-                                # Nom du fichier de bout en bout
-                                "file_name": "trace_name"
+            # Nom de la trace de bout en bout
+            "trace_name": "trace_name"
 
-                                # Application ou user ayant envoyé le flux
-                                "application_name": "application_name"
+            # Nom du fichier de bout en bout
+            "file_name": "trace_name"
 
-                                # Nom du flux pour le nommage des erreurs du fichier, api, ...
-                                "flow_name": "flow_name",
+            # Application ou user ayant envoyé le flux
+            "application_name": "application_name"
+
+            # Nom du flux pour le nommage des erreurs du fichier, api, ...
+            "flow_name": "flow_name",
         """
         self.trace_number = params_dict.get("trace_uuid") or uuid.uuid4()
         self.params_dict = params_dict
@@ -75,10 +75,8 @@ class TraceTemplate:
         self.errors = False
 
     def initialize(self):
-        """
-        Initialisation de la Trace
-        """
-        LOGGER_VALIDATION.info('AVANT INITIALIZE')
+        """Initialisation de la Trace."""
+        LOGGER_VALIDATION.info("AVANT INITIALIZE")
         self.trace = Trace.objects.create(
             created_at=timezone.now(),
             uuid_identification=self.trace_number,
@@ -92,22 +90,25 @@ class TraceTemplate:
             errors_numbers_records=0,
             unknown_numbers_records=0,
         )
-        LOGGER_VALIDATION.info("%s %s", 'APRES INITIALIZE', self.trace)
+        LOGGER_VALIDATION.info("%s %s", "APRES INITIALIZE", self.trace)
         return self.trace
 
     def get_formatted_error(self, error_validator):
-        """
-        Formatage de l'erreur passée en paramètre
+        """Formatage de l'erreur passée en paramètre.
+
         :param error_validator: Erreur arrivée du validateur
-        :return: Dict
+        :return: Dict.
         """
         raise NotImplementedError
 
     def add_line(
-        self, insertion_type: str = "Unknown", num_line: int = None, designation: str = None
+        self,
+        insertion_type: str = "Unknown",
+        num_line: int | None = None,
+        designation: str | None = None,
     ):
-        """
-        Ajoute une ligne à l'instance self.trace_instance
+        """Ajoute une ligne à l'instance self.trace_instance.
+
         :param insertion_type:  Type d'insertion dans la table:
                                     "Create"  Pour une ligne en création
                                     "Update"  Pour une ligne en update
@@ -115,7 +116,7 @@ class TraceTemplate:
                                     "Passed"  Pour une ligne en update
                                     "Unknown" Pour une ligne en inconnue sera mis par défaut
         :param num_line:        N° de ligne traitée
-        :param designation:     Désignation de la ligne à inserrer
+        :param designation:     Désignation de la ligne à inserrer.
         """
         insertion_dict = {
             "Create": "cette ligne à bien été créée",
@@ -125,20 +126,17 @@ class TraceTemplate:
             "Unknown": "Cette ligne n'a pas été traitée",
         }
         uuid_line_identification = uuid.uuid4()
-        line = Line.objects.create(
-            **{
-                "uuid_identification": uuid_line_identification,
-                "trace": self.trace,
-                "insertion_type": insertion_type,
-                "num_line": num_line,
-                "designation": designation or insertion_dict.get(insertion_type),
-            }
+        return Line.objects.create(
+            uuid_identification=uuid_line_identification,
+            trace=self.trace,
+            insertion_type=insertion_type,
+            num_line=num_line,
+            designation=designation or insertion_dict.get(insertion_type),
         )
-        return line
 
-    def add_error(self, num_line: str, error: Any):
-        """
-        Ajout d'une ligne d'erreur dans la trace
+    def add_error(self, num_line: int, error: Any):
+        """Ajout d'une ligne d'erreur dans la trace.
+
         :param num_line: N° de ligne traitée
         :param error:    Erreurs venant de la validation. Les erreurs par lignes seront traduitent
                          par la trace du validator qui sera organisé comme suit:
@@ -162,7 +160,7 @@ class TraceTemplate:
                                     "data_received": "donnée_01 reçue",
                                  },
                              ], ...
-                         }
+                         }.
         """
         self.errors = True
         # un message brut (erreur de flux ou d'appel) n'a pas de validateur à formater
@@ -174,25 +172,21 @@ class TraceTemplate:
         line = self.add_line(insertion_type="Errors", num_line=num_line)
 
         for attr_name, errors_list in formatted_errors.items():
-
             Error.objects.bulk_create(
                 [
                     Error(
-                        **{
-                            "line": line,
-                            "attr_name": attr_name,
-                            "message": messages_dict.get("message"),
-                            "data_expected": messages_dict.get("data_expected"),
-                            "data_received": messages_dict.get("data_received"),
-                        }
+                        line=line,
+                        attr_name=attr_name,
+                        message=messages_dict.get("message"),
+                        data_expected=messages_dict.get("data_expected"),
+                        data_received=messages_dict.get("data_received"),
                     )
                     for messages_dict in errors_list
                 ]
             )
 
     def save(self):
-        """Sauvegarde de l'ensemble de la trace y compris les lignes et les erreurs"""
-
+        """Sauvegarde de l'ensemble de la trace y compris les lignes et les erreurs."""
         # Sauvegarde finale, pour le comptage des differents état des enregistrements
         create = Count("insertion_type", filter=Q(insertion_type="Create"))
         update = Count("insertion_type", filter=Q(insertion_type="Update"))
@@ -215,18 +209,18 @@ class TraceTemplate:
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-            update data_flux_error err 
+            update data_flux_error err
             set file_column = maj.file_column
             from (
                 select dfe.id, ec.file_column
-                from data_flux_trace dft  
-                join data_flux_line dfl 
-                on dft.uuid_identification = dfl.trace 
-                join data_flux_error dfe 
-                on dfl.uuid_identification = dfe.line 
-                join edi_columndefinition ec  
-                on dft.flow_name = ec.flow_name 
-                and dfe.attr_name = ec.attr_name 
+                from data_flux_trace dft
+                join data_flux_line dfl
+                on dft.uuid_identification = dfl.trace
+                join data_flux_error dfe
+                on dfl.uuid_identification = dfe.line
+                join edi_columndefinition ec
+                on dft.flow_name = ec.flow_name
+                and dfe.attr_name = ec.attr_name
                 where dft.uuid_identification = %(uuid_identification)s
                 and dfe.file_column isnull
             ) maj
@@ -237,13 +231,11 @@ class TraceTemplate:
 
 
 class DjangoTrace(TraceTemplate):
-    """
-    Formate la sortie des erreurs de validation pour les formulaires Django
-    """
+    """Formate la sortie des erreurs de validation pour les formulaires Django."""
 
     def get_formatted_error(self, error_validator):
-        """
-        Formatage de l'erreur passée en paramètre
+        """Formatage de l'erreur passée en paramètre.
+
         :param error_validator: Erreur arrivée du validateur
         :return: {
                     "champ_00": [
@@ -265,9 +257,9 @@ class DjangoTrace(TraceTemplate):
                                         "data_received": "donnée_01 reçue",
                                     },
                     ], ...
-                }
+                }.
         """
-        error_dict = {
+        return {
             key: [
                 {
                     "message": str(value),
@@ -279,17 +271,14 @@ class DjangoTrace(TraceTemplate):
             ]
             for key, row in error_validator.errors.items()
         }
-        return error_dict
 
 
 class DrfTrace(TraceTemplate):
-    """
-    Formate la sortie des erreurs de validation pour les serializers DRF
-    """
+    """Formate la sortie des erreurs de validation pour les serializers DRF."""
 
     def get_formatted_error(self, error_validator):
-        """
-        Formatage de l'erreur passée en paramètre
+        """Formatage de l'erreur passée en paramètre.
+
         :param error_validator: Erreur arrivée du validateur
         :return: {
                     "champ_00": [
@@ -311,10 +300,10 @@ class DrfTrace(TraceTemplate):
                                         "data_received": "donnée_01 reçue"
                                     },
                     ], ...
-                }
+                }.
         """
         try:
-            error_dict = {
+            return {
                 key: [
                     {
                         "message": str(value),
@@ -326,7 +315,6 @@ class DrfTrace(TraceTemplate):
                 ]
                 for key, row in error_validator.errors.items()
             }
-            return error_dict
         except AssertionError as except_error:
             LOGGER_VALIDATION.exception("Erreur sur DrfTrace.get_formatted_error")
             raise IsValidError(
@@ -335,13 +323,11 @@ class DrfTrace(TraceTemplate):
 
 
 class PydanticTrace(TraceTemplate):
-    """
-    Formate la sortie des erreurs de validation pour les models Pydantic
-    """
+    """Formate la sortie des erreurs de validation pour les models Pydantic."""
 
     def get_formatted_error(self, error_validator):
-        """
-        Formatage de l'erreur passée en paramètre
+        """Formatage de l'erreur passée en paramètre.
+
         :param error_validator: Erreur arrivée du validateur,
                                 sous forme de tuple (erreurs, data_received)
         :return: {
@@ -364,10 +350,10 @@ class PydanticTrace(TraceTemplate):
                                         "data_received": "donnée_01 reçue"
                                     },
                     ], ...
-                }
+                }.
         """
         errors_dict, data_dict = error_validator
-        error_dict = {
+        return {
             ", ".join(dict_row.get("loc")): [
                 {
                     "message": dict_row.get("msg"),
@@ -378,12 +364,12 @@ class PydanticTrace(TraceTemplate):
             ]
             for dict_row in errors_dict
         }
-        return error_dict
 
 
 def get_columns(validator, default: Iterable) -> list:
-    """Colonnes à écrire dans le fichier des données validées : celles de validator.Config.include
-    (schémas djantic / pydantic), sinon les champs validés
+    """Colonnes à écrire dans le fichier des données validées : celles de validator.Config.include.
+
+    (schémas djantic / pydantic), sinon les champs validés.
     """
     config = getattr(validator, "Config", None)
 
@@ -391,26 +377,16 @@ def get_columns(validator, default: Iterable) -> list:
 
 
 class ValidationTemplate:
-    """Template de validation"""
+    """Template de validation."""
 
     def __init__(
         self,
-        validators: [
-            [
-                BaseModel,
-                ModelSchema,
-                seria.Serializer,
-                seria.ModelSerializer,
-                forms.Form,
-                forms.ModelForm,
-            ],
-            TraceTemplate,
-        ],
-        dict_flow: Iterable[Dict],
-        params_dict: Dict,
+        validators: tuple,
+        dict_flow: Iterable[dict],
+        params_dict: dict,
     ):
-        """
-        :param validators:  Tuple formé d'un Form Validateur et de la class Errors du Validateur
+        """:param validators:  Tuple formé d'un Form Validateur et de la class Errors du Validateur
+
         :param dict_flow:   Itérable de dict, pour validation par **kwargs
         :param params_dict: Dictionnaire des paramètres :
                                 params_dict = {
@@ -456,19 +432,22 @@ class ValidationTemplate:
                                     "file_io": file_io
                                 }
         """
-        # TODO : Finir d'implémenter la sauvegarde des clés étangères et contraintes d'unicité
+        # Limitation connue : sauvegarde des clés étrangères et contraintes d'unicité non implémentée
         self.validator_class, self.trace_class = validators
         self.trace_instance = self.trace_class(params_dict)
         self.dict_flow = dict_flow
-        self.first_element = next(iter(dict_flow))
+        self.first_element: Any = next(iter(dict_flow))
         self.trace = 0
         self.params_dict = params_dict
 
     def _add_line(
-        self, insertion_type: str = "Unknown", num_line: int = None, designation: str = None
+        self,
+        insertion_type: str = "Unknown",
+        num_line: int | None = None,
+        designation: str | None = None,
     ):
-        """
-        Ajoute une ligne à l'instance self.trace_instance
+        """Ajoute une ligne à l'instance self.trace_instance.
+
         :param insertion_type:  Type d'insertion dans la table:
                                     "Create"  Pour une ligne en création
                                     "Update"  Pour une ligne en update
@@ -476,36 +455,34 @@ class ValidationTemplate:
                                     "Passed"  Pour une ligne en update
                                     "Unknown" Pour une ligne en inconnue sera mis par défaut
         :param num_line:        N° de ligne traitée
-        :param designation:     Désignation de la ligne à inserrer
+        :param designation:     Désignation de la ligne à inserrer.
         """
         self.trace_instance.add_line(insertion_type, num_line, designation)
 
     def _add_error(self, line, error):
-        """
-        Ajoute une erreur à l'instance self.trace_instance
+        """Ajoute une erreur à l'instance self.trace_instance.
+
         :param line: N° de ligne traitée
-        :param error: erreur sur la ligne concernée
+        :param error: erreur sur la ligne concernée.
         """
         self.trace_instance.add_error(line, error)
 
     def _save_errors_trace(self):
-        """
-        Sauvergarde toutes les erreurs de l'instance self.trace_instance
-        """
+        """Sauvergarde toutes les erreurs de l'instance self.trace_instance."""
         self.trace_instance.save()
 
     def is_valid(self, validator, data_dict, csv_writer):
-        """
-        Validation des données par la méthode is_valid
+        """Validation des données par la méthode is_valid.
+
         :param validator:  Validateur
         :param data_dict:  Dictionnaire des données à valider
         :param csv_writer: csv_writer pour écrire les données cleannées, dans un fichier io.StringIO
-        :return: None ou errors
+        :return: None ou errors.
         """
         raise NotImplementedError
 
     def validate(self):
-        """Lancement de la validation"""
+        """Lancement de la validation."""
         if not isinstance(self.first_element, (dict,)):
             now = pendulum.now().format(r"\du dddd DD MMMM YYYY à HH:MM:SS", locale="fr")
             self._add_error(
@@ -520,7 +497,7 @@ class ValidationTemplate:
         lines = set()
         nb_errors = 0
         nb_errors_max = self.params_dict.get("nb_errors_max", 0)
-        file_io = self.params_dict.get("file_io")
+        file_io = self.params_dict["file_io"]
         csv_writer = csv.writer(
             file_io,
             delimiter=";",
@@ -530,7 +507,6 @@ class ValidationTemplate:
             escapechar='"',
         )
         try:
-
             for num_line, data_dict in enumerate(chain([self.first_element], self.dict_flow), 1):
                 error_message = self.is_valid(self.validator_class, data_dict, csv_writer)
 
@@ -565,26 +541,16 @@ class ValidationTemplate:
 
 
 class DjangoValidation(ValidationTemplate):
-    """Validation par les formulaires django"""
+    """Validation par les formulaires django."""
 
     def __init__(
         self,
-        validators: [
-            [
-                BaseModel,
-                ModelSchema,
-                seria.Serializer,
-                seria.ModelSerializer,
-                forms.Form,
-                forms.ModelForm,
-            ],
-            TraceTemplate,
-        ],
-        dict_flow: Dict,
-        params_dict: Dict,
+        validators: tuple,
+        dict_flow: dict,
+        params_dict: dict,
     ):
-        """
-        :param validators:  Tuple formé d'un Form Validateur et de la class Errors du Validateur
+        """:param validators:  Tuple formé d'un Form Validateur et de la class Errors du Validateur
+
         :param dict_flow:   Itérable de dict, pour validation par **kwargs
         :param params_dict: Dictionnaire des paramètres :
                                 params_dict = {}
@@ -592,12 +558,12 @@ class DjangoValidation(ValidationTemplate):
         super().__init__(validators, dict_flow, params_dict)
 
     def is_valid(self, validator, data_dict, csv_writer):
-        """
-        Validation des données par la méthode is_valid
+        """Validation des données par la méthode is_valid.
+
         :param validator:  Validateur
         :param data_dict:  Dictionnaire des données à valider
         :param csv_writer: csv_writer pour écrire les données cleannées, dans un fichier io.StringIO
-        :return: None ou errors
+        :return: None ou errors.
         """
         form = validator(data=data_dict)
 
@@ -612,26 +578,16 @@ class DjangoValidation(ValidationTemplate):
 
 
 class DrfValidation(ValidationTemplate):
-    """Validation par les formulaires de seririalisation Django Rest Framework"""
+    """Validation par les formulaires de seririalisation Django Rest Framework."""
 
     def __init__(
         self,
-        validators: [
-            [
-                BaseModel,
-                ModelSchema,
-                seria.Serializer,
-                seria.ModelSerializer,
-                forms.Form,
-                forms.ModelForm,
-            ],
-            TraceTemplate,
-        ],
-        dict_flow: Dict,
-        params_dict: Dict,
+        validators: tuple,
+        dict_flow: dict,
+        params_dict: dict,
     ):
-        """
-        :param validators:  Tuple formé d'un Form Validateur et de la class Errors du Validateur
+        """:param validators:  Tuple formé d'un Form Validateur et de la class Errors du Validateur
+
         :param dict_flow:   Itérable de dict, pour validation par **kwargs
         :param params_dict: Dictionnaire des paramètres :
                                 params_dict = {}
@@ -639,12 +595,12 @@ class DrfValidation(ValidationTemplate):
         super().__init__(validators, dict_flow, params_dict)
 
     def is_valid(self, validator, data_dict, csv_writer):
-        """
-        Validation des données par la méthode is_valid
+        """Validation des données par la méthode is_valid.
+
         :param validator:  Validateur
         :param data_dict:  Dictionnaire des données à valider
         :param csv_writer: csv_writer pour écrire les données cleannées, dans un fichier io.StringIO
-        :return: None ou errors
+        :return: None ou errors.
         """
         form = validator(data=data_dict)
 
@@ -659,26 +615,16 @@ class DrfValidation(ValidationTemplate):
 
 
 class PydanticValidation(ValidationTemplate):
-    """Validation par les formulaires django"""
+    """Validation par les formulaires django."""
 
     def __init__(
         self,
-        validators: [
-            [
-                BaseModel,
-                ModelSchema,
-                seria.Serializer,
-                seria.ModelSerializer,
-                forms.Form,
-                forms.ModelForm,
-            ],
-            TraceTemplate,
-        ],
-        dict_flow: Dict,
-        params_dict: Dict,
+        validators: tuple,
+        dict_flow: dict,
+        params_dict: dict,
     ):
-        """
-        :param validators:  Tuple formé d'un Form Validateur et de la class Errors du Validateur
+        """:param validators:  Tuple formé d'un Form Validateur et de la class Errors du Validateur
+
         :param dict_flow:   Itérable de dict, pour validation par **kwargs
         :param params_dict: Dictionnaire des paramètres :
                                 params_dict = {}
@@ -686,19 +632,19 @@ class PydanticValidation(ValidationTemplate):
         super().__init__(validators, dict_flow, params_dict)
 
     def is_valid(self, validator, data_dict, csv_writer):
-        """
-        Validation des données par la méthode is_valid
+        """Validation des données par la méthode is_valid.
+
         :param validator:  Validateur
         :param data_dict:  Dictionnaire des données à valider
         :param csv_writer: csv_writer pour écrire les données cleannées, dans un fichier io.StringIO
-        :return: None ou errors
+        :return: None ou errors.
         """
         try:
             form = validator(**data_dict)
             csv_writer.writerow([form.dict().get(key) for key in validator.Config.include])
 
         except (pydantic.error_wrappers.ValidationError, ValidationError) as except_error:
-            LOGGER_VALIDATION.exception(except_error)
+            LOGGER_VALIDATION.exception("Ligne refusée par le validateur")
             # une ValidationError du module n'a pas la méthode errors() de pydantic
             errors = (
                 except_error.errors()
@@ -711,26 +657,17 @@ class PydanticValidation(ValidationTemplate):
 
 
 class Validation:
-    """
-    Validation des modèles de données à intégrer en base
-    """
+    """Validation des modèles de données à intégrer en base."""
 
     def __init__(
         self,
-        dict_flow: Iterable[Dict],
+        dict_flow: Iterable[dict],
         model: models.Model,
-        validator: [
-            BaseModel,
-            ModelSchema,
-            seria.Serializer,
-            seria.ModelSerializer,
-            forms.Form,
-            forms.ModelForm,
-        ] = None,
-        params_dict: Dict = None,
+        validator: Any = None,
+        params_dict: dict | None = None,
     ):
-        """
-        :param dict_flow:   Itérable de dict, pour validation
+        """:param dict_flow:   Itérable de dict, pour validation
+
         :param model:       Model au sens Django
         :param validator:   Validateur de données peut être forms, serializer, pydantic, ....
         :param params_dict: Dictionnaire des paramètres :
@@ -770,13 +707,13 @@ class Validation:
         self.params_dict = params_dict or {}
         self.get_params_default()
         self.validator = validator
-        self.to_validate = None
+        self.to_validate: Any = None
         self.get_validation_instance()
 
     def get_params_default(self):
-        """
-        Attribue les valeurs par défaut nécéssaires pour la validation,
-        à l'attribut d'instance self.params_dict
+        """Attribue les valeurs par défaut nécéssaires pour la validation,.
+
+        à l'attribut d'instance self.params_dict.
         """
         if "application_name" not in self.params_dict:
             self.params_dict["application_name"] = "unkown"
@@ -791,8 +728,7 @@ class Validation:
             self.params_dict["insert_method"] = "insert"
 
     def get_validation_instance(self):
-        """Instancie le validateur désiré"""
-
+        """Instancie le validateur désiré."""
         if self.validator is None:
             validation_test = self.params_dict.get("validation")
 
@@ -810,7 +746,9 @@ class Validation:
                 )
 
             if not (isinstance(trace, type) and issubclass(trace, TraceTemplate)):
-                raise ValidationFormError("La class Trace doit être une sous-classe de TraceTemplate")
+                raise ValidationFormError(
+                    "La class Trace doit être une sous-classe de TraceTemplate"
+                )
 
         elif isinstance(self.validator, (type(forms.Form), type(forms.ModelForm))):
             validation = DjangoValidation
@@ -826,7 +764,7 @@ class Validation:
 
         else:
             raise ValidationFormError(
-                f"Le type de validateur {str(self.validator)}est inconnu "
+                f"Le type de validateur {self.validator!s}est inconnu "
                 "ou l'attribut 'validation' du paramètre params_dict est manquant"
             )
 
@@ -837,8 +775,6 @@ class Validation:
         )
 
     def validate(self):
-        """Lancement de la validation"""
-        self.params_dict.get("file_io").seek(0)
-        self.params_dict.get("file_io").seek(0)
-        error_lines = self.to_validate.validate()
-        return error_lines
+        """Lancement de la validation."""
+        self.params_dict["file_io"].seek(0)
+        return self.to_validate.validate()

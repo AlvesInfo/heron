@@ -1,4 +1,5 @@
 """Tests de la mise à jour des éléments figés pour la facturation (centrales, enseignes, parties)"""
+
 import importlib
 import platform
 import sys
@@ -42,8 +43,14 @@ def test_signboards_invoices_update(make_signboard):
 
 
 def test_parties_invoices_update(make_maison, make_society, make_country):
-    client = make_society("CLI001", invoice_entete="", immeuble="NONE", adresse="2 avenue", ville="Paris",
-                          pays=make_country("FR", "France"))
+    client = make_society(
+        "CLI001",
+        invoice_entete="",
+        immeuble="NONE",
+        adresse="2 avenue",
+        ville="Paris",
+        pays=make_country("FR", "France"),
+    )
     maison = make_maison("AF0001", third_party_num=client, immeuble=None, invoice_entete="")
 
     trace = mise_a_jour_loop.parties_invoices_update()
@@ -82,13 +89,21 @@ def test_process_update_erreur(monkeypatch, caplog):
     trace_holder = {}
 
     def failing():
-        trace_holder["trace"] = Trace.objects.create(trace_name="t", comment="init", created_numbers_records=0)
+        trace_holder["trace"] = Trace.objects.create(
+            trace_name="t", comment="init", created_numbers_records=0
+        )
         raise RuntimeError("boom")
 
-    with patched_attrs(
-        monkeypatch, mise_a_jour_loop,
-        centers_invoices_update=failing, signboards_invoices_update=lambda: None, parties_invoices_update=lambda: None,
-    ), caplog.at_level("ERROR", logger="imports"):
+    with (
+        patched_attrs(
+            monkeypatch,
+            mise_a_jour_loop,
+            centers_invoices_update=failing,
+            signboards_invoices_update=lambda: None,
+            parties_invoices_update=lambda: None,
+        ),
+        caplog.at_level("ERROR", logger="imports"),
+    ):
         mise_a_jour_loop.process_update()
 
     assert "boom" in caplog.text

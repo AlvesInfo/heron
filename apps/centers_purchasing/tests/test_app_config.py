@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de la configuration de l'app centers_purchasing (apps.py, urls, admin, packages)
+"""FR : Tests de la configuration de l'app centers_purchasing (apps.py, urls, admin, packages)
+
+
 EN : Tests for centers_purchasing app configuration
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import importlib
 
 import pytest
@@ -13,10 +15,12 @@ from django.apps import apps as django_apps
 from django.contrib import admin
 from django.db.models import BigAutoField
 
-from apps.centers_purchasing import forms as cp_forms
-from apps.centers_purchasing import models as cp_models
-from apps.centers_purchasing import urls as cp_urls
-from apps.centers_purchasing import views as cp_views
+from apps.centers_purchasing import (
+    forms as cp_forms,
+    models as cp_models,
+    urls as cp_urls,
+    views as cp_views,
+)
 from apps.centers_purchasing.apps import CentersPurchasingConfig
 
 
@@ -34,7 +38,9 @@ def test_admin_vide():
 
 
 def test_modeles_de_l_app():
-    assert {model.__name__ for model in django_apps.get_app_config("centers_purchasing").get_models()} == {
+    assert {
+        model.__name__ for model in django_apps.get_app_config("centers_purchasing").get_models()
+    } == {
         "Action",
         "PrincipalCenterPurchase",
         "ChildCenterPurchase",
@@ -65,7 +71,13 @@ def test_routes_du_module():
     assert cp_urls.app_name == "apps.centers_purchasing"
     assert len(names) == 37
     assert len(set(names)) == 37
-    assert {"meres_list", "fille_update", "enseigne_create", "type_facture_delete", "account_axe_import_file"} <= set(names)
+    assert {
+        "meres_list",
+        "fille_update",
+        "enseigne_create",
+        "type_facture_delete",
+        "account_axe_import_file",
+    } <= set(names)
 
 
 @pytest.mark.parametrize(

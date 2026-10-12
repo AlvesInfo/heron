@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests des modèles du répertoire des tiers (apps/book/models)
+"""FR : Tests des modèles du répertoire des tiers (apps/book/models)
+
+
 EN : Tests for directory models
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import pytest
 from django.db import IntegrityError, transaction
 from django.urls import reverse
@@ -43,8 +45,19 @@ def test_society_str_et_url(make_society):
 
 
 def test_society_choix_rfa():
-    assert [choice.label for choice in Society.Frequence] == ["---------", "Mensuel", "Trimestriel", "Semestriel", "Annuel"]
-    assert [choice.label for choice in Society.Remise] == ["---------", "Fournisseur Total", "Famille Article", "Article"]
+    assert [choice.label for choice in Society.Frequence] == [
+        "---------",
+        "Mensuel",
+        "Trimestriel",
+        "Semestriel",
+        "Annuel",
+    ]
+    assert [choice.label for choice in Society.Remise] == [
+        "---------",
+        "Fournisseur Total",
+        "Famille Article",
+        "Article",
+    ]
 
 
 def test_society_third_party_num_unique(make_society):
@@ -141,7 +154,9 @@ def test_supplier_cct_str_url_et_unicite(make_society, make_cct, make_supplier_c
     supplier_cct = make_supplier_cct(society, cct, "PAR|")
 
     assert str(supplier_cct) == "FOUR001 - Fournisseur - Paris - PAR|"
-    assert supplier_cct.get_absolute_url() == reverse("book:society_update", args=[society.pk, "alls"])
+    assert supplier_cct.get_absolute_url() == reverse(
+        "book:society_update", args=[society.pk, "alls"]
+    )
 
     with pytest.raises(IntegrityError), transaction.atomic():
         SupplierCct.objects.create(third_party_num=society, cct_uuid_identification=cct)
@@ -160,10 +175,12 @@ IMPORT_METADATA = [
 ]
 
 
-@pytest.mark.parametrize(("sage_class", "model", "file_name", "uniques", "nb_columns"), IMPORT_METADATA)
+@pytest.mark.parametrize(
+    ("sage_class", "model", "file_name", "uniques", "nb_columns"), IMPORT_METADATA
+)
 def test_metadonnees_import_sage(sage_class, model, file_name, uniques, nb_columns):
-    """
-    Pour chaque fichier Sage : modèle cible, nom de fichier, clés uniques, colonnes du fichier
+    """Pour chaque fichier Sage : modèle cible, nom de fichier, clés uniques, colonnes du fichier
+
     existant dans le modèle, positions croissantes et distinctes
     """
     columns = sage_class.get_columns_import()

@@ -1,17 +1,19 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'infrastructure du projet heron : tables abstraites, loggers, application celery,
+"""FR : Tests de l'infrastructure du projet heron : tables abstraites, loggers, application celery,
+
+
      utilitaires de répertoires, commande init_directories, points d'entrée ASGI / WSGI
 EN : Tests for heron project infrastructure
 
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import asyncio
 import io
 import logging
 import types
-from pathlib import Path
+from pathlib import Path, PosixPath
 
 import pytest
 from django.conf import settings as django_settings
@@ -22,24 +24,42 @@ from heron import asgi, celery_app, loggers, wsgi
 from heron.models import CreateTable, DatesTable, DbTableAuthorisation, FlagExport, FlagsTable
 from heron.utils import directories
 
-
 # MODÈLES ==========================================================================================
 
 
 def test_tables_abstraites():
     assert all(model._meta.abstract for model in (DatesTable, FlagsTable, FlagExport, CreateTable))
-    assert {"active", "delete", "export", "valid", "created_by", "modified_by", "acquitted_by", "delete_by"} <= {
-        field.name for field in FlagsTable._meta.fields
+    assert {
+        "active",
+        "delete",
+        "export",
+        "valid",
+        "created_by",
+        "modified_by",
+        "acquitted_by",
+        "delete_by",
+    } <= {field.name for field in FlagsTable._meta.fields}
+    assert {"export", "final", "final_at", "created_by", "modified_by"} <= {
+        field.name for field in FlagExport._meta.fields
     }
-    assert {"export", "final", "final_at", "created_by", "modified_by"} <= {field.name for field in FlagExport._meta.fields}
-    assert {field.name for field in CreateTable._meta.fields} == {"created_at", "modified_at", "created_by"}
+    assert {field.name for field in CreateTable._meta.fields} == {
+        "created_at",
+        "modified_at",
+        "created_by",
+    }
 
 
 @pytest.mark.django_db
 def test_table_des_autorisations(make_user):
-    authorisation = DbTableAuthorisation.objects.create(user=make_user(), model_to_consult="book.Society")
+    authorisation = DbTableAuthorisation.objects.create(
+        user=make_user(), model_to_consult="book.Society"
+    )
 
-    assert (authorisation.all_table, authorisation.to_display, authorisation.to_edit) == (False, True, True)
+    assert (authorisation.all_table, authorisation.to_display, authorisation.to_edit) == (
+        False,
+        True,
+        True,
+    )
 
 
 # LOGGERS ET CELERY ================================================================================
@@ -47,11 +67,20 @@ def test_table_des_autorisations(make_user):
 
 def test_loggers_nommes():
     expected = {
-        "LOGGER_IMPORT": "imports", "LOGGER_EXPORT_EXCEL": "export_excel", "LOGGER_VIEWS": "error_views",
-        "LOGGER_DJANGO": "django", "LOGGER_PRODUCTION": "production", "LOGGER_CONNEXION": "connexion",
-        "LOGGER_TIMER_HERON": "timer_heron", "LOGGER_EDI": "edi", "LOGGER_LOADER": "loader",
-        "LOGGER_VALIDATION": "validation", "LOGGER_POSTGRES_SAVE": "postgres_save",
-        "LOGGER_INVOICES": "invoices_flux", "LOGGER_EMAIL": "send_email", "LOGGER_X3": "export_x3",
+        "LOGGER_IMPORT": "imports",
+        "LOGGER_EXPORT_EXCEL": "export_excel",
+        "LOGGER_VIEWS": "error_views",
+        "LOGGER_DJANGO": "django",
+        "LOGGER_PRODUCTION": "production",
+        "LOGGER_CONNEXION": "connexion",
+        "LOGGER_TIMER_HERON": "timer_heron",
+        "LOGGER_EDI": "edi",
+        "LOGGER_LOADER": "loader",
+        "LOGGER_VALIDATION": "validation",
+        "LOGGER_POSTGRES_SAVE": "postgres_save",
+        "LOGGER_INVOICES": "invoices_flux",
+        "LOGGER_EMAIL": "send_email",
+        "LOGGER_X3": "export_x3",
     }
 
     for attribute, name in expected.items():
@@ -83,13 +112,15 @@ def test_creation_paresseuse_des_repertoires(tmp_path, monkeypatch):
     assert not target.exists()
 
     lazy = directories.lazy_mkdir("files/repertoire_de_test_inexistant")
-    assert lazy == (directories.get_files_base_dir() / "files/repertoire_de_test_inexistant").resolve()
+    assert (
+        lazy == (directories.get_files_base_dir() / "files/repertoire_de_test_inexistant").resolve()
+    )
     assert not lazy.exists()
     assert directories.get_files_base_dir() == Path(__file__).resolve().parent.parent.parent
     assert directories.get_files_base_dir() == django_settings.FILES_BASE_DIR
 
 
-class _BoomPath(type(Path())):
+class _BoomPath(PosixPath):
     """Chemin dont le test d'existence échoue (branche d'erreur de la commande)"""
 
     def exists(self):
@@ -110,7 +141,9 @@ def _run_init_directories(monkeypatch, settings, tmp_path, with_log_dir=True):
         ),
     )
     monkeypatch.setattr(
-        heron.settings, "suppliers", types.SimpleNamespace(BOOM_DIR=_BoomPath(tmp_path / "boom"), NOT_A_PATH="texte")
+        heron.settings,
+        "suppliers",
+        types.SimpleNamespace(BOOM_DIR=_BoomPath(tmp_path / "boom"), NOT_A_PATH="texte"),
     )
     settings.STATICFILES_DIRS = [tmp_path / "static", "pas_un_path"]
 
@@ -161,7 +194,9 @@ def test_wsgi():
 def test_asgi_cycle_de_vie_et_requetes(monkeypatch):
     """Le protocole lifespan est acquitté (startup, shutdown), le reste est confié à Django"""
     sent = []
-    messages = iter([{"type": "lifespan.startup"}, {"type": "lifespan.autre"}, {"type": "lifespan.shutdown"}])
+    messages = iter(
+        [{"type": "lifespan.startup"}, {"type": "lifespan.autre"}, {"type": "lifespan.shutdown"}]
+    )
 
     async def receive():
         return next(messages)

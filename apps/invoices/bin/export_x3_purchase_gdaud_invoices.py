@@ -1,6 +1,6 @@
-"""
-FR : Module d'export X3 des factures d'achat
-EN : X3 export module for purchase invoices
+"""FR : Module d'export X3 des factures d'achat.
+
+EN : X3 export module for purchase invoices.
 
 Commentaire:
 
@@ -10,28 +10,30 @@ created by: Paulo ALVES
 modified at: 2023-06-17
 modified by: Paulo ALVES
 """
+
 from operator import itemgetter
-from pathlib import Path
 
 from apps.core.functions.functions_setups import connections, settings
-from apps.invoices.bin.invoives_nums import get_bispar_num
 from apps.invoices.bin.base_export_x3_functions import (
+    get_a,
+    get_d_invoices,
+    get_e,
+    get_file,
     get_rows,
     get_t,
-    get_d_invoices,
-    get_a,
-    get_e,
+    open_export_file,
     split_line,
-    get_file,
 )
+from apps.invoices.bin.invoives_nums import get_bispar_num
 
 
 def write_bispar_gdaud(fcy, file_name=None, nb_fac=5000):
-    """Fonction iter les lignes à écrire
+    """Fonction iter les lignes à écrire.
+
     :param fcy: société pour laquelle le fichier est à générer
     :param file_name: nom du fichier à générer
     :param nb_fac: nombre de factures max par fichiers
-    :return: generateur des lignes de la requête
+    :return: generateur des lignes de la requête.
     """
     connection = connections["heron"]
     rows = get_rows(connection, settings.APPS_DIR, fcy, "sql_export_x3_purchase_gdaud_invoices")
@@ -41,12 +43,7 @@ def write_bispar_gdaud(fcy, file_name=None, nb_fac=5000):
     except StopIteration:
         return
 
-    if file_name is not None:
-        file = (Path(settings.EXPORT_DIR) / file_name).open(
-            "w", encoding="iso8859_1", errors="replace", newline=""
-        )
-    else:
-        file = get_file(settings.EXPORT_DIR, fcy, get_bispar_num)
+    file = open_export_file(settings.EXPORT_DIR, file_name, fcy, get_bispar_num)
 
     invoice_number, *line_to_write, test_a = row
     invoice = invoice_number

@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des vérifications de book (bin/checks.py) : identifiants cct et emails des tiers
+"""FR : Tests des vérifications de book (bin/checks.py) : identifiants cct et emails des tiers
+
+
 EN : Tests for book checks: cct identifiers and third parties emails
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import pytest
 
 from apps.book.bin.checks import (
@@ -25,7 +27,14 @@ pytestmark = pytest.mark.django_db
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [(None, [""]), ("", [""]), ("A", ["A"]), ("A|", ["A"]), ("A|B|", ["A", "B"]), ("A||", ["A", ""])],
+    [
+        (None, [""]),
+        ("", [""]),
+        ("A", ["A"]),
+        ("A|", ["A"]),
+        ("A|B|", ["A", "B"]),
+        ("A||", ["A", ""]),
+    ],
 )
 def test_split_identifiers(value, expected):
     assert split_identifiers(value) == expected
@@ -54,7 +63,9 @@ def test_check_cct_identifier_rien_modifie(supplier_ccts, after):
 
 
 def test_check_cct_identifier_meme_ensemble_dans_un_autre_ordre(supplier_ccts):
-    changed, message = check_cct_identifier({"id": supplier_ccts["paris"], "cct_identifier": "P2|PAR|"})
+    changed, message = check_cct_identifier(
+        {"id": supplier_ccts["paris"], "cct_identifier": "P2|PAR|"}
+    )
 
     assert changed is False
     assert message == "Vous avez ajouté un dentifiant déjà présent pour le cct : AF0001"
@@ -64,20 +75,34 @@ def test_check_cct_identifier_vide_vers_vide(make_supplier_cct):
     """Identifiant absent avant et après : rien modifié (None et chaîne vide sont équivalents)"""
     supplier_cct = make_supplier_cct(cct_identifier=None)
 
-    assert check_cct_identifier({"id": supplier_cct, "cct_identifier": ""}) == (False, "Vous n'avez rien modifié !")
-    assert check_cct_identifier({"id": supplier_cct, "cct_identifier": None}) == (False, "Vous n'avez rien modifié !")
+    assert check_cct_identifier({"id": supplier_cct, "cct_identifier": ""}) == (
+        False,
+        "Vous n'avez rien modifié !",
+    )
+    assert check_cct_identifier({"id": supplier_cct, "cct_identifier": None}) == (
+        False,
+        "Vous n'avez rien modifié !",
+    )
 
 
 def test_check_cct_identifier_nouvel_identifiant_libre(supplier_ccts):
     """Un identifiant inconnu du tiers peut être ajouté ; celui d'un autre tiers n'interfère pas"""
-    assert check_cct_identifier({"id": supplier_ccts["paris"], "cct_identifier": "PAR|P2|P3|"}) == (True, "")
-    assert check_cct_identifier({"id": supplier_ccts["lyon"], "cct_identifier": "NEW|"}) == (True, "")
+    assert check_cct_identifier({"id": supplier_ccts["paris"], "cct_identifier": "PAR|P2|P3|"}) == (
+        True,
+        "",
+    )
+    assert check_cct_identifier({"id": supplier_ccts["lyon"], "cct_identifier": "NEW|"}) == (
+        True,
+        "",
+    )
     assert check_cct_identifier({"id": supplier_ccts["lyon"], "cct_identifier": None}) == (True, "")
 
 
 def test_check_cct_identifier_deja_utilise_par_un_autre_cct(supplier_ccts):
     """Un identifiant déjà porté par un autre cct du même tiers est refusé, tous sont listés"""
-    changed, message = check_cct_identifier({"id": supplier_ccts["lyon"], "cct_identifier": "LYO|PAR|P2|"})
+    changed, message = check_cct_identifier(
+        {"id": supplier_ccts["lyon"], "cct_identifier": "LYO|PAR|P2|"}
+    )
 
     assert changed is None
     assert message == (
@@ -150,7 +175,9 @@ def test_check_emails_to_send_sans_facture_en_cours(societies_emails):
     assert list(check_emails_to_send()) == []
 
 
-def test_check_emails_to_send_filtre_les_faux_emails_des_tiers_a_facturer(societies_emails, make_society, make_sale_invoice):
+def test_check_emails_to_send_filtre_les_faux_emails_des_tiers_a_facturer(
+    societies_emails, make_society, make_sale_invoice
+):
     """Seuls les faux emails des tiers ayant une facture de vente non finalisée sont renvoyés"""
     make_society("TIERS03", email_01="faux aussi")
     make_sale_invoice(third_party_num="TIERS01", final=False)

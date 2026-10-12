@@ -1,3 +1,5 @@
+"""Calcul des dates d'échéance à partir des conditions de paiement Sage."""
+
 import datetime
 
 import pendulum
@@ -5,11 +7,12 @@ import pendulum
 from apps.accountancy.models import PaymentCondition
 
 
-def due_date_calculate(invoice_date: datetime, condition: PaymentCondition):
-    """Calcul de la date d'échéance
+def due_date_calculate(invoice_date: datetime.date, condition: PaymentCondition):
+    """Calcul de la date d'échéance.
+
     :param invoice_date: date de la facture
     :param condition: Instance du modèle de la condition de paiement
-    :return: pendulum.date humanize
+    :return: pendulum.date humanize.
     """
     calculate_date = pendulum.date(invoice_date.year, invoice_date.month, invoice_date.day)
 
@@ -32,11 +35,12 @@ def due_date_calculate(invoice_date: datetime, condition: PaymentCondition):
     return calculate_date.format("DD/MM/YYYY", locale="fr")
 
 
-def get_str_echeances(invoice_date: datetime, code: str):
-    """Calcul des Echéances
+def get_str_echeances(invoice_date: datetime.date, code: str):
+    """Calcul des Echéances.
+
     :param invoice_date: date de la facture
     :param code: uuid de la condition de paiement
-    :return: Retourne l'échéance textuelle
+    :return: Retourne l'échéance textuelle.
     """
     due_dates_list = []
 
@@ -44,9 +48,7 @@ def get_str_echeances(invoice_date: datetime, code: str):
         "offset_month", "offset_days"
     ):
         percent_at_term = int(due_date.percent_at_term)
-        pourcent = (
-            f"{percent_at_term} % le " if percent_at_term and percent_at_term != 100 else ""
-        )
+        pourcent = f"{percent_at_term} % le " if percent_at_term and percent_at_term != 100 else ""
         due_dates_list.append("".join([pourcent, due_date_calculate(invoice_date, due_date)]))
 
     return ", ".join(due_dates_list)

@@ -1,6 +1,6 @@
-"""
-FR : Module d'import en boucle des fichiers de factures fournisseurs
-EN : Loop import module for invoices suppliers files
+"""FR : Module d'import en boucle des fichiers de factures fournisseurs.
+
+EN : Loop import module for invoices suppliers files.
 
 Commentaire:
 
@@ -11,20 +11,20 @@ modified at: 2022-04-09
 modified by: Paulo ALVES
 """
 
-from typing import AnyStr
 import asyncio
 import re
-from pathlib import Path
 import time
+from pathlib import Path
 
-from psycopg2 import sql
-from django.db import transaction, close_old_connections
 from asgiref.sync import sync_to_async
 from celery import group
+from django.db import close_old_connections, transaction
+from psycopg2 import sql
 
-from heron import celery_app
-from heron.loggers import LOGGER_EDI
-from apps.core.functions.functions_setups import connection, connections
+from apps.core.functions.functions_setups import connection, connections, settings
+from apps.core.models import SSEProgress
+from apps.data_flux.postgres_save import get_random_name
+from apps.data_flux.utilities import encoding_detect
 from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
 from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
 from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID
@@ -51,17 +51,15 @@ from apps.edi.imports.imports_suppliers_invoices_pool import (
     transfert_cosium,
     unitron,
     widex,
-    wsau,
     widex_ga,
+    wsau,
     z_bu_refac,
 )
-from apps.core.functions.functions_setups import settings
-from apps.core.models import SSEProgress
-from apps.data_flux.utilities import encoding_detect
-from apps.data_flux.postgres_save import get_random_name
-from apps.users.models import User
 from apps.parameters.bin.core import get_action
 from apps.parameters.models import ActionInProgress
+from apps.users.models import User
+from heron import celery_app
+from heron.loggers import LOGGER_EDI
 
 processing_dict = {
     # IMPORTS FACTURES =====================
@@ -93,8 +91,9 @@ processing_dict = {
 
 
 def _new_edi_file_name(stem: str) -> Path:
-    """Nom de fichier .edi libre dans le répertoire EDI, pour un fichier séparé
-    :param stem: nom, sans extension, du fichier d'origine
+    """Nom de fichier .edi libre dans le répertoire EDI, pour un fichier séparé.
+
+    :param stem: nom, sans extension, du fichier d'origine.
     """
     # On s'assure que le nom du fichier n'existe pas
     while True:
@@ -105,10 +104,10 @@ def _new_edi_file_name(stem: str) -> Path:
 
 
 def _split_edi_file(file: Path) -> None:
-    """
-    Sépare un fichier contenant plusieurs edi (plusieurs segments UNA) en autant de fichiers,
+    """Sépare un fichier contenant plusieurs edi (plusieurs segments UNA) en autant de fichiers,.
+
     puis supprime l'original ; les fichiers "._*" posés par macOS sont supprimés.
-    :param file: fichier du répertoire EDI
+    :param file: fichier du répertoire EDI.
     """
     if file.name.startswith("._"):
         if file.is_file():
@@ -118,13 +117,14 @@ def _split_edi_file(file: Path) -> None:
 
     encoding = encoding_detect(file) or "ascii"
 
-    with open(file, "r", encoding=encoding) as edi_file:
-        split_text = re.split(r"(?=UNA:\+).*[\n|']", edi_file.read().strip())
+    with Path(file).open(encoding=encoding) as edi_file:
+        # Séparateur : le segment UNA (UNA + 6 caractères de service) et le saut de ligne qui suit
+        split_text = re.split(r"UNA.{6}\n?", edi_file.read().strip())
 
     edi_texts = [text for text in split_text if text] if len(split_text) > 2 else []
 
     for text_edi_file in edi_texts:
-        with open(_new_edi_file_name(file.stem), "w", encoding=encoding) as file_to_write:
+        with Path(_new_edi_file_name(file.stem)).open("w", encoding=encoding) as file_to_write:
             file_to_write.write(text_edi_file)
 
     if edi_texts:
@@ -132,38 +132,37 @@ def _split_edi_file(file: Path) -> None:
 
 
 def separate_edi():
-    """Séparation des fichiers EDI (ex.: JULBO qui met plusieurs edi dans un seul fichier"""
+    """Séparation des fichiers EDI (ex.: JULBO qui met plusieurs edi dans un seul fichier."""
     edi_files_directory = Path(settings.PROCESSING_SUPPLIERS_DIR) / "EDI"
 
     try:
         # Vérifier que le répertoire existe et est accessible
         if not edi_files_directory.exists():
-            LOGGER_EDI.warning(f"Le répertoire EDI n'existe pas: {edi_files_directory}")
+            LOGGER_EDI.warning("Le répertoire EDI n'existe pas: %s", edi_files_directory)
             return
 
         if not edi_files_directory.is_dir():
-            LOGGER_EDI.error(
-                f"Le chemin EDI n'est pas un répertoire: {edi_files_directory}"
-            )
+            LOGGER_EDI.error("Le chemin EDI n'est pas un répertoire: %s", edi_files_directory)
             return
 
         for file in edi_files_directory.glob("*"):
             try:
                 _split_edi_file(file)
-            except Exception as e:
-                LOGGER_EDI.error(f"Erreur lors du traitement du fichier {file}: {e}")
-    except Exception as e:
-        LOGGER_EDI.exception(f"Erreur lors de la séparation des fichiers EDI: {e}")
+            except Exception:
+                LOGGER_EDI.exception("Erreur lors du traitement du fichier %s", file)
+    except Exception:
+        LOGGER_EDI.exception("Erreur lors de la séparation des fichiers EDI")
 
 
 def get_files_celery():
-    """Retourne la liste des tuples (fichier, process) à traiter par celery,
-    ne pouvant serializer des fonctions ou objets python
+    """Retourne la liste des tuples (fichier, process) à traiter par celery,.
+
+    ne pouvant serializer des fonctions ou objets python.
     """
     separate_edi()
     files_list = []
 
-    for directory, _ in processing_dict.items():
+    for directory in processing_dict:
         files_directory = Path(settings.PROCESSING_SUPPLIERS_DIR) / directory
         backup_dir = Path(settings.BACKUP_SUPPLIERS_DIR) / directory
 
@@ -179,36 +178,35 @@ def get_files_celery():
 
 
 def get_have_statment():
-    """Vérifie s'il y a des statment à intégrer"""
-
+    """Vérifie s'il y a des statment à intégrer."""
     with connection.cursor() as cursor:
         sql_id_statment = sql.SQL(
             """
-            select 
+            select
                 "max_id"
             from (
-                select 
+                select
                     max("id") as max_id
                 from "heron_bi_factures_billstatement"
             )he
             where exists (
                 select 1 from (
-                    select 
+                    select
                         max(max_id) as max_id
                     from (
-                        select  
-                            coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from edi_ediimport ee 
+                        select
+                            coalesce(max(bi_id), %(historic_id)s) as max_id
+                        from edi_ediimport ee
                         where flow_name = 'BbgrStatment'
-                        union all 
-                        select 
-                            coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from invoices_invoice sii 
-                        join invoices_invoicedetail sii2 
-                        on sii.uuid_identification  = sii2.uuid_invoice 
+                        union all
+                        select
+                            coalesce(max(bi_id), %(historic_id)s) as max_id
+                        from invoices_invoice sii
+                        join invoices_invoicedetail sii2
+                        on sii.uuid_identification  = sii2.uuid_invoice
                         where sii2.flow_name = 'BbgrStatment'
                     ) req
-                ) mx 
+                ) mx
                 where mx.max_id < he.max_id
             )
             """
@@ -220,37 +218,36 @@ def get_have_statment():
 
 
 def get_have_monthly():
-    """Verification s'il y a des Monthly"""
-
+    """Verification s'il y a des Monthly."""
     with connection.cursor() as cursor:
         sql_id_monthly = sql.SQL(
             """
-            select 
+            select
                 "max_id"
             from (
-                select 
+                select
                     max("id") as max_id
                 from "heron_bi_factures_monthlydelivery"
                 where "type_article" not in ('FRAIS_RETOUR', 'DECOTE')
             )he
             where exists (
                 select 1 from (
-                    select 
+                    select
                         max(max_id) as max_id
                     from (
-                        select  
-                            coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from edi_ediimport ee 
+                        select
+                            coalesce(max(bi_id), %(historic_id)s) as max_id
+                        from edi_ediimport ee
                         where flow_name = 'BbgrMonthly'
-                        union all 
-                        select 
-                            coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from invoices_invoice sii 
-                        join invoices_invoicedetail sii2 
-                        on sii.uuid_identification  = sii2.uuid_invoice 
+                        union all
+                        select
+                            coalesce(max(bi_id), %(historic_id)s) as max_id
+                        from invoices_invoice sii
+                        join invoices_invoicedetail sii2
+                        on sii.uuid_identification  = sii2.uuid_invoice
                         where sii2.flow_name = 'BbgrMonthly'
                     ) req
-                ) mx 
+                ) mx
                 where mx.max_id < he.max_id
             )
             """
@@ -262,37 +259,36 @@ def get_have_monthly():
 
 
 def get_have_retours():
-    """Verification s'il y a des Retours"""
-
+    """Verification s'il y a des Retours."""
     with connection.cursor() as cursor:
         sql_id_retours = sql.SQL(
             """
-            select 
+            select
                 "max_id"
             from (
-                select 
+                select
                     max("id") as max_id
                 from "heron_bi_factures_monthlydelivery"
                 where "type_article" in ('FRAIS_RETOUR', 'DECOTE')
             )he
             where exists (
                 select 1 from (
-                    select 
+                    select
                         max(max_id) as max_id
                     from (
-                        select  
-                            coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from edi_ediimport ee 
+                        select
+                            coalesce(max(bi_id), %(historic_id)s) as max_id
+                        from edi_ediimport ee
                         where flow_name = 'BbgrRetours'
-                        union all 
-                        select 
-                            coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from invoices_invoice sii 
-                        join invoices_invoicedetail sii2 
-                        on sii.uuid_identification  = sii2.uuid_invoice 
+                        union all
+                        select
+                            coalesce(max(bi_id), %(historic_id)s) as max_id
+                        from invoices_invoice sii
+                        join invoices_invoicedetail sii2
+                        on sii.uuid_identification  = sii2.uuid_invoice
                         where sii2.flow_name = 'BbgrRetours'
                     ) req
-                ) mx 
+                ) mx
                 where mx.max_id < he.max_id
             )
             """
@@ -304,13 +300,12 @@ def get_have_retours():
 
 
 def get_retours_valid():
-    """Vérifie que tous les retours sont validés avant import"""
-
+    """Vérifie que tous les retours sont validés avant import."""
     with connections["bi_bdd"].cursor() as cursor:
         sql_valid = """
-        SELECT 1 
-        FROM factures_monthlyretours 
-        WHERE validation = false 
+        SELECT 1
+        FROM factures_monthlyretours
+        WHERE validation = false
         LIMIT 1
         """
         cursor.execute(sql_valid)
@@ -320,36 +315,35 @@ def get_retours_valid():
 
 
 def get_have_receptions():
-    """Verification s'il y a des Réceptions"""
-
+    """Verification s'il y a des Réceptions."""
     with connection.cursor() as cursor:
         sql_id_receptions = sql.SQL(
             """
-            select 
+            select
                 "max_id"
             from (
-                select 
+                select
                     max("id") as max_id
                 from "heron_bi_receptions_bbgr"
             )he
             where exists (
                 select 1 from (
-                    select 
+                    select
                         max(max_id) as max_id
                     from (
-                        select  
-                            coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from edi_ediimport ee 
+                        select
+                            coalesce(max(bi_id), %(historic_id)s) as max_id
+                        from edi_ediimport ee
                         where flow_name = 'BbgrReceptions'
-                        union all 
-                        select 
-                            coalesce(max(bi_id), %(historic_id)s) as max_id 
-                        from invoices_invoice sii 
-                        join invoices_invoicedetail sii2 
-                        on sii.uuid_identification  = sii2.uuid_invoice 
+                        union all
+                        select
+                            coalesce(max(bi_id), %(historic_id)s) as max_id
+                        from invoices_invoice sii
+                        join invoices_invoicedetail sii2
+                        on sii.uuid_identification  = sii2.uuid_invoice
                         where sii2.flow_name = 'BbgrReceptions'
                     ) req
-                ) mx 
+                ) mx
                 where mx.max_id < he.max_id
             )
             """
@@ -379,39 +373,29 @@ def _with_db_cleanup(func):
 # thread_sensitive=False permet l'exécution parallèle dans des threads séparés
 # et évite les deadlocks en production sur Linux
 # Le wrapper _with_db_cleanup ferme les connexions après chaque appel
-get_have_statment_async = sync_to_async(
-    _with_db_cleanup(get_have_statment), thread_sensitive=False
-)
-get_have_monthly_async = sync_to_async(
-    _with_db_cleanup(get_have_monthly), thread_sensitive=False
-)
-get_have_retours_async = sync_to_async(
-    _with_db_cleanup(get_have_retours), thread_sensitive=False
-)
-get_retours_valid_async = sync_to_async(
-    _with_db_cleanup(get_retours_valid), thread_sensitive=False
-)
+get_have_statment_async = sync_to_async(_with_db_cleanup(get_have_statment), thread_sensitive=False)
+get_have_monthly_async = sync_to_async(_with_db_cleanup(get_have_monthly), thread_sensitive=False)
+get_have_retours_async = sync_to_async(_with_db_cleanup(get_have_retours), thread_sensitive=False)
+get_retours_valid_async = sync_to_async(_with_db_cleanup(get_retours_valid), thread_sensitive=False)
 get_have_receptions_async = sync_to_async(
     _with_db_cleanup(get_have_receptions), thread_sensitive=False
 )
-get_files_celery_async = sync_to_async(
-    _with_db_cleanup(get_files_celery), thread_sensitive=False
-)
+get_files_celery_async = sync_to_async(_with_db_cleanup(get_files_celery), thread_sensitive=False)
 
 # Import des versions async des contrôles d'import
-from apps.parameters.bin.core import get_in_progress_async
 from apps.invoices.bin.pre_controls import control_insertion_async
+from apps.parameters.bin.core import get_in_progress_async
 
 
 async def get_all_import_checks_async():
-    """
-    Récupère toutes les vérifications d'imports en parallèle de manière asynchrone.
+    """Récupère toutes les vérifications d'imports en parallèle de manière asynchrone.
 
     Returns:
         tuple: (have_statment, have_monthly, have_retours, have_receptions,
                 files_celery, retours_valid)
+
     """
-    results = await asyncio.gather(
+    return await asyncio.gather(
         get_have_statment_async(),
         get_have_monthly_async(),
         get_have_retours_async(),
@@ -420,14 +404,9 @@ async def get_all_import_checks_async():
         get_retours_valid_async(),
     )
 
-    return results
 
-
-async def get_import_controls_async(
-    action="import_edi_invoices", task_name="suppliers_import"
-):
-    """
-    Exécute get_in_progress et control_insertion en parallèle.
+async def get_import_controls_async(action="import_edi_invoices", task_name="suppliers_import"):
+    """Exécute get_in_progress et control_insertion en parallèle.
 
     Args:
         action: Nom de l'action à vérifier (défaut: "import_edi_invoices")
@@ -435,17 +414,16 @@ async def get_import_controls_async(
 
     Returns:
         tuple: (in_action, not_finalize)
+
     """
-    results = await asyncio.gather(
+    return await asyncio.gather(
         get_in_progress_async(action=action, task_name=task_name),
         control_insertion_async(),
     )
 
-    return results
-
 
 def have_files():
-    """Verification qu'il y a des imports à faire"""
+    """Verification qu'il y a des imports à faire."""
     if get_have_statment():
         return True
 
@@ -458,21 +436,17 @@ def have_files():
     if get_have_receptions():
         return True
 
-    if bool(get_files_celery()):
-        return True
-
-    return False
+    return bool(get_files_celery())
 
 
 def celery_import_launch(user_pk: int, job_id: str):
-    """Main pour lancement de l'import avec Celery"""
-
+    """Main pour lancement de l'import avec Celery."""
     active_action = None
     action = True
     progress = None
 
     try:
-        tasks_list = []
+        tasks_list: list = []
 
         # S'assurer que l'objet ActionInProgress existe
         get_action(action="import_edi_invoices")
@@ -501,20 +475,16 @@ def celery_import_launch(user_pk: int, job_id: str):
         # Récupérer le SSEProgress créé dans la vue
         progress = SSEProgress.objects.get(job_id=job_id)
 
-        for row_args in proc_files_l:
-            tasks_list.append(
-                celery_app.signature(
-                    "suppliers_import",
-                    kwargs={
-                        "process_objects": row_args,
-                        "user_pk": user_pk,
-                        "job_id": job_id,
-                    },
-                )
+        tasks_list.extend(
+            celery_app.signature(
+                "suppliers_import",
+                kwargs={"process_objects": row_args, "user_pk": user_pk, "job_id": job_id},
             )
+            for row_args in proc_files_l
+        )
 
         result = group(*tasks_list)().get(3600)
-        LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+        LOGGER_EDI.warning("result : %r,\nin %s s", result, time.time() - start_all)
 
         result_clean = group(
             *[
@@ -524,9 +494,7 @@ def celery_import_launch(user_pk: int, job_id: str):
                 )
             ]
         )().get(3600)
-        LOGGER_EDI.warning(
-            f"result_clean : {result_clean!r},\nin {time.time() - start_all} s"
-        )
+        LOGGER_EDI.warning("result_clean : %r,\nin %s s", result_clean, time.time() - start_all)
 
         # Marquer comme terminé, après rafraîchissement pour avoir les dernières valeurs
         progress.refresh_from_db()
@@ -542,8 +510,8 @@ def celery_import_launch(user_pk: int, job_id: str):
                 # Essayer de récupérer le SSEProgress si pas encore fait
                 progress = SSEProgress.objects.get(job_id=job_id)
             progress.mark_as_failed(str(error))
-        except Exception as e:
-            LOGGER_EDI.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
+        except Exception:
+            LOGGER_EDI.exception("Impossible de marquer le SSEProgress comme failed")
 
     finally:
         # On remet l'action en cours à False, après l'execution
@@ -553,8 +521,7 @@ def celery_import_launch(user_pk: int, job_id: str):
 
 
 def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
-    """Main pour lancement de l'import"""
-
+    """Main pour lancement de l'import."""
     active_action = None
     action = True
     progress = None
@@ -596,7 +563,7 @@ def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
                 )
             ]
         )().get(3600)
-        LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+        LOGGER_EDI.warning("result : %r,\nin %s s", result, time.time() - start_all)
 
         result_clean = group(
             *[
@@ -606,9 +573,7 @@ def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
                 )
             ]
         )().get(3600)
-        LOGGER_EDI.warning(
-            f"result_clean : {result_clean!r},\nin {time.time() - start_all} s"
-        )
+        LOGGER_EDI.warning("result_clean : %r,\nin %s s", result_clean, time.time() - start_all)
 
         # Marquer comme terminé, après rafraîchissement pour avoir les dernières valeurs
         progress.refresh_from_db()
@@ -624,8 +589,8 @@ def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
                 # Essayer de récupérer le SSEProgress si pas encore fait
                 progress = SSEProgress.objects.get(job_id=job_id)
             progress.mark_as_failed(str(error))
-        except Exception as e:
-            LOGGER_EDI.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
+        except Exception:
+            LOGGER_EDI.exception("Impossible de marquer le SSEProgress comme failed")
 
     finally:
         # On remet l'action en cours à False, après l'execution
@@ -635,10 +600,9 @@ def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
 
 
 def import_launch_subscriptions(
-    task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: User, job_id: str
+    task_to_launch: str, dte_d: str, dte_f: str, user: User, job_id: str
 ):
-    """Main pour lancement de l'import des abonnements"""
-
+    """Main pour lancement de l'import des abonnements."""
     result = ""
     info = ""
     progress = None
@@ -676,7 +640,7 @@ def import_launch_subscriptions(
                 ]
             )().get(3600)
             info = str(result)
-            LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+            LOGGER_EDI.warning("result : %r,\nin %s s", result, time.time() - start_all)
 
             # Marquer comme terminé mais avant rafraîchir pour avoir les dernières valeurs
             progress.refresh_from_db()
@@ -695,8 +659,8 @@ def import_launch_subscriptions(
                     progress = SSEProgress.objects.get(job_id=job_id)
                 if progress:
                     progress.mark_as_failed(str(error))
-            except Exception as e:
-                LOGGER_EDI.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
+            except Exception:
+                LOGGER_EDI.exception("Impossible de marquer le SSEProgress comme failed")
 
         finally:
             # On remet l'action en cours à False, après l'execution
@@ -704,17 +668,3 @@ def import_launch_subscriptions(
             active_action.save()
 
     return "Erreur" in info, info
-
-
-if __name__ == "__main__":
-    # post_processing_all()
-    # get_files()
-    # separate_edi()
-    """
-    avant :
-        sans des false : True - True
-        avec des false : False - False
-    """
-    from asgiref.sync import async_to_sync
-
-    print(async_to_sync(get_all_import_checks_async)())

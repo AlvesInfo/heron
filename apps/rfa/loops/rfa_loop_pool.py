@@ -1,6 +1,6 @@
-"""
-FR : Module d'import en boucle des fichiers de factures fournisseurs
-EN : Loop import module for invoices suppliers files
+"""FR : Module d'import en boucle des fichiers de factures fournisseurs.
+
+EN : Loop import module for invoices suppliers files.
 
 Commentaire:
 
@@ -11,28 +11,27 @@ modified at: 2022-04-09
 modified by: Paulo ALVES
 """
 
-from typing import AnyStr, List
 import time
+from typing import Any
 
 from celery import group
 
+from apps.parameters.bin.core import get_action
 from heron import celery_app
 from heron.loggers import LOGGER_EDI, LOGGER_IMPORT
-from apps.parameters.bin.core import get_action
 
 
-def rfa_generation_launch(user_pk: int, suppliers_list: List, period_rfa: AnyStr):
-    """Main pour lancement de la génération des RFA"""
-
+def rfa_generation_launch(user_pk: int, suppliers_list: list, period_rfa: str):
+    """Main pour lancement de la génération des RFA."""
     active_action = None
-    result = ""
-    action = True
+    result: Any = ""
 
     try:
-        while action:
+        # On attend qu'aucune génération ne soit en cours
+        active_action = get_action(action="rfa_generation")
+
+        while active_action.in_progress:
             active_action = get_action(action="rfa_generation")
-            if not active_action.in_progress:
-                action = False
 
         start_all = time.time()
 
@@ -55,24 +54,17 @@ def rfa_generation_launch(user_pk: int, suppliers_list: List, period_rfa: AnyStr
             ]
         )().get(3600)
 
-        LOGGER_IMPORT.info("%s %s", 'result : ', result)
-        LOGGER_EDI.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+        LOGGER_IMPORT.info("%s %s", "result : ", result)
+        LOGGER_EDI.warning("result : %r,\nin %s s", result, time.time() - start_all)
 
         result_clean = group(
-            *[
-                celery_app.signature(
-                    "sql_clean_general", kwargs={"start_all": start_all}
-                )
-            ]
+            *[celery_app.signature("sql_clean_general", kwargs={"start_all": start_all})]
         )().get(3600)
 
-        LOGGER_IMPORT.info("%s %s", 'result_clean : ', result_clean)
-        LOGGER_EDI.warning(
-            f"result_clean : {result_clean!r},\nin {time.time() - start_all} s"
-        )
+        LOGGER_IMPORT.info("%s %s", "result_clean : ", result_clean)
+        LOGGER_EDI.warning("result_clean : %r,\nin %s s", result_clean, time.time() - start_all)
 
-    except Exception as error:
-        LOGGER_IMPORT.exception("%s %s", 'Error : ', error)
+    except Exception:
         LOGGER_EDI.exception(
             "Erreur détectée dans apps.rfa.loops.rfa_loop_pool.celery_rfa_generation_launch()"
         )

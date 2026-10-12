@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel des ventes Héron non finalisées (version optimisée)
+"""Module d'export du fichier excel des ventes Héron non finalisées (version optimisée).
 
 Commentaire:
 
@@ -14,14 +14,16 @@ from pathlib import Path
 
 from psycopg2 import sql
 
-from apps.core.functions.functions_setups import settings, connection
-from apps.validation_purchases.excel_outputs.columns_excel import columns_purchases_heron
 from apps.core.excel_outputs.generic_list_export import excel_list_export
+from apps.core.functions.functions_setups import connection, settings
+from apps.validation_purchases.excel_outputs.columns_excel import columns_purchases_heron
 
 
 def fetch_rows():
-    """Lignes à écrire, lues par lots de 1000 (générateur, optimisé mémoire)"""
-    sql_file_path = Path(settings.APPS_DIR) / "validation_purchases/sql_files/purchases_not_final.sql"
+    """Lignes à écrire, lues par lots de 1000 (générateur, optimisé mémoire)."""
+    sql_file_path = (
+        Path(settings.APPS_DIR) / "validation_purchases/sql_files/purchases_not_final.sql"
+    )
 
     with connection.cursor() as cursor, sql_file_path.open("r", encoding="utf-8") as sql_file:
         cursor.execute(sql.SQL(sql_file.read()))
@@ -36,7 +38,7 @@ def fetch_rows():
 
 
 def excel_heron_purchases_not_final(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier des achats Héron non finalisés"""
+    """Fonction de génération du fichier des achats Héron non finalisés."""
     return excel_list_export(
         file_io,
         file_name,

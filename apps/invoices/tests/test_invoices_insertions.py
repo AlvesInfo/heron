@@ -1,6 +1,8 @@
 """Tests de l'insertion des factures d'achat et de vente depuis edi_ediimport (SQL réelles)"""
+
 import datetime
 import importlib
+import io
 import platform
 import sys
 import types
@@ -14,7 +16,13 @@ from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError
 from apps.edi.models import EdiImport
 from apps.invoices.bin import invoices_insertions
 from apps.invoices.loops.mise_a_jour_loop import process_update
-from apps.invoices.models import Invoice, InvoiceCommonDetails, InvoiceDetail, SaleInvoice, SaleInvoiceDetail
+from apps.invoices.models import (
+    Invoice,
+    InvoiceCommonDetails,
+    InvoiceDetail,
+    SaleInvoice,
+    SaleInvoiceDetail,
+)
 from conftest import patched_attrs, raising_once
 
 pytestmark = pytest.mark.django_db
@@ -29,7 +37,7 @@ def run_insertion(dataset):
 
 
 # ÉTAPES UNITAIRES =================================================================================
-@pytest.mark.usefixtures('billing_dataset')
+@pytest.mark.usefixtures("billing_dataset")
 def test_set_fix_uuid():
     EdiImport.objects.update(import_uuid_identification=None)
 
@@ -56,13 +64,15 @@ def test_set_purchases_invoices(billing_dataset):
     process_update()
 
     with connection.cursor() as cursor:
-        error, _ = invoices_insertions.set_purchases_invoices(cursor, billing_dataset.user, INVOICE_DATE)
+        error, _ = invoices_insertions.set_purchases_invoices(
+            cursor, billing_dataset.user, INVOICE_DATE
+        )
 
     assert error is False
     invoice = Invoice.objects.get()
     assert invoice.invoice_number == "F2026-001"
     assert invoice.invoice_sage_number == "FOUR0012601" + "00001"
-    assert invoice.invoice_amount_with_tax == Decimal("180")
+    assert invoice.invoice_amount_with_tax == Decimal(180)
     assert invoice.mode_reglement == "VIR"
     assert invoice.code_center == "ACF"
     # échéance : fin de mois (end_month 2) + 1 mois -> 28/02/2026
@@ -71,14 +81,21 @@ def test_set_purchases_invoices(billing_dataset):
     assert invoice.integration_month == datetime.date(2026, 1, 1)
 
 
-@pytest.mark.parametrize("exception", [PostgresKeyError("clé"), PostgresTypeError("type"), RuntimeError("boom")])
+@pytest.mark.parametrize(
+    "exception", [PostgresKeyError("clé"), PostgresTypeError("type"), RuntimeError("boom")]
+)
 def test_set_purchases_invoices_erreurs(billing_dataset, monkeypatch, exception, caplog):
     def boom(*args, **kwargs):
         raise exception
 
-    with patched_attrs(monkeypatch, invoices_insertions, PostgresDjangoUpsert=boom), caplog.at_level("ERROR", logger="edi"):
+    with (
+        patched_attrs(monkeypatch, invoices_insertions, PostgresDjangoUpsert=boom),
+        caplog.at_level("ERROR", logger="edi"),
+    ):
         with connection.cursor() as cursor:
-            error, _ = invoices_insertions.set_purchases_invoices(cursor, billing_dataset.user, INVOICE_DATE)
+            error, _ = invoices_insertions.set_purchases_invoices(
+                cursor, billing_dataset.user, INVOICE_DATE
+            )
 
     assert error is True
     assert type(exception).__name__ in caplog.text or "Exception Générale" in caplog.text
@@ -88,7 +105,9 @@ def test_set_sales_invoices(billing_dataset):
     process_update()
 
     with connection.cursor() as cursor:
-        error, _ = invoices_insertions.set_sales_invoices(cursor, billing_dataset.user, INVOICE_DATE)
+        error, _ = invoices_insertions.set_sales_invoices(
+            cursor, billing_dataset.user, INVOICE_DATE
+        )
 
     assert error is False
     sale = SaleInvoice.objects.get()
@@ -96,8 +115,8 @@ def test_set_sales_invoices(billing_dataset):
     assert sale.cct == billing_dataset.maison.cct
     assert sale.invoice_type == "FAC"
     assert sale.invoice_type_name == "Facture"
-    assert sale.invoice_amount_without_tax == Decimal("150")
-    assert sale.invoice_amount_tax == Decimal("30")
+    assert sale.invoice_amount_without_tax == Decimal(150)
+    assert sale.invoice_amount_tax == Decimal(30)
     assert sale.big_category_slug_name == "marchandises"
     assert sale.invoice_date == datetime.date(2026, 1, 31)
     assert sale.centers is not None
@@ -105,14 +124,21 @@ def test_set_sales_invoices(billing_dataset):
     assert sale.parties is not None
 
 
-@pytest.mark.parametrize("exception", [PostgresKeyError("clé"), PostgresTypeError("type"), RuntimeError("boom")])
+@pytest.mark.parametrize(
+    "exception", [PostgresKeyError("clé"), PostgresTypeError("type"), RuntimeError("boom")]
+)
 def test_set_sales_invoices_erreurs(billing_dataset, monkeypatch, exception, caplog):
     def boom(*args, **kwargs):
         raise exception
 
-    with patched_attrs(monkeypatch, invoices_insertions, PostgresDjangoUpsert=boom), caplog.at_level("ERROR", logger="edi"):
+    with (
+        patched_attrs(monkeypatch, invoices_insertions, PostgresDjangoUpsert=boom),
+        caplog.at_level("ERROR", logger="edi"),
+    ):
         with connection.cursor() as cursor:
-            error, _ = invoices_insertions.set_sales_invoices(cursor, billing_dataset.user, INVOICE_DATE)
+            error, _ = invoices_insertions.set_sales_invoices(
+                cursor, billing_dataset.user, INVOICE_DATE
+            )
 
     assert error is True
 
@@ -122,9 +148,9 @@ def test_controls_insertion(make_invoice, make_sale_invoice, make_detail, make_s
         assert invoices_insertions.control_purchases_insertion(cursor) is False
         assert invoices_insertions.control_sales_insertion(cursor) is False
 
-    invoice = make_invoice(invoice_amount_without_tax=Decimal("999"))
+    invoice = make_invoice(invoice_amount_without_tax=Decimal(999))
     make_detail(invoice)
-    sale = make_sale_invoice(invoice_amount_tax=Decimal("999"))
+    sale = make_sale_invoice(invoice_amount_tax=Decimal(999))
     make_sale_detail(sale)
 
     with connection.cursor() as cursor:
@@ -187,7 +213,11 @@ def test_reinitialize_nums_sans_factures_ni_compteurs(make_counter):
         invoices_insertions.reinitialize_purchase_invoices_nums(cursor)
         invoices_insertions.reinitialize_sales_invoices_nums(cursor)
 
-    make_counter("purchase_num", num=9, uuid_identification=invoices_insertions.UUID("ad95c27f-9800-46d4-8e63-55191023f0a4"))
+    make_counter(
+        "purchase_num",
+        num=9,
+        uuid_identification=invoices_insertions.UUID("ad95c27f-9800-46d4-8e63-55191023f0a4"),
+    )
 
     with connection.cursor() as cursor:
         invoices_insertions.reinitialize_purchase_invoices_nums(cursor)
@@ -195,7 +225,15 @@ def test_reinitialize_nums_sans_factures_ni_compteurs(make_counter):
     assert CounterNums.objects.get(counter__name="purchase_num").num == 1
 
 
-def test_sanitaze_before(make_invoice, make_detail, make_sale_invoice, make_sale_detail, make_invoice_common_details, invoices_dirs, settings):
+def test_sanitaze_before(
+    make_invoice,
+    make_detail,
+    make_sale_invoice,
+    make_sale_detail,
+    make_invoice_common_details,
+    invoices_dirs,
+    settings,
+):
     settings.SALES_INVOICES_FILES_DIR = invoices_dirs.sales
     keep = make_invoice(final=True)
     make_detail(keep, final=True)
@@ -228,7 +266,7 @@ def test_copy_edi_import(make_edi_import):
         cursor.execute("DROP TABLE IF EXISTS edi_ediimport_copy")
 
 
-class ClosedStringIO(__import__("io").StringIO):
+class ClosedStringIO(io.StringIO):
     """StringIO qui se déclare fermé : la fermeture du buffer est alors sautée"""
 
     @property
@@ -236,7 +274,7 @@ class ClosedStringIO(__import__("io").StringIO):
         return True
 
 
-class BrokenStringIO(__import__("io").StringIO):
+class BrokenStringIO(io.StringIO):
     """StringIO dont l'attribut closed est cassé : la fermeture lève AttributeError (attrapée)"""
 
     @property
@@ -252,16 +290,18 @@ def test_fermeture_du_buffer(billing_dataset, monkeypatch, function, buffer):
 
     with patched_attrs(monkeypatch, invoices_insertions.io, StringIO=buffer):
         with connection.cursor() as cursor:
-            error, _ = getattr(invoices_insertions, function)(cursor, billing_dataset.user, INVOICE_DATE)
+            error, _ = getattr(invoices_insertions, function)(
+                cursor, billing_dataset.user, INVOICE_DATE
+            )
 
     assert error is False
 
 
 # PROCESSUS COMPLET ================================================================================
-@pytest.mark.usefixtures('keep_connection', 'sync_controls')
+@pytest.mark.usefixtures("keep_connection", "sync_controls")
 def test_invoices_insertion_complete(billing_dataset, monkeypatch):
     """Pré-contrôle sans manquant, insertion complète achats + ventes"""
-    with patched_attrs(monkeypatch, invoices_insertions, control_alls_missings=lambda: {}):
+    with patched_attrs(monkeypatch, invoices_insertions, control_alls_missings=dict):
         trace, message = run_insertion(billing_dataset)
 
     assert message == ""
@@ -277,7 +317,7 @@ def test_invoices_insertion_complete(billing_dataset, monkeypatch):
 
     sale = SaleInvoice.objects.get()
     details = list(SaleInvoiceDetail.objects.filter(uuid_invoice=sale).order_by("net_amount"))
-    assert [row.net_amount for row in details] == [Decimal("50"), Decimal("100")]
+    assert [row.net_amount for row in details] == [Decimal(50), Decimal(100)]
     assert details[0].account == "707000"
     assert details[0].grouping_goods == "MONTURES"
     assert sale.collectif == "707"
@@ -290,14 +330,18 @@ def test_invoices_insertion_complete(billing_dataset, monkeypatch):
     assert progress.processed_items >= 12
 
 
-@pytest.mark.usefixtures('keep_connection', 'sync_controls')
+@pytest.mark.usefixtures("keep_connection", "sync_controls")
 def test_invoices_insertion_erreur_controle_achats(billing_dataset, monkeypatch, caplog):
     """Contrôle des achats en échec ; le pré-contrôle renvoie aussi des manquants (branche non bloquante)"""
-    with patched_attrs(
-        monkeypatch, invoices_insertions,
-        control_purchases_insertion=lambda cursor: True,
-        control_alls_missings=lambda: {"tiers": ("Il manque des tiers X3", "")},
-    ), caplog.at_level("ERROR", logger="edi"):
+    with (
+        patched_attrs(
+            monkeypatch,
+            invoices_insertions,
+            control_purchases_insertion=lambda cursor: True,
+            control_alls_missings=lambda: {"tiers": ("Il manque des tiers X3", "")},
+        ),
+        caplog.at_level("ERROR", logger="edi"),
+    ):
         _, message = run_insertion(billing_dataset)
 
     assert "factures d'achat" in message
@@ -305,26 +349,32 @@ def test_invoices_insertion_erreur_controle_achats(billing_dataset, monkeypatch,
     assert "factures d'achat" in caplog.text
 
 
-@pytest.mark.usefixtures('keep_connection', 'sync_controls')
+@pytest.mark.usefixtures("keep_connection", "sync_controls")
 def test_invoices_insertion_erreur_entetes_achats(billing_dataset, monkeypatch):
-    with patched_attrs(monkeypatch, invoices_insertions, set_purchases_invoices=lambda c, u, d: (True, "ko")):
+    with patched_attrs(
+        monkeypatch, invoices_insertions, set_purchases_invoices=lambda c, u, d: (True, "ko")
+    ):
         run_insertion(billing_dataset)
 
     assert SSEProgress.objects.get(job_id=billing_dataset.progress.job_id).status == "failed"
     assert Invoice.objects.count() == 0
 
 
-@pytest.mark.usefixtures('keep_connection', 'sync_controls')
+@pytest.mark.usefixtures("keep_connection", "sync_controls")
 def test_invoices_insertion_erreur_entetes_ventes(billing_dataset, monkeypatch):
-    with patched_attrs(monkeypatch, invoices_insertions, set_sales_invoices=lambda c, u, d: (True, "ko")):
+    with patched_attrs(
+        monkeypatch, invoices_insertions, set_sales_invoices=lambda c, u, d: (True, "ko")
+    ):
         run_insertion(billing_dataset)
 
     assert SSEProgress.objects.get(job_id=billing_dataset.progress.job_id).status == "failed"
 
 
-@pytest.mark.usefixtures('keep_connection', 'sync_controls')
+@pytest.mark.usefixtures("keep_connection", "sync_controls")
 def test_invoices_insertion_erreur_controle_ventes(billing_dataset, monkeypatch):
-    with patched_attrs(monkeypatch, invoices_insertions, control_sales_insertion=lambda cursor: True):
+    with patched_attrs(
+        monkeypatch, invoices_insertions, control_sales_insertion=lambda cursor: True
+    ):
         _, message = run_insertion(billing_dataset)
 
     assert "factures de vente" in message
@@ -332,16 +382,22 @@ def test_invoices_insertion_erreur_controle_ventes(billing_dataset, monkeypatch)
 
 
 @pytest.mark.parametrize("exception", [PostgresKeyError("clé"), PostgresTypeError("type")])
-@pytest.mark.usefixtures('keep_connection', 'sync_controls')
+@pytest.mark.usefixtures("keep_connection", "sync_controls")
 def test_invoices_insertion_erreurs_postgres(billing_dataset, monkeypatch, exception, caplog):
-    with raising_once(exception) as boom, patched_attrs(monkeypatch, invoices_insertions, set_fix_uuid=boom), caplog.at_level("ERROR", logger="edi"):
+    with (
+        raising_once(exception) as boom,
+        patched_attrs(monkeypatch, invoices_insertions, set_fix_uuid=boom),
+        caplog.at_level("ERROR", logger="edi"),
+    ):
         run_insertion(billing_dataset)
 
     assert type(exception).__name__ in caplog.text
     assert SSEProgress.objects.get(job_id=billing_dataset.progress.job_id).status == "failed"
 
 
-@pytest.mark.parametrize(("node", "expected"), [("MSI", r"C:\SitesWeb\heron"), ("serveur", "/home/paulo/heron")])
+@pytest.mark.parametrize(
+    ("node", "expected"), [("MSI", r"C:\SitesWeb\heron"), ("serveur", "/home/paulo/heron")]
+)
 def test_base_dir_selon_la_machine(monkeypatch, node, expected):
     monkeypatch.setattr(sys, "path", list(sys.path))
 

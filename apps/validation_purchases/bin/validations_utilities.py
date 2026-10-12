@@ -1,6 +1,6 @@
-"""
-FR : Module des utilitaires pour la validation
-EN : Utilities Modul for validation
+"""FR : Module des utilitaires pour la validation.
+
+EN : Utilities Modul for validation.
 
 Commentaire:
 
@@ -10,22 +10,22 @@ created by: Paulo ALVES
 modified at: 2023-25-25
 modified by: Paulo ALVES
 """
-from typing import AnyStr
-from uuid import uuid4
+
 from copy import deepcopy
+from uuid import uuid4
 
 import pendulum
 from django.db import connection
-from django.db.models import Q, Count
+from django.db.models import Count, Q
 
-from heron.loggers import LOGGER_EDI
-from apps.edi.models import EdiImport, EdiValidation
 from apps.data_flux.models import Trace
+from apps.edi.models import EdiImport, EdiValidation
+from heron.loggers import LOGGER_EDI
 
 
-def set_is_multi_store(third_party_num: AnyStr, invoice_number: AnyStr, invoice_year: int):
-    """
-    Update des lignes de factures edi_ediimport, sur le champ multistore
+def set_is_multi_store(third_party_num: str, invoice_number: str, invoice_year: int):
+    """Update des lignes de factures edi_ediimport, sur le champ multistore.
+
     :param third_party_num: Tiers X3
     :param invoice_number: N° de Facture
     :param invoice_year: Année de facture
@@ -34,24 +34,24 @@ def set_is_multi_store(third_party_num: AnyStr, invoice_number: AnyStr, invoice_
     with connection.cursor() as cursor:
         sql_update = """
         update "edi_ediimport" "edi"
-        set "is_multi_store"= case 
-                                when "req"."nbre" = 1 
+        set "is_multi_store"= case
+                                when "req"."nbre" = 1
                                 then false
                                 else true
                               end
         from (
-            select 
+            select
                 sum("nbre") as "nbre",
                 "third_party_num",
                 "invoice_number",
                 "invoice_year"
             from (
-                select 
-                    1 as nbre, 
+                select
+                    1 as nbre,
                     "third_party_num",
                     "invoice_number",
                     "invoice_year"
-                from "edi_ediimport" 
+                from "edi_ediimport"
                 where"third_party_num" = %(third_party_num)s
                   and "invoice_number" = %(invoice_number)s
                   and "invoice_year" = %(invoice_year)s
@@ -80,8 +80,10 @@ def set_is_multi_store(third_party_num: AnyStr, invoice_number: AnyStr, invoice_
 
 def verify_supplier_ident():
     """Vérification qu'il ne manque pas les identifiants fournisseurs dans les imports edi.
+
     S'il y en a qui n'existent pas alors on supprime la trace et on en crée une nouvelle
-    et les lignes dans edi import sont supprimées"""
+    et les lignes dans edi import sont supprimées.
+    """
     rows_list = (
         EdiImport.objects.filter(
             Q(third_party_num="")
@@ -110,12 +112,12 @@ def verify_supplier_ident():
 
 
 def flag_invoices():
-    """Flag de la colonne invoices à True"""
+    """Flag de la colonne invoices à True."""
     sql_update = """
     update "data_flux_trace" "dt"
-    set "invoices" = true 
+    set "invoices" = true
     from (
-        select 
+        select
             "uuid_identification"
         from "edi_ediimport" "ee"
         group by "uuid_identification"
@@ -128,8 +130,8 @@ def flag_invoices():
 
 
 def create_edi_validation():
-    """
-    Création de la validation pour la facturation en cours si elle n'existe pas
+    """Création de la validation pour la facturation en cours si elle n'existe pas.
+
     :return:
     """
     edi_validation = (

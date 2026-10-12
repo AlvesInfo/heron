@@ -9,6 +9,7 @@ url = "https://javascript-minifier.com/raw"
 
 def minify(file, file_minify):
     """Appel d'une api rest pour minifier un fichier js
+
         :param file: fichier à minifier
         :param file_minify: nom du fichier minifier
         :return: text js minifié

@@ -1,6 +1,6 @@
-"""
-FR : Module de recherches et get des articles
-EN : Search and get module for articles
+"""FR : Module de recherches et get des articles.
+
+EN : Search and get module for articles.
 
 Commentaire:
 
@@ -10,18 +10,17 @@ created by: Paulo ALVES
 modified at: 2023-03-24
 modified by: Paulo ALVES
 """
-from typing import List, Dict
 
-from django.db.models import Case, When, Q, F
+from django.db.models import Case, F, Q, When
 
 from apps.articles.models import Article
 
 
-def get_articles(articles_pk_list: List) -> Dict:
-    """
-    Renvoie un dictionnaire des articles recherchés
+def get_articles(articles_pk_list: list) -> dict:
+    """Renvoie un dictionnaire des articles recherchés.
+
     :param articles_pk_list: liste  des articles recherchés
-    :return: Article.objects.values
+    :return: Article.objects.values.
     """
     articles = (
         Article.objects.filter(pk__in=articles_pk_list)
@@ -48,11 +47,9 @@ def get_articles(articles_pk_list: List) -> Dict:
             "big_category",
             "sub_category",
             "customs_code",
-            "item_weight"
-        ).annotate(
-            libelle=F("libelle_article"),
-            reference_article=F("reference")
+            "item_weight",
         )
+        .annotate(libelle=F("libelle_article"), reference_article=F("reference"))
         .values(
             "pk",
             "reference_article",
@@ -67,20 +64,20 @@ def get_articles(articles_pk_list: List) -> Dict:
             "big_category",
             "sub_category",
             "customs_code",
-            "item_weight"
+            "item_weight",
         )
     )
 
     return {row.pop("pk"): row for row in articles}
 
 
-def get_article(article_pk: int) -> Dict:
-    """
-    Renvoie un dictionnaire de l'article recherché
+def get_article(article_pk: int) -> dict:
+    """Renvoie un dictionnaire de l'article recherché.
+
     :param article_pk: id de l'article recherché
-    :return: Article.objects.values
+    :return: Article.objects.values.
     """
-    articles = (
+    return (
         Article.objects.filter(pk=article_pk)
         .annotate(
             libelle_article=Case(
@@ -106,10 +103,8 @@ def get_article(article_pk: int) -> Dict:
             "customs_code",
             "item_weight",
             "unit_weight",
-        ).annotate(
-            libelle=F("libelle_article"),
-            reference_article=F("reference")
         )
+        .annotate(libelle=F("libelle_article"), reference_article=F("reference"))
         .values(
             "reference_article",
             "ean_code",
@@ -128,5 +123,3 @@ def get_article(article_pk: int) -> Dict:
         )
         .first()
     )
-
-    return articles

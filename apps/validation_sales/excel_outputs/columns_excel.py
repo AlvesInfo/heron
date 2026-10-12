@@ -1,4 +1,4 @@
-"""Module pour la définition des colonnes excel pour le module compta
+"""Module pour la définition des colonnes excel pour le module compta.
 
 Commentaire:
 
@@ -14,21 +14,16 @@ from apps.core.excel_outputs.excel_writer import (
     f_ligne,
 )
 
-
 columns_sales_heron = [
     {
         "entete": "Centrale",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -36,15 +31,11 @@ columns_sales_heron = [
         "entete": "Enseigne",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -52,15 +43,11 @@ columns_sales_heron = [
         "entete": "Type\nVente",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -68,15 +55,11 @@ columns_sales_heron = [
         "entete": "CCT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -84,15 +67,11 @@ columns_sales_heron = [
         "entete": "Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 25,
     },
@@ -100,15 +79,11 @@ columns_sales_heron = [
         "entete": "Tiers\nClient",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -116,15 +91,11 @@ columns_sales_heron = [
         "entete": "Non Tiers client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 25,
     },
@@ -132,15 +103,11 @@ columns_sales_heron = [
         "entete": "N° Facture\nSage",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -148,15 +115,11 @@ columns_sales_heron = [
         "entete": "N° Facture\nHéron",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 16,
     },
@@ -164,15 +127,11 @@ columns_sales_heron = [
         "entete": "Date\nFacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -180,15 +139,11 @@ columns_sales_heron = [
         "entete": "Total HT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -196,15 +151,11 @@ columns_sales_heron = [
         "entete": "Total TVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -212,15 +163,11 @@ columns_sales_heron = [
         "entete": "Total TTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -228,9 +175,7 @@ columns_sales_heron = [
         "entete": "Grande\nCatégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
@@ -241,15 +186,11 @@ columns_sales_heron = [
         "entete": "Tiers\nFournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -257,15 +198,11 @@ columns_sales_heron = [
         "entete": "Nom\nFournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 25,
     },
@@ -273,15 +210,11 @@ columns_sales_heron = [
         "entete": "Type\nFacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 7,
     },
@@ -289,15 +222,11 @@ columns_sales_heron = [
         "entete": "N° Pièce\nFournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-            },
+            "num_format": "@",
         },
         "width": 25,
     },
@@ -305,15 +234,11 @@ columns_sales_heron = [
         "entete": "Date\nPièce",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "dd/mm/yyyy",
-            },
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -321,15 +246,11 @@ columns_sales_heron = [
         "entete": "Référence Article",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 25,
     },
@@ -337,15 +258,11 @@ columns_sales_heron = [
         "entete": "Libellé",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 35,
     },
@@ -353,15 +270,11 @@ columns_sales_heron = [
         "entete": "Qty",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0",
-            },
+            "num_format": "#,##0",
         },
         "width": 6,
     },
@@ -369,15 +282,11 @@ columns_sales_heron = [
         "entete": "P.U HT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
@@ -385,15 +294,11 @@ columns_sales_heron = [
         "entete": "Montant\nHT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -401,16 +306,12 @@ columns_sales_heron = [
         "entete": "VAT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "@",
-            },
+            "align": "center",
+            "num_format": "@",
         },
         "width": 7,
     },
@@ -418,15 +319,11 @@ columns_sales_heron = [
         "entete": "Taux\nTVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00 %",
-            },
+            "num_format": "#,##0.00 %",
         },
         "width": 7,
     },
@@ -434,15 +331,11 @@ columns_sales_heron = [
         "entete": "Montant\nTVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -450,15 +343,11 @@ columns_sales_heron = [
         "entete": "Montant\nTTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -466,15 +355,11 @@ columns_sales_heron = [
         "entete": "Axe BU",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -482,15 +367,11 @@ columns_sales_heron = [
         "entete": "Axe PRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -498,15 +379,11 @@ columns_sales_heron = [
         "entete": "Axe PRJ",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -514,15 +391,11 @@ columns_sales_heron = [
         "entete": "Axe PYS",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -530,15 +403,11 @@ columns_sales_heron = [
         "entete": "Axe RFA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -546,16 +415,12 @@ columns_sales_heron = [
         "entete": "Compte\nX3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-                "align": "center",
-            },
+            "num_format": "@",
+            "align": "center",
         },
         "width": 11,
     },
@@ -563,16 +428,12 @@ columns_sales_heron = [
         "entete": "Axe BU\nOD",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-                "align": "center",
-            },
+            "num_format": "@",
+            "align": "center",
         },
         "width": 11,
     },
@@ -580,16 +441,12 @@ columns_sales_heron = [
         "entete": "Compte X3\nOD",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "@",
-                "align": "center",
-            },
+            "num_format": "@",
+            "align": "center",
         },
         "width": 11,
     },
@@ -597,15 +454,11 @@ columns_sales_heron = [
         "entete": "Grande\nCatégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -613,15 +466,11 @@ columns_sales_heron = [
         "entete": "Rubrique Presta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -629,15 +478,11 @@ columns_sales_heron = [
         "entete": "Bases\nFacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -645,15 +490,11 @@ columns_sales_heron = [
         "entete": "Regroupement",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },

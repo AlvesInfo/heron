@@ -1,11 +1,12 @@
 """Tests d'accessibilité des gabarits : une action au clic est portée par un élément natif"""
+
 import re
 from pathlib import Path
 
 from apps.core.functions.functions_setups import settings
 
 TAG = re.compile(
-    r"<([a-zA-Z][a-zA-Z0-9]*)\b((?:[^<>\"'`]|\"[^\"]*\"|'[^']*'|`[^`]*`)*)>", re.S
+    r"<([a-zA-Z][a-zA-Z0-9]*)\b((?:[^<>\"'`]|\"[^\"]*\"|'[^']*'|`[^`]*`)*)>", re.DOTALL
 )
 NATIVE = {"button", "input", "select", "textarea", "option", "summary", "body", "form"}
 

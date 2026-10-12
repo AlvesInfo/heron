@@ -1,4 +1,4 @@
-"""Module pour la définition des colonnes excel pour le module book
+"""Module pour la définition des colonnes excel pour le module book.
 
 Commentaire:
 
@@ -16,22 +16,18 @@ from apps.core.excel_outputs.excel_writer import (
 
 
 class SocietiesColumns:
-    """Class pour choix des colonnes en fonction du type des sociétés"""
+    """Class pour choix des colonnes en fonction du type des sociétés."""
 
     columns_list_tiers = [
         {
             "entete": "N° de tiers x3",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 14,
         },
@@ -39,15 +35,11 @@ class SocietiesColumns:
             "entete": "Name",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 35,
         },
@@ -55,15 +47,11 @@ class SocietiesColumns:
             "entete": "Intitulé court",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -71,15 +59,11 @@ class SocietiesColumns:
             "entete": "Raison sociale",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -87,15 +71,11 @@ class SocietiesColumns:
             "entete": "Entête Facture",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -103,15 +83,11 @@ class SocietiesColumns:
             "entete": "N° siret",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 14,
         },
@@ -119,15 +95,11 @@ class SocietiesColumns:
             "entete": "N° tva intracommunataire",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 18,
         },
@@ -135,15 +107,11 @@ class SocietiesColumns:
             "entete": "Vat number",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -151,15 +119,11 @@ class SocietiesColumns:
             "entete": "Catégorie client",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -167,15 +131,11 @@ class SocietiesColumns:
             "entete": "Catégorie fournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -183,15 +143,11 @@ class SocietiesColumns:
             "entete": "Code naf",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 10,
         },
@@ -199,15 +155,11 @@ class SocietiesColumns:
             "entete": "Monaie",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 8,
         },
@@ -215,15 +167,11 @@ class SocietiesColumns:
             "entete": "Pays",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -231,15 +179,11 @@ class SocietiesColumns:
             "entete": "Langue",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 8,
         },
@@ -247,15 +191,11 @@ class SocietiesColumns:
             "entete": "Code budget",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 7,
         },
@@ -263,15 +203,11 @@ class SocietiesColumns:
             "entete": "Réviseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 8,
         },
@@ -279,15 +215,11 @@ class SocietiesColumns:
             "entete": "Conditions de paiement\nFournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 25,
         },
@@ -295,15 +227,11 @@ class SocietiesColumns:
             "entete": "Régime de taxe",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 7,
         },
@@ -311,15 +239,11 @@ class SocietiesColumns:
             "entete": "Code comptable fournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -327,15 +251,11 @@ class SocietiesColumns:
             "entete": "Condition de paiement\nClient",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 25,
         },
@@ -343,15 +263,11 @@ class SocietiesColumns:
             "entete": "Régime de taxe",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 7,
         },
@@ -359,15 +275,11 @@ class SocietiesColumns:
             "entete": "Code comptable client",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -375,15 +287,11 @@ class SocietiesColumns:
             "entete": "Client",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -391,15 +299,11 @@ class SocietiesColumns:
             "entete": "Représentant",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -407,15 +311,11 @@ class SocietiesColumns:
             "entete": "Prospect",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -423,15 +323,11 @@ class SocietiesColumns:
             "entete": "Fournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -439,15 +335,11 @@ class SocietiesColumns:
             "entete": "Tiers divers",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -455,15 +347,11 @@ class SocietiesColumns:
             "entete": "Prestataire",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -471,15 +359,11 @@ class SocietiesColumns:
             "entete": "Transporteur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -487,15 +371,11 @@ class SocietiesColumns:
             "entete": "Donneur d'ordre",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -503,15 +383,11 @@ class SocietiesColumns:
             "entete": "Personne physique",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -519,15 +395,11 @@ class SocietiesColumns:
             "entete": "Email 01",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -535,15 +407,11 @@ class SocietiesColumns:
             "entete": "Email 02",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -551,15 +419,11 @@ class SocietiesColumns:
             "entete": "Email 03",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -567,15 +431,11 @@ class SocietiesColumns:
             "entete": "Email 04",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -583,15 +443,11 @@ class SocietiesColumns:
             "entete": "Email 05",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -602,15 +458,11 @@ class SocietiesColumns:
             "entete": "N° de tiers x3",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 14,
         },
@@ -618,15 +470,11 @@ class SocietiesColumns:
             "entete": "Name",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 35,
         },
@@ -634,15 +482,11 @@ class SocietiesColumns:
             "entete": "Intitulé court",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -650,15 +494,11 @@ class SocietiesColumns:
             "entete": "Raison sociale",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -666,15 +506,11 @@ class SocietiesColumns:
             "entete": "Entête Facture",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -682,15 +518,11 @@ class SocietiesColumns:
             "entete": "N° siret",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 14,
         },
@@ -698,15 +530,11 @@ class SocietiesColumns:
             "entete": "N° tva intracommunataire",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 18,
         },
@@ -714,15 +542,11 @@ class SocietiesColumns:
             "entete": "Vat number",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -730,15 +554,11 @@ class SocietiesColumns:
             "entete": "Catégorie client",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -746,15 +566,11 @@ class SocietiesColumns:
             "entete": "Catégorie fournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -762,15 +578,11 @@ class SocietiesColumns:
             "entete": "Code naf",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 10,
         },
@@ -778,15 +590,11 @@ class SocietiesColumns:
             "entete": "Monaie",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 8,
         },
@@ -794,15 +602,11 @@ class SocietiesColumns:
             "entete": "Pays",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -810,15 +614,11 @@ class SocietiesColumns:
             "entete": "Langue",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 8,
         },
@@ -826,15 +626,11 @@ class SocietiesColumns:
             "entete": "Code budget",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 7,
         },
@@ -842,15 +638,11 @@ class SocietiesColumns:
             "entete": "Réviseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 8,
         },
@@ -858,15 +650,11 @@ class SocietiesColumns:
             "entete": "Conditions de paiement\nFournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 25,
         },
@@ -874,15 +662,11 @@ class SocietiesColumns:
             "entete": "Régime de taxe",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 7,
         },
@@ -890,15 +674,11 @@ class SocietiesColumns:
             "entete": "Code comptable fournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -906,15 +686,11 @@ class SocietiesColumns:
             "entete": "Condition de paiement\nClient",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 25,
         },
@@ -922,15 +698,11 @@ class SocietiesColumns:
             "entete": "Régime de taxe",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 7,
         },
@@ -938,15 +710,11 @@ class SocietiesColumns:
             "entete": "Code comptable client",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -954,15 +722,11 @@ class SocietiesColumns:
             "entete": "Fournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -970,15 +734,11 @@ class SocietiesColumns:
             "entete": "Email 01",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -986,15 +746,11 @@ class SocietiesColumns:
             "entete": "Email 02",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -1002,15 +758,11 @@ class SocietiesColumns:
             "entete": "Email 03",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -1018,15 +770,11 @@ class SocietiesColumns:
             "entete": "Email 04",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -1034,15 +782,11 @@ class SocietiesColumns:
             "entete": "Email 05",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -1053,15 +797,11 @@ class SocietiesColumns:
             "entete": "N° de tiers x3",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 14,
         },
@@ -1069,15 +809,11 @@ class SocietiesColumns:
             "entete": "Name",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 35,
         },
@@ -1085,15 +821,11 @@ class SocietiesColumns:
             "entete": "Intitulé court",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -1101,15 +833,11 @@ class SocietiesColumns:
             "entete": "Raison sociale",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -1117,15 +845,11 @@ class SocietiesColumns:
             "entete": "Entête Facture",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -1133,15 +857,11 @@ class SocietiesColumns:
             "entete": "N° siret",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 14,
         },
@@ -1149,15 +869,11 @@ class SocietiesColumns:
             "entete": "N° tva intracommunataire",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 18,
         },
@@ -1165,15 +881,11 @@ class SocietiesColumns:
             "entete": "Vat number",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 15,
         },
@@ -1181,15 +893,11 @@ class SocietiesColumns:
             "entete": "Catégorie client",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -1197,15 +905,11 @@ class SocietiesColumns:
             "entete": "Catégorie fournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -1213,15 +917,11 @@ class SocietiesColumns:
             "entete": "Code naf",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 10,
         },
@@ -1229,15 +929,11 @@ class SocietiesColumns:
             "entete": "Monaie",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 8,
         },
@@ -1245,15 +941,11 @@ class SocietiesColumns:
             "entete": "Pays",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -1261,15 +953,11 @@ class SocietiesColumns:
             "entete": "Langue",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 8,
         },
@@ -1277,15 +965,11 @@ class SocietiesColumns:
             "entete": "Code budget",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 7,
         },
@@ -1293,15 +977,11 @@ class SocietiesColumns:
             "entete": "Réviseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 8,
         },
@@ -1309,15 +989,11 @@ class SocietiesColumns:
             "entete": "Conditions de paiement\nFournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 25,
         },
@@ -1325,15 +1001,11 @@ class SocietiesColumns:
             "entete": "Régime de taxe",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 7,
         },
@@ -1341,15 +1013,11 @@ class SocietiesColumns:
             "entete": "Code comptable fournisseur",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -1357,15 +1025,11 @@ class SocietiesColumns:
             "entete": "Condition de paiement\nClient",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 25,
         },
@@ -1373,15 +1037,11 @@ class SocietiesColumns:
             "entete": "Régime de taxe",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 7,
         },
@@ -1389,15 +1049,11 @@ class SocietiesColumns:
             "entete": "Code comptable client",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 11,
         },
@@ -1405,15 +1061,11 @@ class SocietiesColumns:
             "entete": "Client",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "center",
-                },
+                "align": "center",
             },
             "width": 12,
         },
@@ -1421,15 +1073,11 @@ class SocietiesColumns:
             "entete": "Email 01",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -1437,15 +1085,11 @@ class SocietiesColumns:
             "entete": "Email 02",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -1453,15 +1097,11 @@ class SocietiesColumns:
             "entete": "Email 03",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -1469,15 +1109,11 @@ class SocietiesColumns:
             "entete": "Email 04",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -1485,15 +1121,11 @@ class SocietiesColumns:
             "entete": "Email 05",
             "f_entete": {
                 **f_entetes,
-                **{
-                    "bg_color": "#dce7f5",
-                },
+                "bg_color": "#dce7f5",
             },
             "f_ligne": {
                 **f_ligne,
-                **{
-                    "align": "left",
-                },
+                "align": "left",
             },
             "width": 20,
         },
@@ -1505,15 +1137,11 @@ columns_list_statistiques = [
         "entete": "Nom",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#CCC0DA",
-            },
+            "bg_color": "#CCC0DA",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -1521,13 +1149,11 @@ columns_list_statistiques = [
         "entete": "Description",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#CCC0DA",
-            },
+            "bg_color": "#CCC0DA",
         },
         "f_ligne": {
             **f_ligne,
-            **{"text_wrap": True},
+            "text_wrap": True,
         },
         "width": 30,
     },
@@ -1535,13 +1161,12 @@ columns_list_statistiques = [
         "entete": "Regex",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#CCC0DA",
-            },
+            "bg_color": "#CCC0DA",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center", "bold": True},
+            "align": "center",
+            "bold": True,
         },
         "width": 6,
     },
@@ -1549,15 +1174,11 @@ columns_list_statistiques = [
         "entete": "Colonne",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 15,
     },
@@ -1565,13 +1186,10 @@ columns_list_statistiques = [
         "entete": "regex_match",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 30,
     },
@@ -1579,13 +1197,10 @@ columns_list_statistiques = [
         "entete": "expected_result",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 30,
     },
@@ -1593,15 +1208,11 @@ columns_list_statistiques = [
         "entete": "Axe Pro",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },
@@ -1609,13 +1220,11 @@ columns_list_statistiques = [
         "entete": "Description",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"text_wrap": True},
+            "text_wrap": True,
         },
         "width": 38,
     },
@@ -1623,13 +1232,10 @@ columns_list_statistiques = [
         "entete": "Norme",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 18,
     },
@@ -1637,13 +1243,10 @@ columns_list_statistiques = [
         "entete": "Commentaire",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 50,
     },
@@ -1651,15 +1254,11 @@ columns_list_statistiques = [
         "entete": "Grande Catégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -1667,15 +1266,11 @@ columns_list_statistiques = [
         "entete": "Rubrique Presta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -1683,15 +1278,11 @@ columns_list_statistiques = [
         "entete": "Poids",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -1699,15 +1290,11 @@ columns_list_statistiques = [
         "entete": "Unité",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },
@@ -1715,15 +1302,11 @@ columns_list_statistiques = [
         "entete": "Code douannier",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },

@@ -1,11 +1,13 @@
+"""FR : Script autonome de génération du fichier générique interne des factures Chronodirect.
+
+EN : Standalone script generating the internal generic invoices file for Chronodirect.
 """
-FR : Script autonome de génération du fichier générique interne des factures Chronodirect
-EN : Standalone script generating the internal generic invoices file for Chronodirect
-"""
+
 import csv
 import logging
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 import psycopg2
 from psycopg2.extensions import parse_dsn
@@ -14,16 +16,16 @@ LOGGER = logging.getLogger("edi")
 
 
 def cnx_postgresql(string_of_connexion):
-    """
-    Fonction de connexion à Postgresql par psycopg2
-        :param string_of_connexion: cnx_string = (
-                                        f"dbname={NAME_DATABASE} "
-                                        f"user={USER_DATABASE} "
-                                        f"password={PASSWORD_DATABASE} "
-                                        f"host={HOST_DATABASE} "
-                                        f"port={PORT_DATABASE}"
-                                    )
-        :return: cnx
+    """Fonction de connexion à Postgresql par psycopg2.
+
+    :param string_of_connexion: cnx_string = (
+                                    f"dbname={NAME_DATABASE} "
+                                    f"user={USER_DATABASE} "
+                                    f"password={PASSWORD_DATABASE} "
+                                    f"host={HOST_DATABASE} "
+                                    f"port={PORT_DATABASE}"
+                                )
+    :return: cnx.
     """
     try:
         kwargs_cnx = parse_dsn(string_of_connexion)
@@ -37,13 +39,13 @@ def cnx_postgresql(string_of_connexion):
 
 
 def query_select(cnx, sql_requete=None, params=None):
-    """
-    Fonction qui retourne le resultat d'une requête sql Postgresql.
-        :param cnx: Connexion à la base postgresql psycopg2
-        :param sql_requete: requête selection souhaitée
-                                ex: "SELECT * FROM table"
-        :param params: dictionnaire des paramètes à passer
-        :return: La liste des éléments de la requête
+    """Fonction qui retourne le resultat d'une requête sql Postgresql.
+
+    :param cnx: Connexion à la base postgresql psycopg2
+    :param sql_requete: requête selection souhaitée
+                            ex: "SELECT * FROM table"
+    :param params: dictionnaire des paramètes à passer
+    :return: La liste des éléments de la requête.
     """
     if sql_requete:
         try:
@@ -52,9 +54,7 @@ def query_select(cnx, sql_requete=None, params=None):
                     cur.execute(sql_requete, params)
                 else:
                     cur.execute(sql_requete)
-                list_rows = cur.fetchall()
-                # print(cur.mogrify(sql_requete, params).decode())
-            return list_rows
+                return cur.fetchall()
 
         except psycopg2.Error:
             LOGGER.exception("query_select error")
@@ -62,9 +62,8 @@ def query_select(cnx, sql_requete=None, params=None):
 
 
 def set_generique_chrono_direct(cnx_dns, base_file_path, internal_file_path, dte_fac):
-    """Table pour génération des factures chronodirect"""
-
-    base_dict = {
+    """Table pour génération des factures chronodirect."""
+    base_dict: dict[str, Any] = {
         "fournisseur": "CHRONODIRECT",
         "siret_fournisseur": "43158017400024",
         "siret_payeur": "51778087000096",
@@ -104,12 +103,9 @@ def set_generique_chrono_direct(cnx_dns, base_file_path, internal_file_path, dte
         internal_file_path.open("w", encoding="utf8") as interne_file,
     ):
         query = query_select(
-            cnx,
-            sql_requete='select "reference_cosium", "cct" from "centers_clients_maison"'
+            cnx, sql_requete='select "reference_cosium", "cct" from "centers_clients_maison"'
         )
-        reference_dict = {
-            item[0]: item[1] for item in query
-        }
+        reference_dict = {item[0]: item[1] for item in query}
         csv_reader = csv.reader(file, delimiter=";", quotechar='"')
         interne_writer = csv.writer(
             interne_file,
@@ -125,9 +121,7 @@ def set_generique_chrono_direct(cnx_dns, base_file_path, internal_file_path, dte
             mont_cession = Decimal(line[4].replace(",", "."))
 
             if reference_dict.get(maison) is None:
-                raise ValueError(
-                    f"La référence cosium dans les client n'exite pas({maison})"
-                )
+                raise ValueError(f"La référence cosium dans les client n'exite pas({maison})")
 
             base_dict["code_maison"] = reference_dict.get(maison)
             base_dict["maison"] = maison
@@ -138,14 +132,14 @@ def set_generique_chrono_direct(cnx_dns, base_file_path, internal_file_path, dte
             )
             base_dict["libelle"] = line[0]
             base_dict["qte"] = qty
-            base_dict["px_unitaire_brut"] = round(mont_cession/qty, 2)
-            base_dict["px_unitaire_net"] = round(mont_cession/qty, 2)
+            base_dict["px_unitaire_brut"] = round(mont_cession / qty, 2)
+            base_dict["px_unitaire_net"] = round(mont_cession / qty, 2)
             base_dict["montant_brut"] = round(mont_cession, 2)
             base_dict["montant_remise"] = 0
             base_dict["montant_net"] = round(mont_cession, 2)
             base_dict["montant_tva"] = round(round(mont_cession, 2) * Decimal("0.2"), 2)
-            base_dict["montant_ttc"] = (
-                    round(round(mont_cession, 2) * Decimal("0.2"), 2) + round(mont_cession, 2)
+            base_dict["montant_ttc"] = round(round(mont_cession, 2) * Decimal("0.2"), 2) + round(
+                mont_cession, 2
             )
             base_dict["num_facture"] = f"GENERIQUE_INTERNAL_CHRONODIRECT_{dte_fac}"
 
@@ -162,13 +156,7 @@ if __name__ == "__main__":
     date_facture = "20250930"
     # =================================================================================
 
-    cnx_string = (
-        "dbname=heron "
-        "user=heron "
-        "password=heron "
-        "host=10.9.2.109 "
-        "port=5439"
-    )
+    cnx_string = "dbname=heron user=heron password=heron host=10.9.2.109 port=5439"
     file_path = Path(rf"/Users/paulo/Downloads/{nom_fichier_info}")
     interne_file_path = Path(
         rf"/Users/paulo/Downloads/generique_interne_chronodirect_{date_facture}.csv"

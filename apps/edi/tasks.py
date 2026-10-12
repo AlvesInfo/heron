@@ -1,6 +1,6 @@
-"""
-FR : Module d'import des factures founisseurs EDI sous task Celery
-EN : Import module for EDI incoives suppliers by celery tasks
+"""FR : Module d'import des factures founisseurs EDI sous task Celery.
+
+EN : Import module for EDI incoives suppliers by celery tasks.
 
 Commentaire:
 
@@ -11,27 +11,30 @@ modified at: 2023-02-23
 modified by: Paulo ALVES
 """
 
+import contextlib
 import shutil
-from pathlib import Path
-from typing import AnyStr
 import time
+from pathlib import Path
 from uuid import UUID
 
 from celery import shared_task
 from django.db import transaction
 
-from heron.loggers import LOGGER_EDI
 from apps.core.bin.clean_celery import clean_memory
 from apps.core.models import SSEProgress
+from apps.edi.bin.edi_post_processing_pool import (
+    edi_trace_supplier_insert,
+    post_processing_all,
+)
+from apps.edi.bin.exclusions import set_exclusions
 from apps.edi.imports.imports_suppliers_invoices_pool import (
     bbgr_bulk,
-    bbgr_statment,
     bbgr_monthly,
-    bbgr_retours,
     bbgr_receptions,
+    bbgr_retours,
+    bbgr_statment,
     cosium,
     cosium_achats,
-    transfert_cosium,
     edi,
     eye_confort,
     generique,
@@ -47,19 +50,16 @@ from apps.edi.imports.imports_suppliers_invoices_pool import (
     signia,
     starkey,
     technidis,
+    transfert_cosium,
     unitron,
     widex,
-    wsau,
     widex_ga,
+    wsau,
     z_bu_refac,
 )
-from apps.edi.bin.edi_post_processing_pool import (
-    post_processing_all,
-    edi_trace_supplier_insert,
-)
-from apps.edi.bin.exclusions import set_exclusions
-from apps.users.models import User
 from apps.parameters.bin.core import get_object
+from apps.users.models import User
+from heron.loggers import LOGGER_EDI
 
 processing_dict = {
     "BBGR_BULK": bbgr_bulk,
@@ -97,10 +97,11 @@ bbgr_dict = {
 
 
 def _update_progress(job_id, has_error, item_name):
-    """Avance la jauge SSEProgress d'un élément, en succès ou en échec
+    """Avance la jauge SSEProgress d'un élément, en succès ou en échec.
+
     :param job_id: identifiant du job suivi
     :param has_error: vrai si le traitement de l'élément a échoué
-    :param item_name: nom de l'élément traité (fichier, fonction ou tâche)
+    :param item_name: nom de l'élément traité (fichier, fonction ou tâche).
     """
     with transaction.atomic():
         progress = SSEProgress.objects.select_for_update().get(job_id=job_id)
@@ -121,45 +122,49 @@ def _update_progress(job_id, has_error, item_name):
 
 
 def _update_progress_logged(job_id, has_error, item_name):
-    """Avance la jauge SSEProgress ; une jauge absente ou en erreur est journalisée sans
-    interrompre la tâche
+    """Avance la jauge SSEProgress ; une jauge absente ou en erreur est journalisée sans.
+
+    interrompre la tâche.
     """
     try:
         _update_progress(job_id, has_error, item_name)
 
     except SSEProgress.DoesNotExist:
-        LOGGER_EDI.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
-    except Exception as progress_error:
-        LOGGER_EDI.exception(
-            f"Erreur mise à jour progression: {progress_error}"
-        )
+        LOGGER_EDI.warning("SSEProgress non trouvé pour job_id: %s", job_id)
+    except Exception:
+        LOGGER_EDI.exception("Erreur mise à jour progression")
 
 
 def _close_import_trace(trace, error):
-    """Marque la trace d'un import en erreur si besoin, puis la rattache aux factures
+    """Marque la trace d'un import en erreur si besoin, puis la rattache aux factures.
+
     :param trace: trace de l'import, None si elle n'a pas pu être créée
-    :param error: vrai si une exception a été levée pendant l'import
+    :param error: vrai si une exception a été levée pendant l'import.
     """
     if error and trace:
         trace.errors = True
-        trace.comment = (
-            trace.comment
-            + "\n. Une erreur c'est produite veuillez consulter les logs"
-        )
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     if trace is not None:
         trace.invoices = True
         trace.save()
 
 
+def _require_function(function, message: str):
+    """Renvoie la fonction d'import, LookupError (message donné) si aucune n'est associée."""
+    if function is None:
+        raise LookupError(message)
+
+    return function
+
+
 @shared_task(name="suppliers_import")
 @clean_memory
 def launch_suppliers_import(process_objects, user_pk, job_id=None):
-    """
-    Intégration des factures fournisseurs présentes
-    dans les répertoires de processing/suppliers_invoices_files
-    """
+    """Intégration des factures fournisseurs présentes.
 
+    dans les répertoires de processing/suppliers_invoices_files.
+    """
     start_initial = time.time()
 
     error = False
@@ -171,13 +176,13 @@ def launch_suppliers_import(process_objects, user_pk, job_id=None):
     function = processing_dict.get(processing_key)
     separator = "\n" + "=" * 142
     LOGGER_EDI.warning(separator)
-    LOGGER_EDI.warning(f"TASK STARTED: flow={str(processing_key).upper()!r} job_id={job_id!r}")
+    LOGGER_EDI.warning("TASK STARTED: flow=%r job_id=%r", str(processing_key).upper(), job_id)
 
     try:
-        if function is None:
-            raise LookupError(
-                f"Flux inconnu {processing_key!r} : aucun import n'est associé à ce répertoire"
-            )
+        function = _require_function(
+            function,
+            f"Flux inconnu {processing_key!r} : aucun import n'est associé à ce répertoire",
+        )
 
         user = User.objects.get(pk=user_pk)
         trace, to_print = function(file)
@@ -185,11 +190,11 @@ def launch_suppliers_import(process_objects, user_pk, job_id=None):
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        LOGGER_EDI.exception(f"TypeError : {except_error!r}")
+        LOGGER_EDI.exception("TypeError")
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale: {file.name}\n{except_error!r}")
+        LOGGER_EDI.exception("Exception Générale: %s", file.name)
 
     finally:
         # Vérifier trace.errors car la fonction ne propage pas les exceptions
@@ -207,10 +212,11 @@ def launch_suppliers_import(process_objects, user_pk, job_id=None):
             _update_progress_logged(job_id, has_error, file.name)
 
     LOGGER_EDI.warning(
-        to_print
-        + f"Validation {file.name} in : {time.time() - start_initial} s"
-        + "\n\n======================================================================="
-        "======================================================================="
+        "%sValidation %s in : %s s\n\n%s",
+        to_print,
+        file.name,
+        time.time() - start_initial,
+        "=" * 142,
     )
 
     return {"import : ": f"edi - {processing_key} - {time.time() - start_initial} s"}
@@ -219,11 +225,10 @@ def launch_suppliers_import(process_objects, user_pk, job_id=None):
 @shared_task(name="bbgr_bi")
 @clean_memory
 def launch_bbgr_bi_import(function_name, user_pk, job_id=None):
-    """
-    Intégration des factures bbgr issues de la BI
-    dans le répertoire de processing/suppliers_invoices_files
-    """
+    """Intégration des factures bbgr issues de la BI.
 
+    dans le répertoire de processing/suppliers_invoices_files.
+    """
     start_initial = time.time()
 
     error = False
@@ -232,8 +237,7 @@ def launch_bbgr_bi_import(function_name, user_pk, job_id=None):
     function = bbgr_dict.get(function_name)
 
     try:
-        if function is None:
-            raise LookupError(f"Import B.I inconnu {function_name!r}")
+        function = _require_function(function, f"Import B.I inconnu {function_name!r}")
 
         user = User.objects.get(pk=user_pk)
         trace, to_print = function()
@@ -242,11 +246,11 @@ def launch_bbgr_bi_import(function_name, user_pk, job_id=None):
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        LOGGER_EDI.exception(f"TypeError : {except_error!r}")
+        LOGGER_EDI.exception("TypeError")
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale: {function_name}\n{except_error!r}")
+        LOGGER_EDI.exception("Exception Générale: %s", function_name)
 
     finally:
         _close_import_trace(trace, error)
@@ -256,10 +260,11 @@ def launch_bbgr_bi_import(function_name, user_pk, job_id=None):
             _update_progress_logged(job_id, error, function_name)
 
     LOGGER_EDI.warning(
-        to_print
-        + f"Validation {function_name} in : {time.time() - start_initial} s"
-        + "\n\n======================================================================="
-        "======================================================================="
+        "%sValidation %s in : %s s\n\n%s",
+        to_print,
+        function_name,
+        time.time() - start_initial,
+        "=" * 142,
     )
 
     time_to_process = trace.time_to_process if trace is not None else time.time() - start_initial
@@ -270,7 +275,7 @@ def launch_bbgr_bi_import(function_name, user_pk, job_id=None):
 @shared_task(name="sql_clean_general")
 @clean_memory
 def launch_sql_clean_general(start_all, job_id=None):
-    """Realise les requêtes sql générale, pour le néttoyages des imports"""
+    """Realise les requêtes sql générale, pour le néttoyages des imports."""
     start_initial = time.time()
 
     try:
@@ -278,19 +283,13 @@ def launch_sql_clean_general(start_all, job_id=None):
         if job_id:
             try:
                 with transaction.atomic():
-                    progress = SSEProgress.objects.select_for_update().get(
-                        job_id=job_id
-                    )
-                    progress.update_progress(
-                        processed=0, message="Validation et mises à jour"
-                    )
+                    progress = SSEProgress.objects.select_for_update().get(job_id=job_id)
+                    progress.update_progress(processed=0, message="Validation et mises à jour")
 
             except SSEProgress.DoesNotExist:
-                LOGGER_EDI.warning(f"SSEProgress non trouvé pour job_id: {job_id}")
-            except Exception as progress_error:
-                LOGGER_EDI.exception(
-                    f"Erreur mise à jour progression: {progress_error}"
-                )
+                LOGGER_EDI.warning("SSEProgress non trouvé pour job_id: %s", job_id)
+            except Exception:
+                LOGGER_EDI.exception("Erreur mise à jour progression")
 
         post_processing_all()
         LOGGER_EDI.warning("post_processing_all terminé")
@@ -298,27 +297,18 @@ def launch_sql_clean_general(start_all, job_id=None):
         # Insertion du nom du fournisseur dans la trace
         edi_trace_supplier_insert()
 
-        # post_vacuum()
-        # LOGGER_EDI.warning("post_vacuum terminé")
-
         set_exclusions()
         LOGGER_EDI.warning("exclusions terminées")
 
         if job_id:
             with transaction.atomic():
-                progress = SSEProgress.objects.select_for_update().get(
-                    job_id=job_id
-                )
-                progress.update_progress(
-                    processed=1, message="Validation et mises à jour"
-                )
+                progress = SSEProgress.objects.select_for_update().get(job_id=job_id)
+                progress.update_progress(processed=1, message="Validation et mises à jour")
 
-        LOGGER_EDI.warning(f"All validations : {time.time() - start_all} s")
+        LOGGER_EDI.warning("All validations : %s s", time.time() - start_all)
 
-    except Exception as except_error:
-        LOGGER_EDI.exception(
-            f"Exception Générale: sur tâche launch_sql_clean_general\n{except_error!r}"
-        )
+    except Exception:
+        LOGGER_EDI.exception("Exception Générale: sur tâche launch_sql_clean_general")
 
     return {
         "Clean Sql Général : ": f"{time.time() - start_initial} s",
@@ -327,12 +317,13 @@ def launch_sql_clean_general(start_all, job_id=None):
 
 
 def _subscription_result(to_print, error, trace, start_initial):
-    """Texte du résultat d'une génération d'abonnements : succès avec sa durée, ou erreur avec
+    """Texte du résultat d'une génération d'abonnements : succès avec sa durée, ou erreur avec.
+
     le commentaire de la trace
     :param to_print: texte renvoyé par la fonction de génération
     :param error: vrai si une exception a été levée
     :param trace: trace de la génération, None si elle n'a pas pu être créée
-    :param start_initial: instant de démarrage de la tâche
+    :param start_initial: instant de démarrage de la tâche.
     """
     comment = trace.comment if trace is not None else ""
     time_to_process = trace.time_to_process if trace is not None else time.time() - start_initial
@@ -347,9 +338,10 @@ def _subscription_result(to_print, error, trace, start_initial):
 @shared_task(name="subscription_launch_task")
 @clean_memory
 def subscription_launch_task(
-    task_to_launch: AnyStr, dte_d: AnyStr, dte_f: AnyStr, user: UUID, job_id: str = None
+    task_to_launch: str, dte_d: str, dte_f: str, user: UUID, job_id: str | None = None
 ):
-    """Génération des Royalties, Publicités et Prestations sous task Celery
+    """Génération des Royalties, Publicités et Prestations sous task Celery.
+
     :param task_to_launch: Tâche à lancer
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
@@ -363,19 +355,18 @@ def subscription_launch_task(
     trace = None
     to_print = ""
     function = get_object(task_to_launch)
-    # print(function.__name__)
 
     try:
         trace, to_print = function(dte_d, dte_f, user)
-        trace.created_by = User.objects.get(uuid_identification=UUID(user))
+        trace.created_by = User.objects.get(uuid_identification=UUID(str(user)))
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        LOGGER_EDI.exception(f"TypeError : {except_error!r}")
+        LOGGER_EDI.exception("TypeError")
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale: {task_to_launch}\n{except_error!r}")
+        LOGGER_EDI.exception("Exception Générale: %s", task_to_launch)
 
     finally:
         if error and trace:
@@ -392,14 +383,15 @@ def subscription_launch_task(
         if job_id:
             try:
                 _update_progress(job_id, error, task_to_launch)
-            except Exception as e:
-                LOGGER_EDI.error(f"Erreur lors de la mise à jour du SSEProgress: {e}")
+            except Exception:
+                LOGGER_EDI.exception("Erreur lors de la mise à jour du SSEProgress")
 
     LOGGER_EDI.warning(
-        to_print
-        + f"Génération des abonnement - {task_to_launch} : {time.time() - start_initial} s"
-        + "\n\n======================================================================="
-        "======================================================================="
+        "%sGénération des abonnement - %s : %s s\n\n%s",
+        to_print,
+        task_to_launch,
+        time.time() - start_initial,
+        "=" * 142,
     )
 
     return {
@@ -410,11 +402,11 @@ def subscription_launch_task(
 @shared_task(name="test_import_jauge")
 @clean_memory
 def task_test_import_jauge(job_id, user_id):
+    """Tâche de test pour la jauge avec polling AJAX.
+
+    Simule un long traitement avec mise à jour en base de données.
     """
-    Tâche de test pour la jauge avec polling AJAX
-    Simule un long traitement avec mise à jour en base de données
-    """
-    LOGGER_EDI.info(f"Démarrage de la tâche test_import_jauge - job_id: {job_id}")
+    LOGGER_EDI.info("Démarrage de la tâche test_import_jauge - job_id: %s", job_id)
 
     try:
         # Créer l'enregistrement SSEProgress
@@ -424,7 +416,7 @@ def task_test_import_jauge(job_id, user_id):
 
         # Marquer comme démarré
         progress.mark_as_started()
-        LOGGER_EDI.info(f"Progression démarrée - job_id: {job_id}")
+        LOGGER_EDI.info("Progression démarrée - job_id: %s", job_id)
 
         # Traiter 100 items avec un délai pour simuler le travail
         for idx in range(1, 101):
@@ -435,18 +427,17 @@ def task_test_import_jauge(job_id, user_id):
             progress.update_progress(processed=1)
 
             if idx % 10 == 0:
-                LOGGER_EDI.debug(f"Progression: {idx}/100 - job_id: {job_id}")
+                LOGGER_EDI.debug("Progression: %s/100 - job_id: %s", idx, job_id)
 
         # Marquer comme terminé
         progress.mark_as_completed()
-        LOGGER_EDI.info(f"Tâche test_import_jauge terminée - job_id: {job_id}")
-
-        return {"status": "success", "job_id": job_id}
+        LOGGER_EDI.info("Tâche test_import_jauge terminée - job_id: %s", job_id)
 
     except Exception as error:
-        LOGGER_EDI.exception(f"Erreur dans test_import_jauge: {error}")
-        try:
+        LOGGER_EDI.exception("Erreur dans test_import_jauge")
+        # L'erreur d'origine est relancée, l'échec du marquage de la jauge n'est pas bloquant
+        with contextlib.suppress(Exception):
             progress.mark_as_failed(str(error))
-        except Exception:
-            pass
         raise
+
+    return {"status": "success", "job_id": job_id}

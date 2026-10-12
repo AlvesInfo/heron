@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des formulaires Django de l'app centers_clients
+"""FR : Tests des formulaires Django de l'app centers_clients
+
+
 EN : Tests for centers_clients Django forms
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 from decimal import Decimal
 
 import pytest
@@ -81,7 +83,14 @@ def test_maison_form_champs_obligatoires():
     form = MaisonForm(data={})
 
     assert not form.is_valid()
-    assert {"cct", "intitule", "adresse", "third_party_num", "credit_account", "debit_account"} <= set(form.errors)
+    assert {
+        "cct",
+        "intitule",
+        "adresse",
+        "third_party_num",
+        "credit_account",
+        "debit_account",
+    } <= set(form.errors)
 
 
 def test_maison_form_incomplet_avec_reference_cosium():
@@ -114,8 +123,16 @@ def test_import_maison_bi_form_choices(make_maison_bi, make_cct, make_society):
 
     form = ImportMaisonBiForm()
 
-    assert form.fields["maison_bi"].choices == [("", ""), ("M001", "M001-Un"), ("M002", "M002-Deux")]
-    assert form.fields["cct"].choices == [("", ""), ("AF0001", "AF0001-Paris"), ("AF0002", "AF0002-Lyon")]
+    assert form.fields["maison_bi"].choices == [
+        ("", ""),
+        ("M001", "M001-Un"),
+        ("M002", "M002-Deux"),
+    ]
+    assert form.fields["cct"].choices == [
+        ("", ""),
+        ("AF0001", "AF0001-Paris"),
+        ("AF0002", "AF0002-Lyon"),
+    ]
     assert form.fields["tiers"].choices == [("", ""), ("CLI001", "CLI001-Client")]
     assert all(form.fields[name].required for name in ("maison_bi", "cct", "tiers"))
 
@@ -148,13 +165,24 @@ def test_exclusion_forms_tiers_en_usage(make_society, make_maison, make_country)
     assert used in form.fields["third_party_num"].queryset
     assert used in country_form.fields["third_party_num"].queryset
     assert not form.fields["third_party_num"].queryset.filter(third_party_num="FOUR002").exists()
-    assert not country_form.fields["third_party_num"].queryset.filter(third_party_num="FOUR002").exists()
+    assert (
+        not country_form.fields["third_party_num"]
+        .queryset.filter(third_party_num="FOUR002")
+        .exists()
+    )
 
-    form = MaisonSupllierExclusionForm(data={"third_party_num": "FOUR001", "cct_uuid_identification": str(maison.uuid_identification)})
+    form = MaisonSupllierExclusionForm(
+        data={
+            "third_party_num": "FOUR001",
+            "cct_uuid_identification": str(maison.uuid_identification),
+        }
+    )
     assert form.is_valid(), form.errors
     assert form.save().cct_uuid_identification == maison
 
-    country_form = SupllierCountryExclusionForm(data={"third_party_num": "FOUR001", "pays": make_country("FR").pk})
+    country_form = SupllierCountryExclusionForm(
+        data={"third_party_num": "FOUR001", "pays": make_country("FR").pk}
+    )
     assert country_form.is_valid(), country_form.errors
     assert country_form.save().pays.country == "FR"
 
@@ -164,7 +192,12 @@ def test_exclusion_form_tiers_hors_usage_refuse(make_society, make_maison):
     make_society("FOUR002", is_client=False, in_use=False)
     maison = make_maison("AF0001")
 
-    form = MaisonSupllierExclusionForm(data={"third_party_num": "FOUR002", "cct_uuid_identification": str(maison.uuid_identification)})
+    form = MaisonSupllierExclusionForm(
+        data={
+            "third_party_num": "FOUR002",
+            "cct_uuid_identification": str(maison.uuid_identification),
+        }
+    )
 
     assert not form.is_valid()
     assert set(form.errors) == {"third_party_num"}
@@ -187,7 +220,9 @@ def test_maison_subcription_form_querysets(make_maison, make_article, make_big_c
     assert form.fields["qty"].widget.attrs["step"] == "1"
 
 
-def test_maison_subcription_form_valide(make_maison, make_article, make_unit, make_invoice_function, make_signboard, make_vat):
+def test_maison_subcription_form_valide(
+    make_maison, make_article, make_unit, make_invoice_function, make_signboard, make_vat
+):
     """Création d'un abonnement par le formulaire"""
     maison = make_maison("AF0001")
     article = make_article("ABO-1")

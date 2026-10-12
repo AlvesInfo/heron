@@ -1,7 +1,7 @@
-"""
-FR : Module d'update des comptes des articles, par le fichier excel sorti dans l'écran
+"""FR : Module d'update des comptes des articles, par le fichier excel sorti dans l'écran.
+
      12. Articles/Comptes
-EN : Module for updating item accounts
+EN : Module for updating item accounts.
 
 Commentaire:
     Même traitement que l'import des articles sans comptes, mais en upsert : les comptes
@@ -14,28 +14,29 @@ created by: Paulo ALVES
 modified at: 2026-09-28
 modified by: Paulo ALVES
 """
-from pathlib import Path
-from typing import AnyStr
+
 import shutil
+from pathlib import Path
 
 from django.utils import timezone
 
-from heron.utils.directories import ensure_directory
-from apps.core.functions.functions_setups import settings
-from apps.data_flux.make_inserts import make_insert
-from apps.data_flux.trace import get_trace
-from apps.articles.models import ArticleAccount
 from apps.articles.forms.forms_djantic.forms_articles_account import ArticleAccountSageSchema
 from apps.articles.imports.articles_without_account import (
     delete_mac_files,
     file_for_insert_excel_to_csv,
 )
+from apps.articles.models import ArticleAccount
+from apps.core.functions.functions_setups import settings
+from apps.data_flux.make_inserts import make_insert
+from apps.data_flux.models import Trace
+from apps.data_flux.trace import get_trace
+from heron.utils.directories import ensure_directory
 
 
-def upsert_articles_accounts(file_path: Path) -> (AnyStr, AnyStr):
-    """
-    Update des comptes comptables Sage X3 des articles
-    :param file_path: Path du fichier à traiter
+def upsert_articles_accounts(file_path: Path) -> tuple[Trace, str]:
+    """Update des comptes comptables Sage X3 des articles.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = ArticleAccount
     validator = ArticleAccountSageSchema
@@ -66,11 +67,10 @@ def upsert_articles_accounts(file_path: Path) -> (AnyStr, AnyStr):
 
 
 def update_articles_accounts():
-    """
-    Fonction d'update des comptes des articles, par le fichier excel
-    sorti dans l'écran 12. Articles/Comptes
-    """
+    """Fonction d'update des comptes des articles, par le fichier excel.
 
+    sorti dans l'écran 12. Articles/Comptes.
+    """
     messages_errors = ""
     messages_ok = ""
     processing_dir = ensure_directory(Path(settings.PROCESSING_UPDATE_ARTICLES_ACCOUNTS_DIR))
@@ -78,7 +78,6 @@ def update_articles_accounts():
     delete_mac_files(processing_dir)
 
     for excel_file in processing_dir.glob("*.*"):
-
         if not excel_file.is_file():
             continue
 
@@ -90,7 +89,7 @@ def update_articles_accounts():
 
         if error:
             messages_errors += (
-                f"\nIl y a eu une erreur d'update pour le fichier {str(excel_file.name)}: "
+                f"\nIl y a eu une erreur d'update pour le fichier {excel_file.name!s}: "
                 f"{errors_text}"
             )
 
@@ -99,11 +98,11 @@ def update_articles_accounts():
 
             if trace.errors:
                 messages_errors += (
-                    f"\nIl y a eu une erreur d'update pour le fichier {str(excel_file.name)}: "
-                    f"Consulté la Trace N° {str(trace.uuid_identification)}"
+                    f"\nIl y a eu une erreur d'update pour le fichier {excel_file.name!s}: "
+                    f"Consulté la Trace N° {trace.uuid_identification!s}"
                 )
             else:
-                messages_ok += f"\nLe fichier {str(excel_file.name)} a bien été intégré "
+                messages_ok += f"\nLe fichier {excel_file.name!s} a bien été intégré "
 
             Path(errors_text).unlink(missing_ok=True)
 

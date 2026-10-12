@@ -1,29 +1,29 @@
-"""
-Views des articles comptes comptables
-"""
-import pendulum
-from django.db import transaction
-from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
-from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import UpdateView
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render
-from django.utils.html import format_html
+"""Views des articles comptes comptables."""
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin, ACTION_DICT, get_difference_dict
-from apps.core.models import ChangesTrace
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.core.functions.functions_http import get_pagination_buttons
-from apps.articles.models import ArticleAccount
-from apps.articles.forms import ArticleAccountUpdateForm, ArticleAccountSupplierForm
-from apps.articles.filters import ArticleAccountFilter
-from apps.articles.parameters.querysets import articles_with_account_queryset
+import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db import transaction
+from django.shortcuts import render
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.generic import UpdateView
+
 from apps.articles.excel_outputs.output_excel_articles_account_supplier_list import (
     excel_liste_articles_account_supplier,
 )
+from apps.articles.filters import ArticleAccountFilter
+from apps.articles.forms import ArticleAccountSupplierForm, ArticleAccountUpdateForm
+from apps.articles.imports import articles_update_account
+from apps.articles.models import ArticleAccount
+from apps.articles.parameters.querysets import articles_with_account_queryset
+from apps.core.bin.change_traces import ACTION_DICT, ChangeTraceMixin, get_difference_dict
+from apps.core.functions.functions_http import get_pagination_buttons
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from apps.core.models import ChangesTrace
+from heron.loggers import LOGGER_EXPORT_EXCEL
 
 # Centrale fille dont les comptes sont alignés sur ceux modifiés pour les autres centrales
 CHILD_CENTER_MIRROR = "GAF"
@@ -31,7 +31,7 @@ CHILD_CENTER_MIRROR = "GAF"
 
 # ECRANS DES ARTICLES AVEC DES COMPTES =============================================================
 def articles_account_list(request):
-    """Affichage de tous les articles ayant des comptes comptables X3"""
+    """Affichage de tous les articles ayant des comptes comptables X3."""
     limit = 50
     articles_filter = ArticleAccountFilter(request.GET, queryset=articles_with_account_queryset)
     attrs_filter = dict(articles_filter.data.items())
@@ -52,7 +52,7 @@ def articles_account_list(request):
         titre_count = " (1 article / comptes)"
 
     if count > 1:
-        titre_count = f" ({str(count)} résultats)"
+        titre_count = f" ({count!s} résultats)"
 
     context = {
         "articles": articles,
@@ -75,8 +75,8 @@ def articles_account_list(request):
 
 
 class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """
-    UpdateView de modification des comptes d'achat et de vente d'un article, pour une centrale
+    """UpdateView de modification des comptes d'achat et de vente d'un article, pour une centrale.
+
     et un code tva. C'est le seul endroit où un compte article existant peut être modifié,
     les recalculs automatiques ne font que créer les comptes manquants.
     """
@@ -90,16 +90,24 @@ class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     )
 
     def get_queryset(self):
-        """Chargement en une requête des éléments affichés en lecture seule"""
-        return super().get_queryset().select_related(
-            "child_center", "vat", "article__third_party_num", "article__axe_pro",
-            "article__big_category", "article__sub_category",
+        """Chargement en une requête des éléments affichés en lecture seule."""
+        return (
+            super()
+            .get_queryset()
+            .select_related(
+                "child_center",
+                "vat",
+                "article__third_party_num",
+                "article__axe_pro",
+                "article__big_category",
+                "article__sub_category",
+            )
         )
 
     def get_list_url(self):
-        """
-        Url de retour : le paramètre next s'il est fourni (ex. fiche article), sinon la liste
-        des articles / comptes, avec les filtres de recherche en cours
+        """Url de retour : le paramètre next s'il est fourni (ex. fiche article), sinon la liste.
+
+        des articles / comptes, avec les filtres de recherche en cours.
         """
         next_url = self.request.GET.get("next")
 
@@ -115,18 +123,18 @@ class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return f"{url}?{query_string}" if query_string else url
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = self.get_list_url()
         context["titre_table"] = f"Modification des comptes de l'article {self.object.article}"
         return context
 
     def update_mirror_account(self, cleaned_data):
-        """
-        Aligne les comptes de la centrale fille CHILD_CENTER_MIRROR, pour le même article
+        """Aligne les comptes de la centrale fille CHILD_CENTER_MIRROR, pour le même article.
+
         et le même code tva, sur les comptes saisis. La ligne est créée si elle n'existe pas.
         :param cleaned_data: données validées du formulaire
-        :return: message à ajouter au message de succès
+        :return: message à ajouter au message de succès.
         """
         if self.object.child_center_id == CHILD_CENTER_MIRROR:
             return ""
@@ -183,13 +191,13 @@ class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return message
 
     def form_valid(self, form):
-        """La ligne modifiée et celle de la centrale miroir sont mises à jour ensemble"""
+        """La ligne modifiée et celle de la centrale miroir sont mises à jour ensemble."""
         with transaction.atomic():
             self.mirror_message = self.update_mirror_account(form.cleaned_data)
             return super().form_valid(form)
 
-    def get_success_message(self, cleaned_data):
-        """Message avec l'article, la centrale et la tva modifiés"""
+    def get_success_message(self, _cleaned_data):
+        """Message avec l'article, la centrale et la tva modifiés."""
         return self.success_message % {
             "article": (
                 f"{self.object.article} - centrale {self.object.child_center_id} "
@@ -198,15 +206,15 @@ class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         } + getattr(self, "mirror_message", "")
 
     def get_success_url(self):
-        """Retour à la liste des articles / comptes, sur la recherche en cours"""
+        """Retour à la liste des articles / comptes, sur la recherche en cours."""
         return self.get_list_url()
 
 
 # EXPORT DES ARTICLES AVEC COMPTES PAR FOURNISSEUR =================================================
 def articles_account_supplier_export(request):
-    """
-    Export Excel des articles ayant des comptes comptables X3, pour le fournisseur sélectionné.
-    Le format est identique à l'export des articles sans comptes
+    """Export Excel des articles ayant des comptes comptables X3, pour le fournisseur sélectionné.
+
+    Le format est identique à l'export des articles sans comptes.
     """
     form = ArticleAccountSupplierForm(request.POST or None)
 
@@ -227,10 +235,10 @@ def articles_account_supplier_export(request):
             )
 
         if form.errors:
-            LOGGER_EXPORT_EXCEL.error(f"erreur form : {str(form.data)!r}")
+            LOGGER_EXPORT_EXCEL.error("erreur form : %r", str(form.data))
 
-    except Exception as error:
-        LOGGER_EXPORT_EXCEL.exception(f"view : articles_account_supplier_export : {error!r}")
+    except Exception:
+        LOGGER_EXPORT_EXCEL.exception("view : articles_account_supplier_export")
 
     context = {
         "titre_table": "12. Articles / Comptes par fournisseur",
@@ -242,21 +250,19 @@ def articles_account_supplier_export(request):
 
 # UPDATE DES COMPTES DES ARTICLES PAR FICHIER ======================================================
 def update_articles_accounts_file(request):
-    """
-    Update des comptes comptables X3 des articles, par le fichier excel sorti dans l'écran
-    12. Articles/Comptes, déposé dans le répertoire UPDATE_ARTICLES_COMPTES
-    """
-    from apps.articles.imports.articles_update_account import update_articles_accounts
+    """Update des comptes comptables X3 des articles, par le fichier excel sorti dans l'écran.
 
+    12. Articles/Comptes, déposé dans le répertoire UPDATE_ARTICLES_COMPTES.
+    """
     messages_errors = ""
     messages_ok = ""
 
     if request.method == "POST":
         try:
-            messages_errors, messages_ok = update_articles_accounts()
+            messages_errors, messages_ok = articles_update_account.update_articles_accounts()
 
-        except Exception as error:
-            LOGGER_EXPORT_EXCEL.exception(f"view : update_articles_accounts_file\n\n{error!r}")
+        except Exception:
+            LOGGER_EXPORT_EXCEL.exception("view : update_articles_accounts_file")
 
     context = {
         "titre_table": "13. Update des articles / comptes",

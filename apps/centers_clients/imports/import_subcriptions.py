@@ -1,6 +1,6 @@
-"""
-FR : Module d'import des fichiers des abonnements par maison
-EN : Module for importing subscription files per house
+"""FR : Module d'import des fichiers des abonnements par maison.
+
+EN : Module for importing subscription files per house.
 
 Commentaire:
 
@@ -10,36 +10,34 @@ created by: Paulo ALVES
 modified at: 2022-04-09
 modified by: Paulo ALVES
 """
-from pathlib import Path
-from typing import AnyStr, Tuple, Union
+
 import csv
 import shutil
-from operator import itemgetter
 from decimal import Decimal
+from operator import itemgetter
+from pathlib import Path
 
-from xlrd.biffh import XLRDError
 from django.db import connection
 from django.utils import timezone
+from xlrd.biffh import XLRDError
 
-from apps.core.functions.functions_setups import settings
-from apps.core.functions.functions_excel import ExcelToCsv
-from heron.loggers import LOGGER_IMPORT
-from apps.data_flux.make_inserts import make_insert
-from apps.data_flux.trace import get_trace
-from apps.centers_clients.models import MaisonSubcription
 from apps.centers_clients.forms.forms_djantic.forms_maison_subscription import (
     MaisonSubcriptionSchema,
 )
+from apps.centers_clients.models import MaisonSubcription
+from apps.core.functions.functions_excel import ExcelToCsv
+from apps.core.functions.functions_setups import settings
+from apps.data_flux.make_inserts import make_insert
 from apps.data_flux.models import Trace
+from apps.data_flux.trace import get_trace
+from heron.loggers import LOGGER_IMPORT
 
 
-def insert_maison_subscription(
-    file_path: Path, trace: Union[Trace, None] = None
-) -> (Trace, AnyStr):
-    """
-    Import du fichier des abonnements par maison
+def insert_maison_subscription(file_path: Path, trace: Trace | None = None) -> tuple[Trace, str]:
+    """Import du fichier des abonnements par maison.
+
     :param file_path: Path du fichier à traiter
-    :param trace: trace si on veut utiliser une trace existante
+    :param trace: trace si on veut utiliser une trace existante.
     """
     model = MaisonSubcription
     validator = MaisonSubcriptionSchema
@@ -61,18 +59,17 @@ def insert_maison_subscription(
     return trace, to_print
 
 
-def get_fields_values() -> Tuple:
-    """Retourne les lignes des dictionnaires pour vérification"""
-    file_path = Path(f"{str(settings.APPS_DIR)}/centers_clients/sql/sql_import_subscription.sql")
-    articles_dict = {}
-    maisons_dict = {}
-    for_signboards_dict = {}
-    fonctions_dict = {}
-    unit_weights_dict = {}
+def get_fields_values() -> tuple:
+    """Retourne les lignes des dictionnaires pour vérification."""
+    file_path = Path(f"{settings.APPS_DIR!s}/centers_clients/sql/sql_import_subscription.sql")
+    articles_dict: dict = {}
+    maisons_dict: dict = {}
+    for_signboards_dict: dict = {}
+    fonctions_dict: dict = {}
+    unit_weights_dict: dict = {}
 
     with file_path.open("r", encoding="utf8") as sql_file, connection.cursor() as cursor:
         query = sql_file.read()
-        # print(cursor.mogrify(query).decode())
         cursor.execute(query)
         set_dicts = {
             "article": articles_dict,
@@ -87,8 +84,9 @@ def get_fields_values() -> Tuple:
         return articles_dict, maisons_dict, for_signboards_dict, fonctions_dict, unit_weights_dict
 
 
-def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
-    """Transforme le fichier excel en fichier csv
+def file_for_insert_excel_to_csv(file_excel_path: Path) -> tuple[bool, str]:
+    """Transforme le fichier excel en fichier csv.
+
     ci-après la position des champs dans le fichier issu
     de la table centers_clients_maisonsubcription
             "maison": line[0],
@@ -97,7 +95,7 @@ def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
             "unit_weight": line[4],
             "net_unit_price": line[5],
             "function": line[6],
-            "for_signboard": line[7],
+            "for_signboard": line[7],.
     """
     errors = []
     csv_file = Path("csv_file")
@@ -123,9 +121,10 @@ def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
         csv_file = Path(file)
         new_file = Path(file_excel_path.parent) / f"{file_excel_path.stem}.csv"
 
-        with csv_file.open("r", encoding="utf-8", errors="replace") as file_to_parse, new_file.open(
-            "w", encoding="utf-8", newline=""
-        ) as file_to_write:
+        with (
+            csv_file.open("r", encoding="utf-8", errors="replace") as file_to_parse,
+            new_file.open("w", encoding="utf-8", newline="") as file_to_write,
+        ):
             csv_reader = csv.reader(
                 file_to_parse,
                 delimiter=";",
@@ -171,13 +170,13 @@ def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
 
                     else:
                         errors.append(
-                            f"la ligne {i+1}, du fichier {csv_file.name}, est en doublon : "
+                            f"la ligne {i + 1}, du fichier {csv_file.name}, est en doublon : "
                             f"{' - '.join(rows_getter(line))}"
                         )
 
                     if not all(line_to_add):
                         errors.append(
-                            f"la ligne {i+1}, du fichier {csv_file.name}, contient des erreurs : "
+                            f"la ligne {i + 1}, du fichier {csv_file.name}, contient des erreurs : "
                             f"{' - '.join(str(value) for value in line_to_add)}"
                         )
 
@@ -199,9 +198,9 @@ def file_for_insert_excel_to_csv(file_excel_path: Path) -> [bool, AnyStr]:
 
 
 def import_abonnements_par_maisons():
-    """
-    Fonction d'import des abonnements par maisons, par le fichier excel
-    sorti dans l'écran des abonnements
+    """Fonction d'import des abonnements par maisons, par le fichier excel.
+
+    sorti dans l'écran des abonnements.
     """
     messages_errors = ""
     messages_ok = ""
@@ -222,7 +221,7 @@ def import_abonnements_par_maisons():
             trace.final_at = timezone.now()
             trace.save()
             messages_errors += (
-                f"\nIl y a eu une erreur d'import pour le fichier {str(excel_file.name)}: "
+                f"\nIl y a eu une erreur d'import pour le fichier {excel_file.name!s}: "
                 f"{errors_text}"
             )
 
@@ -231,11 +230,11 @@ def import_abonnements_par_maisons():
 
             if trace.errors:
                 messages_errors += (
-                    f"\nIl y a eu une erreur d'import pour le fichier {str(excel_file.name)}: "
-                    f"Consulté la Trace N° {str(trace.uuid_identification)}"
+                    f"\nIl y a eu une erreur d'import pour le fichier {excel_file.name!s}: "
+                    f"Consulté la Trace N° {trace.uuid_identification!s}"
                 )
             else:
-                messages_ok += f"\nLe fichier {str(excel_file.name)} a bien été intégré "
+                messages_ok += f"\nLe fichier {excel_file.name!s} a bien été intégré "
 
             Path(errors_text).unlink(missing_ok=True)
 

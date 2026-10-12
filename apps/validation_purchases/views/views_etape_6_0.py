@@ -1,27 +1,28 @@
+"""Vues de l'étape 6.0 de la validation des achats : exports des imports EDI fournisseurs."""
+
 from pathlib import Path
 
 import pendulum
-from django.shortcuts import render
-from django.http import FileResponse
-
-from heron.loggers import LOGGER_VIEWS
 from django.conf import settings
+from django.http import FileResponse
+from django.shortcuts import render
 
 from apps.core.functions.functions_http_response import (
-    response_file,
-    CONTENT_TYPE_EXCEL,
     CONTENT_TYPE_CSV,
+    CONTENT_TYPE_EXCEL,
+    response_file,
 )
 from apps.validation_purchases.excel_outputs.output_excel_purchases_edi_import import (
-    excel_heron_purchases_edi_import,
     csv_heron_purchases_edi_import,
+    excel_heron_purchases_edi_import,
 )
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 6.0 - Contrôles des achats importés
 
 
 def suppliers_edi_purchases(request):
-    """View de l'étape 6.0 - Contrôle des achats fournisseurs intégrés"""
+    """View de l'étape 6.0 - Contrôle des achats fournisseurs intégrés."""
     context = {
         "titre_table": "6.0 - Export des achats fichiers fournisseurs intégrés",
     }
@@ -30,7 +31,7 @@ def suppliers_edi_purchases(request):
 
 
 def edi_import_purchases_export(request):
-    """View de l'étape 6.0 Héron dans edi imports
+    """View de l'étape 6.0 Héron dans edi imports.
 
     Export Excel des achats Héron dans edi imports
     :param request: Request Django
@@ -51,7 +52,7 @@ def edi_import_purchases_export(request):
 
 
 def edi_import_purchases_export_csv(request):
-    """View de l'étape 6.0 Héron dans edi imports
+    """View de l'étape 6.0 Héron dans edi imports.
 
     Export Excel des achats Héron dans edi imports
     :param request: Request Django
@@ -62,13 +63,12 @@ def edi_import_purchases_export_csv(request):
         emplacement = Path(settings.MEDIA_EXCEL_FILES_DIR) / file_name
         csv_heron_purchases_edi_import(emplacement)
 
-        response = FileResponse(
+        return FileResponse(
             emplacement.open("rb"),
             filename=emplacement.name,
             as_attachment=True,
             content_type=CONTENT_TYPE_CSV,
         )
-        return response
 
     except Exception:
         LOGGER_VIEWS.exception("view : edi_import_purchases_export")

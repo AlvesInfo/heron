@@ -1,6 +1,6 @@
-"""
-FR : Module des outils de gestion de l'application edi
-EN : Edi application management tools module
+"""FR : Module des outils de gestion de l'application edi.
+
+EN : Edi application management tools module.
 
 Commentaire:
 
@@ -10,26 +10,26 @@ created by: Paulo ALVES
 modified at: 2023-01-18
 modified by: Paulo ALVES
 """
-import inspect
-from typing import AnyStr, Dict
 
 import pendulum
 from django.db import connection
-from django.db.models import Value, Case, When, Q
+from django.db.models import Case, Q, QuerySet, Value, When
 from django.db.models.functions import Concat
 from django.utils import timezone
 
+from apps.articles.models import Article
+from apps.core.bin.change_traces import caller_frame
 from apps.core.models import ChangesTrace
 from apps.data_flux.models import Trace
-from apps.users.models import User
-from apps.articles.models import Article
 from apps.edi.models import EdiImport
 from apps.parameters.models import Nature
+from apps.users.models import User
 
 
 def form_errors_message(form) -> str:
-    """Message à afficher pour un formulaire invalide : "champ : erreur, erreur - champ : erreur"
-    :param form: formulaire django invalide
+    """Message à afficher pour un formulaire invalide : "champ : erreur, erreur - champ : erreur".
+
+    :param form: formulaire django invalide.
     """
     return " - ".join(
         f"{key} : {', '.join(list(error_list))}" for key, error_list in dict(form.errors).items()
@@ -37,7 +37,7 @@ def form_errors_message(form) -> str:
 
 
 def get_sens(sens: str):
-    """Retourne le sens de facturation AC, AC/VE, VE"""
+    """Retourne le sens de facturation AC, AC/VE, VE."""
     if sens == "2":
         return {"purchase_invoice": "true", "sale_invoice": "true"}
 
@@ -48,15 +48,16 @@ def get_sens(sens: str):
 
 
 def set_trace_hand_invoice(
-    invoice_category: AnyStr,
-    invoice_number: AnyStr,
+    invoice_category: str,
+    invoice_number: str,
     user: User,
-    edi_objects: EdiImport.objects = None,
+    edi_objects: QuerySet | None = None,
     numbers: int = 0,
+    *,
     errors: bool = False,
 ):
-    """
-    Création des traces et log
+    """Création des traces et log.
+
     :param invoice_category: catégorie ( marchandises, formations, personnel)
     :param invoice_number: N° de Facture
     :param user: User faisant la création
@@ -65,7 +66,7 @@ def set_trace_hand_invoice(
     :param errors: s'il a eu des erreurs
     :return:
     """
-    function_call = str(inspect.currentframe().f_back)[:255]
+    function_call = caller_frame()
     Trace.objects.create(
         trace_name=f"Saisie Facture de {invoice_category.capitalize()}",
         file_name=f"Ecran de saisie : edi/create_hand_invoices/{invoice_category}/",
@@ -83,7 +84,7 @@ def set_trace_hand_invoice(
 
     # S'il n'y a pas d'erreurs alors on crée la change_trace
     if not errors:
-        for edi_line in edi_objects:
+        for edi_line in edi_objects or []:
             after_dict = {
                 key: value for key, value in edi_line.__dict__.items() if key != "_state" and value
             }
@@ -101,18 +102,17 @@ def set_trace_hand_invoice(
             )
 
 
-def data_dict_invoices_clean(invoice_category: AnyStr, data_dict: Dict):
-    """
-    Nettoyage de la donnée pour se conformer aux données necessaires à chaque
+def data_dict_invoices_clean(invoice_category: str, data_dict: dict):
+    """Nettoyage de la donnée pour se conformer aux données necessaires à chaque.
+
     type de saisies manuelles (marchandises, formations, personnel)
     :param invoice_category: Catégorie ( marchandises, formations, personnel)
     :param data_dict: dictionnaire des données arrivées par la request
-    :return: In place data_dict nettoyé
+    :return: In place data_dict nettoyé.
     """
-
     # On supprime toutes les lignes qui n'ont pas d'article et ont les classes pour mettre le cct
     # s'il n'a pas été mis sur toutes les lignes
-    lignes_list = data_dict.get("lignes")
+    lignes_list = data_dict.get("lignes") or []
     lignes_list = [row_dict for row_dict in lignes_list if row_dict.get("reference_article")]
     data_dict["lignes"] = sorted(lignes_list, key=lambda line_sort_dict: line_sort_dict.get("num"))
 
@@ -138,13 +138,12 @@ def data_dict_invoices_clean(invoice_category: AnyStr, data_dict: Dict):
             ligne_dict["unit_weight"] = "7"
 
 
-def get_query_articles(invoice_category: AnyStr):
-    """
-    Filtre les articles à afficher dans le select du template
-    :param invoice_category: Catégorie ( marchandises, formations, personnel)
-    :return: Query object django filtré
-    """
+def get_query_articles(invoice_category: str):
+    """Filtre les articles à afficher dans le select du template.
 
+    :param invoice_category: Catégorie ( marchandises, formations, personnel)
+    :return: Query object django filtré.
+    """
     if invoice_category == "marchandises":
         return ""
 
@@ -164,17 +163,15 @@ def get_query_articles(invoice_category: AnyStr):
         ),
     ).values_list("pk", "model")
 
-    reults_list_dict = [{"pk": "", "model": "---"}] + [
+    return [{"pk": "", "model": "---"}] + [
         {"pk": key, "model": value}
         for key, value in queryset.filter(big_category__slug_name=invoice_category)
     ]
 
-    return reults_list_dict
-
 
 def delete_orphans_controls():
-    """
-    Supprime tous les Contrôles edi_ediimport_control orphelins.
+    """Supprime tous les Contrôles edi_ediimport_control orphelins.
+
     Ceux qui ne sont pas dans edi_ediimport et ceux qui ne sont pas dans invoives_invoice
     :return:
     """
@@ -183,29 +180,28 @@ def delete_orphans_controls():
         delete from "edi_ediimportcontrol" "edic"
         where not exists (
             select 1 from (
-                select 
-                    "uuid_control" 
-                from "edi_ediimport" "ee" 
+                select
+                    "uuid_control"
+                from "edi_ediimport" "ee"
                 group by "uuid_control"
-                union all 
-                select 
-                    "uuid_control" 
-                from "invoices_invoicecommondetails" "ii"  
+                union all
+                select
+                    "uuid_control"
+                from "invoices_invoicecommondetails" "ii"
                 group by "uuid_control"
             ) "alls"
-            where "alls"."uuid_control" = "edic"."uuid_identification" 
-        ) 
+            where "alls"."uuid_control" = "edic"."uuid_identification"
+        )
         """
         cursor.execute(sql_delete)
 
 
-def set_signboard(edi_objects: EdiImport.objects) -> None:
-    """
-    On va setter les centrales filles et les enseignes des factures saisies manuellement
+def set_signboard(edi_objects: QuerySet) -> None:
+    """On va setter les centrales filles et les enseignes des factures saisies manuellement.
+
     :param edi_objects: Queryset Objets EdiImport créé
     :return:
     """
-
     for edi_line in edi_objects:
         edi_line.code_center = edi_line.cct_uuid_identification.center_purchase.code
         edi_line.code_signboard = edi_line.cct_uuid_identification.sign_board.code
@@ -213,13 +209,13 @@ def set_signboard(edi_objects: EdiImport.objects) -> None:
 
 
 def get_personal_profession_type():
+    """Retourne les types de personnel.
+
+    :return: Query object django filtré.
     """
-    Retourne les types de personnel
-    :return: Query object django filtré
-    """
-    reults_list_dict = [{"uuid_identification": "", "to_display": "---"}] + [
+    return [{"uuid_identification": "", "to_display": "---"}] + [
         {"uuid_identification": ident, "to_display": display}
-        for ident, display in Nature.objects.filter(for_personnel=True)
-        .values_list("uuid_identification", "to_display")
+        for ident, display in Nature.objects.filter(for_personnel=True).values_list(
+            "uuid_identification", "to_display"
+        )
     ]
-    return reults_list_dict

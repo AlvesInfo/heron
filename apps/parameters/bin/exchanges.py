@@ -1,6 +1,6 @@
-"""
-FR : Module des taux de change
-EN : Exhange rates module
+"""FR : Module des taux de change.
+
+EN : Exhange rates module.
 
 Commentaire:
 
@@ -10,22 +10,21 @@ created by: Paulo ALVES
 modified at: 2023-06-23
 modified by: Paulo ALVES
 """
-from typing import AnyStr
-
 
 from django.db import connection
-from django.db.models import Exists, OuterRef, Count, F
+from django.db.models import Count, Exists, F, OuterRef
+
 from apps.compta.models import VentesCosium
 from apps.countries.models import Currency
 from apps.parameters.models import ExchangeRate
 
 
-def set_base_exchange_rate(month: AnyStr) -> None:
-    """
-    Crééer des lignes de taux de change par défaut pour les mois demander,
+def set_base_exchange_rate(month: str) -> None:
+    """Crééer des lignes de taux de change par défaut pour les mois demander,.
+
     sur la base des ventes Cosium
     :param month: mois des ventes
-    :return: None
+    :return: None.
     """
     sales_currencies = (
         VentesCosium.objects.exclude(cct_uuid_identification__isnull=True)
@@ -57,8 +56,8 @@ def set_base_exchange_rate(month: AnyStr) -> None:
 
 
 def set_exchanges_sales_cosium(sale_month, currency_change):
-    """
-    Mise à jour des taux de change dans les ventes après mise à jour du taux
+    """Mise à jour des taux de change dans les ventes après mise à jour du taux.
+
     :param sale_month: mois du taux de change
     :param currency_change: monaie du taux de change
     :return:
@@ -97,32 +96,23 @@ def set_exchanges_sales_cosium(sale_month, currency_change):
                                             round((1/"req"."rate")::numeric ,5)::numeric, 2
                                         )::numeric
     from (
-        select 
-            "cv"."id", "cc"."currency_iso", "pe"."rate_month", "pe"."rate" 
-        from "compta_ventescosium" "cv" 
-        join "centers_clients_maison" "ccm" 
-        on "cv"."cct_uuid_identification" = "ccm"."uuid_identification" 
-        join "countries_country" "cc" 
-        on "ccm"."pays" = "cc"."country" 
-        join "parameters_exchangerate" "pe" 
+        select
+            "cv"."id", "cc"."currency_iso", "pe"."rate_month", "pe"."rate"
+        from "compta_ventescosium" "cv"
+        join "centers_clients_maison" "ccm"
+        on "cv"."cct_uuid_identification" = "ccm"."uuid_identification"
+        join "countries_country" "cc"
+        on "ccm"."pays" = "cc"."country"
+        join "parameters_exchangerate" "pe"
         on "cv"."sale_month" = "pe"."rate_month"
         and "cc"."currency_iso" = "pe"."currency_change"
         where "cv"."sale_month" = %(sale_month)s
         and "pe"."currency_change" = %(currency_change)s
-    ) req 
+    ) req
     where "vc"."id" = "req"."id"
     """
 
     with connection.cursor() as cursor:
-        # print(f"execution : {sale_month} - {currency_change}")
-        # print(f"type(sale_month) : {type(sale_month)}")
-        # print(f"type(currency_change) : {type(currency_change)}")
-        # print(
-        #     cursor.mogrify(
-        #         sql_update_sales,
-        #         {"sale_month": sale_month, "currency_change": currency_change}
-        #     ).decode()
-        # )
         cursor.execute(
             sql_update_sales, {"sale_month": sale_month, "currency_change": currency_change}
         )

@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,R0913
-"""
-FR : Tests des vues des nouveaux articles (étape 1.1) et des articles sans comptes (étape 1.2)
+"""FR : Tests des vues des nouveaux articles (étape 1.1) et des articles sans comptes (étape 1.2)
+
+
 EN : Tests for new articles and articles without account views
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import logging
 
 import pytest
@@ -13,7 +15,10 @@ from django.contrib.messages import get_messages
 from django.urls import reverse
 
 from apps.articles.models import Article, ArticleAccount
-from apps.articles.views import views_articles_news_etape_1_1, views_articles_with_no_account_etape_1_2
+from apps.articles.views import (
+    views_articles_news_etape_1_1,
+    views_articles_with_no_account_etape_1_2,
+)
 from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL
 from apps.core.models import ChangesTrace
 from conftest import patched_attrs
@@ -31,9 +36,23 @@ def complet(make_article, make_society, make_big_category, default_sections):
     four = make_society("FOUR001", is_client=False)
     category = make_big_category("Marchandises")
     return {
-        "nouveau": make_article("NEW-1", society=four, big_category=category, axe_pro=default_sections["PRO"], new_article=True),
-        "sans_pro": make_article("SANS-PRO", society=four, big_category=category, new_article=False),
-        "ok": make_article("OK-1", society=four, big_category=category, axe_pro=default_sections["PRO"], new_article=False),
+        "nouveau": make_article(
+            "NEW-1",
+            society=four,
+            big_category=category,
+            axe_pro=default_sections["PRO"],
+            new_article=True,
+        ),
+        "sans_pro": make_article(
+            "SANS-PRO", society=four, big_category=category, new_article=False
+        ),
+        "ok": make_article(
+            "OK-1",
+            society=four,
+            big_category=category,
+            axe_pro=default_sections["PRO"],
+            new_article=False,
+        ),
     }
 
 
@@ -53,13 +72,25 @@ def test_liste_nouveaux_articles(logged_client, complet, make_edi_import, make_d
     assert Article.objects.get(reference="EDI-NEW").new_article is True
     assert response.context["titre_table"] == "1.1 - Liste des Nouveaux Articles"
     assert response.context["url_validation"] == reverse("articles:articles_new_validation")
-    assert logged_client.get(reverse("articles:new_articles_list"), {"page": "99"}).context["articles"].number == 1
-    assert logged_client.get(reverse("articles:new_articles_list"), {"page": "x"}).context["articles"].number == 1
+    assert (
+        logged_client.get(reverse("articles:new_articles_list"), {"page": "99"})
+        .context["articles"]
+        .number
+        == 1
+    )
+    assert (
+        logged_client.get(reverse("articles:new_articles_list"), {"page": "x"})
+        .context["articles"]
+        .number
+        == 1
+    )
 
 
 def test_validation_nouveaux_articles_tous(logged_client, complet):
     """POST : les nouveaux articles complets sont validés, message de succès, trace"""
-    Article.objects.filter(reference="SANS-PRO").update(axe_pro=complet["nouveau"].axe_pro, new_article=True)
+    Article.objects.filter(reference="SANS-PRO").update(
+        axe_pro=complet["nouveau"].axe_pro, new_article=True
+    )
 
     response = logged_client.post(reverse("articles:articles_new_validation"))
 
@@ -69,7 +100,7 @@ def test_validation_nouveaux_articles_tous(logged_client, complet):
     assert ChangesTrace.objects.filter(model_name="article").count() == 1
 
 
-@pytest.mark.usefixtures('complet')
+@pytest.mark.usefixtures("complet")
 def test_validation_nouveaux_articles_partielle(logged_client):
     """Un article incomplet reste : message d'avertissement, trace quand même"""
     response = logged_client.post(reverse("articles:articles_new_validation"))
@@ -77,18 +108,22 @@ def test_validation_nouveaux_articles_partielle(logged_client):
     nouveau = Article.objects.get(reference="NEW-1")
     assert nouveau.new_article is False
     assert nouveau.modified_by == logged_client.user
-    assert _messages(response) == ["Il reste des articles qui comporte des erreus. Articles mis à jour : 1 / 2"]
+    assert _messages(response) == [
+        "Il reste des articles qui comporte des erreus. Articles mis à jour : 1 / 2"
+    ]
     assert ChangesTrace.objects.filter(model_name="article").count() == 1
 
 
-@pytest.mark.usefixtures('complet')
+@pytest.mark.usefixtures("complet")
 def test_validation_nouveaux_articles_aucune_mise_a_jour(logged_client):
     """Rien de validable : message sans trace"""
     Article.objects.filter(reference="NEW-1").update(new_article=False)
 
     response = logged_client.post(reverse("articles:articles_new_validation"))
 
-    assert _messages(response) == ["Il reste des articles qui comporte des erreus. Articles mis à jour : 0 / 1"]
+    assert _messages(response) == [
+        "Il reste des articles qui comporte des erreus. Articles mis à jour : 0 / 1"
+    ]
     assert not ChangesTrace.objects.filter(model_name="article").exists()
 
 
@@ -100,7 +135,7 @@ def test_validation_nouveaux_articles_get_ou_vide(logged_client):
     assert _messages(response) == []
 
 
-@pytest.mark.usefixtures('complet')
+@pytest.mark.usefixtures("complet")
 def test_export_nouveaux_articles(logged_client, monkeypatch, caplog):
     """Export xlsx puis chemin d'erreur"""
     url = reverse("articles:articles_news_export_list")
@@ -113,7 +148,10 @@ def test_export_nouveaux_articles(logged_client, monkeypatch, caplog):
     def _boom(*_args, **_kwargs):
         raise RuntimeError("xlsx")
 
-    with patched_attrs(monkeypatch, views_articles_news_etape_1_1, response_file=_boom), caplog.at_level(logging.ERROR, logger="export_excel"):
+    with (
+        patched_attrs(monkeypatch, views_articles_news_etape_1_1, response_file=_boom),
+        caplog.at_level(logging.ERROR, logger="export_excel"),
+    ):
         response = logged_client.get(url)
 
     assert response.status_code == 302
@@ -124,11 +162,22 @@ def test_export_nouveaux_articles(logged_client, monkeypatch, caplog):
 # ARTICLES SANS COMPTES ============================================================================
 
 
-def test_liste_articles_sans_comptes(logged_client, complet, make_edi_import, make_accounts_axe_pro_category):
+def test_liste_articles_sans_comptes(
+    logged_client, complet, make_edi_import, make_accounts_axe_pro_category
+):
     """Première page : comptes recalculés puis lignes EDI sans compte listées"""
     article = complet["ok"]
-    make_edi_import("FOUR001", "OK-1", axe_pro=article.axe_pro, big_category=article.big_category, code_center="GAF", vat=None)
-    make_accounts_axe_pro_category(axe_pro=article.axe_pro, big_category=article.big_category, child_center="ACF", vat="001")
+    make_edi_import(
+        "FOUR001",
+        "OK-1",
+        axe_pro=article.axe_pro,
+        big_category=article.big_category,
+        code_center="GAF",
+        vat=None,
+    )
+    make_accounts_axe_pro_category(
+        axe_pro=article.axe_pro, big_category=article.big_category, child_center="ACF", vat="001"
+    )
 
     response = logged_client.get(reverse("articles:articles_without_account_list"))
 
@@ -159,7 +208,10 @@ def test_export_articles_sans_comptes(logged_client, monkeypatch, caplog):
     def _boom(*_args, **_kwargs):
         raise RuntimeError("xlsx")
 
-    with patched_attrs(monkeypatch, views_articles_with_no_account_etape_1_2, response_file=_boom), caplog.at_level(logging.ERROR, logger="export_excel"):
+    with (
+        patched_attrs(monkeypatch, views_articles_with_no_account_etape_1_2, response_file=_boom),
+        caplog.at_level(logging.ERROR, logger="export_excel"),
+    ):
         response = logged_client.get(url)
 
     assert response.status_code == 302
@@ -177,7 +229,11 @@ def test_update_articles_without_account(logged_client, monkeypatch, caplog):
     assert response.status_code == 200
     assert response.context["titre_table"] == "Import des articles sans comptes"
 
-    with patched_attrs(monkeypatch, articles_without_account, import_articles_without_account=lambda: ("erreur", "ok")):
+    with patched_attrs(
+        monkeypatch,
+        articles_without_account,
+        import_articles_without_account=lambda: ("erreur", "ok"),
+    ):
         response = logged_client.post(url)
 
     assert response.context["messages_errors"] == "erreur"
@@ -186,7 +242,10 @@ def test_update_articles_without_account(logged_client, monkeypatch, caplog):
     def _boom():
         raise RuntimeError("répertoire")
 
-    with patched_attrs(monkeypatch, articles_without_account, import_articles_without_account=_boom), caplog.at_level(logging.ERROR, logger="export_excel"):
+    with (
+        patched_attrs(monkeypatch, articles_without_account, import_articles_without_account=_boom),
+        caplog.at_level(logging.ERROR, logger="export_excel"),
+    ):
         response = logged_client.post(url)
 
     assert response.status_code == 200

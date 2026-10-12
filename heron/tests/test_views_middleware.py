@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des vues racine de heron (accueil, réactivation de compte, déconnexion par email),
+"""FR : Tests des vues racine de heron (accueil, réactivation de compte, déconnexion par email),
+
+
      du middleware de connexion, des écrans de réinitialisation de mot de passe et de l'URLconf
 EN : Tests for heron root views, login middleware, password reset screens and URLconf
 
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import importlib
 
 import pytest
@@ -25,7 +27,9 @@ pytestmark = pytest.mark.django_db
 
 
 def _uid_token(user):
-    return urlsafe_base64_encode(force_bytes(user.pk)), PasswordResetTokenGenerator().make_token(user)
+    return urlsafe_base64_encode(force_bytes(user.pk)), PasswordResetTokenGenerator().make_token(
+        user
+    )
 
 
 # VUES =============================================================================================
@@ -51,14 +55,18 @@ def test_reactivation_du_compte(client, make_user, monkeypatch):
     resets, logs = [], []
     monkeypatch.setattr(users_views, "reset", lambda username: resets.append(username))
     # le logger "connexion" ne propage pas vers la racine : on capture ses appels directement
-    monkeypatch.setattr(users_views.logger, "info", lambda message, *_args: logs.append(message))
+    monkeypatch.setattr(
+        users_views.logger, "info", lambda message, *args: logs.append(message % args)
+    )
     user = make_user()
     uidb64, token = _uid_token(user)
 
     response = client.get(reverse("reactivate", kwargs={"uidb64": uidb64, "token": token}))
 
     assert response.status_code == 200
-    assert "heron/account_reactivate_done.html" in [template.name for template in response.templates]
+    assert "heron/account_reactivate_done.html" in [
+        template.name for template in response.templates
+    ]
     assert response.context["user"] == user
     assert resets == [user.email]
     assert logs == [f"Réactivation : mail : {user.email} - ip : 127.0.0.1"]
@@ -66,7 +74,9 @@ def test_reactivation_du_compte(client, make_user, monkeypatch):
 
 @pytest.mark.parametrize("case", ["mauvais_jeton", "uid_illisible", "utilisateur_inconnu"])
 def test_reactivation_invalide(client, make_user, monkeypatch, case):
-    monkeypatch.setattr(users_views, "reset", lambda _username: pytest.fail("reset ne doit pas être appelé"))
+    monkeypatch.setattr(
+        users_views, "reset", lambda _username: pytest.fail("reset ne doit pas être appelé")
+    )
     user = make_user()
     uidb64, token = _uid_token(user)
 
@@ -80,7 +90,9 @@ def test_reactivation_invalide(client, make_user, monkeypatch, case):
     response = client.get(reverse("reactivate", kwargs={"uidb64": uidb64, "token": token}))
 
     assert response.status_code == 200
-    assert "heron/account_reactivate_invalid.html" in [template.name for template in response.templates]
+    assert "heron/account_reactivate_invalid.html" in [
+        template.name for template in response.templates
+    ]
 
 
 # MIDDLEWARE DE CONNEXION ==========================================================================
@@ -95,7 +107,14 @@ def test_middleware_redirige_les_anonymes_vers_la_connexion(client):
 
 
 @pytest.mark.parametrize(
-    "route", ["accounts:login", "logout_email", "password_reset", "password_reset_done", "password_reset_complete"]
+    "route",
+    [
+        "accounts:login",
+        "logout_email",
+        "password_reset",
+        "password_reset_done",
+        "password_reset_complete",
+    ],
 )
 def test_middleware_laisse_passer_les_pages_publiques(client, route):
     assert client.get(reverse(route)).status_code == 200
@@ -106,7 +125,9 @@ def test_middleware_laisse_passer_les_liens_de_reinitialisation(client, make_use
     uidb64, token = _uid_token(make_user())
 
     reactivate = client.get(reverse("reactivate", kwargs={"uidb64": uidb64, "token": token}))
-    confirm = client.get(reverse("password_reset_confirm", kwargs={"uidb64": uidb64, "token": "jeton-faux"}))
+    confirm = client.get(
+        reverse("password_reset_confirm", kwargs={"uidb64": uidb64, "token": "jeton-faux"})
+    )
 
     assert reactivate.status_code == 200
     assert confirm.status_code == 200
@@ -129,7 +150,9 @@ def test_parcours_de_reinitialisation_du_mot_de_passe(client, make_user):
     assert "password-reset-confirm" in mail.outbox[0].body
 
     uidb64, token = _uid_token(user)
-    confirm = client.get(reverse("password_reset_confirm", kwargs={"uidb64": uidb64, "token": token}))
+    confirm = client.get(
+        reverse("password_reset_confirm", kwargs={"uidb64": uidb64, "token": token})
+    )
     assert confirm.status_code == 302
     set_password_url = confirm.url
     assert set_password_url.endswith("/set-password/")
@@ -138,7 +161,10 @@ def test_parcours_de_reinitialisation_du_mot_de_passe(client, make_user):
     assert form_page.status_code == 200
     assert form_page.context["validlink"] is True
 
-    changed = client.post(set_password_url, {"new_password1": "NouveauMotDePasse!1", "new_password2": "NouveauMotDePasse!1"})
+    changed = client.post(
+        set_password_url,
+        {"new_password1": "NouveauMotDePasse!1", "new_password2": "NouveauMotDePasse!1"},
+    )
     assert changed.status_code == 302
     assert changed.url == reverse("password_reset_complete")
 
@@ -152,11 +178,33 @@ def test_parcours_de_reinitialisation_du_mot_de_passe(client, make_user):
 
 def test_espaces_de_noms_des_applications():
     expected = {
-        "articles", "book", "centers_clients", "compta", "centers_purchasing", "core", "countries", "edi",
-        "groups", "import_files", "parameters", "periods", "permissions", "invoices", "traces", "users",
-        "accounts", "validation_purchases", "validation_sales", "data_flux", "rfa",
+        "articles",
+        "book",
+        "centers_clients",
+        "compta",
+        "centers_purchasing",
+        "core",
+        "countries",
+        "edi",
+        "groups",
+        "import_files",
+        "parameters",
+        "periods",
+        "permissions",
+        "invoices",
+        "traces",
+        "users",
+        "accounts",
+        "validation_purchases",
+        "validation_sales",
+        "data_flux",
+        "rfa",
     }
-    namespaces = {pattern.namespace for pattern in heron_urls.urlpatterns if getattr(pattern, "namespace", None)}
+    namespaces = {
+        pattern.namespace
+        for pattern in heron_urls.urlpatterns
+        if getattr(pattern, "namespace", None)
+    }
 
     assert expected <= namespaces
     assert reverse("home") == "/"
@@ -169,11 +217,15 @@ def test_urlconf_en_mode_debug_ajoute_la_barre_de_debug(settings):
 
     try:
         reloaded = importlib.reload(heron_urls)
-        debug_routes = [pattern for pattern in reloaded.urlpatterns if "__debug__" in str(pattern.pattern)]
+        debug_routes = [
+            pattern for pattern in reloaded.urlpatterns if "__debug__" in str(pattern.pattern)
+        ]
         assert len(debug_routes) == 1
     finally:
         settings.DEBUG = False
         importlib.reload(heron_urls)
         clear_url_caches()
 
-    assert not [pattern for pattern in heron_urls.urlpatterns if "__debug__" in str(pattern.pattern)]
+    assert not [
+        pattern for pattern in heron_urls.urlpatterns if "__debug__" in str(pattern.pattern)
+    ]

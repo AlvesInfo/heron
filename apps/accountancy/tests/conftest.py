@@ -1,6 +1,7 @@
 # pylint: disable=W0621,E0401,R0913
-"""
-FR : conftest de l'app accountancy - fabriques de modèles Sage et fichiers d'import
+"""FR : conftest de l'app accountancy - fabriques de modèles Sage et fichiers d'import
+
+
 EN : accountancy app conftest - Sage model factories and import files
 
 Commentaire:
@@ -13,13 +14,13 @@ make_tab_div, sage_dirs, make_csv, make_trace, patch_module, ...) viennent du co
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import datetime
 import itertools
+from collections.abc import Callable, Iterable
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
-from collections.abc import Iterable
 from uuid import uuid4
 
 import pytest
@@ -59,7 +60,7 @@ def make_vat_rat(make_vat: Callable[..., VatSage]) -> Callable[..., VatRatSage]:
     def _factory(
         vat: str = "001",
         vat_start_date: datetime.date = datetime.date(2014, 1, 1),
-        rate: Decimal | str = Decimal("20"),
+        rate: Decimal | str = Decimal(20),
         vat_regime: str = "FRA",
         **kwargs: Any,
     ) -> VatRatSage:
@@ -78,11 +79,11 @@ def make_vat_rat(make_vat: Callable[..., VatSage]) -> Callable[..., VatRatSage]:
 
 @pytest.fixture
 def vat_rates_dataset(make_vat_rat: Callable[..., VatRatSage]) -> dict[str, list[VatRatSage]]:
-    """
-    Jeu de taux de TVA historisés :
-        001 : 19.6 % depuis 2000, 20 % depuis 2014 (régime FRA)
-        002 : 5.5 % depuis 2000 (régime FRA)
-        011 : 20 % depuis 2014 (régime INT, tva intracommunautaire)
+    """Jeu de taux de TVA historisés :
+
+    001 : 19.6 % depuis 2000, 20 % depuis 2014 (régime FRA)
+    002 : 5.5 % depuis 2000 (régime FRA)
+    011 : 20 % depuis 2014 (régime INT, tva intracommunautaire)
     """
     return {
         "001": [
@@ -134,12 +135,12 @@ def make_payment_condition(db) -> Callable[..., PaymentCondition]:  # pylint: di
             "name": f"Condition {code}",
             "short_name": code,
             "mode": "VRT",
-            "percent_at_term": Decimal("100"),
+            "percent_at_term": Decimal(100),
             "paiement_type": "VIREMENT",
             "offset_month": 0,
             "offset_days": 30,
             "end_month": "1",
-            "mont_echeance_min": Decimal("0"),
+            "mont_echeance_min": Decimal(0),
             "auuid": _next_code(f"{code}-"),
         }
         defaults.update(kwargs)
@@ -222,8 +223,8 @@ def make_ecriture(make_code_plan: Callable[..., CodePlanSage]) -> Callable[..., 
 
 @pytest.fixture
 def sage_file(sage_dirs, make_csv: Callable[..., Path]) -> Callable[..., Path]:
-    """
-    Fabrique de fichiers d'extraction Sage X3 (csv ; quoté, CRLF) nommés comme le modèle
+    """Fabrique de fichiers d'extraction Sage X3 (csv ; quoté, CRLF) nommés comme le modèle
+
     les attend (model.file_import_sage()), déposés par défaut dans le répertoire de processing.
     """
 
@@ -250,8 +251,8 @@ def sage_file(sage_dirs, make_csv: Callable[..., Path]) -> Callable[..., Path]:
 
 @pytest.fixture
 def fake_make_insert(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, Any]]:
-    """
-    Remplace data_flux.make_insert dans le module d'import par un enregistreur d'appels
+    """Remplace data_flux.make_insert dans le module d'import par un enregistreur d'appels
+
     et neutralise time.sleep. Retourne la liste des appels (dict des arguments).
     """
     from apps.accountancy.imports import imports_sage  # pylint: disable=C0415
@@ -273,5 +274,7 @@ def fake_make_insert(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, Any]]:
         return f"Import : {flow_name}\n\nPas d'erreurs\n"
 
     monkeypatch.setattr(imports_sage, "make_insert", _recorder)
-    monkeypatch.setattr(imports_sage.time, "sleep", lambda seconds: calls.append({"sleep": seconds}))
+    monkeypatch.setattr(
+        imports_sage.time, "sleep", lambda seconds: calls.append({"sleep": seconds})
+    )
     return calls

@@ -1,3 +1,5 @@
+"""Table des types MIME par extension de fichier."""
+
 CONTENT_TYPE_FILE = {
     # Application
     ".edi": "application/EDI-X12",

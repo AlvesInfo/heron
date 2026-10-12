@@ -1,6 +1,6 @@
-"""
-FR : Module de traitement des factures saisies à la main
-EN : New article processing module for in articles table with new_article = true
+"""FR : Module de traitement des factures saisies à la main.
+
+EN : New article processing module for in articles table with new_article = true.
 
 Commentaire:
 
@@ -10,36 +10,37 @@ created by: Paulo ALVES
 modified at: 2023-03-18
 modified by: Paulo ALVES
 """
-from typing import AnyStr, Dict, List
+
 from decimal import Decimal
 from uuid import uuid4
 
 import pendulum
-from django.db import transaction
 from django import forms
+from django.db import transaction
 
-from heron.loggers import LOGGER_IMPORT
-from apps.users.models import User
 from apps.accountancy.bin.utilities import get_dict_vat_rates
 from apps.articles.bin.articles_queries import get_article
+from apps.book.models import Society
 from apps.edi.bin.data_edi_invoices_nums import get_invoices_manual_entries_nums
 from apps.edi.bin.edi_utilites import (
     form_errors_message,
     get_sens,
-    set_trace_hand_invoice,
     set_signboard,
+    set_trace_hand_invoice,
 )
 from apps.edi.models import EdiImport
-from apps.book.models import Society
 from apps.parameters.models import UnitChoices
+from apps.users.models import User
+from heron.loggers import LOGGER_IMPORT
 
 
-def _entered_amount(line_dict: Dict, key: AnyStr, qty: Decimal):
-    """Montant saisi sur la ligne (virgule décimale acceptée), du signe de la quantité ;
-    None si rien n'a été saisi ou si la saisie vaut "0"
+def _entered_amount(line_dict: dict, key: str, qty: Decimal):
+    """Montant saisi sur la ligne (virgule décimale acceptée), du signe de la quantité.
+
+    None si rien n'a été saisi ou si la saisie vaut "0".
     :param line_dict: ligne de la facture
     :param key: nom du montant ("vat_amount" ou "amount_with_vat")
-    :param qty: quantité signée de la ligne
+    :param qty: quantité signée de la ligne.
     """
     value = line_dict.get(key)
 
@@ -52,12 +53,13 @@ def _entered_amount(line_dict: Dict, key: AnyStr, qty: Decimal):
     return sign * Decimal(value.replace(",", "."))
 
 
-def _line_amounts(line_dict: Dict, invoice_type: AnyStr, vat_dict: Dict) -> Dict:
-    """Montants d'une ligne ; pour un avoir (type 381) le sens de la quantité est inversé,
+def _line_amounts(line_dict: dict, invoice_type: str, vat_dict: dict) -> dict:
+    """Montants d'une ligne ; pour un avoir (type 381) le sens de la quantité est inversé,.
+
     y compris dans la ligne reçue
     :param line_dict: ligne de la facture
     :param invoice_type: type de facture de l'entête
-    :param vat_dict: taux et régimes de TVA à la date de la facture
+    :param vat_dict: taux et régimes de TVA à la date de la facture.
     """
     qty = Decimal(line_dict["qty"])
 
@@ -67,7 +69,7 @@ def _line_amounts(line_dict: Dict, invoice_type: AnyStr, vat_dict: Dict) -> Dict
         line_dict["qty"] = f"-{line_dict['qty']}"
 
     net_unit_price = Decimal(line_dict["net_unit_price"])
-    vat_regime, vat_rate = vat_dict.get(line_dict["vat"] or "001")
+    vat_regime, vat_rate = vat_dict[line_dict["vat"] or "001"]
     vat_rate = round(Decimal(vat_rate), 5)
     net_amount = round(qty * net_unit_price, 2)
     vat_amount = _entered_amount(line_dict, "vat_amount", qty)
@@ -92,29 +94,30 @@ def _line_amounts(line_dict: Dict, invoice_type: AnyStr, vat_dict: Dict) -> Dict
 
 def _validate_lines(
     category_form: forms.ModelForm,
-    entete_dict: Dict,
-    lignes_list: List,
-    vat_dict: Dict,
-    sens_dict: Dict,
+    entete_dict: dict,
+    lignes_list: list,
+    vat_dict: dict,
+    sens_dict: dict,
     user_uuid_identification,
 ):
-    """Valide les lignes de la facture et cumule les totaux
+    """Valide les lignes de la facture et cumule les totaux.
+
     :param category_form: Form django de la catégorie
     :param entete_dict: Dictionnaire de l'entête de la facture
     :param lignes_list: Liste des dictionnaires des lignes de la facture
     :param vat_dict: taux et régimes de TVA à la date de la facture
     :param sens_dict: sens de facturation (achat / vente)
     :param user_uuid_identification: uuid de l'utilisateur qui saisit
-    :return: (lignes à créer, cct rencontrés, totaux de la facture, message d'erreur ou None)
+    :return: (lignes à créer, cct rencontrés, totaux de la facture, message d'erreur ou None).
     """
-    invoice_date = entete_dict.get("invoice_date")
-    lines_to_create = []
-    multistore_set = set()
-    cct_dict = {"cct_uuid_identification": None}
+    invoice_date = entete_dict["invoice_date"]
+    lines_to_create: list = []
+    multistore_set: set = set()
+    cct_dict: dict = {"cct_uuid_identification": None}
     totals = {
-        "invoice_amount_without_tax": Decimal("0"),
-        "invoice_amount_tax": Decimal("0"),
-        "invoice_amount_with_tax": Decimal("0"),
+        "invoice_amount_without_tax": Decimal(0),
+        "invoice_amount_tax": Decimal(0),
+        "invoice_amount_with_tax": Decimal(0),
     }
 
     for line_dict in lignes_list:
@@ -132,7 +135,7 @@ def _validate_lines(
             }
 
         # on calcule les montants par ligne et additionne les montants pour le total facturé
-        amounts = _line_amounts(line_dict, entete_dict.get("invoice_type"), vat_dict)
+        amounts = _line_amounts(line_dict, entete_dict["invoice_type"], vat_dict)
         totals["invoice_amount_without_tax"] += amounts["net_amount"]
         totals["invoice_amount_tax"] += amounts["vat_amount"]
         totals["invoice_amount_with_tax"] += amounts["amount_with_vat"]
@@ -163,14 +166,20 @@ def _validate_lines(
 
 
 def _rows_to_insert(
-    entete_dict: Dict, lines_to_create: List, third_party_num: AnyStr, totals: Dict, is_multi_store: bool
-) -> List:
-    """Dictionnaires des lignes à créer dans edi_ediimport, complétés des éléments de la facture
+    entete_dict: dict,
+    lines_to_create: list,
+    third_party_num: str,
+    totals: dict,
+    *,
+    is_multi_store: bool,
+) -> list:
+    """Dictionnaires des lignes à créer dans edi_ediimport, complétés des éléments de la facture.
+
     :param entete_dict: Dictionnaire de l'entête de la facture
     :param lines_to_create: lignes validées
     :param third_party_num: Tiers X3 de la facture
     :param totals: totaux de la facture
-    :param is_multi_store: True si la facture porte sur plusieurs cct
+    :param is_multi_store: True si la facture porte sur plusieurs cct.
     """
     edi_import_list = []
     uuid_identification = uuid4()
@@ -203,27 +212,26 @@ def _rows_to_insert(
 
 @transaction.atomic
 def set_hand_invoice(
-    invoice_category: AnyStr,
+    invoice_category: str,
     category_form: forms.ModelForm,
-    entete_dict: Dict,
-    lignes_list: List,
-    user: User.objects,
+    entete_dict: dict,
+    lignes_list: list,
+    user: User,
 ):
-    """
-    Création dans edi_import des factures saisies manuellement
+    """Création dans edi_import des factures saisies manuellement.
+
     :param invoice_category: Catégorie ( marchandises, formations, personnel)
     :param category_form: Form django de la catégorie
     :param entete_dict: Dictionnaire de l'entête de la facture
     :param lignes_list: Liste des dictionnaires des lignes de la facture
     :param user: user qui créer la facture
-    :return: error (True/False), message ("" si pas d'erreur/"message" si erreur)
+    :return: error (True/False), message ("" si pas d'erreur/"message" si erreur).
     """
-
     error = False
     message = ""
-    third_party_num = entete_dict.get("third_party_num")
+    third_party_num = entete_dict["third_party_num"]
     invoice_number = entete_dict.get("invoice_number", "")
-    invoice_date = entete_dict.get("invoice_date")
+    invoice_date = entete_dict["invoice_date"]
     sens_dict = get_sens(entete_dict.pop("sens"))
 
     # si l'on n'a pas de N° de Facture on en met un par défaut, avec la numérotation automatique
@@ -257,14 +265,17 @@ def set_hand_invoice(
             [
                 EdiImport(**row_dict)
                 for row_dict in _rows_to_insert(
-                    entete_dict, lines_to_create, third_party_num, totals, len(multistore_set) > 1
+                    entete_dict,
+                    lines_to_create,
+                    third_party_num,
+                    totals,
+                    is_multi_store=len(multistore_set) > 1,
                 )
             ]
         )
         nbre = len(edi_imports)
 
-        # TODO: Renforcer la fonction pour que cela ne créé pas la ligne malgré
-        #  même si erreur avec les deux fonction ci après
+        # Limitation connue : la ligne est créée même si les deux fonctions ci-après échouent
 
         # On va mettre à jour la centrale fille et l'enseigne
         set_signboard(edi_imports)

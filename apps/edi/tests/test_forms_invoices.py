@@ -1,16 +1,14 @@
-"""
-Tests de la construction paresseuse des schémas djantic des flux fournisseurs (directive D1)
-"""
+"""Tests de la construction paresseuse des schémas djantic des flux fournisseurs (directive D1)"""
+
 import datetime
 import importlib.util
 import uuid
-from pathlib import Path
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 
-from conftest import captured_queries
 from apps.edi.forms.forms_djantic import forms_invoices
 from apps.edi.forms.forms_djantic.forms_invoices import (
     DEFAULT_DATE,
@@ -19,6 +17,7 @@ from apps.edi.forms.forms_djantic.forms_invoices import (
     default_date,
     get_schema,
 )
+from conftest import captured_queries
 
 EDI_COLUMNS = [
     ("invoice_number", "1"),
@@ -31,8 +30,8 @@ EDI_COLUMNS = [
 
 
 def load_module_copy(module):
-    """
-    Exécute le source d'un module sous un nouveau nom : on observe son import sans recharger
+    """Exécute le source d'un module sous un nouveau nom : on observe son import sans recharger
+
     le module réel (un reload recréerait get_schema et son cache pour les autres tests).
     """
     spec = importlib.util.spec_from_file_location(f"{module.__name__}_copy", Path(module.__file__))
@@ -136,9 +135,9 @@ def test_built_schema_validates_like_before(make_column_definitions):
     assert validated.uuid_identification == identification
     assert validated.acuitis_order_date == datetime.datetime(1900, 1, 1)
     assert validated.delivery_date == datetime.datetime(1900, 1, 1)
-    assert validated.net_amount == Decimal("0")
-    assert validated.qty == Decimal("1")
-    assert schema(**{**validated.dict(), "qty": ""}).qty == Decimal("0")
+    assert validated.net_amount == Decimal(0)
+    assert validated.qty == Decimal(1)
+    assert schema(**{**validated.dict(), "qty": ""}).qty == Decimal(0)
 
 
 def test_build_schema_applies_mixins_and_defaults(make_column_definitions):
@@ -162,19 +161,22 @@ def test_build_schema_can_be_called_twice(make_column_definitions):
 
     assert first is not second
     assert first.__config__.include == second.__config__.include
-    assert first(
-        uuid_identification=uuid.uuid4(),
-        flow_name="Johnson",
-        supplier="JOHNSON",
-        supplier_ident="Johnson",
-        created_at="2024-01-05",
-        modified_at="2024-01-05",
-        invoice_number="F001",
-        delivery_date=None,
-    ).delivery_date == DEFAULT_DATE
+    assert (
+        first(
+            uuid_identification=uuid.uuid4(),
+            flow_name="Johnson",
+            supplier="JOHNSON",
+            supplier_ident="Johnson",
+            created_at="2024-01-05",
+            modified_at="2024-01-05",
+            invoice_number="F001",
+            delivery_date=None,
+        ).delivery_date
+        == DEFAULT_DATE
+    )
 
 
-@pytest.mark.usefixtures('schema_cache_cleared')
+@pytest.mark.usefixtures("schema_cache_cleared")
 def test_get_schema_is_cached(make_column_definitions):
     make_column_definitions("Widex", [("invoice_number", "1")])
 
@@ -186,19 +188,17 @@ def test_get_schema_is_cached(make_column_definitions):
     assert len(queries.captured_queries) == 1
 
 
-@pytest.mark.usefixtures('schema_cache_cleared')
+@pytest.mark.usefixtures("schema_cache_cleared")
 def test_get_schema_unknown_name():
     with pytest.raises(KeyError, match="Schéma 'InconnuSchema' inconnu.*WidexSchema"):
         get_schema("InconnuSchema")
 
 
 @pytest.mark.django_db
-@pytest.mark.usefixtures('column_definitions_data', 'schema_cache_cleared')
+@pytest.mark.usefixtures("column_definitions_data", "schema_cache_cleared")
 def test_get_schema_with_production_snapshot():
     """Toutes les définitions se construisent sur l'instantané de production"""
     schemas = {name: get_schema(name) for name in SCHEMA_DEFINITIONS}
 
     assert all(len(schema.__config__.include) > 4 for schema in schemas.values())
-    assert {schema.__config__.model for schema in schemas.values()} == {
-        forms_invoices.EdiImport
-    }
+    assert {schema.__config__.model for schema in schemas.values()} == {forms_invoices.EdiImport}

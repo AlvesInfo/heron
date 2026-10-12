@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests des traces de changement (ChangeTraceMixin, trace_mark_delete, trace_mark_bulk_delete,
+"""FR : Tests des traces de changement (ChangeTraceMixin, trace_mark_delete, trace_mark_bulk_delete,
+
+
      trace_form_change, _before_and_after) et du mixin de filtrage par centrale (ChildCenterMixin)
 EN : Tests for change traces and the child center mixin
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import logging
 from typing import ClassVar
 
@@ -117,7 +119,12 @@ def test_initialisation_et_action():
     preset.action_type = "CREATE"
     preset.action()
 
-    assert (create.action_type, update.action_type, delete.action_type, preset.action_type) == ("CREATE", "UPDATE", "DELETE", "CREATE")
+    assert (create.action_type, update.action_type, delete.action_type, preset.action_type) == (
+        "CREATE",
+        "UPDATE",
+        "DELETE",
+        "CREATE",
+    )
 
 
 def test_has_change():
@@ -128,7 +135,9 @@ def test_has_change():
     assert mixin.has_change({"a": 1}, {"a": 1, "b": 2}) is True
     assert mixin.has_change({"a": 1, "b": 2}, {"a": 1, "c": 2}) is True
     assert mixin.has_change({"name": "X", "created_at": 1}, {"name": "Y", "created_at": 2}) is True
-    assert mixin.has_change({"name": "X", "modified_by": 1}, {"name": "X", "modified_by": 2}) is False
+    assert (
+        mixin.has_change({"name": "X", "modified_by": 1}, {"name": "X", "modified_by": 2}) is False
+    )
     assert mixin.has_change({"description": None}, {"description": ""}) is False
     assert mixin.has_change({"name": None}, {"name": ""}) is True
 
@@ -152,7 +161,9 @@ def test_creation_tracee_et_traitement_apres_validation(request_factory):
 def test_modification_tracee(request_factory, make_stat):
     stat = make_stat("ACUITIS", description="avant")
 
-    response = StatUpdate.as_view()(request_factory(data={"name": "ACUITIS", "description": "après"}), pk=stat.pk)
+    response = StatUpdate.as_view()(
+        request_factory(data={"name": "ACUITIS", "description": "après"}), pk=stat.pk
+    )
 
     stat.refresh_from_db()
     trace = ChangesTrace.objects.get()
@@ -166,7 +177,9 @@ def test_modification_tracee(request_factory, make_stat):
 def test_modification_sans_changement(request_factory, make_stat):
     stat = make_stat("ACUITIS", description="")
 
-    response = StatUpdate.as_view()(request_factory(data={"name": "ACUITIS", "description": ""}), pk=stat.pk)
+    response = StatUpdate.as_view()(
+        request_factory(data={"name": "ACUITIS", "description": ""}), pk=stat.pk
+    )
 
     assert response.status_code == 302
     assert ChangesTrace.objects.count() == 0
@@ -187,7 +200,9 @@ def test_modification_invalide_et_traitement_apres_erreur(request_factory, make_
 def test_marquage_supprime_a_la_validation(request_factory, make_stat):
     stat = make_stat("ACUITIS")
 
-    response = StatMarkDelete.as_view()(request_factory(data={"name": "ACUITIS", "description": "x"}), pk=stat.pk)
+    response = StatMarkDelete.as_view()(
+        request_factory(data={"name": "ACUITIS", "description": "x"}), pk=stat.pk
+    )
 
     stat.refresh_from_db()
     assert response.status_code == 302
@@ -216,7 +231,12 @@ def test_trace_mark_delete_marque_et_trace(request_factory, make_stat):
 
 def test_trace_mark_delete_force_sur_un_modele_sans_drapeaux(request_factory, make_child_center):
     """Un modèle sans champ delete ni modified_by est tracé puis réellement supprimé"""
-    facture = TypeFacture.objects.create(child_center=make_child_center("ACF"), invoice_type="380", purchase_type_facture="F", sale_type_facture="V")
+    facture = TypeFacture.objects.create(
+        child_center=make_child_center("ACF"),
+        invoice_type="380",
+        purchase_type_facture="F",
+        sale_type_facture="V",
+    )
     request = request_factory()
 
     trace_mark_delete(request, TypeFacture, {"id": facture.pk}, force_delete=True)
@@ -242,7 +262,9 @@ def test_trace_mark_bulk_delete(request_factory, make_stat):
     stat = make_stat("ACUITIS", description="d")
     request = request_factory()
 
-    trace_mark_bulk_delete(request, StatFamillyAxes, {"description": "d"}, replacements=(("name", "ACUITIS"),))
+    trace_mark_bulk_delete(
+        request, StatFamillyAxes, {"description": "d"}, replacements=(("name", "ACUITIS"),)
+    )
 
     stat.refresh_from_db()
     trace = ChangesTrace.objects.get()
@@ -312,7 +334,12 @@ class _CenterView(ChildCenterMixin, View):
 @pytest.fixture
 def factures(make_child_center):
     for code in ("ACF", "GAF", "MAA"):
-        TypeFacture.objects.create(child_center=make_child_center(code), invoice_type="380", purchase_type_facture="F", sale_type_facture="V")
+        TypeFacture.objects.create(
+            child_center=make_child_center(code),
+            invoice_type="380",
+            purchase_type_facture="F",
+            sale_type_facture="V",
+        )
 
 
 def _view(user_code, **attrs):
@@ -327,16 +354,27 @@ def _view(user_code, **attrs):
 def test_queryset_filtre_par_centrales_de_l_utilisateur():
     base = TypeFacture.objects.all()
 
-    assert [row.child_center_id for row in _view("GAF|MAA", queryset=base).get_queryset()] == ["GAF", "MAA"]
+    assert [row.child_center_id for row in _view("GAF|MAA", queryset=base).get_queryset()] == [
+        "GAF",
+        "MAA",
+    ]
     assert _view("*", queryset=base).get_queryset().count() == 3
-    assert [row.child_center_id for row in _view("ACF", model=TypeFacture).get_queryset()] == ["ACF"]
+    assert [row.child_center_id for row in _view("ACF", model=TypeFacture).get_queryset()] == [
+        "ACF"
+    ]
     assert _view("*", model=TypeFacture).get_queryset().count() == 3
 
 
 @pytest.mark.usefixtures("factures")
 def test_queryset_ordonne():
-    assert [row.child_center_id for row in _view("*", model=TypeFacture, ordering="-child_center").get_queryset()] == ["MAA", "GAF", "ACF"]
-    assert [row.child_center_id for row in _view("*", model=TypeFacture, ordering=("-child_center", "pk")).get_queryset()] == ["MAA", "GAF", "ACF"]
+    assert [
+        row.child_center_id
+        for row in _view("*", model=TypeFacture, ordering="-child_center").get_queryset()
+    ] == ["MAA", "GAF", "ACF"]
+    assert [
+        row.child_center_id
+        for row in _view("*", model=TypeFacture, ordering=("-child_center", "pk")).get_queryset()
+    ] == ["MAA", "GAF", "ACF"]
 
 
 def test_queryset_non_configure():

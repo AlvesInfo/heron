@@ -1,6 +1,6 @@
-"""
-FR : Module de préparation à l'import des factures fournisseurs
-EN : Preparation module for importing supplier invoices
+"""FR : Module de préparation à l'import des factures fournisseurs.
+
+EN : Preparation module for importing supplier invoices.
 
 Commentaire:
 
@@ -10,4 +10,3 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
-

@@ -1,6 +1,6 @@
-"""
-FR : Middlewares de la partie login
-EN : Middlewares of the login part
+"""FR : Middlewares de la partie login.
+
+EN : Middlewares of the login part.
 
 Commentaire:
 
@@ -10,24 +10,26 @@ created by: Paulo ALVES
 modified at: 2022-05-18
 modified by: Paulo ALVES
 """
+
 from django.shortcuts import redirect
 
 
 class LoginMiddleware:
-    """
-    Restriction d'acces au site, en fonction du login et d'appartenance à un groupe.
+    """Restriction d'acces au site, en fonction du login et d'appartenance à un groupe.
+
     SuperUser   :   - Acces Total
     Staff       :   - Acces à ses groupes
                     - Création d'utlisateurs, restreints à ces propres groupes
-    User        :   - Acces à ses groupes
+    User        :   - Acces à ses groupes.
     """
 
     def __init__(self, get_response):
+        """Mémorise le gestionnaire de réponse suivant."""
         self.get_response = get_response
 
     def __call__(self, request):
-        """
-        Si l'on n'est pas authentifié, on est renvoyé sur la page de login
+        """Si l'on n'est pas authentifié, on est renvoyé sur la page de login.
+
         :param request: request django
         :return: Redirige vers la page de login si non connecté.
         """
@@ -49,14 +51,7 @@ class LoginMiddleware:
             str(request.path) if is_confirm else "",
         ]
 
-        if not request.user.is_authenticated:
-            if request.path not in paths:
-                return redirect("accounts:login")
+        if not request.user.is_authenticated and request.path not in paths:
+            return redirect("accounts:login")
 
-        # Avant changements
-        # if not request.user.is_authenticated and request.path != '/accounts/login/':
-        #     return redirect("accounts:login")
-
-        response = self.get_response(request)
-
-        return response
+        return self.get_response(request)

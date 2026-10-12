@@ -1,6 +1,6 @@
-"""
-FR : Module des formulaires de validation des imports des factures
-EN : Imported invoices forms module
+"""FR : Module des formulaires de validation des imports des factures.
+
+EN : Imported invoices forms module.
 
 Commentaire:
 
@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2021-12-29
 modified by: Paulo ALVES
 """
+
 from django import forms
 
 from apps.edi.models import EdiImport
@@ -17,10 +18,10 @@ from apps.parameters.models import Category
 
 
 class ChangeBigCategoryForm(forms.ModelForm):
-    """Pour changer la grande catégorie des factures fournisseurs"""
+    """Pour changer la grande catégorie des factures fournisseurs."""
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         self.big_category_choices = [("", "")] + [
@@ -37,17 +38,17 @@ class ChangeBigCategoryForm(forms.ModelForm):
         self.fields["id"] = forms.IntegerField(initial=0, required=False)
 
     class Meta:
-        """class Meta Django"""
+        """class Meta Django."""
 
         model = EdiImport
         fields = ("id", "big_category", "third_party_num", "invoice_month")
 
 
 class ChangeCttForm(forms.ModelForm):
-    """Formulaire de chanagement des cct"""
+    """Formulaire de chanagement des cct."""
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         self.fields["cct"] = forms.CharField()
@@ -55,7 +56,7 @@ class ChangeCttForm(forms.ModelForm):
         self.fields["id"] = forms.IntegerField(initial=0, required=False)
 
     class Meta:
-        """class Meta Django"""
+        """class Meta Django."""
 
         model = EdiImport
         fields = ("id", "third_party_num", "invoice_number", "invoice_year")

@@ -1,6 +1,6 @@
-"""
-FR : Module d'import en boucle des modèles de Sage X3
-EN : Loop import module for Sage X3 models
+"""FR : Module d'import en boucle des modèles de Sage X3.
+
+EN : Loop import module for Sage X3 models.
 
 Commentaire:
 
@@ -10,26 +10,27 @@ created by: Paulo ALVES
 modified at: 2022-04-08
 modified by: Paulo ALVES
 """
+
 import shutil
 from pathlib import Path
 
-from heron.loggers import LOGGER_IMPORT
-from apps.core.functions.functions_setups import settings
+from apps.accountancy.imports.extraction_cct import update_cct_sage
+from apps.accountancy.imports.extraction_code_plan import update_code_plan
 from apps.accountancy.imports.imports_sage import (
     account_sage,
     axe_sage,
-    section_sage,
-    vat_regime_sage,
-    vat_sage,
-    vat_rat_sage,
-    mode_reglement,
-    payement_condition,
-    tab_div_sage,
     category_sage_client,
     category_sage_supplier,
+    mode_reglement,
+    payement_condition,
+    section_sage,
+    tab_div_sage,
+    vat_rat_sage,
+    vat_regime_sage,
+    vat_sage,
 )
-from apps.accountancy.imports.extraction_cct import update_cct_sage
-from apps.accountancy.imports.extraction_code_plan import update_code_plan
+from apps.core.functions.functions_setups import settings
+from heron.loggers import LOGGER_IMPORT
 
 processing_dict = {
     "ZBIACCOUNT_journalier.heron": account_sage,
@@ -47,7 +48,7 @@ processing_dict = {
 
 
 def get_processing_files():
-    """Récupération des fichiers Sage à intégrer, depuis le serveur Sage X3"""
+    """Récupération des fichiers Sage à intégrer, depuis le serveur Sage X3."""
     file_list = []
 
     for file in Path(settings.ACUITIS_ARCHIVE_EM_DIR).glob("*"):
@@ -60,9 +61,7 @@ def get_processing_files():
 
 
 def process():
-    """
-    Intégration des fichiers en fonction de ceux présents dans le répertoire de processing/sage
-    """
+    """Intégration des fichiers en fonction de ceux présents dans le répertoire de processing/sage."""
     processing_files = get_processing_files()
 
     # on met la liste des fichiers à traiter dans l'ordre souhaité pour les interdépendances
@@ -76,18 +75,17 @@ def process():
         trace = None
 
         try:
-            trace, _ = processing_dict.get(file.name)(file)
-            # print("trace : ", trace.pk, trace) print("to_print : ", _)
+            trace, _ = processing_dict[file.name](file)
             destination = Path(settings.BACKUP_SAGE_DIR) / file.name
             shutil.move(file.resolve(), destination.resolve())
 
-        except TypeError as except_error:
+        except TypeError:
             error = True
-            LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
+            LOGGER_IMPORT.exception("TypeError")
 
-        except Exception as except_error:
+        except Exception:
             error = True
-            LOGGER_IMPORT.exception(f"Exception Générale: {file.name}\n{except_error!r}")
+            LOGGER_IMPORT.exception("Exception Générale: %s", file.name)
 
         finally:
             if error and trace:
@@ -101,13 +99,13 @@ def process():
 
     try:
         update_cct_sage()
-    except Exception as except_error:
-        LOGGER_IMPORT.exception(f"Exception Générale: update_cct_sage()\n{except_error!r}")
+    except Exception:
+        LOGGER_IMPORT.exception("Exception Générale: update_cct_sage()")
 
     try:
         update_code_plan()
-    except Exception as except_error:
-        LOGGER_IMPORT.exception(f"Exception Générale: update_code_plan()\n{except_error!r}")
+    except Exception:
+        LOGGER_IMPORT.exception("Exception Générale: update_code_plan()")
 
 
 if __name__ == "__main__":

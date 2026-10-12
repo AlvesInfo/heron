@@ -1,4 +1,5 @@
 """Tests des vues des étapes 6.0 (exports achats EDI), 6.1 (RFA mensuelles) et des écrans RFA"""
+
 import logging
 from pathlib import Path
 
@@ -58,8 +59,14 @@ def test_edi_import_purchases_export_csv(logged_client, tmp_path, monkeypatch, s
     def boom(emplacement):
         raise RuntimeError("boom")
 
-    with patched_attrs(monkeypatch, views_etape_6_0, MEDIA_EXCEL_FILES_DIR=tmp_path, csv_heron_purchases_edi_import=boom), caplog.at_level(
-        logging.ERROR, logger="error_views"
+    with (
+        patched_attrs(
+            monkeypatch,
+            views_etape_6_0,
+            MEDIA_EXCEL_FILES_DIR=tmp_path,
+            csv_heron_purchases_edi_import=boom,
+        ),
+        caplog.at_level(logging.ERROR, logger="error_views"),
     ):
         response = logged_client.get(url("edi_import_purchases_export_csv"))
 
@@ -89,12 +96,15 @@ def test_rfa_generated_export(logged_client, stub_excel, caplog):
     assert "rfa_generated_export" in caplog.text
 
 
-@pytest.mark.parametrize(("name", "title"), [
-    ("rfa_cct_invoices_purchases", "Controle des RFA par CCT- Achats"),
-    ("rfa_cct_invoices_purchases_export", "Export Excel"),
-    ("rfa_prj_invoices_purchases", "Controle des RFA par PRJ - Achats"),
-    ("rfa_prj_invoices_purchases_export", "Export Excel"),
-])
+@pytest.mark.parametrize(
+    ("name", "title"),
+    [
+        ("rfa_cct_invoices_purchases", "Controle des RFA par CCT- Achats"),
+        ("rfa_cct_invoices_purchases_export", "Export Excel"),
+        ("rfa_prj_invoices_purchases", "Controle des RFA par PRJ - Achats"),
+        ("rfa_prj_invoices_purchases_export", "Export Excel"),
+    ],
+)
 def test_rfa_views(logged_client, name, title):
     response = logged_client.get(url(name))
 

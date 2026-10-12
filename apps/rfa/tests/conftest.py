@@ -1,6 +1,7 @@
 # pylint: disable=W0621,E0401,R0913,R0914
-"""
-FR : conftest de l'app rfa - fabriques du paramétrage RFA et jeu de données de génération
+"""FR : conftest de l'app rfa - fabriques du paramétrage RFA et jeu de données de génération
+
+
 EN : rfa app conftest
 
 Commentaire:
@@ -12,11 +13,12 @@ ajax_client, ...) viennent du conftest racine.
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import datetime
-from uuid import uuid4
+from collections.abc import Callable
 from decimal import Decimal
 from typing import Any
-from collections.abc import Callable
+from uuid import uuid4
 
 import pytest
 
@@ -54,12 +56,15 @@ def make_client_exclusion(make_maison) -> Callable[..., ClientExclusion]:
 
 
 @pytest.fixture
-def make_client_supplier_exclusion(make_maison, make_society) -> Callable[..., ClientSupplierExclusion]:
+def make_client_supplier_exclusion(
+    make_maison, make_society
+) -> Callable[..., ClientSupplierExclusion]:
     """Fabrique d'exclusions RFA par couple maison / fournisseur"""
 
     def _factory(maison=None, third_party_num: str = "FOUR001") -> ClientSupplierExclusion:
         return ClientSupplierExclusion.objects.get_or_create(
-            maison=maison or make_maison(type_x3=1), supplier=make_society(third_party_num, is_client=False)
+            maison=maison or make_maison(type_x3=1),
+            supplier=make_society(third_party_num, is_client=False),
         )[0]
 
     return _factory
@@ -69,9 +74,12 @@ def make_client_supplier_exclusion(make_maison, make_society) -> Callable[..., C
 def make_supplier_rate(make_society) -> Callable[..., SupplierRate]:
     """Fabrique de taux de RFA par fournisseur"""
 
-    def _factory(third_party_num: str = "FOUR001", rate: str = "0.05", **kwargs: Any) -> SupplierRate:
+    def _factory(
+        third_party_num: str = "FOUR001", rate: str = "0.05", **kwargs: Any
+    ) -> SupplierRate:
         return SupplierRate.objects.get_or_create(
-            supplier=make_society(third_party_num, is_client=False, **kwargs), defaults={"rfa_rate": Decimal(rate)}
+            supplier=make_society(third_party_num, is_client=False, **kwargs),
+            defaults={"rfa_rate": Decimal(rate)},
         )[0]
 
     return _factory
@@ -99,10 +107,18 @@ def make_section_pro_exclusion(make_section) -> Callable[..., SectionProExclusio
 
 @pytest.fixture
 def rfa_data(
-    make_maison, make_section, make_section_rfa, make_supplier_rate, make_edi_import, make_edi_import_control,
-    make_edi_validation, make_vat, make_unit,
+    make_maison,
+    make_section,
+    make_section_rfa,
+    make_supplier_rate,
+    make_edi_import,
+    make_edi_import_control,
+    make_edi_validation,
+    make_vat,
+    make_unit,
 ):
     """Jeu de données complet pour une génération de RFA :
+
     fournisseur FOUR001 à 5 %, maison AF0001 (enseigne ACF), deux factures validées de janvier 2026
     sur l'axe RFA retenu, TVA 002 à 5,5 %, période de facturation ouverte.
     """
@@ -112,7 +128,11 @@ def rfa_data(
     axe_pro = make_section("PRO", "OPT")
     section_rfa = make_section_rfa(RFA_PERIOD)
     rate = make_supplier_rate(
-        "FOUR001", "0.05", name="FOURN UN", short_name="FOURN UN", centers_suppliers_indentifier="F1|F2"
+        "FOUR001",
+        "0.05",
+        name="FOURN UN",
+        short_name="FOURN UN",
+        centers_suppliers_indentifier="F1|F2",
     )
     # Unité de poids 11 posée en dur par l'insertion des RFA (comme par les flux Cosium / BBGR)
     make_unit(11, "Forfait")
@@ -127,15 +147,38 @@ def rfa_data(
         "invoice_date": datetime.date(2026, 1, 15),
     }
     lines = [
-        make_edi_import("FOUR001", "ART-1", invoice_number="FAC-1", net_amount=Decimal("100"), gross_amount=Decimal("110"), gross_unit_price=Decimal("110"), **common),
-        make_edi_import("FOUR001", "ART-2", invoice_number="FAC-1", net_amount=Decimal("50"), gross_amount=Decimal("55"), gross_unit_price=Decimal("55"), **common),
+        make_edi_import(
+            "FOUR001",
+            "ART-1",
+            invoice_number="FAC-1",
+            net_amount=Decimal(100),
+            gross_amount=Decimal(110),
+            gross_unit_price=Decimal(110),
+            **common,
+        ),
+        make_edi_import(
+            "FOUR001",
+            "ART-2",
+            invoice_number="FAC-1",
+            net_amount=Decimal(50),
+            gross_amount=Decimal(55),
+            gross_unit_price=Decimal(55),
+            **common,
+        ),
     ]
     vat = make_vat("002")
     VatRatSage.objects.get_or_create(
-        vat=vat, vat_start_date=datetime.date(2024, 1, 1), defaults={"rate": Decimal("5.5"), "auuid": uuid4()}
+        vat=vat,
+        vat_start_date=datetime.date(2024, 1, 1),
+        defaults={"rate": Decimal("5.5"), "auuid": uuid4()},
     )
     validation = make_edi_validation(BILLING_PERIOD)
     return {
-        "maison": maison, "axe_pro": axe_pro, "section_rfa": section_rfa, "rate": rate,
-        "control": control, "lines": lines, "validation": validation,
+        "maison": maison,
+        "axe_pro": axe_pro,
+        "section_rfa": section_rfa,
+        "rate": rate,
+        "control": control,
+        "lines": lines,
+        "validation": validation,
     }

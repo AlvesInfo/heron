@@ -1,38 +1,38 @@
-"""
-Views des Clients/Maisons
-"""
-from pathlib import Path
+"""Views des Clients/Maisons."""
+
+import contextlib
 import pickle
+from pathlib import Path
 
 import pendulum
-from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from django.http import JsonResponse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib import messages
-from django.core.files import File
-from django.views.generic import ListView, CreateView, UpdateView
-
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
 from django.conf import settings
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.core.models import PicklerFiles
+from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core.files import File
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.generic import CreateView, ListView, UpdateView
+
+from apps.accountancy.models import CctSage
+from apps.book.models import Society
+from apps.centers_clients.bin.gestion_cct import update_supplier_cct_reference_cosium
 from apps.centers_clients.excel_outputs.centers_clients_excel_maisons_list import (
     excel_liste_maisons,
 )
-from apps.accountancy.models import CctSage
-from apps.book.models import Society
+from apps.centers_clients.forms import ImportMaisonBiForm, MaisonForm
 from apps.centers_clients.models import Maison, MaisonBi
-from apps.centers_clients.forms import MaisonForm, ImportMaisonBiForm
 from apps.centers_purchasing.models import ChildCenterPurchase
-from apps.centers_clients.bin.gestion_cct import update_supplier_cct_reference_cosium
+from apps.core.bin.change_traces import ChangeTraceMixin
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from apps.core.models import PicklerFiles
+from heron.loggers import LOGGER_VIEWS
 
 
 # ECRANS DES MAISONS ===============================================================================
 class MaisonsList(ListView):
-    """View de la liste des Maisons"""
+    """View de la liste des Maisons."""
 
     model = Maison
     queryset = Maison.objects.all().values(
@@ -48,7 +48,7 @@ class MaisonsList(ListView):
         "type_x3__name",
         "credit_account__account",
         "debit_account__account",
-        "cct__active"
+        "cct__active",
     )
     context_object_name = "maisons"
     template_name = "centers_clients/clients_list.html"
@@ -56,7 +56,7 @@ class MaisonsList(ListView):
 
 
 class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Maisons"""
+    """CreateView de création des Maisons."""
 
     model = Maison
     form_class = MaisonForm
@@ -78,14 +78,15 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
             PicklerFiles, uuid_identification=uuid_identification
         )
 
-        with open(self.pickler_object.pickle_file.path, "rb") as file:
-            unpickler = pickle.Unpickler(file)
+        with Path(self.pickler_object.pickle_file.path).open("rb") as file:
+            # Fichier produit par l'application elle-même (import B.I), jamais téléversé
+            unpickler = pickle.Unpickler(file)  # noqa: S301
             initial.update(unpickler.load())
 
         return initial
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("centers_clients:maisons_list")
@@ -94,15 +95,11 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        """
-        On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form.
-        """
+        """On surcharge la méthode form_valid, pour supprimer les fichiers picklers au success du form."""
         form.instance.created_by = self.request.user
 
-        try:
+        with contextlib.suppress(ChildCenterPurchase.DoesNotExist):
             form.instance.center_purchase = ChildCenterPurchase.objects.get(code="ACF")
-        except ChildCenterPurchase.DoesNotExist:
-            pass
 
         self.request.session["level"] = 20
 
@@ -123,7 +120,7 @@ class MaisonCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 
 class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
+    """UpdateView pour modification des identifiants pour les fournisseurs EDI."""
 
     model = Maison
     form_class = MaisonForm
@@ -132,7 +129,7 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     error_message = "Le Client %(cct)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_clients:maisons_list")
         context["titre_table"] = (
@@ -141,21 +138,18 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             f"{context.get('object').intitule}"
         )
         context["adresse_principale_sage"] = (
-            context.get("object")
-            .third_party_num.society_society.filter(address_code="1").first()
+            context.get("object").third_party_num.society_society.filter(address_code="1").first()
         )
         context["cct__active"] = context.get("object").cct.active
 
         return context
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
 
-        try:
+        with contextlib.suppress(ChildCenterPurchase.DoesNotExist):
             form.instance.center_purchase = ChildCenterPurchase.objects.get(code="ACF")
-        except ChildCenterPurchase.DoesNotExist:
-            pass
 
         self.request.session["level"] = 20
 
@@ -167,10 +161,10 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 def maisons_export_list(_):
-    """
-    Export Excel de la liste des Sociétés
+    """Export Excel de la liste des Sociétés.
+
     :param _: Request Django
-    :return: response_file
+    :return: response_file.
     """
     try:
         today = pendulum.now()
@@ -185,13 +179,12 @@ def maisons_export_list(_):
 
 
 def import_bi(request):
-    """
-    View pour importer depuis la B.I et ainsi récupérer les principaux éléments,
+    """View pour importer depuis la B.I et ainsi récupérer les principaux éléments,.
+
     en vue de la création d'un Client. Après avoir récupéré et validé le formulaire saisi, on crée
     un dictionnaire et on le pickle de façon à pouvoir le récupérer dans la CreateView de la Maison
-    en  lui passant un uuid dans l'url
+    en  lui passant un uuid dans l'url.
     """
-
     form = ImportMaisonBiForm(request.POST or None)
 
     if request.method == "POST":
@@ -232,11 +225,11 @@ def import_bi(request):
 
                 pickle_file = Path(settings.PICKLERS_DIR) / "import_bi.pick"
 
-                with open(pickle_file, "wb") as file:
+                with Path(pickle_file).open("wb") as file:
                     pickler = pickle.Pickler(file)
                     pickler.dump(initials)
 
-                with open(pickle_file, "rb") as file:
+                with Path(pickle_file).open("rb") as file:
                     pickler_object = PicklerFiles.objects.create(
                         pickle_file=File(file, name=pickle_file.name)
                     )
@@ -245,7 +238,7 @@ def import_bi(request):
                 return redirect("centers_clients:maisons_create", initials=str(uuid_pickler))
 
         else:
-            LOGGER_VIEWS.exception(f"erreur form : {str(form.data)!r}")
+            LOGGER_VIEWS.error("erreur form : %r", str(form.data))
 
     context = {
         "titre_table": "Création d'un Client avec import depuis la B.I",
@@ -257,17 +250,16 @@ def import_bi(request):
 
 
 def filter_list_maisons_api(request):
-    """View de filtrage pour les menus des maisons"""
-
-    context = {}
+    """View de filtrage pour les menus des maisons."""
+    context: dict = {}
 
     return render(request, "centers_clients/maisons_list_to_pick.html", context=context)
 
 
 def emails_rest_api_query(request, query):
-    """Views pour ramener les emails en cas de changement de tiers X3"""
+    """Views pour ramener les emails en cas de changement de tiers X3."""
     if is_ajax(request) and request.method == "GET":
-        dic = {"success": "ko", "message": ""}
+        dic: dict = {"success": "ko", "message": ""}
 
         try:
             if len(query) == 14:

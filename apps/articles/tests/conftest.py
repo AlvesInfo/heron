@@ -1,6 +1,7 @@
 # pylint: disable=W0621,E0401,R0913,C0415
-"""
-FR : conftest de l'app articles - fabriques des articles, comptes, imports EDI et table B.I
+"""FR : conftest de l'app articles - fabriques des articles, comptes, imports EDI et table B.I
+
+
 EN : articles app conftest - factories for articles, accounts, EDI imports and B.I table
 
 Commentaire:
@@ -11,11 +12,12 @@ make_account, make_child_center, make_maison, ...) viennent du conftest racine.
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import types
+from collections.abc import Callable
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
 
 import pytest
 from django.db import connection
@@ -23,9 +25,17 @@ from django.db import connection
 from conftest import next_code
 
 BI_ARTICLES_COLUMNS = {
-    "code_ean": "text", "designation": "text", "marque": "text", "poids": "numeric", "fabricant": "text",
-    "code_douanier": "text", "px_revient_aval": "numeric", "px_cession_ht_eur": "numeric", "famille": "text",
-    "made_in": "text", "code_rayon": "text",
+    "code_ean": "text",
+    "designation": "text",
+    "marque": "text",
+    "poids": "numeric",
+    "fabricant": "text",
+    "code_douanier": "text",
+    "px_revient_aval": "numeric",
+    "px_cession_ht_eur": "numeric",
+    "famille": "text",
+    "made_in": "text",
+    "code_rayon": "text",
 }
 
 
@@ -43,8 +53,8 @@ def default_sections(make_section) -> dict[str, Any]:
 
 @pytest.fixture
 def bi_articles_table(make_society, make_country) -> Callable[..., None]:
-    """
-    Crée la table B.I heron_bi_articles (FDW en production) dans la transaction de test,
+    """Crée la table B.I heron_bi_articles (FDW en production) dans la transaction de test,
+
     les tiers BBGR002/003/004/006, les pays FR et CN, et retourne une fonction d'insertion
     """
     for code in ("BBGR002", "BBGR003", "BBGR004", "BBGR006"):
@@ -60,15 +70,25 @@ def bi_articles_table(make_society, make_country) -> Callable[..., None]:
 
     def _insert(**values: Any) -> None:
         row = {
-            "code_ean": next_code("EAN"), "designation": "Monture", "marque": "Marque", "poids": Decimal("0.5"),
-            "fabricant": "Fabricant", "code_douanier": "9003", "px_revient_aval": Decimal("10"),
-            "px_cession_ht_eur": Decimal("20"), "famille": "LUNETTES", "made_in": "France", "code_rayon": "OPT",
+            "code_ean": next_code("EAN"),
+            "designation": "Monture",
+            "marque": "Marque",
+            "poids": Decimal("0.5"),
+            "fabricant": "Fabricant",
+            "code_douanier": "9003",
+            "px_revient_aval": Decimal(10),
+            "px_cession_ht_eur": Decimal(20),
+            "famille": "LUNETTES",
+            "made_in": "France",
+            "code_rayon": "OPT",
         }
         row.update(values)
         placeholders = ", ".join(f"%({name})s" for name in row)
 
         with connection.cursor() as cursor:
-            cursor.execute(f"insert into heron_bi_articles ({', '.join(row)}) values ({placeholders})", row)
+            cursor.execute(
+                f"insert into heron_bi_articles ({', '.join(row)}) values ({placeholders})", row
+            )
 
     return _insert
 
@@ -102,7 +122,17 @@ def fake_make_insert(monkeypatch) -> tuple[list[dict[str, Any]], dict[str, bool]
     state = {"errors": False}
 
     def _recorder(model, flow_name, source, trace, validator, params_dict_loader, **kwargs):
-        calls.append({"model": model, "flow_name": flow_name, "source": source, "trace": trace, "validator": validator, "params": params_dict_loader, **kwargs})
+        calls.append(
+            {
+                "model": model,
+                "flow_name": flow_name,
+                "source": source,
+                "trace": trace,
+                "validator": validator,
+                "params": params_dict_loader,
+                **kwargs,
+            }
+        )
         trace.errors = state["errors"]
         trace.save()
         return f"Import : {flow_name}"
@@ -113,7 +143,9 @@ def fake_make_insert(monkeypatch) -> tuple[list[dict[str, Any]], dict[str, bool]
 
 
 @pytest.fixture
-def article_post_data(make_society, make_big_category, make_unit, make_country, default_sections) -> dict[str, str]:
+def article_post_data(
+    make_society, make_big_category, make_unit, make_country, default_sections
+) -> dict[str, str]:
     """Données POST valides pour ArticleForm"""
     make_society("FOUR001", is_client=False)
     category = make_big_category("Marchandises")

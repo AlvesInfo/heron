@@ -10,7 +10,7 @@ if platform.uname().node in {
     "MSI_PAULO",
     "MacBook-Pro-de-Paulo.local",
     "MacBook-Pro-de-Paulo",
-    "Mac"
+    "Mac",
 }:
     print("LOCAL_SETTINGS")
     from heron.settings.local import *

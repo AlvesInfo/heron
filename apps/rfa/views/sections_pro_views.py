@@ -1,29 +1,27 @@
-"""
-Views des exclusions sur l'axe Pro pour le calcul des RFA
-"""
+"""Views des exclusions sur l'axe Pro pour le calcul des RFA."""
+
 import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.bin.change_traces import trace_mark_delete
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.rfa.models import SectionProExclusion
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.rfa.excel_outputs.rfa_sections_pro_exclusions import (
     excel_list_rfa_sections_pro_exclusions,
 )
-from apps.rfa.forms import SectionProExclusionForm, DeleteSectionProExclusionForm
+from apps.rfa.forms import DeleteSectionProExclusionForm, SectionProExclusionForm
+from apps.rfa.models import SectionProExclusion
+from heron.loggers import LOGGER_EXPORT_EXCEL, LOGGER_VIEWS
 
 
 # ECRANS DES AXE PRO ===============================================================================
 class SectionProExclusionList(ListView):
-    """View de la liste des exclusions sur l'axe Pro pour le calcul des RFA"""
+    """View de la liste des exclusions sur l'axe Pro pour le calcul des RFA."""
 
     model = SectionProExclusion
     context_object_name = "rfa_parameters"
@@ -32,7 +30,7 @@ class SectionProExclusionList(ListView):
 
 
 class SectionProExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView des exclusions sur l'axe Pro pour le calcul des RFA"""
+    """CreateView des exclusions sur l'axe Pro pour le calcul des RFA."""
 
     model = SectionProExclusion
     form_class = SectionProExclusionForm
@@ -41,7 +39,7 @@ class SectionProExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateVie
     error_message = "L'Axe PRO %(axe_pro)s n'a pu être créé, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("rfa:sections_pro_exclusions_list")
@@ -53,7 +51,7 @@ class SectionProExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateVie
         return reverse("rfa:sections_pro_exclusions_list")
 
     def form_valid(self, form):
-        """Ajout d'user à la sauvegarde du formulaire"""
+        """Ajout d'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -61,7 +59,7 @@ class SectionProExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateVie
 
 
 class SectionProExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView des exclusions sur l'axe Pro pour le calcul des RFA"""
+    """UpdateView des exclusions sur l'axe Pro pour le calcul des RFA."""
 
     model = SectionProExclusion
     form_class = SectionProExclusionForm
@@ -71,7 +69,6 @@ class SectionProExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateVie
 
     def get_context_data(self, **kwargs):
         """Insert the form into the context dict."""
-
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Mise à jour Axe PRO à exclure dans le calcul de RFA"
         context["chevron_retour"] = reverse("rfa:sections_pro_exclusions_list")
@@ -81,8 +78,8 @@ class SectionProExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateVie
         """Return the URL to redirect to after processing a valid form."""
         return reverse("rfa:sections_pro_exclusions_list")
 
-    def form_valid(self, form, **kwargs):
-        """Ajout d'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout d'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -91,11 +88,11 @@ class SectionProExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateVie
 
 @transaction.atomic
 def section_pro_exlusion_delete(request):
-    """Suppression des exclusions des section_pros pour les RFA
-    :param request: Request Django
-    :return: view
-    """
+    """Suppression des exclusions des section_pros pour les RFA.
 
+    :param request: Request Django
+    :return: view.
+    """
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -113,21 +110,21 @@ def section_pro_exlusion_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"section_pro_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("section_pro_delete, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def section_pro_exclusions_export_list(_):
-    """
-    Export Excel de la liste des Exclusions RFA des section_pros
+    """Export Excel de la liste des Exclusions RFA des section_pros.
+
     :param _: Request Django
-    :return: response_file
+    :return: response_file.
     """
     try:
         today = pendulum.now()
         file_name = (
-            "LISTING_DES_AXES_PRO_A_EXCLURE_" f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+            f"LISTING_DES_AXES_PRO_A_EXCLURE_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
         )
 
         return response_file(excel_list_rfa_sections_pro_exclusions, file_name, CONTENT_TYPE_EXCEL)

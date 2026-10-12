@@ -1,4 +1,5 @@
 """Tests des exports Excel des ventes et du CA Cosium"""
+
 import io
 import logging
 from decimal import Decimal
@@ -56,8 +57,10 @@ def test_excel_sales_cosium_erreur(monkeypatch, caplog):
 
     file_io = io.BytesIO()
 
-    with patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom), patched_attrs(monkeypatch, output_excel_sales_cosium, titre_page_writer=boom), caplog.at_level(
-        logging.ERROR
+    with (
+        patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom),
+        patched_attrs(monkeypatch, output_excel_sales_cosium, titre_page_writer=boom),
+        caplog.at_level(logging.ERROR),
     ):
         result = excel_sales_cosium(file_io, "ventes.xlsx", *PERIOD)
 
@@ -72,20 +75,27 @@ def test_excel_ca_cosium_avec_sous_totaux(make_ca_client, make_maison, make_sect
     lyon = make_maison("AF0002", intitule="Lyon")
     geneve = make_maison("AF0003", intitule="Genève", pays=suisse)
     opt, aud = make_section("PRO", "OPT"), make_section("PRO", "AUD")
-    make_ca_client(maison=paris, axe_pro=opt, ca_ht_eur=Decimal("100"))
-    make_ca_client(maison=paris, axe_pro=aud, ca_ht_eur=Decimal("10"))
-    make_ca_client(maison=lyon, axe_pro=opt, ca_ht_eur=Decimal("20"))
-    make_ca_client(maison=geneve, axe_pro=opt, ca_ht_eur=Decimal("30"))
+    make_ca_client(maison=paris, axe_pro=opt, ca_ht_eur=Decimal(100))
+    make_ca_client(maison=paris, axe_pro=aud, ca_ht_eur=Decimal(10))
+    make_ca_client(maison=lyon, axe_pro=opt, ca_ht_eur=Decimal(20))
+    make_ca_client(maison=geneve, axe_pro=opt, ca_ht_eur=Decimal(30))
     file_io = io.BytesIO()
 
     result = excel_ca_cosium(file_io, "ca.xlsx", *PERIOD)
 
     assert "OK" in result
-    labels = [row[5] for row in read_sheet(file_io) if row[5] and str(row[5]).startswith(("SOUS", "TOTAL"))]
+    labels = [
+        row[5]
+        for row in read_sheet(file_io)
+        if row[5] and str(row[5]).startswith(("SOUS", "TOTAL"))
+    ]
     # Tri par pays (ordre du modèle Country), puis par cct
     assert labels == [
-        "SOUS TOTAL AF0001 - Paris", "SOUS TOTAL AF0002 - Lyon", "TOTAL FR",
-        "SOUS TOTAL AF0003 - Genève", "TOTAL CH",
+        "SOUS TOTAL AF0001 - Paris",
+        "SOUS TOTAL AF0002 - Lyon",
+        "TOTAL FR",
+        "SOUS TOTAL AF0003 - Genève",
+        "TOTAL CH",
     ]
 
 
@@ -95,10 +105,12 @@ def test_excel_ca_cosium_sans_lignes():
     result = excel_ca_cosium(file_io, "ca.xlsx", *PERIOD)
 
     assert "OK" in result
-    assert any("n'a pas été généré" in str(cell) for row in read_sheet(file_io) for cell in row if cell)
+    assert any(
+        "n'a pas été généré" in str(cell) for row in read_sheet(file_io) for cell in row if cell
+    )
 
 
-@pytest.mark.usefixtures('make_section')
+@pytest.mark.usefixtures("make_section")
 def test_ca_get_clean_rows_sans_maison(make_ca_client):
     ca = make_ca_client()
     ca.cct_uuid_identification = None
@@ -114,7 +126,11 @@ def test_excel_ca_cosium_erreur(monkeypatch, caplog):
     def boom(*args, **kwargs):
         raise ValueError("boom")
 
-    with patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom), patched_attrs(monkeypatch, output_excel_ca_cosium, titre_page_writer=boom), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom),
+        patched_attrs(monkeypatch, output_excel_ca_cosium, titre_page_writer=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         result = excel_ca_cosium(io.BytesIO(), "ca.xlsx", *PERIOD)
 
     assert result == {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}

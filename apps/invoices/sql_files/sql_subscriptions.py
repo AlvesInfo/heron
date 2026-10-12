@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql de traitement des refacturations des abonnements
-EN : sql query module for processing subscription re-invoicing
+"""FR : Module des requêtes sql de traitement des refacturations des abonnements.
+
+EN : sql query module for processing subscription re-invoicing.
 
 Commentaire:
 
@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2023-03-05
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 SQL_SUBSCRIPTIONS = sql.SQL(
@@ -123,8 +124,8 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             when "ccm"."unit_weight" = 12
             then round(
                 (
-                    "qty" 
-                    * 
+                    "qty"
+                    *
                     case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end
                 ) / 100, 2
             )::numeric
@@ -134,8 +135,8 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             when "ccm"."unit_weight" = 12
             then round(
                 (
-                    "qty" 
-                    * 
+                    "qty"
+                    *
                     case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end
                 ) / 100, 2
             )::numeric
@@ -146,8 +147,8 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             when "ccm"."unit_weight" = 12
             then round((
                 (
-                    "qty" 
-                    * 
+                    "qty"
+                    *
                     case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end
                 ) / 100) * "vat_rate", 2
             )::numeric
@@ -158,16 +159,16 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             then (
                     round(
                         (
-                            "qty" 
-                            * 
+                            "qty"
+                            *
                             case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end
                         ) / 100, 2
                     )::numeric
                     +
                     round((
                         (
-                            "qty" 
-                            * 
+                            "qty"
+                            *
                             case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end
                         ) / 100) * "vat_rate", 2
                     )::numeric
@@ -182,8 +183,8 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             when "ccm"."unit_weight" = 12
             then round(
                 (
-                    "qty" 
-                    * 
+                    "qty"
+                    *
                     case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end
                 ) / 100, 2
             )::numeric
@@ -193,8 +194,8 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             when "ccm"."unit_weight" = 12
             then round((
                 (
-                    "qty" 
-                    * 
+                    "qty"
+                    *
                     case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end
                 ) / 100) * "vat_rate", 2
             )::numeric
@@ -205,16 +206,16 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             then (
                     round(
                         (
-                            "qty" 
-                            * 
+                            "qty"
+                            *
                             case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end
                         ) / 100, 2
                     )::numeric
                     +
                     round((
-                        (   
-                            "qty" 
-                            * 
+                        (
+                            "qty"
+                            *
                             case when "ca_ht_eur" isnull then 0 else "ca_ht_eur" end) / 100
                         ) * "vat_rate", 2
                     )::numeric
@@ -305,8 +306,8 @@ SQL_SUBSCRIPTIONS = sql.SQL(
             sum("ca"."ca_ht_eur") as "ca_ht_eur",
             "cm"."cct"
         from "compta_caclients"  "ca"
-        join "centers_clients_maison" "cm" 
-        on "ca"."cct_uuid_identification" = "cm"."uuid_identification" 
+        join "centers_clients_maison" "cm"
+        on "ca"."cct_uuid_identification" = "cm"."uuid_identification"
         where "ca"."date_ca" between %(dte_d)s and %(dte_f)s
         group by
             "ca"."date_ca",

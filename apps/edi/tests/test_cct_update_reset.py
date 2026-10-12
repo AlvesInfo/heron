@@ -1,10 +1,12 @@
-"""
-Tests de la mise à jour des cct depuis les identifiants fournisseurs (apps.edi.bin.cct_update)
+"""Tests de la mise à jour des cct depuis les identifiants fournisseurs (apps.edi.bin.cct_update)
+
+
 et de la remise à zéro des imports (apps.edi.bin.reset_import).
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import pytest
 
 from apps.edi.bin import cct_update, reset_import

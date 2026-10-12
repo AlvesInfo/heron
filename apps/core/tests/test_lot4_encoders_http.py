@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'encodeur JSON et des encodages base64 (apps/core/bin/encoders.py), des réponses
+"""FR : Tests de l'encodeur JSON et des encodages base64 (apps/core/bin/encoders.py), des réponses
+
+
      fichiers (functions_http_response.py), de check_next_page (functions_http.py) et des
      régimes de tva (bin/get_sage_elements.py)
 EN : Tests for JSON encoder, base64 helpers, file responses, next page check and vat regimes
@@ -8,6 +9,7 @@ EN : Tests for JSON encoder, base64 helpers, file responses, next page check and
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import datetime
 import decimal
 import json
@@ -18,12 +20,23 @@ from pathlib import Path
 import pytest
 from django.core.files.storage import FileSystemStorage
 from django.db.models.fields.files import ImageFieldFile
+from django.urls import reverse
 from django.utils.functional import lazy
 
 from apps.core.bin import get_sage_elements
-from apps.core.bin.encoders import PersonalizedDjangoJSONEncoder, get_base_64, set_base_64_list, set_base_64_str
+from apps.core.bin.encoders import (
+    PersonalizedDjangoJSONEncoder,
+    get_base_64,
+    set_base_64_list,
+    set_base_64_str,
+)
 from apps.core.functions import functions_http
-from apps.core.functions.functions_http_response import CONTENT_TYPE_CSV, CONTENT_TYPE_EXCEL, response_file, x_accel_exists_file_response
+from apps.core.functions.functions_http_response import (
+    CONTENT_TYPE_CSV,
+    CONTENT_TYPE_EXCEL,
+    response_file,
+    x_accel_exists_file_response,
+)
 from conftest import patched_attrs
 
 
@@ -40,7 +53,10 @@ def _encode(value):
         (datetime.datetime(2026, 1, 15, 10, 30, 45), "2026-01-15T10:30:45"),
         (datetime.datetime(2026, 1, 15, 10, 30, 45, 123456), "2026-01-15T10:30:45.123"),
         (datetime.datetime(2026, 1, 15, 10, 30, 45, tzinfo=datetime.UTC), "2026-01-15T10:30:45Z"),
-        (datetime.datetime(2026, 1, 15, 10, 30, 45, 654321, tzinfo=datetime.UTC), "2026-01-15T10:30:45.654Z"),
+        (
+            datetime.datetime(2026, 1, 15, 10, 30, 45, 654321, tzinfo=datetime.UTC),
+            "2026-01-15T10:30:45.654Z",
+        ),
         (datetime.date(2026, 1, 15), "2026-01-15"),
         (datetime.time(10, 30, 45), "10:30:45"),
         (datetime.time(10, 30, 45, 123456), "10:30:45.123"),
@@ -109,16 +125,37 @@ def test_response_file_transmet_les_arguments(args, kwargs, expected):
     assert response.content.decode() == expected
     assert response["Content-Type"] == CONTENT_TYPE_CSV
     assert response["Content-Disposition"] == "attachment; filename=f.csv"
-    assert "download_complete_" not in response.cookies
+    assert not response.cookies
 
 
 def test_response_file_jeton_de_telechargement():
-    response = response_file(_writer, "f.xlsx", CONTENT_TYPE_EXCEL, download_token="abc")
+    """Le jeton pose un marqueur en session (aucun cookie) ; sans session, rien n'est posé"""
+    session = {}
 
-    cookie = response.cookies["download_complete_abc"]
-    assert cookie.value == "true"
-    assert cookie["max-age"] == 60
-    assert cookie["samesite"] == "Lax"
+    response = response_file(
+        _writer, "f.xlsx", CONTENT_TYPE_EXCEL, download_token="abc", session=session
+    )
+    without = response_file(_writer, "f.xlsx", CONTENT_TYPE_EXCEL, download_token="abc")
+
+    assert session == {"download_complete_abc": True}
+    assert not response.cookies
+    assert not without.cookies
+
+
+@pytest.mark.django_db
+def test_vue_statut_de_telechargement(logged_client):
+    """La vue renvoie True une seule fois pour un jeton marqué, False sinon ; GET seulement"""
+    url = reverse("core:download_status", kwargs={"token": "abc"})
+
+    assert logged_client.get(url).json() == {"complete": False}
+
+    session = logged_client.session
+    session["download_complete_abc"] = True
+    session.save()
+
+    assert logged_client.get(url).json() == {"complete": True}
+    assert logged_client.get(url).json() == {"complete": False}
+    assert logged_client.post(url).status_code == 405
 
 
 def test_x_accel_en_debug_lit_le_fichier(settings, tmp_path):
@@ -163,7 +200,9 @@ def test_x_accel_hors_debug_delegue_a_nginx(settings):
 )
 def test_check_next_page(monkeypatch, url, expected):
     """Urls relatives internes et urls absolues d'un domaine de la liste blanche conservées,
-    domaine étranger, //hôte, schéma javascript renvoyés vers la racine"""
+
+    domaine étranger, //hôte, schéma javascript renvoyés vers la racine
+    """
     with patched_attrs(monkeypatch, functions_http, DOMAINS_WHITELIST=["heron.local"]):
         assert functions_http.check_next_page(url) == expected
 
@@ -177,7 +216,13 @@ def test_get_uuid_des_axes(make_section):
     sections = {axe: make_section(axe, f"S{axe}") for axe in ("PYS", "PRO", "PRJ", "BU", "RFA")}
     naf = make_section("RFA", "NAF")
 
-    for function in (get_sage_elements.get_uuid_pys, get_sage_elements.get_uuid_pro, get_sage_elements.get_uuid_prj, get_sage_elements.get_uuid_bu, get_sage_elements.get_uuid_rfa):
+    for function in (
+        get_sage_elements.get_uuid_pys,
+        get_sage_elements.get_uuid_pro,
+        get_sage_elements.get_uuid_prj,
+        get_sage_elements.get_uuid_bu,
+        get_sage_elements.get_uuid_rfa,
+    ):
         function.cache_clear()
 
     assert get_sage_elements.get_uuid_pys("SPYS") == sections["PYS"].uuid_identification

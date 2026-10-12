@@ -1,6 +1,5 @@
-"""
-Tests de la numérotation des factures saisies manuellement
-"""
+"""Tests de la numérotation des factures saisies manuellement"""
+
 import pytest
 
 from apps.edi.bin.data_edi_invoices_nums import get_invoices_manual_entries_nums
@@ -17,7 +16,7 @@ def test_numbering_increments_with_third_party_prefix(make_counter, make_society
     assert second == "FOUR001-00002"
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 def test_numbering_requires_counter():
     from apps.parameters.models import Counter  # pylint: disable=C0415
 

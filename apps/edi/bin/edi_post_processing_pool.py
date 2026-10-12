@@ -1,6 +1,6 @@
-"""
-FR : Module de post-traitement avant import des fichiers de factures fournisseur
-EN : Post-processing module before importing supplier invoice files
+"""FR : Module de post-traitement avant import des fichiers de factures fournisseur.
+
+EN : Post-processing module before importing supplier invoice files.
 
 Commentaire:
 
@@ -10,12 +10,10 @@ created by: Paulo ALVES
 modified at: 2022-04-10
 modified by: Paulo ALVES
 """
-from typing import AnyStr
 
 from django.db import connection, transaction
-from django.db.models import Q, Count
+from django.db.models import Count, Q
 
-from apps.edi.models import EdiImport
 from apps.data_flux.models import Trace
 from apps.edi.bin.duplicates_check import (
     edi_import_duplicate_check,
@@ -23,16 +21,16 @@ from apps.edi.bin.duplicates_check import (
 )
 from apps.edi.bin.edi_articles_news import set_axes_with_regex
 from apps.edi.bin.set_suppliers_cct import add_news_cct_sage, set_signboard
-from apps.edi.sql_files.sql_common import post_common_dict
-from apps.edi.sql_files.sql_all import post_all_dict, SQL_QTY
-from apps.edi.sql_files.sql_bulk import post_bulk_dict
+from apps.edi.models import EdiImport
+from apps.edi.sql_files.sql_all import SQL_QTY, post_all_dict
 from apps.edi.sql_files.sql_bbgr_002_statment import bbgr_002_statment_dict
 from apps.edi.sql_files.sql_bbgr_003_monthly import bbgr_003_monthly_dict
 from apps.edi.sql_files.sql_bbgr_004_retours import bbgr_004_retours_dict
 from apps.edi.sql_files.sql_bbgr_005_receptions import bbgr_005_receptions_dict
+from apps.edi.sql_files.sql_bulk import post_bulk_dict
+from apps.edi.sql_files.sql_common import post_common_dict
 from apps.edi.sql_files.sql_cosium import post_cosium_dict
 from apps.edi.sql_files.sql_cosium_achat import post_cosium_achats_dict
-from apps.edi.sql_files.sql_transferts_cosium import post_transfert_cosium_dict
 from apps.edi.sql_files.sql_edi import post_edi_dict
 from apps.edi.sql_files.sql_eye_confort import post_eye_dict
 from apps.edi.sql_files.sql_generic import post_generic_dict, post_generic_internal_dict
@@ -46,15 +44,15 @@ from apps.edi.sql_files.sql_prodition import post_prodition_dict
 from apps.edi.sql_files.sql_signia import post_signia_dict
 from apps.edi.sql_files.sql_starkey import post_starkey_dict
 from apps.edi.sql_files.sql_technidis import post_technidis_dict
+from apps.edi.sql_files.sql_transferts_cosium import post_transfert_cosium_dict
 from apps.edi.sql_files.sql_unitron import post_unitron_dict
 from apps.edi.sql_files.sql_widex import post_widex_dict
 from apps.edi.sql_files.sql_z_bu_refac import post_z_bu_refac
-
 from apps.users.models import User
 
 
 def get_user_automate():
-    """Recuperation de l'uuid de l'automate"""
+    """Recuperation de l'uuid de l'automate."""
     email = "automate@acuitis.com"
     user, _ = User.objects.get_or_create(
         username="automate",
@@ -71,8 +69,9 @@ def get_user_automate():
 
 
 def suppress_import_without_articles():
-    """Vérification qu'il n'y ait pas de lignes d'import sans artilces,
-    sinon on les rejette et on met la trace en erreur
+    """Vérification qu'il n'y ait pas de lignes d'import sans artilces,.
+
+    sinon on les rejette et on met la trace en erreur.
     """
     without_reference_list = (
         EdiImport.objects.filter(Q(reference_article__isnull=True) | Q(reference_article=""))
@@ -100,7 +99,7 @@ def suppress_import_without_articles():
 
 
 def post_processing_all():
-    """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
+    """Mise à jour de l'ensemble des factures après tous les imports et parsing."""
     # suppression des imports sans articles
     suppress_import_without_articles()
 
@@ -133,13 +132,13 @@ def post_processing_all():
 
 
 def post_vacuum():
-    """Mise à jour de l'ensemble des factures après tous les imports et parsing"""
+    """Mise à jour de l'ensemble des factures après tous les imports et parsing."""
     with connection.cursor() as cursor:
         cursor.execute("VACUUM (full)")
 
 
-def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
-    """Mise à jour générale pour tous les founrnisseurs"""
+def post_general(uuid_identification: str, cursor: connection.cursor):
+    """Mise à jour générale pour tous les founrnisseurs."""
     sql_round_amount = post_common_dict.get("sql_round_amount")
     sql_supplier_update = post_common_dict.get("sql_supplier_update")
     sql_supplier_name_update = post_common_dict.get("sql_supplier_name_update")
@@ -188,11 +187,11 @@ def post_general(uuid_identification: AnyStr, cursor: connection.cursor):
     )
 
 
-def bulk_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier BBGR Bulk
+def bulk_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier BBGR Bulk.
+
     et rajout des lignes de port et d'emballage en EMB et PORT en créant des lignes
-    :param uuid_identification: uuid_identification
+    :param uuid_identification: uuid_identification.
     """
     charges_dict = {
         "packaging_amount": "EMBALLAGE",
@@ -285,10 +284,10 @@ def bulk_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def cosium_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier Opto33 EDI
-    :param uuid_identification: uuid_identification
+def cosium_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier Opto33 EDI.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_ttc_a_zero = post_cosium_dict.get("sql_ttc_a_zero")
     sql_totaux = post_cosium_dict.get("sql_totaux")
@@ -303,10 +302,10 @@ def cosium_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def cosium_achats_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier Opto33 EDI
-    :param uuid_identification: uuid_identification
+def cosium_achats_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier Opto33 EDI.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_ttc_a_zero = post_cosium_achats_dict.get("sql_ttc_a_zero")
     sql_totaux = post_cosium_achats_dict.get("sql_totaux")
@@ -321,10 +320,10 @@ def cosium_achats_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def tansferts_cosium_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier Opto33 EDI
-    :param uuid_identification: uuid_identification
+def tansferts_cosium_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier Opto33 EDI.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_code_maison = post_transfert_cosium_dict.get("sql_code_maison")
     sql_amounts = post_transfert_cosium_dict.get("sql_amounts")
@@ -341,12 +340,11 @@ def tansferts_cosium_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def edi_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier Opto33 EDI
-    :param uuid_identification: uuid_identification
-    """
+def edi_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier Opto33 EDI.
 
+    :param uuid_identification: uuid_identification.
+    """
     sql_col_essilor = post_edi_dict.get("sql_col_essilor")
     sql_tva = post_edi_dict.get("sql_tva")
     sql_precilens = post_edi_dict.get("sql_precilens")
@@ -362,7 +360,7 @@ def edi_post_insert(uuid_identification: AnyStr):
 
 
 def edi_trace_supplier_insert():
-    """Update des traces pour avoir le nom du fournisseur dans les edi"""
+    """Update des traces pour avoir le nom du fournisseur dans les edi."""
     sql_edi_generique = post_edi_dict.get("sql_edi_generique")
     sql_get_edi = post_edi_dict.get("sql_get_edi")
 
@@ -375,10 +373,10 @@ def edi_trace_supplier_insert():
             cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
 
 
-def bbgr_statment_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier BBGR Statment
-    :param uuid_identification: uuid_identification
+def bbgr_statment_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier BBGR Statment.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_vat = bbgr_002_statment_dict.get("sql_vat")
     sql_familles = bbgr_002_statment_dict.get("sql_familles")
@@ -390,10 +388,10 @@ def bbgr_statment_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def bbgr_monthly_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier BBGR Statment
-    :param uuid_identification: uuid_identification
+def bbgr_monthly_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier BBGR Statment.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_vat = bbgr_003_monthly_dict.get("sql_vat")
     sql_familles = bbgr_003_monthly_dict.get("sql_familles")
@@ -405,10 +403,10 @@ def bbgr_monthly_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def bbgr_retours_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier BBGR Statment
-    :param uuid_identification: uuid_identification
+def bbgr_retours_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier BBGR Statment.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_vat = bbgr_004_retours_dict.get("sql_vat")
     sql_vat_amount = bbgr_004_retours_dict.get("sql_vat_amount")
@@ -422,10 +420,10 @@ def bbgr_retours_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def bbgr_reception_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier BBGR Statment
-    :param uuid_identification: uuid_identification
+def bbgr_reception_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier BBGR Statment.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_vat = bbgr_005_receptions_dict.get("sql_vat")
     sql_vat_amount = bbgr_005_receptions_dict.get("sql_vat_amount")
@@ -439,10 +437,10 @@ def bbgr_reception_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def eye_confort_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier EyeConfort
-    :param uuid_identification: uuid_identification
+def eye_confort_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier EyeConfort.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_eye_dict.get("sql_update")
     sql_update_units = post_eye_dict.get("sql_update_units")
@@ -456,16 +454,15 @@ def eye_confort_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def generique_post_insert(uuid_identification: AnyStr, post=None):
-    """
-    Mise à jour des champs vides à l'import du fichier EyeConfort
+def generique_post_insert(uuid_identification: str, post=None):
+    """Mise à jour des champs vides à l'import du fichier EyeConfort.
+
     :param uuid_identification: uuid_identification
-    :param post: si l'on veut appliquer le post général
+    :param post: si l'on veut appliquer le post général.
     """
     sql_update = post_generic_dict.get("sql_update")
     sql_net_amount_mgdev = post_generic_dict.get("sql_net_amount_mgdev")
     sql_vat = post_generic_dict.get("sql_vat")
-    # sql_maison = post_generic_dict.get("sql_maison")
     sql_mg_developpemnt = post_generic_dict.get("sql_mg_developpemnt")
     sql_edi_generique = post_generic_dict.get("sql_edi_generique")
 
@@ -474,7 +471,6 @@ def generique_post_insert(uuid_identification: AnyStr, post=None):
         cursor.execute(sql_update, {"uuid_identification": uuid_identification})
         cursor.execute(sql_net_amount_mgdev, {"uuid_identification": uuid_identification})
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
-        # cursor.execute(sql_maison, {"uuid_identification": uuid_identification})
         cursor.execute(sql_mg_developpemnt, {"uuid_identification": uuid_identification})
         cursor.execute(sql_edi_generique, {"uuid_identification": uuid_identification})
 
@@ -482,10 +478,10 @@ def generique_post_insert(uuid_identification: AnyStr, post=None):
             post_general(uuid_identification, cursor)
 
 
-def generique_post_insert_internal(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier EyeConfort
-    :param uuid_identification: uuid_identification
+def generique_post_insert_internal(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier EyeConfort.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_vat = post_generic_internal_dict.get("sql_vat")
     sql_update = post_generic_internal_dict.get("sql_update")
@@ -498,10 +494,10 @@ def generique_post_insert_internal(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def hearing_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier Hearing
-    :param uuid_identification: uuid_identification
+def hearing_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier Hearing.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_hearing_dict.get("sql_update")
 
@@ -511,10 +507,10 @@ def hearing_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def interson_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier Interson
-    :param uuid_identification: uuid_identification
+def interson_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier Interson.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_interson_dict.get("sql_update")
     sql_bl_date = post_interson_dict.get("sql_bl_date")
@@ -526,10 +522,10 @@ def interson_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def johnson_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier JOHNSON
-    :param uuid_identification: uuid_identification
+def johnson_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier JOHNSON.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_johnson_dict.get("sql_update")
     sql_update_vat_rate = post_johnson_dict.get("sql_update_vat_rate")
@@ -543,10 +539,10 @@ def johnson_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def lmc_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier LMC
-    :param uuid_identification: uuid_identification
+def lmc_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier LMC.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_lmc_dict.get("sql_update")
 
@@ -556,10 +552,10 @@ def lmc_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def newson_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier NEWSON
-    :param uuid_identification: uuid_identification
+def newson_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier NEWSON.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_newson_dict.get("sql_update")
     sql_round_net_amount = post_newson_dict.get("sql_round_net_amount")
@@ -573,10 +569,10 @@ def newson_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def phonak_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier Phonak
-    :param uuid_identification: uuid_identification
+def phonak_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier Phonak.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_phonak_dict.get("sql_update")
     sql_net_amount = post_phonak_dict.get("sql_net_amount")
@@ -590,10 +586,10 @@ def phonak_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def prodition_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier Prodition
-    :param uuid_identification: uuid_identification
+def prodition_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier Prodition.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_libele = post_prodition_dict.get("sql_libele")
     sql_update = post_prodition_dict.get("sql_update")
@@ -605,10 +601,10 @@ def prodition_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def signia_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier SIGNA
-    :param uuid_identification: uuid_identification
+def signia_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier SIGNA.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_signia_dict.get("sql_update")
     sql_update_units = post_signia_dict.get("sql_update_units")
@@ -622,10 +618,10 @@ def signia_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def starkey_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier NEWSON
-    :param uuid_identification: uuid_identification
+def starkey_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier NEWSON.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_starkey_dict.get("sql_update")
     sql_copie_envoi_depot = post_starkey_dict.get("sql_copie_envoi_depot")
@@ -641,10 +637,10 @@ def starkey_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def technidis_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier NEWSON
-    :param uuid_identification: uuid_identification
+def technidis_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier NEWSON.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_technidis_dict.get("sql_update")
     sql_update_units = post_technidis_dict.get("sql_update_units")
@@ -658,10 +654,10 @@ def technidis_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def unitron_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier NEWSON
-    :param uuid_identification: uuid_identification
+def unitron_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier NEWSON.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_unitron_dict.get("sql_update")
     sql_mulitiple_dates = post_unitron_dict.get("sql_mulitiple_dates")
@@ -673,10 +669,10 @@ def unitron_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def widex_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier WIDEX
-    :param uuid_identification: uuid_identification
+def widex_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier WIDEX.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_widex_dict.get("sql_update")
     sql_update_units = post_widex_dict.get("sql_update_units")
@@ -694,18 +690,18 @@ def widex_post_insert(uuid_identification: AnyStr):
         post_general(uuid_identification, cursor)
 
 
-def widexga_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier WIDEX GA
-    :param uuid_identification: uuid_identification
+def widexga_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier WIDEX GA.
+
+    :param uuid_identification: uuid_identification.
     """
     widex_post_insert(uuid_identification)
 
 
-def z_bu_refac_post_insert(uuid_identification: AnyStr):
-    """
-    Mise à jour des champs vides à l'import du fichier issu de la requête Sage pour la BU REFAC0
-    :param uuid_identification: uuid_identification
+def z_bu_refac_post_insert(uuid_identification: str):
+    """Mise à jour des champs vides à l'import du fichier issu de la requête Sage pour la BU REFAC0.
+
+    :param uuid_identification: uuid_identification.
     """
     sql_update = post_z_bu_refac.get("sql_update")
     sql_piece = post_z_bu_refac.get("sql_piece")

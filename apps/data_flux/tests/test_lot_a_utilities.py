@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des utilitaires de data_flux (encodage, conversion excel et fichier en csv StringIO)
+"""FR : Tests des utilitaires de data_flux (encodage, conversion excel et fichier en csv StringIO)
+
+
 EN : Tests for data_flux utilities
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import io
 from pathlib import Path
 from typing import ClassVar
@@ -16,16 +18,24 @@ from openpyxl import Workbook
 
 from apps.data_flux import utilities
 from apps.data_flux.exceptions import CsvFileToStringIoError, EncodingError, ExcelToCsvFileError
-from apps.data_flux.utilities import encoding_detect, excel_file_to_csv_string_io, file_to_csv_string_io
+from apps.data_flux.utilities import (
+    encoding_detect,
+    excel_file_to_csv_string_io,
+    file_to_csv_string_io,
+)
 from conftest import patched_attrs
 
-XLS_FIXTURE = Path(__file__).resolve().parents[2] / "core" / "tests" / "test_fixtures" / "test_pandas.xls"
+XLS_FIXTURE = (
+    Path(__file__).resolve().parents[2] / "core" / "tests" / "test_fixtures" / "test_pandas.xls"
+)
 
 
 def test_encoding_detect(tmp_path, monkeypatch):
     """Encodage détecté avec confiance, sinon utf8 ; fichier illisible : EncodingError"""
     latin = tmp_path / "latin.txt"
-    latin.write_bytes("Déjà vu, été, çà et là, Noël, naïve, forêt, château, garçon\n".encode("latin-1") * 40)
+    latin.write_bytes(
+        "Déjà vu, été, çà et là, Noël, naïve, forêt, château, garçon\n".encode("latin-1") * 40
+    )
     ascii_file = tmp_path / "ascii.txt"
     ascii_file.write_bytes(b"a\n")
 
@@ -87,7 +97,10 @@ def test_excel_file_to_csv_string_io_fichier_non_excel(tmp_path, monkeypatch):
     path.write_bytes(b"x")
     buffer = io.StringIO()
 
-    with patched_attrs(monkeypatch, pd, read_excel=_boom), pytest.raises(ExcelToCsvFileError, match="faux.xlsx"):
+    with (
+        patched_attrs(monkeypatch, pd, read_excel=_boom),
+        pytest.raises(ExcelToCsvFileError, match="faux.xlsx"),
+    ):
         excel_file_to_csv_string_io(path, buffer)
 
 
@@ -110,7 +123,10 @@ def test_file_to_csv_string_io(tmp_path, monkeypatch):
         raise EncodingError("illisible")
 
     buffer = io.StringIO()
-    with patched_attrs(monkeypatch, utilities, encoding_detect=_boom), pytest.raises(CsvFileToStringIoError, match="détermination de l'encoding"):
+    with (
+        patched_attrs(monkeypatch, utilities, encoding_detect=_boom),
+        pytest.raises(CsvFileToStringIoError, match="détermination de l'encoding"),
+    ):
         file_to_csv_string_io(path, buffer)
 
     with pytest.raises(CsvFileToStringIoError, match="absent.csv"):

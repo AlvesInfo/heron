@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des pré/post-traitements des imports Sage (bin/sage_pre_processing.py, bin/sage_post_processing.py)
+"""FR : Tests des pré/post-traitements des imports Sage (bin/sage_pre_processing.py, bin/sage_post_processing.py)
+
+
 EN : Tests for Sage imports pre/post processing
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import csv
 import datetime
 import uuid
@@ -25,15 +27,15 @@ pytestmark = pytest.mark.django_db
 # POST-PROCESSING ==================================================================================
 
 
-@pytest.mark.usefixtures('vat_rates_dataset')
+@pytest.mark.usefixtures("vat_rates_dataset")
 def test_rat_vat_correction():
     """Le taux 011 (intracommunautaire) est remis à 0, les autres sont inchangés"""
     rat_vat_correction()
 
-    assert set(VatRatSage.objects.filter(vat="011").values_list("rate", flat=True)) == {Decimal("0")}
+    assert set(VatRatSage.objects.filter(vat="011").values_list("rate", flat=True)) == {Decimal(0)}
     assert set(VatRatSage.objects.filter(vat="001").values_list("rate", flat=True)) == {
         Decimal("19.6"),
-        Decimal("20"),
+        Decimal(20),
     }
 
 
@@ -43,7 +45,7 @@ def test_rat_vat_correction_sans_011(make_vat_rat):
 
     rat_vat_correction()
 
-    assert VatRatSage.objects.get().rate == Decimal("20")
+    assert VatRatSage.objects.get().rate == Decimal(20)
 
 
 # PRE-PROCESSING ===================================================================================
@@ -81,7 +83,7 @@ def test_mode_reglement_file_reutilise_les_uuid_existants(sage_dirs, make_mode_r
     assert ModeReglement.objects.count() == 1
 
 
-@pytest.mark.usefixtures('sage_dirs')
+@pytest.mark.usefixtures("sage_dirs")
 def test_mode_reglement_file_mode_different_par_legislation(make_mode_reglement, tmp_path):
     """La recherche porte sur code + nom + nom court + législation : autre législation = nouvel uuid"""
     existing = make_mode_reglement("CHQ", name="Chèque", short_name="CHQ", legislation="FRA")
@@ -92,14 +94,17 @@ def test_mode_reglement_file_mode_different_par_legislation(make_mode_reglement,
     assert rows[0][4] != str(existing.uuid_identification)
 
 
-def test_mode_reglement_file_evite_les_collisions_de_nom_temporaire(sage_dirs, tmp_path, monkeypatch):
+def test_mode_reglement_file_evite_les_collisions_de_nom_temporaire(
+    sage_dirs, tmp_path, monkeypatch
+):
     """Si le nom aléatoire existe déjà dans PRE_PROCESSING, un autre nom est tiré"""
     (sage_dirs.pre_processing / "occupe.csv").write_text("déjà là", encoding="utf8")
     names = iter(["occupe", "libre"])
 
-    with patched_attrs(monkeypatch, sage_pre_processing, get_random_name=lambda: next(names)), csv_file(
-        tmp_path / "modes.heron", [["VRT", "Virement", "VRT", "FRA"]]
-    ) as file:
+    with (
+        patched_attrs(monkeypatch, sage_pre_processing, get_random_name=lambda: next(names)),
+        csv_file(tmp_path / "modes.heron", [["VRT", "Virement", "VRT", "FRA"]]) as file,
+    ):
         rows = _read_rows(mode_reglement_file(file))
 
     assert rows[0][:4] == ["VRT", "Virement", "VRT", "FRA"]
@@ -107,7 +112,7 @@ def test_mode_reglement_file_evite_les_collisions_de_nom_temporaire(sage_dirs, t
     assert not (sage_dirs.pre_processing / "libre.csv").exists()
 
 
-@pytest.mark.usefixtures('sage_dirs')
+@pytest.mark.usefixtures("sage_dirs")
 def test_mode_reglement_file_fichier_vide(tmp_path):
     """Un fichier vide produit un fichier vide"""
     with csv_file(tmp_path / "vide.heron", []) as file:

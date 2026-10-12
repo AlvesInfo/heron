@@ -1,5 +1,4 @@
-"""
-Tests de la boucle d'import des fichiers fournisseurs (apps/edi/loops/imports_loop_pool.py)
+"""Tests de la boucle d'import des fichiers fournisseurs (apps/edi/loops/imports_loop_pool.py)
 
 - Séparation des fichiers EDI multiples, liste des fichiers à traiter (répertoires temporaires).
 - Détection des imports B.I BBGR à faire (tables B.I créées en DDL dans la transaction).
@@ -8,6 +7,7 @@ Tests de la boucle d'import des fichiers fournisseurs (apps/edi/loops/imports_lo
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import asyncio
 
 import pytest
@@ -58,7 +58,13 @@ def test_separate_edi_decoupe_les_fichiers_multiples(edi_dirs, monkeypatch):
         module.separate_edi()
 
     produced = sorted(path.name for path in edi_dir.iterdir())
-    assert produced == ["._dossier", "multiple.existant.edi", "multiple.libre1.edi", "multiple.libre2.edi", "simple.edi"]
+    assert produced == [
+        "._dossier",
+        "multiple.existant.edi",
+        "multiple.libre1.edi",
+        "multiple.libre2.edi",
+        "simple.edi",
+    ]
     assert (edi_dir / "multiple.libre1.edi").read_text(encoding="utf8") == "UNB+A'\n"
     assert (edi_dir / "multiple.libre2.edi").read_text(encoding="utf8") == "UNB+B'"
 
@@ -89,7 +95,7 @@ def test_separate_edi_encodage_non_detecte(edi_dirs, monkeypatch):
     assert len(list(edi_dir.iterdir())) == 2
 
 
-@pytest.mark.usefixtures('edi_dirs')
+@pytest.mark.usefixtures("edi_dirs")
 def test_separate_edi_erreur_generale(monkeypatch, caplog):
     class _BrokenPath:
         def __init__(self, *_args):
@@ -119,8 +125,16 @@ def test_get_files_celery(edi_dirs):
     files = module.get_files_celery()
 
     assert sorted(files) == [
-        (str(edi_dirs.processing / "LMC" / "l1.csv"), str(edi_dirs.backup / "LMC" / "l1.csv"), "LMC"),
-        (str(edi_dirs.processing / "WIDEX" / "w1.csv"), str(edi_dirs.backup / "WIDEX" / "w1.csv"), "WIDEX"),
+        (
+            str(edi_dirs.processing / "LMC" / "l1.csv"),
+            str(edi_dirs.backup / "LMC" / "l1.csv"),
+            "LMC",
+        ),
+        (
+            str(edi_dirs.processing / "WIDEX" / "w1.csv"),
+            str(edi_dirs.backup / "WIDEX" / "w1.csv"),
+            "WIDEX",
+        ),
     ]
     assert not (edi_dirs.processing / "WIDEX" / "._w1.csv").exists()
     assert (edi_dirs.processing / "WIDEX" / "._dossier").is_dir()
@@ -149,12 +163,16 @@ def test_get_have_monthly_et_retours(bi_tables):
     assert module.get_have_monthly() is False
     assert module.get_have_retours() is False
 
-    bi_tables("heron_bi_factures_monthlydelivery", id=HISTORIC_MONTHLY_ID + 1, type_article="MONTURE")
+    bi_tables(
+        "heron_bi_factures_monthlydelivery", id=HISTORIC_MONTHLY_ID + 1, type_article="MONTURE"
+    )
 
     assert module.get_have_monthly() is True
     assert module.get_have_retours() is False
 
-    bi_tables("heron_bi_factures_monthlydelivery", id=HISTORIC_RETOURS_ID + 2, type_article="DECOTE")
+    bi_tables(
+        "heron_bi_factures_monthlydelivery", id=HISTORIC_RETOURS_ID + 2, type_article="DECOTE"
+    )
 
     assert module.get_have_retours() is True
 
@@ -190,8 +208,21 @@ def test_get_retours_valid(bi_tables, monkeypatch):
 )
 def test_have_files(monkeypatch, truthy, expected):
     """Le premier contrôle positif suffit ; tous négatifs -> False"""
-    names = ["get_have_statment", "get_have_monthly", "get_have_retours", "get_have_receptions", "get_files_celery"]
-    patches = {name: (lambda name=name: name == truthy and ([("f", "b", "D")] if name == "get_files_celery" else True)) for name in names}
+    names = [
+        "get_have_statment",
+        "get_have_monthly",
+        "get_have_retours",
+        "get_have_receptions",
+        "get_files_celery",
+    ]
+    patches = {
+        name: (
+            lambda name=name: (
+                name == truthy and ([("f", "b", "D")] if name == "get_files_celery" else True)
+            )
+        )
+        for name in names
+    }
 
     with patched_attrs(monkeypatch, module, **patches):
         assert module.have_files() is expected
@@ -224,7 +255,12 @@ def test_get_all_import_checks_async(monkeypatch):
         get_retours_valid_async=lambda: _value(True),
     ):
         assert asyncio.run(module.get_all_import_checks_async()) == [
-            True, False, True, False, [("f", "b", "WIDEX")], True
+            True,
+            False,
+            True,
+            False,
+            [("f", "b", "WIDEX")],
+            True,
         ]
 
 
@@ -246,7 +282,7 @@ def test_get_import_controls_async(monkeypatch):
     assert seen == {"action": "import_edi_invoices", "task_name": "suppliers_import"}
 
 
-@pytest.mark.usefixtures('bi_tables')
+@pytest.mark.usefixtures("bi_tables")
 def test_fonctions_async_executent_les_fonctions_synchrones(monkeypatch):
     """Les wrappers async appellent bien les fonctions synchrones (dans le thread courant ici)"""
     with patched_attrs(monkeypatch, module, get_have_statment=lambda: "statment"):
@@ -289,9 +325,11 @@ def celery_recorder(monkeypatch):
 
         return _apply
 
-    with patched_attrs(monkeypatch, module, group=_group), patched_attrs(
-        monkeypatch, module.celery_app, signature=_signature
-    ), patched_attrs(monkeypatch, module.time, sleep=lambda _seconds: None):
+    with (
+        patched_attrs(monkeypatch, module, group=_group),
+        patched_attrs(monkeypatch, module.celery_app, signature=_signature),
+        patched_attrs(monkeypatch, module.time, sleep=lambda _seconds: None),
+    ):
         yield calls
 
 
@@ -307,7 +345,9 @@ def test_celery_import_launch(celery_recorder, make_action, make_sse_progress, m
     names = [name for name, _ in celery_recorder["signatures"]]
     assert names == ["suppliers_import", "suppliers_import", "sql_clean_general"]
     assert celery_recorder["signatures"][0][1] == {
-        "process_objects": files[0], "user_pk": progress.user_id, "job_id": progress.job_id
+        "process_objects": files[0],
+        "user_pk": progress.user_id,
+        "job_id": progress.job_id,
     }
     assert celery_recorder["signatures"][2][1]["job_id"] == progress.job_id
     assert len(celery_recorder["groups"]) == 2
@@ -317,7 +357,9 @@ def test_celery_import_launch(celery_recorder, make_action, make_sse_progress, m
     assert progress.status == "completed"
 
 
-def test_celery_import_launch_attend_le_verrou(celery_recorder, make_action, make_sse_progress, monkeypatch):
+def test_celery_import_launch_attend_le_verrou(
+    celery_recorder, make_action, make_sse_progress, monkeypatch
+):
     """Action déjà en cours : on attend (sleep patché libère le verrou) puis on traite"""
     action = make_action(in_progress=True)
     progress = make_sse_progress()
@@ -328,8 +370,9 @@ def test_celery_import_launch_attend_le_verrou(celery_recorder, make_action, mak
         action.in_progress = False
         action.save()
 
-    with patched_attrs(monkeypatch, module, get_files_celery=lambda: []), patched_attrs(
-        monkeypatch, module.time, sleep=_release
+    with (
+        patched_attrs(monkeypatch, module, get_files_celery=list),
+        patched_attrs(monkeypatch, module.time, sleep=_release),
     ):
         module.celery_import_launch(progress.user_id, progress.job_id)
 
@@ -339,13 +382,15 @@ def test_celery_import_launch_attend_le_verrou(celery_recorder, make_action, mak
     assert progress.status == "completed"
 
 
-def test_celery_import_launch_erreur_apres_la_jauge(celery_recorder, make_action, make_sse_progress, monkeypatch):
+def test_celery_import_launch_erreur_apres_la_jauge(
+    celery_recorder, make_action, make_sse_progress, monkeypatch
+):
     """Erreur celery : la jauge est marquée en échec, le verrou libéré"""
     action = make_action()
     progress = make_sse_progress()
     celery_recorder["fail"] = RuntimeError("worker injoignable")
 
-    with patched_attrs(monkeypatch, module, get_files_celery=lambda: []):
+    with patched_attrs(monkeypatch, module, get_files_celery=list):
         module.celery_import_launch(progress.user_id, progress.job_id)
 
     progress.refresh_from_db()
@@ -355,7 +400,7 @@ def test_celery_import_launch_erreur_apres_la_jauge(celery_recorder, make_action
     assert action.in_progress is False
 
 
-@pytest.mark.usefixtures('celery_recorder')
+@pytest.mark.usefixtures("celery_recorder")
 def test_celery_import_launch_erreur_avant_la_jauge(make_action, make_sse_progress, monkeypatch):
     """Erreur avant de récupérer la jauge : elle est retrouvée et marquée en échec"""
     make_action()
@@ -371,17 +416,17 @@ def test_celery_import_launch_erreur_avant_la_jauge(make_action, make_sse_progre
     assert progress.status == "failed"
 
 
-@pytest.mark.usefixtures('celery_recorder')
+@pytest.mark.usefixtures("celery_recorder")
 def test_celery_import_launch_jauge_inconnue(make_action, make_user, caplog, monkeypatch):
     make_action()
 
-    with patched_attrs(monkeypatch, module, get_files_celery=lambda: []):
+    with patched_attrs(monkeypatch, module, get_files_celery=list):
         module.celery_import_launch(make_user().pk, "job-inconnu")
 
     assert "Impossible de marquer le SSEProgress comme failed" in caplog.text
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 def test_celery_import_launch_sans_verrou_pose(celery_recorder, caplog, monkeypatch):
     """get_action échoue : rien n'est lancé et le finally n'explose pas sur un verrou absent"""
 
@@ -402,8 +447,21 @@ def test_import_launch_bbgr(celery_recorder, make_action, make_sse_progress):
     module.import_launch_bbgr("bbgr_statment", progress.user_id, progress.job_id)
 
     assert celery_recorder["signatures"] == [
-        ("bbgr_bi", {"function_name": "bbgr_statment", "user_pk": progress.user_id, "job_id": progress.job_id}),
-        ("sql_clean_general", {"start_all": celery_recorder["signatures"][1][1]["start_all"], "job_id": progress.job_id}),
+        (
+            "bbgr_bi",
+            {
+                "function_name": "bbgr_statment",
+                "user_pk": progress.user_id,
+                "job_id": progress.job_id,
+            },
+        ),
+        (
+            "sql_clean_general",
+            {
+                "start_all": celery_recorder["signatures"][1][1]["start_all"],
+                "job_id": progress.job_id,
+            },
+        ),
     ]
     progress.refresh_from_db()
     assert progress.status == "completed"
@@ -411,7 +469,7 @@ def test_import_launch_bbgr(celery_recorder, make_action, make_sse_progress):
     assert action.in_progress is False
 
 
-@pytest.mark.usefixtures('celery_recorder')
+@pytest.mark.usefixtures("celery_recorder")
 def test_import_launch_bbgr_attend_le_verrou(make_action, make_sse_progress, monkeypatch):
     action = make_action(in_progress=True)
     progress = make_sse_progress()
@@ -438,7 +496,7 @@ def test_import_launch_bbgr_erreur(celery_recorder, make_action, make_sse_progre
     assert progress.status == "failed"
 
 
-@pytest.mark.usefixtures('celery_recorder')
+@pytest.mark.usefixtures("celery_recorder")
 def test_import_launch_bbgr_jauge_inconnue(make_action, make_user, caplog):
     make_action()
 
@@ -447,7 +505,7 @@ def test_import_launch_bbgr_jauge_inconnue(make_action, make_user, caplog):
     assert "Impossible de marquer le SSEProgress comme failed" in caplog.text
 
 
-@pytest.mark.usefixtures('celery_recorder', 'db')
+@pytest.mark.usefixtures("celery_recorder", "db")
 def test_import_launch_bbgr_sans_verrou_pose(caplog, monkeypatch):
     def _boom(action):
         raise RuntimeError("base indisponible")
@@ -491,7 +549,9 @@ def test_import_launch_subscriptions_erreur_celery(celery_recorder, make_action,
     progress = make_sse_progress()
     celery_recorder["fail"] = RuntimeError("worker injoignable")
 
-    error, info = module.import_launch_subscriptions("royalties", "2026-01-01", "2026-01-31", "u", progress.job_id)
+    error, info = module.import_launch_subscriptions(
+        "royalties", "2026-01-01", "2026-01-31", "u", progress.job_id
+    )
 
     assert error is True
     assert "worker injoignable" in info
@@ -499,23 +559,27 @@ def test_import_launch_subscriptions_erreur_celery(celery_recorder, make_action,
     assert progress.status == "failed"
 
 
-@pytest.mark.usefixtures('celery_recorder')
+@pytest.mark.usefixtures("celery_recorder")
 def test_import_launch_subscriptions_jauge_inconnue(make_action, caplog):
     make_action()
 
-    error, info = module.import_launch_subscriptions("royalties", "2026-01-01", "2026-01-31", "u", "job-inconnu")
+    error, info = module.import_launch_subscriptions(
+        "royalties", "2026-01-01", "2026-01-31", "u", "job-inconnu"
+    )
 
     assert error is True
     assert "SSEProgress matching query does not exist" in info
     assert "Impossible de marquer le SSEProgress comme failed" in caplog.text
 
 
-@pytest.mark.usefixtures('celery_recorder')
+@pytest.mark.usefixtures("celery_recorder")
 def test_import_launch_subscriptions_sans_job(make_action, caplog):
     """Sans job_id : la jauge n'est ni cherchée en secours ni marquée"""
     make_action()
 
-    error, _ = module.import_launch_subscriptions("royalties", "2026-01-01", "2026-01-31", "u", None)
+    error, _ = module.import_launch_subscriptions(
+        "royalties", "2026-01-01", "2026-01-31", "u", None
+    )
 
     assert error is True
     assert "Impossible de marquer" not in caplog.text

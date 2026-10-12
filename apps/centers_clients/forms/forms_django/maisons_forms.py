@@ -1,25 +1,26 @@
-"""
-Forms des Maisons
-"""
+"""Forms des Maisons."""
+
 from django import forms
 from django.forms import CheckboxInput
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT, CHECK_BOX_DICT
-from apps.book.models import Society
+
 from apps.accountancy.models import CctSage
+from apps.book.models import Society
 from apps.centers_clients.models import (
     Maison,
     MaisonBi,
     MaisonSupllierExclusion,
     SupllierCountryExclusion,
 )
+from apps.parameters.forms.forms_django.const_forms import CHECK_BOX_DICT, SELECT_FLUIDE_DICT
 
 
 class MaisonForm(forms.ModelForm):
+    """Formulaire de création et de modification d'une maison."""
 
     use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         # TIERS X3 - on ne récupère que les clients et non tous les tiers ==========================
@@ -40,6 +41,8 @@ class MaisonForm(forms.ModelForm):
         self.fields["debit_account"].required = True
 
     class Meta:
+        """Métadonnées Django : modèle et champs du formulaire."""
+
         model = Maison
         fields = [
             "cct",
@@ -120,7 +123,11 @@ class MaisonForm(forms.ModelForm):
 
 
 class MaisonImportForm(forms.ModelForm):
+    """Formulaire d'import d'une maison."""
+
     class Meta:
+        """Métadonnées Django : modèle et champs du formulaire."""
+
         model = Maison
         fields = [
             "code_maison",
@@ -154,7 +161,10 @@ class MaisonImportForm(forms.ModelForm):
 
 
 class ImportMaisonBiForm(forms.Form):
+    """Formulaire de choix d'une maison à importer depuis la BI."""
+
     def __init__(self, *args, **kwargs):
+        """Alimente la liste des maisons de la BI."""
         super().__init__(*args, **kwargs)
 
         self.MAISONS_CHOICES = [("", "")] + [
@@ -191,15 +201,18 @@ class ImportMaisonBiForm(forms.Form):
 
 
 class MaisonSupllierExclusionForm(forms.ModelForm):
-    """Formulaires des couples Tiers X3/Clients à écarter"""
+    """Formulaires des couples Tiers X3/Clients à écarter."""
 
     use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
+        """Limite les tiers aux fournisseurs en service."""
         super().__init__(*args, **kwargs)
         self.fields["third_party_num"].queryset = Society.objects.filter(in_use=True)
 
     class Meta:
+        """Métadonnées Django : modèle et champs du formulaire."""
+
         model = MaisonSupllierExclusion
         fields = [
             "third_party_num",
@@ -213,11 +226,13 @@ class MaisonSupllierExclusionForm(forms.ModelForm):
 
 
 class MaisonSupllierExclusionDeleteForm(forms.ModelForm):
-    """Formulaires des couples Tiers X3/Clients à supprimer"""
+    """Formulaires des couples Tiers X3/Clients à supprimer."""
 
     id = forms.ModelChoiceField(queryset=MaisonSupllierExclusion.objects.all())
 
     class Meta:
+        """Métadonnées Django : modèle et champs du formulaire."""
+
         model = MaisonSupllierExclusion
         fields = [
             "id",
@@ -225,15 +240,18 @@ class MaisonSupllierExclusionDeleteForm(forms.ModelForm):
 
 
 class SupllierCountryExclusionForm(forms.ModelForm):
-    """Formulaires des couples Tiers X3/Pays Clients à écarter"""
+    """Formulaires des couples Tiers X3/Pays Clients à écarter."""
 
     use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
+        """Limite les tiers aux fournisseurs en service."""
         super().__init__(*args, **kwargs)
         self.fields["third_party_num"].queryset = Society.objects.filter(in_use=True)
 
     class Meta:
+        """Métadonnées Django : modèle et champs du formulaire."""
+
         model = SupllierCountryExclusion
         fields = [
             "third_party_num",
@@ -247,11 +265,13 @@ class SupllierCountryExclusionForm(forms.ModelForm):
 
 
 class SupllierCountryExclusionDeleteForm(forms.ModelForm):
-    """Formulaires des couples Tiers X3/Pays Clients à supprimer"""
+    """Formulaires des couples Tiers X3/Pays Clients à supprimer."""
 
     id = forms.ModelChoiceField(queryset=SupllierCountryExclusion.objects.all())
 
     class Meta:
+        """Métadonnées Django : modèle et champs du formulaire."""
+
         model = SupllierCountryExclusion
         fields = [
             "id",

@@ -1,6 +1,7 @@
 # pylint: disable=W0621,E0401,R0913
-"""
-FR : conftest de l'app centers_purchasing - fabriques des dictionnaires de la centrale d'achat
+"""FR : conftest de l'app centers_purchasing - fabriques des dictionnaires de la centrale d'achat
+
+
 EN : centers_purchasing app conftest - purchasing center dictionaries factories
 
 Commentaire:
@@ -15,11 +16,12 @@ et fichier image de logo.
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import io
 import types
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -50,7 +52,9 @@ def make_principal_center(db) -> Callable[..., PrincipalCenterPurchase]:  # pyli
 def make_grouping_goods(db) -> Callable[..., GroupingGoods]:  # pylint: disable=W0613
     """Fabrique de regroupements de facturation"""
 
-    def _factory(grouping_goods: str = "Montures", ranking: int = 1, base: str = "Marchandises") -> GroupingGoods:
+    def _factory(
+        grouping_goods: str = "Montures", ranking: int = 1, base: str = "Marchandises"
+    ) -> GroupingGoods:
         return GroupingGoods.objects.get_or_create(
             grouping_goods=grouping_goods, defaults={"ranking": ranking, "base": base}
         )[0]
@@ -71,10 +75,14 @@ def make_axe_pro_grouping(make_section, make_grouping_goods) -> Callable[..., Ax
 
 
 @pytest.fixture
-def make_applicable_pro_vat(make_child_center, make_section, make_vat) -> Callable[..., ApplicableProVat]:
+def make_applicable_pro_vat(
+    make_child_center, make_section, make_vat
+) -> Callable[..., ApplicableProVat]:
     """Fabrique du dictionnaire centrale fille / axe pro / tva"""
 
-    def _factory(child_center: str = "ACF", section: str | None = "OPT", vat: str = "001") -> ApplicableProVat:
+    def _factory(
+        child_center: str = "ACF", section: str | None = "OPT", vat: str = "001"
+    ) -> ApplicableProVat:
         return ApplicableProVat.objects.create(
             child_center=make_child_center(child_center),
             axe_pro=make_section("PRO", section) if section else None,
@@ -88,8 +96,14 @@ def make_applicable_pro_vat(make_child_center, make_section, make_vat) -> Callab
 def make_type_facture(make_child_center) -> Callable[..., TypeFacture]:
     """Fabrique des types de facture par centrale fille"""
 
-    def _factory(child_center: str = "ACF", invoice_type: str = "380", **kwargs: Any) -> TypeFacture:
-        defaults = {"purchase_type_facture": "FAC", "sale_type_facture": "FAV", "invoice_name": "Facture"}
+    def _factory(
+        child_center: str = "ACF", invoice_type: str = "380", **kwargs: Any
+    ) -> TypeFacture:
+        defaults = {
+            "purchase_type_facture": "FAC",
+            "sale_type_facture": "FAV",
+            "invoice_name": "Facture",
+        }
         defaults.update(kwargs)
         return TypeFacture.objects.create(
             child_center=make_child_center(child_center), invoice_type=invoice_type, **defaults
@@ -100,8 +114,8 @@ def make_type_facture(make_child_center) -> Callable[..., TypeFacture]:
 
 @pytest.fixture
 def media_dirs(tmp_path: Path, settings) -> types.SimpleNamespace:
-    """
-    Redirige les répertoires media (logos), static (copies des logos) et d'import des comptes
+    """Redirige les répertoires media (logos), static (copies des logos) et d'import des comptes
+
     vers tmp_path : les vues et les scripts n'écrivent jamais dans files/.
     """
     dirs = types.SimpleNamespace(

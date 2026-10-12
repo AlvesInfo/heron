@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql de post-traitement après import des fichiers requête Sql Sage BU REFAC0
-EN : Post-processing sql module after importing Query Sage BU REFAC0 files
+"""FR : Module des requêtes sql de post-traitement après import des fichiers requête Sql Sage BU REFAC0.
+
+EN : Post-processing sql module after importing Query Sage BU REFAC0 files.
 
 Commentaire:
 
@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2023-02-21
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 post_z_bu_refac = {
@@ -31,32 +32,32 @@ post_z_bu_refac = {
     ),
     "sql_piece": sql.SQL(
         """
-        update "edi_ediimport" "edi" 
+        update "edi_ediimport" "edi"
         set "invoice_type" = "tp"."type_piece"
         from (
-            select 
-                "third_party_num", 
-                "invoice_number", 
-                "invoice_year", 
+            select
+                "third_party_num",
+                "invoice_number",
+                "invoice_year",
                 "type_piece"
             from (
                 select
-                    "third_party_num", 
-                    "invoice_number", 
-                    date_part('year', "invoice_date") as "invoice_year", 
-                    case 
-                        when ("qty" * "net_unit_price")::numeric >= 0 
-                        then '380' 
-                        else '381' 
+                    "third_party_num",
+                    "invoice_number",
+                    date_part('year', "invoice_date") as "invoice_year",
+                    case
+                        when ("qty" * "net_unit_price")::numeric >= 0
+                        then '380'
+                        else '381'
                     end as "type_piece"
                 from "edi_ediimport"
                 where "uuid_identification" = %(uuid_identification)s
             ) "req"
-            group by "third_party_num", 
-                     "invoice_number", 
+            group by "third_party_num",
+                     "invoice_number",
                      "invoice_year",
                      "type_piece"
-        ) as "tp" 
+        ) as "tp"
         where "edi"."uuid_identification" = %(uuid_identification)s
         and "edi"."third_party_num" = "tp"."third_party_num"
         and "edi"."invoice_number" = "tp"."invoice_number"
@@ -71,10 +72,10 @@ post_z_bu_refac = {
             "supplier_ident" = edi."third_party_num",
             "supplier_name" = req."short_name"
         from (
-            select 
+            select
                 "third_party_num",
                 "short_name"
-            from book_society bs 
+            from book_society bs
         ) req
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
@@ -83,17 +84,17 @@ post_z_bu_refac = {
     ),
     "sql_vat": sql.SQL(
         """
-        update "edi_ediimport" "edi" 
+        update "edi_ediimport" "edi"
         set "vat_rate" =  rvat."vat_rate"
         from (
-            select 
+            select
                 "vat",
                 "vat_regime",
                 "vat_rate"
             from (
-                select 
-                    vs."vat", 
-                    vs."vat_regime", 
+                select
+                    vs."vat",
+                    vs."vat_regime",
                     (vsr."rate" / 100)::numeric as "vat_rate",
                     ROW_NUMBER() OVER(
                         partition by vs."vat", vs."vat_regime"
@@ -101,13 +102,13 @@ post_z_bu_refac = {
                     ) as "vat_index",
                     vsr."vat_start_date"
                 from "accountancy_vatsage" vs
-                join "accountancy_vatratsage" vsr 
-                on vs."vat" = vsr."vat" 
+                join "accountancy_vatratsage" vsr
+                on vs."vat" = vsr."vat"
             ) req
             where "vat_index" = 1
         ) rvat
         where edi."uuid_identification" = %(uuid_identification)s
-          and edi."vat" = rvat."vat" 
+          and edi."vat" = rvat."vat"
           and edi."vat_regime" = rvat."vat_regime"
           and (edi."valid" = false or edi."valid" isnull)
     """

@@ -1,6 +1,7 @@
 # pylint: disable=E0401
-"""
-FR : Tests des filtres et balises de gabarit de heron (filters_tags)
+"""FR : Tests des filtres et balises de gabarit de heron (filters_tags)
+
+
 EN : Tests for heron template filters and tags
 
 Commentaire:
@@ -10,6 +11,7 @@ keep_br et trace_comment (échappement) sont testés dans apps/core/tests/test_t
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 from decimal import Decimal
 from types import SimpleNamespace
 
@@ -27,7 +29,10 @@ def render(source, **context):
 def test_filtres_de_texte():
     assert ft.keep_br("a<br>b & c") == "a<br>b &amp; c"
     assert ft.trace_comment(None) == ""
-    assert ft.trace_comment("<div style='padding-left: 20px;'>x</div><br>") == '<div style="padding-left: 20px;">x</div><br>'
+    assert (
+        ft.trace_comment("<div style='padding-left: 20px;'>x</div><br>")
+        == '<div style="padding-left: 20px;">x</div><br>'
+    )
     assert ft.point("1,5") == "1.5"
     assert ft.get_is_str("x") is True
     assert ft.get_is_str(1) is False
@@ -39,7 +44,13 @@ def test_filtres_de_texte():
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [("05/01/26", "2026-01-05"), ("05/01/2026", "2026-01-05"), ("31/02/2026", ""), ("", ""), (None, "")],
+    [
+        ("05/01/26", "2026-01-05"),
+        ("05/01/2026", "2026-01-05"),
+        ("31/02/2026", ""),
+        ("", ""),
+        (None, ""),
+    ],
 )
 def test_date_depuis_texte(value, expected):
     assert ft.date_from_str_4(value) == expected
@@ -103,13 +114,20 @@ def test_encodage_adresse_et_regroupement():
     assert ft.get_address("||||") == ""
     assert ft.percentage(None) == ""
     assert ft.percentage(0.1234) == "12.3%"
-    assert ft.regroup_sum([SimpleNamespace(net_amount=Decimal("10")), {"net_amount": Decimal("5")}, {}], "net_amount") == Decimal("15")
+    assert ft.regroup_sum(
+        [SimpleNamespace(net_amount=Decimal(10)), {"net_amount": Decimal(5)}, {}], "net_amount"
+    ) == Decimal(15)
     assert ft.regroup_sum([], "net_amount") == 0
 
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [("12345678901234", "123 456 789 01234"), ("123-456 789_012", "123 456 789 012"), ("", ""), (None, "Non e")],
+    [
+        ("12345678901234", "123 456 789 01234"),
+        ("123-456 789_012", "123 456 789 012"),
+        ("", ""),
+        (None, "Non e"),
+    ],
 )
 def test_siret(value, expected):
     assert ft.siret_number(value) == expected
@@ -125,8 +143,21 @@ def test_filtres_enregistres_dans_les_gabarits():
     assert render("{% get_address 'Rue||75001||Paris' %}") == "Rue - 75001 Paris"
     assert render("{{ d|get_item:'k' }}", d={"k": "v"}) == "v"
     assert sorted(ft.register.filters) == [
-        "date_from_str_4", "default_if_zero", "encode_b64_str", "get_dict_values", "get_item", "int_formats",
-        "is_str", "keep_br", "numbers", "numbers_format", "numbersp", "percentage", "point", "regroup_sum",
-        "siret_number", "trace_comment",
+        "date_from_str_4",
+        "default_if_zero",
+        "encode_b64_str",
+        "get_dict_values",
+        "get_item",
+        "int_formats",
+        "is_str",
+        "keep_br",
+        "numbers",
+        "numbers_format",
+        "numbersp",
+        "percentage",
+        "point",
+        "regroup_sum",
+        "siret_number",
+        "trace_comment",
     ]
     assert sorted(ft.register.tags) == ["get_address", "regroup_list_pipe"]

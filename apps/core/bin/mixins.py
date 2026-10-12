@@ -1,4 +1,4 @@
-"""Module des Mixins
+"""Module des Mixins.
 
 Commentaire:
 
@@ -8,29 +8,33 @@ created by: Paulo ALVES
 modified at:
 modified by:
 """
+
+from typing import Any
+
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import QuerySet
+from django.http import HttpRequest
 
 
 class ChildCenterMixin:
-    """class de récupération"""
+    """class de récupération."""
 
-    queryset = None
-    model = None
-    ordering = None
-    request = None
+    # Attributs fournis par la vue Django qui mixe cette classe (ListView, UpdateView...)
+    queryset: QuerySet | None = None
+    model: Any = None
+    ordering: Any = None
+    request: HttpRequest
 
     def get_ordering(self):
         """Return the field or fields to use for ordering the queryset."""
         return self.ordering
 
     def get_queryset(self):
-        """
-        Return the list of items for this view.
+        """Return the list of items for this view.
+
         The return value must be an iterable and may be an instance of
         `QuerySet` in which case `QuerySet` specific behavior will be enabled.
         """
-
         code_child_center = self.request.user.code_child_center
 
         if self.queryset is not None:
@@ -51,10 +55,11 @@ class ChildCenterMixin:
                 queryset = self.model._default_manager.all()
 
         else:
+            cls_name = self.__class__.__name__
             raise ImproperlyConfigured(
-                "%(cls)s is missing a QuerySet. Define "
-                "%(cls)s.model, %(cls)s.queryset, or override "
-                "%(cls)s.get_queryset()." % {"cls": self.__class__.__name__}
+                f"{cls_name} is missing a QuerySet. Define "
+                f"{cls_name}.model, {cls_name}.queryset, or override "
+                f"{cls_name}.get_queryset()."
             )
         ordering = self.get_ordering()
 

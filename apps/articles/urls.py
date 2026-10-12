@@ -1,28 +1,30 @@
+"""Routes URL de l'application articles."""
+
 from django.urls import path
 
 from apps.articles.views import (
+    ArticleAccountCreate,
+    ArticleAccountUpdate,
+    ArticleCreate,
+    ArticlesList,
+    ArticleUpdate,
     # ARTICLES
     SuppliersArticlesList,
-    ArticlesList,
-    ArticleCreate,
-    ArticleUpdate,
-    articles_search_list,
+    # ARTICLES AVEC COMPTES
+    articles_account_list,
+    articles_account_supplier_export,
     articles_export_list,
-    ArticleAccountCreate,
+    articles_new_validation,
+    articles_news_export_list,
+    articles_search_list,
+    articles_without_account_export_list,
+    # ARTICLES SANS COMPTES
+    articles_without_account_list,
     delete_articles_account_vat,
     # NOUVEAUX ARTICLES
     new_articles_list,
-    articles_new_validation,
-    articles_news_export_list,
-    # ARTICLES SANS COMPTES
-    articles_without_account_list,
-    articles_without_account_export_list,
-    update_articles_without_account,
-    # ARTICLES AVEC COMPTES
-    articles_account_list,
-    ArticleAccountUpdate,
-    articles_account_supplier_export,
     update_articles_accounts_file,
+    update_articles_without_account,
 )
 
 app_name = "apps.articles"
@@ -130,10 +132,5 @@ urlpatterns = [
             update_articles_accounts_file,
             name="update_articles_accounts_file",
         ),
-        # path(
-        #     "articles_without_account_export_list/",
-        #     articles_without_account_export_list,
-        #     name="articles_without_account_export_list",
-        # ),
     ],
 ]

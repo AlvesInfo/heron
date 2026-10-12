@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests de l'insertion en base par psycopg2 (apps/data_flux/postgres_save.py) : découpage par
+"""FR : Tests de l'insertion en base par psycopg2 (apps/data_flux/postgres_save.py) : découpage par
+
+
      pages, requêtes préparées, table temporaire, modes insert / do_nothing / upsert / prepared /
      pre_validation et exceptions Postgres*
 EN : Tests for psycopg2 database insertion module
@@ -8,6 +9,7 @@ EN : Tests for psycopg2 database insertion module
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import contextlib
 import io
 import logging
@@ -106,12 +108,17 @@ class _FailingCursor:
 
 @pytest.mark.parametrize(
     ("exception", "message"),
-    [(psycopg2.OperationalError, "Connexion à Postgres fermée"), (psycopg2.DataError, "Erreur sur les insertions execute_batch")],
+    [
+        (psycopg2.OperationalError, "Connexion à Postgres fermée"),
+        (psycopg2.DataError, "Erreur sur les insertions execute_batch"),
+    ],
 )
 def test_execute_batch_erreurs_journalisees(exception, message, caplog):
     """Une erreur psycopg2 sur une page est journalisée, le drapeau d'erreur est levé"""
     with caplog.at_level(logging.ERROR, logger="postgres_save"):
-        error, counts = execute_batch(_FailingCursor(exception), "INSERT", [(1,), (2,), (3,)], page_size=2)
+        error, counts = execute_batch(
+            _FailingCursor(exception), "INSERT", [(1,), (2,), (3,)], page_size=2
+        )
 
     assert error is True
     assert counts == (3, 0)
@@ -140,8 +147,20 @@ def test_execute_prepared_upsert():
 
 def test_execute_prepared_upsert_en_erreur(caplog):
     """Une requête préparée invalide lève PostgresPreparedError, le deallocate impossible est journalisé"""
-    with caplog.at_level(logging.ERROR, logger="postgres_save"), pytest.raises(PostgresPreparedError), transaction.atomic(), connection.cursor() as wrapper:
-        execute_prepared_upsert(wrapper.cursor, "PREPARE stmt_ko AS SELECT * FROM table_inexistante", "EXECUTE stmt_ko", "DEALLOCATE stmt_ko", [()], 10)
+    with (
+        caplog.at_level(logging.ERROR, logger="postgres_save"),
+        pytest.raises(PostgresPreparedError),
+        transaction.atomic(),
+        connection.cursor() as wrapper,
+    ):
+        execute_prepared_upsert(
+            wrapper.cursor,
+            "PREPARE stmt_ko AS SELECT * FROM table_inexistante",
+            "EXECUTE stmt_ko",
+            "DEALLOCATE stmt_ko",
+            [()],
+            10,
+        )
 
     assert "deallocate impossible" in caplog.text
 
@@ -179,7 +198,10 @@ def test_proprietes_des_colonnes(upsert):
     assert lines.fields_list == ["trace", "num_line", "insertion_type"]
     assert lines.get_column_properties("trace") == ' "trace" uuid NOT NULL'
     assert lines.get_null_fields() == 'FORCE_NULL ("num_line","insertion_type") '
-    assert lines.get_columns_upsert() == {"conflict": ["trace"], "update": ["num_line", "insertion_type"]}
+    assert lines.get_columns_upsert() == {
+        "conflict": ["trace"],
+        "update": ["num_line", "insertion_type"],
+    }
 
 
 def test_requetes_sql(upsert):
@@ -194,11 +216,21 @@ def test_requetes_sql(upsert):
         drop = cursor.mogrify(upsert.get_drop_temp).decode()
         fields_pk = cursor.mogrify(upsert.get_fields(bool_pk=True)).decode()
 
-    assert ddl == f'CREATE TEMPORARY TABLE "{temp}" ( "col_int" integer NOT NULL,  "col_texte" varchar(12) NOT NULL,  "col_2" varchar(10) NULL,  "col_3" varchar(100) NULL)'
+    assert (
+        ddl
+        == f'CREATE TEMPORARY TABLE "{temp}" ( "col_int" integer NOT NULL,  "col_texte" varchar(12) NOT NULL,  "col_2" varchar(10) NULL,  "col_3" varchar(100) NULL)'
+    )
     assert ddl_pk.startswith(f'CREATE TEMPORARY TABLE "{temp}" ("pk" bigint,  "col_int"')
-    assert insert == f'INSERT INTO "data_flux_essaisz" ("col_int", "col_texte", "col_2", "col_3")  SELECT "col_int", "col_texte", "col_2", "col_3" FROM "{temp}" '
+    assert (
+        insert
+        == f'INSERT INTO "data_flux_essaisz" ("col_int", "col_texte", "col_2", "col_3")  SELECT "col_int", "col_texte", "col_2", "col_3" FROM "{temp}" '
+    )
     assert nothing == insert + " ON CONFLICT DO NOTHING"
-    assert full == insert + ' ON CONFLICT ("col_int") DO UPDATE SET "col_texte"=EXCLUDED."col_texte", "col_2"=EXCLUDED."col_2", "col_3"=EXCLUDED."col_3"'
+    assert (
+        full
+        == insert
+        + ' ON CONFLICT ("col_int") DO UPDATE SET "col_texte"=EXCLUDED."col_texte", "col_2"=EXCLUDED."col_2", "col_3"=EXCLUDED."col_3"'
+    )
     assert drop == f'DROP TABLE IF EXISTS "{temp}"'
     assert fields_pk == '"pk", "col_int", "col_texte", "col_2", "col_3"'
 
@@ -207,23 +239,39 @@ def test_upsert_sans_les_champs_exclus():
     """Les champs exclus de la mise à jour ne sont pas dans la clause DO UPDATE"""
     excluded = PostgresDjangoUpsert(EssaisZ, FIELDS, exclude_update_fields={"col_3"})
 
-    assert excluded.get_upsert_batch == 'ON CONFLICT ("col_int") DO UPDATE SET "col_texte"=EXCLUDED."col_texte", "col_2"=EXCLUDED."col_2"'
+    assert (
+        excluded.get_upsert_batch
+        == 'ON CONFLICT ("col_int") DO UPDATE SET "col_texte"=EXCLUDED."col_texte", "col_2"=EXCLUDED."col_2"'
+    )
 
 
 def test_requetes_preparees(upsert):
     """PREPARE typé depuis information_schema, EXECUTE et DEALLOCATE, selon le mode"""
     with connection.cursor() as cursor:
-        prepare, execute, deallocate = (cursor.mogrify(part).decode() for part in upsert.get_prepare_batch("stmt_a"))
-        insert, _, _ = (cursor.mogrify(part).decode() for part in upsert.get_prepare_smt("insert", "stmt_b"))
-        nothing, _, _ = (cursor.mogrify(part).decode() for part in upsert.get_prepare_smt("do_nothing", "stmt_c"))
-        full, _, _ = (cursor.mogrify(part).decode() for part in upsert.get_prepare_smt("upsert", "stmt_d"))
+        prepare, execute, deallocate = (
+            cursor.mogrify(part).decode() for part in upsert.get_prepare_batch("stmt_a")
+        )
+        insert, _, _ = (
+            cursor.mogrify(part).decode() for part in upsert.get_prepare_smt("insert", "stmt_b")
+        )
+        nothing, _, _ = (
+            cursor.mogrify(part).decode() for part in upsert.get_prepare_smt("do_nothing", "stmt_c")
+        )
+        full, _, _ = (
+            cursor.mogrify(part).decode() for part in upsert.get_prepare_smt("upsert", "stmt_d")
+        )
 
-    assert prepare == 'PREPARE "stmt_a" (integer, character varying, character varying, character varying) AS INSERT INTO "data_flux_essaisz" ("col_int", "col_texte", "col_2", "col_3") VALUES ($1, $2, $3, $4) '
+    assert (
+        prepare
+        == 'PREPARE "stmt_a" (integer, character varying, character varying, character varying) AS INSERT INTO "data_flux_essaisz" ("col_int", "col_texte", "col_2", "col_3") VALUES ($1, $2, $3, $4) '
+    )
     assert execute == 'EXECUTE "stmt_a" (%s, %s, %s, %s)'
     assert deallocate == 'DEALLOCATE "stmt_a"'
     assert insert.endswith("VALUES ($1, $2, $3, $4)  ")
     assert nothing.endswith("ON CONFLICT DO NOTHING")
-    assert full.endswith('ON CONFLICT ("col_int") DO UPDATE SET "col_texte"=EXCLUDED."col_texte", "col_2"=EXCLUDED."col_2", "col_3"=EXCLUDED."col_3"')
+    assert full.endswith(
+        'ON CONFLICT ("col_int") DO UPDATE SET "col_texte"=EXCLUDED."col_texte", "col_2"=EXCLUDED."col_2", "col_3"=EXCLUDED."col_3"'
+    )
 
     with pytest.raises(PostgresInsertMethodError, match="'inconnu'"):
         upsert.get_prepare_smt("inconnu", "stmt_e")
@@ -234,7 +282,14 @@ def test_requetes_preparees(upsert):
 
 def test_insertion_directe(upsert):
     """Mode insert : copie directe dans la table, colonnes vides nullables mises à null"""
-    assert upsert.insertion(_file((1, "un", "a", "x"), (2, "deux", "", "")), insert_mode="insert", kwargs_prepared={}) is True
+    assert (
+        upsert.insertion(
+            _file((1, "un", "a", "x"), (2, "deux", "", "")),
+            insert_mode="insert",
+            kwargs_prepared={},
+        )
+        is True
+    )
     assert _rows() == {1: ("un", "a", "x"), 2: ("deux", None, None)}
 
 
@@ -242,7 +297,11 @@ def test_insertion_do_nothing():
     EssaisZ.objects.create(col_int=1, col_texte="existant")
     upsert = PostgresDjangoUpsert(EssaisZ, FIELDS)
 
-    upsert.insertion(_file((1, "ecrase", "", ""), (2, "nouveau", "b", "")), insert_mode="do_nothing", kwargs_prepared=None)
+    upsert.insertion(
+        _file((1, "ecrase", "", ""), (2, "nouveau", "b", "")),
+        insert_mode="do_nothing",
+        kwargs_prepared=None,
+    )
 
     assert _rows() == {1: ("existant", None, None), 2: ("nouveau", "b", None)}
     assert upsert.table_is_exists(upsert.temp_table_name) is False
@@ -252,7 +311,11 @@ def test_insertion_upsert_avec_champs_exclus():
     EssaisZ.objects.create(col_int=1, col_texte="existant", col_3="garde")
     upsert = PostgresDjangoUpsert(EssaisZ, FIELDS, exclude_update_fields={"col_3"})
 
-    upsert.insertion(_file((1, "modifie", "a", "ecrase"), (2, "nouveau", "", "")), insert_mode="upsert", kwargs_prepared={"trace": "T1"})
+    upsert.insertion(
+        _file((1, "modifie", "a", "ecrase"), (2, "nouveau", "", "")),
+        insert_mode="upsert",
+        kwargs_prepared={"trace": "T1"},
+    )
 
     assert _rows() == {1: ("modifie", "a", "garde"), 2: ("nouveau", None, None)}
 
@@ -275,7 +338,11 @@ def test_cle_dupliquee(upsert):
 def test_erreur_de_type(upsert, caplog):
     fichier = _file(("pas un entier", "texte", "", ""))
 
-    with caplog.at_level(logging.ERROR, logger="postgres_save"), pytest.raises(PostgresTypeError, match="Erreur de type"), transaction.atomic():
+    with (
+        caplog.at_level(logging.ERROR, logger="postgres_save"),
+        pytest.raises(PostgresTypeError, match="Erreur de type"),
+        transaction.atomic(),
+    ):
         upsert.insertion(fichier, insert_mode="insert", kwargs_prepared={})
 
     assert "pas un entier" in caplog.text
@@ -306,7 +373,10 @@ def test_erreur_inconnue(upsert, caplog):
     upsert.cnx = _BrokenConnection()
     fichier = _file((1, "a", "", ""))
 
-    with caplog.at_level(logging.ERROR, logger="postgres_save"), pytest.raises(PostgresDjangoError, match="Erreur inconnue"):
+    with (
+        caplog.at_level(logging.ERROR, logger="postgres_save"),
+        pytest.raises(PostgresDjangoError, match="Erreur inconnue"),
+    ):
         upsert.insertion(fichier, insert_mode="insert", kwargs_prepared={"trace": "T3"})
 
     assert "copie impossible" in caplog.text
@@ -317,11 +387,21 @@ def test_insertion_preparee(mode):
     """Mode prepared : requête préparée et exécutée par pages, compteurs renvoyés"""
     EssaisZ.objects.create(col_int=1, col_texte="existant", col_3="garde")
     upsert = PostgresDjangoUpsert(EssaisZ, FIELDS)
-    rows = [(2, "deux", "b", "y"), (3, "trois", "c", "z")] if mode == "insert" else [(1, "modifie", "a", "x"), (2, "deux", "b", "y")]
+    rows = (
+        [(2, "deux", "b", "y"), (3, "trois", "c", "z")]
+        if mode == "insert"
+        else [(1, "modifie", "a", "x"), (2, "deux", "b", "y")]
+    )
 
-    result = upsert.insertion(_file(*rows), insert_mode="prepared", kwargs_prepared={"mode": mode, "page_size": 1})
+    result = upsert.insertion(
+        _file(*rows), insert_mode="prepared", kwargs_prepared={"mode": mode, "page_size": 1}
+    )
 
-    expected = {"insert": ("existant", None, "garde"), "do_nothing": ("existant", None, "garde"), "upsert": ("modifie", "a", "x")}
+    expected = {
+        "insert": ("existant", None, "garde"),
+        "do_nothing": ("existant", None, "garde"),
+        "upsert": ("modifie", "a", "x"),
+    }
     assert result == (False, (2, 2))
     assert _rows()[1] == expected[mode]
     assert _rows()[2] == ("deux", "b", "y")
@@ -347,7 +427,10 @@ def test_contraintes_de_la_table(upsert):
         uniques, foreign_keys = upsert.get_columns_constraints(cursor)
         cursor.execute(upsert.get_drop_temp)
 
-    assert sorted(sorted(group) for group in uniques) == [["col_2", "col_3", "col_texte"], ["col_int"]]
+    assert sorted(sorted(group) for group in uniques) == [
+        ["col_2", "col_3", "col_texte"],
+        ["col_int"],
+    ]
     assert foreign_keys == {"data_flux_trace": [("trace_id", "uuid_identification", False)]}
 
 
@@ -366,8 +449,14 @@ def test_check_unique_key(upsert):
     """Doublons sur une clé simple et sur une clé groupée, dans la table temporaire"""
     with connection.cursor() as cursor:
         cursor.execute(upsert.get_ddl_temp_table())
-        cursor.execute(sql.SQL('INSERT INTO {} ("col_int", "col_texte", "col_2", "col_3") VALUES (1, \'a\', \'b\', \'c\'), (1, \'a\', \'b\', \'c\'), (2, \'z\', NULL, NULL)').format(sql.Identifier(upsert.temp_table_name)))
-        duplicates = upsert.check_unique_key(cursor, upsert.temp_table_name, [["col_int"], ["col_texte", "col_2", "col_3"]])
+        cursor.execute(
+            sql.SQL(
+                "INSERT INTO {} (\"col_int\", \"col_texte\", \"col_2\", \"col_3\") VALUES (1, 'a', 'b', 'c'), (1, 'a', 'b', 'c'), (2, 'z', NULL, NULL)"
+            ).format(sql.Identifier(upsert.temp_table_name))
+        )
+        duplicates = upsert.check_unique_key(
+            cursor, upsert.temp_table_name, [["col_int"], ["col_texte", "col_2", "col_3"]]
+        )
         cursor.execute(upsert.get_drop_temp)
 
     assert sorted(duplicates) == [("col_int", "1", 2), ("col_texte__col_2__col_3", "a | b | c", 2)]
@@ -377,7 +466,11 @@ def test_check_unique_key(upsert):
 def test_insertion_avec_pre_validation(upsert, make_trace, caplog):
     """Les doublons de clés du fichier sont journalisés, la table temporaire est supprimée"""
     with caplog.at_level(logging.INFO, logger="postgres_save"):
-        result = upsert.insertion(_file((1, "a", "b", "c"), (1, "a", "b", "c")), insert_mode="pre_validation", kwargs_prepared={"trace": make_trace()})
+        result = upsert.insertion(
+            _file((1, "a", "b", "c"), (1, "a", "b", "c")),
+            insert_mode="pre_validation",
+            kwargs_prepared={"trace": make_trace()},
+        )
 
     assert result is True
     assert "values :  col_int 1 2" in caplog.text
@@ -399,7 +492,14 @@ def test_pre_validation_sans_contrainte_d_unicite(caplog):
 
 def test_nettoyage_des_objets_postgres_save():
     """Les exceptions du module sont toutes des PostgresDjangoError"""
-    for exception in (PostgresInsertMethodError, PostgresCardinalityViolationError, PostgresUniqueError, PostgresKeyError, PostgresTypeError, PostgresPreparedError):
+    for exception in (
+        PostgresInsertMethodError,
+        PostgresCardinalityViolationError,
+        PostgresUniqueError,
+        PostgresKeyError,
+        PostgresTypeError,
+        PostgresPreparedError,
+    ):
         assert issubclass(exception, PostgresDjangoError)
 
     assert postgres_save.LOGGER_POSTGRES_SAVE.name == "postgres_save"

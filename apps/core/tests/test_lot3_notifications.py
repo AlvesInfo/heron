@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des notifications utilisateur : modèle, CRUD (bin/notifications.py) et vues JSON
+"""FR : Tests des notifications utilisateur : modèle, CRUD (bin/notifications.py) et vues JSON
+
+
 EN : Tests for user notifications: model, CRUD and JSON views
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import datetime
 import uuid
 
@@ -93,14 +95,20 @@ def test_notification_icone_et_couleur(user, level, icon, color):
 
 
 def test_notification_to_dict(user, other_user):
-    notification = create_notification(user, "Titre", "Message", level="error", link="/x/", created_by=other_user)
+    notification = create_notification(
+        user, "Titre", "Message", level="error", link="/x/", created_by=other_user
+    )
 
     payload = notification.to_dict()
 
     assert payload["uuid"] == str(notification.uuid_identification)
     assert (payload["title"], payload["message"], payload["level"]) == ("Titre", "Message", "error")
     assert (payload["level_icon"], payload["level_color"]) == ("times circle", "red")
-    assert (payload["is_read"], payload["link"], payload["time_since"]) == (False, "/x/", "à l'instant")
+    assert (payload["is_read"], payload["link"], payload["time_since"]) == (
+        False,
+        "/x/",
+        "à l'instant",
+    )
     assert payload["created_at"] == notification.created_at.isoformat()
     assert notification.created_by == other_user
 
@@ -127,9 +135,13 @@ def test_get_all_notifications_exclut_les_lues_depuis_plus_d_une_semaine(user, o
     read_recent = create_notification(user, "Lue récemment", "x")
     read_recent.mark_as_read()
     old_read = create_notification(user, "Lue ancienne", "x")
-    Notification.objects.filter(pk=old_read.pk).update(is_read=True, read_at=timezone.now() - datetime.timedelta(days=8))
+    Notification.objects.filter(pk=old_read.pk).update(
+        is_read=True, read_at=timezone.now() - datetime.timedelta(days=8)
+    )
     old_unread = create_notification(user, "Non lue ancienne", "x")
-    Notification.objects.filter(pk=old_unread.pk).update(created_at=timezone.now() - datetime.timedelta(days=30))
+    Notification.objects.filter(pk=old_unread.pk).update(
+        created_at=timezone.now() - datetime.timedelta(days=30)
+    )
     create_notification(other_user, "Autre", "x")
 
     notifications = list(get_all_notifications(user))
@@ -187,7 +199,10 @@ def test_liste_des_notifications(logged_client, other_user):
     payload = response.json()
     assert response.status_code == 200
     assert payload["unread_count"] == 2
-    assert [item["uuid"] for item in payload["notifications"]] == [str(second.uuid_identification), str(first.uuid_identification)]
+    assert [item["uuid"] for item in payload["notifications"]] == [
+        str(second.uuid_identification),
+        str(first.uuid_identification),
+    ]
     assert len(limited.json()["notifications"]) == 1
     assert logged_client.post(reverse("core:notifications_list")).status_code == 405
 
@@ -197,13 +212,22 @@ def test_marquer_lue(logged_client, other_user):
     create_notification(logged_client.user, "Autre mienne", "x")
     theirs = create_notification(other_user, "Autre", "x")
 
-    response = logged_client.post(reverse("core:notification_mark_read", args=[mine.uuid_identification]))
-    forbidden = logged_client.post(reverse("core:notification_mark_read", args=[theirs.uuid_identification]))
+    response = logged_client.post(
+        reverse("core:notification_mark_read", args=[mine.uuid_identification])
+    )
+    forbidden = logged_client.post(
+        reverse("core:notification_mark_read", args=[theirs.uuid_identification])
+    )
 
     assert response.json() == {"success": True, "unread_count": 1}
     assert forbidden.status_code == 404
     assert forbidden.json() == {"error": "Notification non trouvée"}
-    assert logged_client.get(reverse("core:notification_mark_read", args=[mine.uuid_identification])).status_code == 405
+    assert (
+        logged_client.get(
+            reverse("core:notification_mark_read", args=[mine.uuid_identification])
+        ).status_code
+        == 405
+    )
 
 
 def test_tout_marquer_lu(logged_client):
@@ -220,8 +244,12 @@ def test_supprimer(logged_client, other_user):
     create_notification(logged_client.user, "Autre mienne", "x")
     theirs = create_notification(other_user, "Autre", "x")
 
-    response = logged_client.post(reverse("core:notification_delete", args=[mine.uuid_identification]))
-    forbidden = logged_client.post(reverse("core:notification_delete", args=[theirs.uuid_identification]))
+    response = logged_client.post(
+        reverse("core:notification_delete", args=[mine.uuid_identification])
+    )
+    forbidden = logged_client.post(
+        reverse("core:notification_delete", args=[theirs.uuid_identification])
+    )
 
     assert response.json() == {"success": True, "unread_count": 1}
     assert not Notification.objects.filter(pk=mine.pk).exists()

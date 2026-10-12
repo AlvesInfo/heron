@@ -1,6 +1,6 @@
-"""
-FR : Module de validation par djantic
-EN : Sage X3 import validation forms module
+"""FR : Module de validation par djantic.
+
+EN : Sage X3 import validation forms module.
 
 Commentaire:
 
@@ -17,25 +17,22 @@ from django.utils import timezone
 from djantic import ModelSchema
 
 from apps.core.validations.pydantic_validators_base import (
-    ValidateFieldsBase,
-    SageTruncateStrFieldsBase,
     ExcelDateFieldsBase,
+    SageTruncateStrFieldsBase,
+    ValidateFieldsBase,
 )
 from apps.od.models import ModelOd
 
 
-class OdSchema(
-    ModelSchema, ValidateFieldsBase, SageTruncateStrFieldsBase, ExcelDateFieldsBase
-):
-    """Schema Djantic pour validation du modèle AccountSage"""
+class OdSchema(ModelSchema, ValidateFieldsBase, SageTruncateStrFieldsBase, ExcelDateFieldsBase):
+    """Schema Djantic pour validation du modèle AccountSage."""
 
     now = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = ModelOd
-        include = list(model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-        ]
+        include = [*model.get_columns_import(), "created_at", "modified_at"]

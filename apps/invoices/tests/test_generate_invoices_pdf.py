@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,W0611
-"""
-FR : Tests de l'orchestrateur de génération des PDF de factures (sommaire + factures fusionnés)
+"""FR : Tests de l'orchestrateur de génération des PDF de factures (sommaire + factures fusionnés)
+
+
 EN : Tests for the invoice PDF generation orchestrator
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import importlib
 import logging
 import platform
@@ -18,7 +20,10 @@ from django_celery_results.models import TaskResult
 
 from apps.data_flux.models import Trace
 from apps.invoices.bin import generate_invoices_pdf
-from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress, invoices_pdf_generation
+from apps.invoices.bin.generate_invoices_pdf import (
+    get_invoices_in_progress,
+    invoices_pdf_generation,
+)
 from apps.invoices.models import SaleInvoice
 from apps.invoices.tests.helpers_pdf import page_count, write_minimal_pdf
 from conftest import patched_attrs
@@ -45,21 +50,36 @@ def fake_generators(monkeypatch):
         write_minimal_pdf(pdf_path, "summary")
 
     names = [
-        "invoice_marchandise_pdf", "rfa_invoice_pdf", "invoice_royalties_pdf", "invoice_publicity_pdf",
-        "invoice_prestation_pdf", "invoice_formation_pdf", "invoice_staff_pdf", "invoice_material_pdf",
+        "invoice_marchandise_pdf",
+        "rfa_invoice_pdf",
+        "invoice_royalties_pdf",
+        "invoice_publicity_pdf",
+        "invoice_prestation_pdf",
+        "invoice_formation_pdf",
+        "invoice_staff_pdf",
+        "invoice_material_pdf",
         "invoice_various_pdf",
     ]
     with patched_attrs(
-        monkeypatch, generate_invoices_pdf, summary_invoice_pdf=summary, **{name: generator(name) for name in names}
+        monkeypatch,
+        generate_invoices_pdf,
+        summary_invoice_pdf=summary,
+        **{name: generator(name) for name in names},
     ):
         yield calls
 
 
 def test_invoices_pdf_generation(sales_dir, fake_generators, make_sale_invoice):
     """Sommaire + une facture par catégorie connue, fusion, nettoyage et flag printed"""
-    marchandises = make_sale_invoice(global_invoice_file=FULL, big_category_slug_name="marchandises", big_category_ranking=1)
-    rfa = make_sale_invoice(global_invoice_file=FULL, big_category_slug_name="rfa", big_category_ranking=2)
-    inconnue = make_sale_invoice(global_invoice_file=FULL, big_category_slug_name="inconnue", big_category_ranking=3)
+    marchandises = make_sale_invoice(
+        global_invoice_file=FULL, big_category_slug_name="marchandises", big_category_ranking=1
+    )
+    rfa = make_sale_invoice(
+        global_invoice_file=FULL, big_category_slug_name="rfa", big_category_ranking=2
+    )
+    inconnue = make_sale_invoice(
+        global_invoice_file=FULL, big_category_slug_name="inconnue", big_category_ranking=3
+    )
     deja_imprimee = make_sale_invoice(global_invoice_file=FULL, printed=True)
     autre_fichier = make_sale_invoice(global_invoice_file="AUTRE_full.pdf")
 
@@ -68,7 +88,11 @@ def test_invoices_pdf_generation(sales_dir, fake_generators, make_sale_invoice):
     assert trace.errors is False
     assert trace.file_name == f"Generate pdf : {FULL}"
     assert to_print == f"have generate pdf : {FULL} - "
-    assert [call[0] for call in fake_generators] == ["summary", "invoice_marchandise_pdf", "rfa_invoice_pdf"]
+    assert [call[0] for call in fake_generators] == [
+        "summary",
+        "invoice_marchandise_pdf",
+        "rfa_invoice_pdf",
+    ]
     assert fake_generators[1][1] == marchandises.uuid_identification
     assert fake_generators[1][2] == f"AF0001_marchandises_{marchandises.invoice_number}.pdf"
     merged = sales_dir / FULL
@@ -82,7 +106,7 @@ def test_invoices_pdf_generation(sales_dir, fake_generators, make_sale_invoice):
     assert printed[autre_fichier.pk] is False
 
 
-@pytest.mark.usefixtures('sales_dir', 'fake_generators')
+@pytest.mark.usefixtures("sales_dir", "fake_generators")
 def test_invoices_pdf_generation_erreur(make_sale_invoice, monkeypatch, caplog):
     """Une exception trace l'erreur et ne marque rien comme imprimé"""
     sale = make_sale_invoice(global_invoice_file=FULL)
@@ -90,7 +114,10 @@ def test_invoices_pdf_generation_erreur(make_sale_invoice, monkeypatch, caplog):
     def boom(cct, pdf_path):
         raise RuntimeError("summary KO")
 
-    with patched_attrs(monkeypatch, generate_invoices_pdf, summary_invoice_pdf=boom), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, generate_invoices_pdf, summary_invoice_pdf=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         trace, to_print = invoices_pdf_generation("AF0001", FULL)
 
     assert trace.errors is True
@@ -102,14 +129,16 @@ def test_invoices_pdf_generation_erreur(make_sale_invoice, monkeypatch, caplog):
     assert Trace.objects.count() == 1
 
 
-@pytest.mark.usefixtures('make_user')
+@pytest.mark.usefixtures("make_user")
 def test_get_invoices_in_progress():
     for task_name, status in [
         ("invoices_insertions_launch", "STARTED"),
         ("launch_generate_pdf_invoices", "SUCCESS"),
         ("send_invoice_email", "STARTED"),
     ]:
-        TaskResult.objects.create(task_id=f"{task_name}-{status}", task_name=task_name, status=status)
+        TaskResult.objects.create(
+            task_id=f"{task_name}-{status}", task_name=task_name, status=status
+        )
 
     assert get_invoices_in_progress() == (True, False, True)
 
@@ -126,10 +155,12 @@ def test_base_dir_selon_la_machine(monkeypatch, node, expected):
 
 
 @pytest.mark.integration
-@pytest.mark.usefixtures('pdf_domain')
+@pytest.mark.usefixtures("pdf_domain")
 def test_invoices_pdf_generation_reelle(sales_dir, make_sale_with_lines):
     """Chaîne réelle WeasyPrint : sommaire + facture de marchandises fusionnés"""
-    sale = make_sale_with_lines([{"vat": "001"}, {"vat": "002", "axe": "VER"}], global_invoice_file=FULL)
+    sale = make_sale_with_lines(
+        [{"vat": "001"}, {"vat": "002", "axe": "VER"}], global_invoice_file=FULL
+    )
 
     trace, _ = invoices_pdf_generation(sale.cct_id, FULL)
 

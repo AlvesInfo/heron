@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql de post-traitement après import des fichiers Phonak
-EN : Post-processing sql module after importing supplier invoice files
+"""FR : Module des requêtes sql de post-traitement après import des fichiers Phonak.
+
+EN : Post-processing sql module after importing supplier invoice files.
 
 Commentaire:
 
@@ -10,20 +10,21 @@ created by: Paulo ALVES
 modified at: 2022-11-27
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 post_phonak_dict = {
     "sql_update": sql.SQL(
         """
         update "edi_ediimport"
-        set 
+        set
             "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
             "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
-            "discount_price_01" = case 
-                                    when "discount_price_01" >= 10000 then 1 
+            "discount_price_01" = case
+                                    when "discount_price_01" >= 10000 then 1
                                     else("discount_price_01" / 10000)::numeric
                                   end,
-            "net_unit_price" = case 
+            "net_unit_price" = case
                                     when "discount_price_01" >= 10000 then 0
                                     else ("net_amount"::numeric / "qty"::numeric)::numeric
                                end,
@@ -40,11 +41,11 @@ post_phonak_dict = {
         set
             "net_amount" = case
                                 when "discount_price_01" = 1 then 0
-                                when ("invoice_type" = '381' and "qty" < 0) 
-                                  or ("invoice_type" = '380' and "qty" < 0) 
+                                when ("invoice_type" = '381' and "qty" < 0)
+                                  or ("invoice_type" = '380' and "qty" < 0)
                                 then -abs("net_amount")::numeric
-                                when ("invoice_type" = '381' and "qty" > 0) 
-                                  or ("invoice_type" = '380' and "qty" > 0) 
+                                when ("invoice_type" = '381' and "qty" > 0)
+                                  or ("invoice_type" = '380' and "qty" > 0)
                                 then abs("net_amount")::numeric
                             end
         where "uuid_identification" = %(uuid_identification)s
@@ -57,14 +58,14 @@ post_phonak_dict = {
         set
             "invoice_date" = inv."invoice_date"
         from (
-            select 
-                invoice_number, 
+            select
+                invoice_number,
                 (
-                    date_trunc('month', max(invoice_date)) 
+                    date_trunc('month', max(invoice_date))
                     + interval '1 month - 1 day'
-                )::date as invoice_date 
-            from edi_ediimport ee 
-            group by invoice_number 
+                )::date as invoice_date
+            from edi_ediimport ee
+            group by invoice_number
         ) inv
         where edi."invoice_number" = inv."invoice_number"
         and edi."uuid_identification" = %(uuid_identification)s

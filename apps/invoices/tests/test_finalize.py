@@ -1,4 +1,5 @@
 """Tests de la finalisation de la facturation"""
+
 import importlib
 import platform
 import sys
@@ -8,7 +9,13 @@ import pytest
 
 from apps.edi.models import EdiImportControl
 from apps.invoices.bin import finalize
-from apps.invoices.models import Invoice, InvoiceCommonDetails, InvoiceDetail, SaleInvoice, SaleInvoiceDetail
+from apps.invoices.models import (
+    Invoice,
+    InvoiceCommonDetails,
+    InvoiceDetail,
+    SaleInvoice,
+    SaleInvoiceDetail,
+)
 from conftest import patched_attrs
 
 pytestmark = pytest.mark.django_db
@@ -22,7 +29,9 @@ def test_set_validations_sans_controles_invalides(make_edi_import_control):
     assert EdiImportControl.objects.count() == 1
 
 
-def test_set_validations_supprime_les_orphelins_et_valide_les_autres(make_edi_import_control, make_invoice_common_details):
+def test_set_validations_supprime_les_orphelins_et_valide_les_autres(
+    make_edi_import_control, make_invoice_common_details
+):
     orphan = make_edi_import_control(valid=False)
     used = make_edi_import_control(valid=False)
     make_invoice_common_details("FOUR001", "FAC-1", uuid_control=used)
@@ -43,7 +52,9 @@ def test_set_validations_sans_orphelin(make_edi_import_control, make_invoice_com
     assert EdiImportControl.objects.get(pk=used.pk).valid is True
 
 
-def test_finalize_global_invoices(make_user, make_detail, make_sale_detail, make_invoice_common_details):
+def test_finalize_global_invoices(
+    make_user, make_detail, make_sale_detail, make_invoice_common_details
+):
     user = make_user()
     make_detail()
     make_sale_detail()

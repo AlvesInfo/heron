@@ -1,21 +1,23 @@
-from django.urls import path
+"""Routes URL de l'application core."""
 
+from django.urls import path
 
 from apps.core.views import (
     # API POUR LES DROPDOWN SEMANTIC
     api_models_query,
     # API POUR LES DROPDOWN SEMANTIC
     api_models_query_third_party_num,
-    # API POUR LES JAUGES AJAX POLLING
-    get_user_jobs,
+    delete_job,
+    download_status,
     get_active_jobs,
     get_job_progress,
-    delete_job,
+    # API POUR LES JAUGES AJAX POLLING
+    get_user_jobs,
+    notification_delete,
+    notification_mark_all_read,
+    notification_mark_read,
     # API POUR LES NOTIFICATIONS
     notifications_list,
-    notification_mark_read,
-    notification_mark_all_read,
-    notification_delete,
 )
 
 urlpatterns = [
@@ -36,6 +38,8 @@ urlpatterns = [
         ),
     ],
     # API POUR LES JAUGES AJAX POLLING
+    # FIN DE TELECHARGEMENT DES EXPORTS (jeton posé par les formulaires d'export)
+    path("download-status/<str:token>/", download_status, name="download_status"),
     path("sse-progress/", get_user_jobs, name="list_jobs"),
     path("sse-progress/active/", get_active_jobs, name="active_jobs"),
     path("sse-progress/<str:job_id>/", get_job_progress, name="job_detail"),

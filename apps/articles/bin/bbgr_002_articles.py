@@ -1,6 +1,6 @@
-"""
-FR : Module d'intégration depuis la B.I des articles pour BBGR002 (Statment)
-EN : Integration module from the B.I of articles for BBGR002 (Statment)
+"""FR : Module d'intégration depuis la B.I des articles pour BBGR002 (Statment).
+
+EN : Integration module from the B.I of articles for BBGR002 (Statment).
 
 Commentaire:
 
@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2022-12-31
 modified by: Paulo ALVES
 """
+
 import os
 import platform
 import sys
@@ -27,15 +28,13 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 
 django.setup()
 
-from psycopg2 import sql
 from django.db import connection
+from psycopg2 import sql
 
 
 def insert_bbgr_002_articles():
-    """Intégration depuis la B.I des articles pour BBGR002"""
-
+    """Intégration depuis la B.I des articles pour BBGR002."""
     with connection.cursor() as cursor:
-
         sql_articles = sql.SQL(
             """
             insert into "articles_article"
@@ -61,15 +60,15 @@ def insert_bbgr_002_articles():
                 "famille_acuitis",
                 "uuid_big_category",
                 "created_by",
-                "packaging_qty", 
+                "packaging_qty",
                 "new_article"
             )
-            select 
+            select
                 now() as "created_at",
                 now() as "modified_at",
-                hba."code_ean" as "reference", 
-                hba."code_ean" as "ean_code", 
-                hba."designation" as "libelle", 
+                hba."code_ean" as "reference",
+                hba."code_ean" as "ean_code",
+                hba."designation" as "libelle",
                 hba."marque" as "brand",
                 case when hba."poids" isnull then 0 else hba."poids" end as "item_weight",
                 hba."fabricant" as "manufacturer",
@@ -82,9 +81,9 @@ def insert_bbgr_002_articles():
                 d_axes."axe_pys",
                 d_axes."axe_rfa",
                 (
-                    select 
-                        "axe_pro" 
-                     from book_supplierfamilyaxes adf 
+                    select
+                        "axe_pro"
+                     from book_supplierfamilyaxes adf
                     where adf."stat_name" = 'ACUITIS'
                       and adf."regex_match" = hba."famille"
                 ) as "axe_pro",
@@ -106,23 +105,23 @@ def insert_bbgr_002_articles():
                 hba.famille as "famille_acuitis",
                 d_axes."uuid_big_category",
                 (
-                    select 
-                    uuid_identification 
-                    from auth_user 
-                    where email='automate@acuitis.com' 
+                    select
+                    uuid_identification
+                    from auth_user
+                    where email='automate@acuitis.com'
                     limit 1
                 ) as "created_by",
                 1 as "packaging_qty",
                 true as "new_article"
-            from "heron_bi_articles" hba, 
+            from "heron_bi_articles" hba,
             (
                 select
                     "uuid_big_category",
-                    "axe_bu", 
+                    "axe_bu",
                     "axe_prj",
                     "axe_pys",
                     "axe_rfa"
-                from "parameters_defaultaxearticle" ad 
+                from "parameters_defaultaxearticle" ad
                 where "slug_name" = 'axes_articles'
                 limit 1
             ) d_axes
@@ -136,11 +135,11 @@ def insert_bbgr_002_articles():
             update "articles_article" "aaa"
             set "new_article" = true
             from (
-                select 
+                select
                     "id"
-                from "articles_article" "aa" 
+                from "articles_article" "aa"
                 where 	(
-                        (case when "axe_bu" isnull then 0 else 1 end) 
+                        (case when "axe_bu" isnull then 0 else 1 end)
                         +
                         (case when "axe_prj" isnull then 0 else 1 end)
                         +

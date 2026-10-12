@@ -1,6 +1,6 @@
-"""
-FR : Module de génération du fichier BBGR Monthly
-EN : BBGR Monthly file generation module
+"""FR : Module de génération du fichier BBGR Monthly.
+
+EN : BBGR Monthly file generation module.
 
 Commentaire:
 
@@ -13,8 +13,8 @@ modified by: Paulo ALVES
 
 from uuid import UUID
 
-from psycopg2 import sql
 from django.db import connection, transaction
+from psycopg2 import sql
 
 from heron.loggers import LOGGER_EDI
 
@@ -23,26 +23,26 @@ HISTORIC_MONTHLY_ID = 2074484
 
 @transaction.atomic
 def insert_bbgr_monthly_file(uuid_identification: UUID):
-    """Intégration des lignes de la table des Monthly
+    """Intégration des lignes de la table des Monthly.
+
     :param uuid_identification: uuid_identification de la trace
     :return:
     """
-
     with connection.cursor() as cursor:
         # ID Minimum pour le premier import
         sql_id = sql.SQL(
             """
-            select 
+            select
                 max(max_id) as max_id
             from (
-                select  
-                    coalesce(max(bi_id), %(historic_id)s) as max_id 
-                from edi_ediimport ee 
+                select
+                    coalesce(max(bi_id), %(historic_id)s) as max_id
+                from edi_ediimport ee
                 where flow_name = 'BbgrMonthly'
-                union all 
-                select 
-                    coalesce(max(bi_id), %(historic_id)s) as max_id 
-                from invoices_invoicecommondetails 
+                union all
+                select
+                    coalesce(max(bi_id), %(historic_id)s) as max_id
+                from invoices_invoicecommondetails
                 where flow_name = 'BbgrMonthly'
             ) req
             """
@@ -56,7 +56,7 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
             """
             select
                 "id"
-            from heron_bi_factures_monthlydelivery hbfm 
+            from heron_bi_factures_monthlydelivery hbfm
             where type_article not in ('FRAIS_RETOUR', 'DECOTE')
             and "id" > %(historic_id)s
             limit 1
@@ -70,7 +70,7 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
             LOGGER_EDI.info("intégration des lignes BBGR Monthly")
             sql_insert_monthly = sql.SQL(
                 """
-                insert into edi_ediimport 
+                insert into edi_ediimport
                 (
                     "uuid_identification",
                     "created_at",
@@ -123,23 +123,23 @@ def insert_bbgr_monthly_file(uuid_identification: UUID):
                    "date_livraison" as "delivery_date",
                    coalesce(
                         case when "livraison" = '' then null else "livraison" end,
-                        case when "no_facture_acuitis" = '' then null else "no_facture_acuitis" end, 
+                        case when "no_facture_acuitis" = '' then null else "no_facture_acuitis" end,
                         "id"::varchar
                     ) as "invoice_number",
                    "date_mouvement" as "invoice_date",
-                   case 
+                   case
                         when "qte_expediee" > 0
-                        then '380' 
-                        else '381' 
+                        then '380'
+                        else '381'
                     end as "invoice_type",
                    'EUR' as "devise",
                    "article" as "reference_article",
                    "article" as "ean_code",
                    "description" as "libelle",
-                   case 
-                        when "famille" is null or "famille" = '' 
-                        then "article" 
-                        else "famille" 
+                   case
+                        when "famille" is null or "famille" = ''
+                        then "article"
+                        else "famille"
                    end as "famille",
                    "qte_expediee" as "qty",
                    "prix_unitaire" as "gross_unit_price",

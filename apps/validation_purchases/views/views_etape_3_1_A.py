@@ -1,6 +1,6 @@
-"""
-FR : Views de contrôles étapes 3.1
-EN : Views of controls steps 3.1
+"""FR : Views de contrôles étapes 3.1.
+
+EN : Views of controls steps 3.1.
 
 Commentaire:
 
@@ -10,21 +10,22 @@ created by: Paulo ALVES
 modified at: 2023-06-02
 modified by: Paulo ALVES
 """
+
+from typing import Any
+
 from django.db import connection
 from django.shortcuts import render
 
 from apps.core.functions.functions_postgresql import query_file_yield_dict_cursor
 
-
 # CONTROLES ETAPE 3.1 A - CONTROLE ARTICLES/FAMILLES
 
 
 def articles_families_invoices_purchases(request, third_party_num):
-    """View de l'étape 3.1 A des écrans de contrôles"""
-
+    """View de l'étape 3.1 A des écrans de contrôles."""
     parmas_dict = {"third_party_num": third_party_num} if third_party_num != "alls" else {}
 
-    context = {"titre_table": "3.1 A - Controle des familles par articles - Achats"}
+    context: dict[str, Any] = {"titre_table": "3.1 A - Controle des familles par articles - Achats"}
 
     with connection.cursor() as cursor:
         sql_context_file = "apps/validation_purchases/sql_files/sql_families_invoices.sql"
@@ -42,9 +43,8 @@ def articles_families_invoices_purchases(request, third_party_num):
 
 
 def articles_families_invoices_purchases_export(request):
-    """View de l'étape 3.1 A des écrans de contrôles"""
+    """View de l'étape 3.1 A des écrans de contrôles."""
     context = {"titre_table": "Export Excel"}
     return render(
         request, "validation_purchases/articles_families_invoices_suppliers.html", context=context
     )
-

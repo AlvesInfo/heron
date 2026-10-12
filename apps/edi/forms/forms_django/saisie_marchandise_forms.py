@@ -1,6 +1,6 @@
-"""
-FR : Module de Formulaires pour le saisie de marchandises
-EN : Forms module for entering goods
+"""FR : Module de Formulaires pour le saisie de marchandises.
+
+EN : Forms module for entering goods.
 
 Commentaire:
 
@@ -21,7 +21,7 @@ from apps.parameters.forms.forms_django.const_forms import DATE_INPUT
 
 
 def initialed_date():
-    """Fonction pour initialiser la date dans les formumaire de saisie
+    """Fonction pour initialiser la date dans les formumaire de saisie.
 
     On va prendre en compte la période de facturation en cours dans le model EdiValidation
     """
@@ -30,20 +30,19 @@ def initialed_date():
     if not initial_validation:
         return "2000-01-01"
 
-    initial_date = (
+    return (
         pendulum.parse(initial_validation.billing_period.isoformat())
         .end_of("month")
         .date()
         .isoformat()
     )
-    return initial_date
 
 
 class CreateBaseMarchandiseForm(forms.ModelForm):
-    """Formulaire d'entête pour la création des factures de Marchandises Dans Edi_Import"""
+    """Formulaire d'entête pour la création des factures de Marchandises Dans Edi_Import."""
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         # TIERS X3 =================================================================================
@@ -52,15 +51,11 @@ class CreateBaseMarchandiseForm(forms.ModelForm):
                 society.get("third_party_num"),
                 f"{society.get('third_party_num')} - {society.get('name')}",
             )
-            for society in Society.objects.filter(in_use=True).values(
-                "third_party_num", "name"
-            )
+            for society in Society.objects.filter(in_use=True).values("third_party_num", "name")
         ]
         third_party_num = forms.ChoiceField(
             choices=self.third_party_num_choices,
-            widget=forms.Select(
-                attrs={"class": "ui fluid search dropdown third_party_num"}
-            ),
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown third_party_num"}),
             label="Fournisseur X3",
             required=True,
             error_messages={"required": "Le Fournisseur (TiersX3) est obligatoire"},
@@ -111,7 +106,7 @@ class CreateBaseMarchandiseForm(forms.ModelForm):
         self.fields["invoice_date"].initial = invoice_date
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = EdiImport
         fields = [
@@ -126,10 +121,10 @@ class CreateBaseMarchandiseForm(forms.ModelForm):
 
 
 class CreateMarchandiseInvoiceForm(forms.ModelForm):
-    """Formulaire des lignes pour la création des factures de Marchandises Dans Edi_Import"""
+    """Formulaire des lignes pour la création des factures de Marchandises Dans Edi_Import."""
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         self.fields["sub_category"].required = False
@@ -138,7 +133,7 @@ class CreateMarchandiseInvoiceForm(forms.ModelForm):
         self.fields["unit_weight"].required = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = EdiImport
         fields = [
@@ -187,10 +182,10 @@ class CreateMarchandiseInvoiceForm(forms.ModelForm):
 
 
 class CreateBaseFormationForm(forms.ModelForm):
-    """Formulaire d'entête pour la création des factures de Formation Dans Edi_Import"""
+    """Formulaire d'entête pour la création des factures de Formation Dans Edi_Import."""
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         # TIERS X3 =================================================================================
@@ -248,7 +243,7 @@ class CreateBaseFormationForm(forms.ModelForm):
         self.fields["invoice_date"].initial = invoice_date
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = EdiImport
         fields = [
@@ -263,16 +258,16 @@ class CreateBaseFormationForm(forms.ModelForm):
 
 
 class CreateFormationInvoiceForm(forms.ModelForm):
-    """Formulaire des lignes pour la création des factures de Formation Dans Edi_Import"""
+    """Formulaire des lignes pour la création des factures de Formation Dans Edi_Import."""
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         self.fields["sub_category"].required = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = EdiImport
         fields = [
@@ -325,10 +320,10 @@ class CreateFormationInvoiceForm(forms.ModelForm):
 
 
 class CreateBasePersonnelForm(forms.ModelForm):
-    """Formulaire d'entête pour la création des factures de Personnel Dans Edi_Import"""
+    """Formulaire d'entête pour la création des factures de Personnel Dans Edi_Import."""
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         # TIERS X3 =================================================================================
@@ -337,15 +332,11 @@ class CreateBasePersonnelForm(forms.ModelForm):
                 society.get("third_party_num"),
                 f"{society.get('third_party_num')} - {society.get('name')}",
             )
-            for society in Society.objects.filter(in_use=True).values(
-                "third_party_num", "name"
-            )
+            for society in Society.objects.filter(in_use=True).values("third_party_num", "name")
         ]
         third_party_num = forms.ChoiceField(
             choices=self.third_party_num_choices,
-            widget=forms.Select(
-                attrs={"class": "ui fluid search dropdown third_party_num"}
-            ),
+            widget=forms.Select(attrs={"class": "ui fluid search dropdown third_party_num"}),
             label="Fournisseur X3",
             required=True,
             error_messages={"required": "Le Fournisseur (TiersX3) est obligatoire"},
@@ -394,7 +385,7 @@ class CreateBasePersonnelForm(forms.ModelForm):
         self.fields["invoice_date"].initial = invoice_date
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = EdiImport
         fields = [
@@ -409,10 +400,10 @@ class CreateBasePersonnelForm(forms.ModelForm):
 
 
 class CreatePersonnelInvoiceForm(forms.ModelForm):
-    """Formulaire des lignes pour la création des factures de Personnel Dans Edi_Import"""
+    """Formulaire des lignes pour la création des factures de Personnel Dans Edi_Import."""
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         self.fields["sub_category"].required = False
@@ -421,7 +412,7 @@ class CreatePersonnelInvoiceForm(forms.ModelForm):
         self.fields["command_reference"].required = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = EdiImport
         fields = [

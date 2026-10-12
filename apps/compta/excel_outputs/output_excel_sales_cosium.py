@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel des ventes Cosium
+"""Module d'export du fichier excel des ventes Cosium.
 
 Commentaire:
 
@@ -8,19 +8,19 @@ created by: Paulo ALVES
 modified at: 2023-03-07
 modified by: Paulo ALVES
 """
+
 import io
 
 import pendulum
 
-from apps.compta.models import VentesCosium
 from apps.compta.excel_outputs.columns_excel import columns_sales_cosium
+from apps.compta.models import VentesCosium
 from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 
-def get_clean_rows(date_debut: str, date_fin: str) -> iter:
-    """Retourne les lignes à écrire"""
-
-    clean_rows = [
+def get_clean_rows(date_debut: str, date_fin: str) -> list:
+    """Retourne les lignes à écrire."""
+    return [
         (
             sale_dict.get("cct_uuid_identification__pays") or "",
             sale_dict.get("id_vente", ""),
@@ -66,11 +66,9 @@ def get_clean_rows(date_debut: str, date_fin: str) -> iter:
         )
     ]
 
-    return clean_rows
-
 
 def excel_sales_cosium(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: str) -> dict:
-    """Fonction de génération du fichier de liste des ventes Cosium"""
+    """Fonction de génération du fichier de liste des ventes Cosium."""
     date_debut = pendulum.parse(dte_d)
     date_debut_texte = date_debut.format("DD/MM/YYYY", locale="fr")
     date_fin = pendulum.parse(dte_f)
@@ -81,7 +79,7 @@ def excel_sales_cosium(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: s
     return excel_list_export(
         file_io,
         file_name,
-        sheet_name='VENTES COSIUM',
+        sheet_name="VENTES COSIUM",
         title=titre,
         columns=columns,
         rows=get_clean_rows(date_debut, date_fin),

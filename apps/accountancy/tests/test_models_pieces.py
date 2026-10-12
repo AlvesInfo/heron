@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des modèles de pièces comptables (apps/accountancy/models/pieces.py)
+"""FR : Tests des modèles de pièces comptables (apps/accountancy/models/pieces.py)
+
+
 EN : Tests for accounting documents models
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import uuid
 
 import pytest
@@ -53,7 +55,12 @@ def test_colonnes_en_base_portent_le_code(make_ecriture):
 
 @pytest.mark.parametrize(
     ("model", "field"),
-    [(Pieces, "type_piece"), (Journaux, "journal"), (Transactions, "transaction"), (Ecritures, "ecriture")],
+    [
+        (Pieces, "type_piece"),
+        (Journaux, "journal"),
+        (Transactions, "transaction"),
+        (Ecritures, "ecriture"),
+    ],
 )
 def test_codes_uniques(make_ecriture, model, field):
     """Les codes de pièce, journal, transaction et écriture sont uniques"""
@@ -102,8 +109,8 @@ def test_suppression_ecriture_libere_les_dependances(make_ecriture):
 
 
 def test_flagstable_delete_masque_la_methode_delete(make_ecriture):
-    """
-    Le champ booléen `delete` hérité de FlagsTable masque Model.delete() sur l'instance :
+    """Le champ booléen `delete` hérité de FlagsTable masque Model.delete() sur l'instance :
+
     la suppression doit passer par le QuerySet (comportement structurel à connaître)
     """
     ecriture = make_ecriture("ODANA")

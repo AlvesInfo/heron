@@ -1,11 +1,13 @@
 # pylint: disable=E0401
-"""
-FR : Tests de la configuration de l'app groups (squelette sans modèle, vue ni route pour l'instant)
+"""FR : Tests de la configuration de l'app groups (squelette sans modèle, vue ni route pour l'instant)
+
+
 EN : Tests for groups app configuration (empty skeleton for now)
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import importlib
 
 import pytest
@@ -31,11 +33,26 @@ def test_app_config():
 @pytest.mark.parametrize(
     "module_name",
     [
-        "apps.groups.models", "apps.groups.views", "apps.groups.admin", "apps.groups.bin", "apps.groups.data_fixtures",
-        "apps.groups.essais", "apps.groups.excel_outputs", "apps.groups.exports", "apps.groups.forms",
-        "apps.groups.forms.forms_django", "apps.groups.forms.forms_djantic", "apps.groups.forms.forms_pydantic",
-        "apps.groups.forms.forms_serializers", "apps.groups.imports", "apps.groups.loops", "apps.groups.parameters",
-        "apps.groups.tasks", "apps.groups.templates", "apps.groups.templates.groups", "apps.groups.validations",
+        "apps.groups.models",
+        "apps.groups.views",
+        "apps.groups.admin",
+        "apps.groups.bin",
+        "apps.groups.data_fixtures",
+        "apps.groups.essais",
+        "apps.groups.excel_outputs",
+        "apps.groups.exports",
+        "apps.groups.forms",
+        "apps.groups.forms.forms_django",
+        "apps.groups.forms.forms_djantic",
+        "apps.groups.forms.forms_pydantic",
+        "apps.groups.forms.forms_serializers",
+        "apps.groups.imports",
+        "apps.groups.loops",
+        "apps.groups.parameters",
+        "apps.groups.tasks",
+        "apps.groups.templates",
+        "apps.groups.templates.groups",
+        "apps.groups.validations",
     ],
 )
 def test_packages_importables(module_name):

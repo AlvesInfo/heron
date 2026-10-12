@@ -1,28 +1,30 @@
-import pendulum
-from django.db import connection
-from django.contrib import messages
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.db.models import Q
+"""Vues de l'étape 3.6 de la validation des achats : contrôle des RFA de la période."""
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.functions.functions_postgresql import query_file_dict_cursor
+import pendulum
+from django.contrib import messages
+from django.db import connection
+from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
 from apps.core.bin.change_traces import trace_change
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from apps.core.functions.functions_postgresql import query_file_dict_cursor
+from apps.edi.models import EdiValidation
+from apps.parameters.models import IconOriginChoice
 from apps.validation_purchases.excel_outputs.excel_control_rfa_period import (
     control_rfa_period_excel,
 )
-from apps.edi.models import EdiValidation
 from apps.validation_purchases.forms import RfaValidationForm
-from apps.parameters.models import IconOriginChoice
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 3.6 - Contrôle période RFA
 
 
 def control_rfa_period(request):
-    """View de l'étape 3.6 - Contrôle période RFA"""
+    """View de l'étape 3.6 - Contrôle période RFA."""
     with connection.cursor() as cursor:
         sql_context_file = "apps/validation_purchases/sql_files/sql_control_rfa_period.sql"
         elements = query_file_dict_cursor(cursor, file_path=sql_context_file)
@@ -43,13 +45,15 @@ def control_rfa_period(request):
 
 
 def control_rfa_period_export(request):
-    """Export Excel du Contrôle période RFA
+    """Export Excel du Contrôle période RFA.
+
     :param request: Request Django
-    :return: response_file"""
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()
-            file_name = "CONTROLE_PERIODE_RFA" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+            file_name = f"CONTROLE_PERIODE_RFA{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
 
             return response_file(
                 control_rfa_period_excel,
@@ -64,8 +68,7 @@ def control_rfa_period_export(request):
 
 
 def control_rfa_period_validation(request):
-    """Validation de l'écran de Contrôle 3.6 - Contrôle période RFA"""
-
+    """Validation de l'écran de Contrôle 3.6 - Contrôle période RFA."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -100,12 +103,12 @@ def control_rfa_period_validation(request):
 
         except Exception:
             LOGGER_VIEWS.exception(
-                f"Views : control_rfa_period_validation error : {form.cleaned_data!r}"
+                "Views : control_rfa_period_validation error : %r", form.cleaned_data
             )
 
     else:
         LOGGER_VIEWS.error(
-            f"Views : control_rfa_period_validation error, form invalid : {form.errors!r}"
+            "Views : control_rfa_period_validation error, form invalid : %r", form.errors
         )
 
     messages.add_message(request, level, message)

@@ -1,6 +1,6 @@
-"""
-FR : Module Dictionnaire des Comptes achat vente pour la facturation
-EN : Dictionary of achat vente Accounts for invoicing
+"""FR : Module Dictionnaire des Comptes achat vente pour la facturation.
+
+EN : Dictionary of achat vente Accounts for invoicing.
 
 Commentaire:
 
@@ -10,40 +10,41 @@ created by: Paulo ALVES
 modified at: 2023-01-21
 modified by: Paulo ALVES
 """
+
 from pathlib import Path
 
 import pendulum
 from django.conf import settings
+from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import CharField, Value
+from django.db.models.functions import Cast, Concat, LPad
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
-from django.db.models.functions import Concat, Cast, LPad
-from django.db.models import CharField, Value
+from django.views.generic import CreateView, ListView, UpdateView
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.core.bin.mixins import ChildCenterMixin
+from apps.centers_purchasing.bin.duplicates import duplicates_delete_accounts
+from apps.centers_purchasing.bin.update_account_article import set_update_articles_confict_account
 from apps.centers_purchasing.excel_outputs.output_excel_account_axe_list import (
     excel_liste_account_axe,
 )
-from apps.centers_purchasing.models import AccountsAxeProCategory
 from apps.centers_purchasing.forms import (
-    AccountsAxeProCategoryForm,
     AccountsAxeProCategoryDeleteForm,
+    AccountsAxeProCategoryForm,
 )
-from apps.centers_purchasing.bin.update_account_article import set_update_articles_confict_account
 from apps.centers_purchasing.imports.imports_data import axe_pro_account
-from apps.centers_purchasing.bin.duplicates import duplicates_delete_accounts
+from apps.centers_purchasing.models import AccountsAxeProCategory
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.bin.mixins import ChildCenterMixin
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from heron.loggers import LOGGER_VIEWS
 
 # Comptes par Centrale fille, Catégorie, Axe Pro, et TVA
 
 
 class AccountAxeList(ChildCenterMixin, ListView):
-    """View de la liste du Dictionnaire des Comptes achat vente pour la facturation"""
+    """View de la liste du Dictionnaire des Comptes achat vente pour la facturation."""
 
     model = AccountsAxeProCategory
     context_object_name = "accounts_axes"
@@ -102,13 +103,13 @@ class AccountAxeList(ChildCenterMixin, ListView):
     )
 
     def __init__(self, **kwargs):
-        """Suppression des doublons avant l'affichage"""
+        """Suppression des doublons avant l'affichage."""
         duplicates_delete_accounts()
         super().__init__(**kwargs)
 
 
 class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création du Dictionnaire des Comptes achat vente pour la facturation"""
+    """CreateView de création du Dictionnaire des Comptes achat vente pour la facturation."""
 
     model = AccountsAxeProCategory
     form_class = AccountsAxeProCategoryForm
@@ -122,7 +123,7 @@ class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:account_axe_list")
         context["titre_table"] = "Création d'un nouveau Dictionnaire des Comptes achat vente"
@@ -133,7 +134,7 @@ class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return reverse("centers_purchasing:account_axe_list")
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -141,13 +142,13 @@ class AccountAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
     @staticmethod
     def form_updated():
-        """Action à faire après form_valid save"""
+        """Action à faire après form_valid save."""
         # Mise à jour des articles qui n'ont pas de comptes achats/ventes
         set_update_articles_confict_account()
 
 
 class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView d'update du Dictionnaire des Comptes achat vente pour la facturation"""
+    """UpdateView d'update du Dictionnaire des Comptes achat vente pour la facturation."""
 
     model = AccountsAxeProCategory
     form_class = AccountsAxeProCategoryForm
@@ -161,7 +162,7 @@ class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:account_axe_list")
         context["titre_table"] = "Mise à jour d'un Dictionnaire des Comptes achat vente"
@@ -171,8 +172,8 @@ class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_purchasing:account_axe_list")
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -180,14 +181,13 @@ class AccountAxeUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     @staticmethod
     def form_updated():
-        """Action à faire après form_valid save"""
+        """Action à faire après form_valid save."""
         # Mise à jour des articles qui n'ont pas de comptes achats/ventes
         set_update_articles_confict_account()
 
 
 def account_axe_delete(request):
-    """Vue ajax de suppresion d'une ligne de la table"""
-
+    """Vue ajax de suppresion d'une ligne de la table."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -202,20 +202,19 @@ def account_axe_delete(request):
             data_dict={"id": id_pk},
             force_delete=True,
         )
-        # set_article_account()
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"account_axe_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("account_axe_delete, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def account_axe_import_file(_):
-    """
-    Import des fichiers excel déposés dans le répertoire IMPORT_ACCOUNTS (export de l'écran,
+    """Import des fichiers excel déposés dans le répertoire IMPORT_ACCOUNTS (export de l'écran,.
+
     complété), pour mise à jour en masse du Dictionnaire des Comptes achat vente
-    :return: redirect
+    :return: redirect.
     """
     try:
         for file in sorted(Path(settings.IMPORT_ACCOUNTS).glob("*.xlsx")):
@@ -229,10 +228,10 @@ def account_axe_import_file(_):
 
 
 def account_axe_export_list(request):
-    """
-    Export Excel de la liste du Dictionnaire Axe Pro/Regroupement de facturation
+    """Export Excel de la liste du Dictionnaire Axe Pro/Regroupement de facturation.
+
     :param request: request au sens django
-    :return: response_file
+    :return: response_file.
     """
     try:
         today = pendulum.now()

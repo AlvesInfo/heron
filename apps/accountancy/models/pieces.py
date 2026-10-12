@@ -1,6 +1,6 @@
-"""
-FR : Module des pièces comptable
-EN : Accounting documents module
+"""FR : Module des pièces comptable.
+
+EN : Accounting documents module.
 
 Commentaire:
 
@@ -10,18 +10,17 @@ created by: Paulo ALVES
 modified at: 2023-06-18
 modified by: Paulo ALVES
 """
+
 import uuid
 
 from django.db import models
 
+from apps.accountancy.models.sage import CodePlanSage
 from heron.models import FlagsTable
-from apps.accountancy.models import CodePlanSage
 
 
 class Pieces(FlagsTable):
-    """
-    Table des types de pièces Sage X3
-    """
+    """Table des types de pièces Sage X3."""
 
     type_piece = models.CharField(unique=True, max_length=15)
     description = models.CharField(blank=True, null=True, max_length=255)
@@ -35,9 +34,7 @@ class Pieces(FlagsTable):
 
 
 class Journaux(FlagsTable):
-    """
-    Table des journaux Sage X3
-    """
+    """Table des journaux Sage X3."""
 
     journal = models.CharField(unique=True, max_length=15)
     description = models.CharField(blank=True, null=True, max_length=255)
@@ -51,9 +48,7 @@ class Journaux(FlagsTable):
 
 
 class Transactions(FlagsTable):
-    """
-    Table des transactions Sage X3
-    """
+    """Table des transactions Sage X3."""
 
     transaction = models.CharField(unique=True, max_length=15)
     description = models.CharField(blank=True, null=True, max_length=255)
@@ -62,9 +57,7 @@ class Transactions(FlagsTable):
 
 
 class Ecritures(FlagsTable):
-    """
-    Table des écritures ex.: ODANA
-    """
+    """Table des écritures ex.: ODANA."""
 
     ecriture = models.CharField(unique=True, max_length=15)
     type_x3 = models.IntegerField()

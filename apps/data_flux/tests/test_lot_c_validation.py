@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests de la validation des flux (apps/data_flux/validation.py) : traces d'erreurs par type de
+"""FR : Tests de la validation des flux (apps/data_flux/validation.py) : traces d'erreurs par type de
+
+
      validateur, gabarits de validation Django / DRF / Pydantic et classe Validation
 EN : Tests for flux validation module
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import io
 import uuid
 
@@ -15,7 +17,12 @@ from django import forms
 from pydantic import BaseModel, validator
 from rest_framework import serializers
 
-from apps.data_flux.exceptions import FluxtypeError, IsValidError, ValidationError, ValidationFormError
+from apps.data_flux.exceptions import (
+    FluxtypeError,
+    IsValidError,
+    ValidationError,
+    ValidationFormError,
+)
 from apps.data_flux.models import Error, EssaisZ, Line, Trace
 from apps.data_flux.validation import (
     DjangoTrace,
@@ -65,7 +72,7 @@ class RefusingSchema(BaseModel):
     col_texte: str
 
     @validator("col_texte")
-    def refuse(cls, value):  # noqa: N805  pylint: disable=E0213
+    def refuse(cls, value):
         raise ValidationError(f"{value} refusé")
 
 
@@ -75,11 +82,16 @@ class CrashingSchema(BaseModel):
     col_texte: str
 
     @validator("col_texte")
-    def crash(cls, value):  # noqa: N805  pylint: disable=E0213
+    def crash(cls, value):
         raise RuntimeError(f"{value} imprévu")
 
 
-PARAMS = {"trace_name": "Test", "file_name": "essai.csv", "application_name": "tests", "flow_name": "essais"}
+PARAMS = {
+    "trace_name": "Test",
+    "file_name": "essai.csv",
+    "application_name": "tests",
+    "flow_name": "essais",
+}
 
 
 def _params(**extra):
@@ -112,11 +124,19 @@ def test_trace_template_lignes_et_erreur_brute():
     trace.add_error(5, "flux invalide")
 
     errors = Error.objects.get()
-    assert (line.insertion_type, line.num_line, line.designation) == ("Create", 3, "cette ligne à bien été créée")
+    assert (line.insertion_type, line.num_line, line.designation) == (
+        "Create",
+        3,
+        "cette ligne à bien été créée",
+    )
     assert custom.designation == "sautée"
     assert trace.errors is True
     assert (errors.line.insertion_type, errors.line.num_line) == ("Errors", 5)
-    assert (errors.attr_name, errors.message, errors.data_received) == ("validation", "flux invalide", "aucune valeur reçue")
+    assert (errors.attr_name, errors.message, errors.data_received) == (
+        "validation",
+        "flux invalide",
+        "aucune valeur reçue",
+    )
 
 
 def test_trace_template_save_compte_les_lignes():
@@ -128,7 +148,12 @@ def test_trace_template_save_compte_les_lignes():
     trace.save()
 
     saved = Trace.objects.get(pk=trace.trace.pk)
-    assert (saved.created_numbers_records, saved.updated_numbers_records, saved.errors_numbers_records, saved.unknown_numbers_records) == (2, 1, 1, 1)
+    assert (
+        saved.created_numbers_records,
+        saved.updated_numbers_records,
+        saved.errors_numbers_records,
+        saved.unknown_numbers_records,
+    ) == (2, 1, 1, 1)
     assert saved.errors is True
     assert saved.final_at is not None
 
@@ -139,7 +164,9 @@ def test_django_trace_formate_les_erreurs_du_formulaire():
 
     formatted = DjangoTrace(PARAMS).get_formatted_error(form)
 
-    assert formatted["col_int"] == [{"message": "Ce champ est obligatoire.", "data_received": "aucune valeur reçue"}]
+    assert formatted["col_int"] == [
+        {"message": "Ce champ est obligatoire.", "data_received": "aucune valeur reçue"}
+    ]
     assert formatted["col_texte"][0]["data_received"] == "x" * 20
     assert "12 caractères" in formatted["col_texte"][0]["message"]
 
@@ -150,7 +177,9 @@ def test_drf_trace_formate_les_erreurs_du_serialiseur():
 
     formatted = DrfTrace(PARAMS).get_formatted_error(serializer)
 
-    assert formatted["col_int"] == [{"message": "Ce champ est obligatoire.", "data_received": "aucune valeur reçue"}]
+    assert formatted["col_int"] == [
+        {"message": "Ce champ est obligatoire.", "data_received": "aucune valeur reçue"}
+    ]
     assert formatted["col_texte"][0]["data_received"] == "x" * 20
 
     trace = DrfTrace(PARAMS)
@@ -161,7 +190,10 @@ def test_drf_trace_formate_les_erreurs_du_serialiseur():
 
 
 def test_pydantic_trace_formate_les_erreurs():
-    errors = [{"loc": ("col_int",), "msg": "value is not a valid integer"}, {"loc": ("col_texte",), "msg": "field required"}]
+    errors = [
+        {"loc": ("col_int",), "msg": "value is not a valid integer"},
+        {"loc": ("col_texte",), "msg": "field required"},
+    ]
 
     formatted = PydanticTrace(PARAMS).get_formatted_error((errors, {"col_int": "abc"}))
 
@@ -181,7 +213,9 @@ def test_get_columns():
 
 def test_validation_template_methodes_abstraites():
     """Lignes et sauvegarde déléguées à la trace, validation unitaire abstraite"""
-    template = ValidationTemplate((EssaisSchema, PydanticTrace), iter([{"col_texte": "a"}]), _params())
+    template = ValidationTemplate(
+        (EssaisSchema, PydanticTrace), iter([{"col_texte": "a"}]), _params()
+    )
     template._add_line("Passed", 2, "sautée")
     template._save_errors_trace()
 
@@ -208,7 +242,9 @@ def test_validate_flux_qui_n_est_pas_un_dictionnaire():
 
 def test_validate_erreur_inattendue_dans_la_validation(caplog):
     """Une exception du validateur est tracée en ligne 0 puis remontée en ValidationFormError"""
-    validation = PydanticValidation((CrashingSchema, PydanticTrace), iter([{"col_texte": "a"}]), _params())
+    validation = PydanticValidation(
+        (CrashingSchema, PydanticTrace), iter([{"col_texte": "a"}]), _params()
+    )
 
     with pytest.raises(ValidationFormError):
         validation.validate()
@@ -219,7 +255,12 @@ def test_validate_erreur_inattendue_dans_la_validation(caplog):
 
 def test_validate_pydantic_lignes_en_erreur_et_limite():
     """Les lignes valides sont écrites, les lignes en erreur tracées, arrêt au maximum d'erreurs"""
-    rows = [{"col_texte": "ok", "col_int": 1}, {"col_texte": "ko", "col_int": "x"}, {"col_texte": "ko2", "col_int": "y"}, {"col_texte": "jamais", "col_int": "z"}]
+    rows = [
+        {"col_texte": "ok", "col_int": 1},
+        {"col_texte": "ko", "col_int": "x"},
+        {"col_texte": "ko2", "col_int": "y"},
+        {"col_texte": "jamais", "col_int": "z"},
+    ]
     params = _params(nb_errors_max=2)
     validation = PydanticValidation((EssaisSchema, PydanticTrace), iter(rows), params)
 
@@ -234,7 +275,9 @@ def test_validate_pydantic_lignes_en_erreur_et_limite():
 
 def test_validate_pydantic_sans_limite_d_erreurs():
     params = _params(nb_errors_max=0)
-    validation = PydanticValidation((EssaisSchema, PydanticTrace), iter([{"col_texte": "ko", "col_int": "x"}] * 3), params)
+    validation = PydanticValidation(
+        (EssaisSchema, PydanticTrace), iter([{"col_texte": "ko", "col_int": "x"}] * 3), params
+    )
 
     assert validation.validate() == {1, 2, 3}
 
@@ -242,17 +285,31 @@ def test_validate_pydantic_sans_limite_d_erreurs():
 def test_pydantic_is_valid_avec_la_validation_error_du_module():
     """Une ValidationError du module (sans méthode errors) est formatée sur le champ global"""
     buffer = io.StringIO()
-    validation = PydanticValidation((RefusingSchema, PydanticTrace), iter([{"col_texte": "a"}]), _params())
+    validation = PydanticValidation(
+        (RefusingSchema, PydanticTrace), iter([{"col_texte": "a"}]), _params()
+    )
 
-    assert validation.is_valid(RefusingSchema, {"col_texte": "a"}, None) == ([{"loc": ("__all__",), "msg": "a refusé"}], {"col_texte": "a"})
-    assert validation.is_valid(EssaisSchema, {"col_texte": "a", "col_int": 2}, __import__("csv").writer(buffer)) is False
+    assert validation.is_valid(RefusingSchema, {"col_texte": "a"}, None) == (
+        [{"loc": ("__all__",), "msg": "a refusé"}],
+        {"col_texte": "a"},
+    )
+    assert (
+        validation.is_valid(
+            EssaisSchema, {"col_texte": "a", "col_int": 2}, __import__("csv").writer(buffer)
+        )
+        is False
+    )
     assert buffer.getvalue().strip() == "a,2"
 
 
 def test_django_validation():
     """Formulaire Django : ligne valide écrite (champs nettoyés), erreurs renvoyées sinon"""
     params = _params()
-    validation = DjangoValidation((EssaisForm, DjangoTrace), iter([{"col_texte": "ok", "col_int": "7"}, {"col_texte": "", "col_int": "x"}]), params)
+    validation = DjangoValidation(
+        (EssaisForm, DjangoTrace),
+        iter([{"col_texte": "ok", "col_int": "7"}, {"col_texte": "", "col_int": "x"}]),
+        params,
+    )
 
     assert validation.validate() == {2}
     assert params["file_io"].getvalue() == '"ok";"7"\n'
@@ -262,7 +319,11 @@ def test_django_validation():
 def test_drf_validation():
     """Sérialiseur DRF : ligne valide écrite depuis les données, erreurs renvoyées sinon"""
     params = _params()
-    validation = DrfValidation((EssaisSerializer, DrfTrace), iter([{"col_texte": "ok", "col_int": 7}, {"col_texte": "x" * 20, "col_int": 1}]), params)
+    validation = DrfValidation(
+        (EssaisSerializer, DrfTrace),
+        iter([{"col_texte": "ok", "col_int": 7}, {"col_texte": "x" * 20, "col_int": 1}]),
+        params,
+    )
 
     assert validation.validate() == {2}
     assert params["file_io"].getvalue() == '"ok";"7"\n'
@@ -277,7 +338,9 @@ def test_validation_parametres_par_defaut_et_dispatch():
     params = _params()
     del params["application_name"]
     del params["flow_name"]
-    pydantic_validation = Validation(iter([{"col_texte": "a", "col_int": 1}]), EssaisZ, EssaisSchema, params)
+    pydantic_validation = Validation(
+        iter([{"col_texte": "a", "col_int": 1}]), EssaisZ, EssaisSchema, params
+    )
 
     assert params["application_name"] == "unkown"
     assert params["flow_name"] == "unkown"
@@ -285,17 +348,31 @@ def test_validation_parametres_par_defaut_et_dispatch():
     assert params["insert_method"] == "insert"
     assert isinstance(pydantic_validation.to_validate, PydanticValidation)
     assert isinstance(pydantic_validation.to_validate.trace_instance, PydanticTrace)
-    assert isinstance(Validation(iter([{}]), EssaisZ, EssaisForm, _params()).to_validate, DjangoValidation)
-    assert isinstance(Validation(iter([{}]), EssaisZ, EssaisSerializer, _params()).to_validate, DrfValidation)
+    assert isinstance(
+        Validation(iter([{}]), EssaisZ, EssaisForm, _params()).to_validate, DjangoValidation
+    )
+    assert isinstance(
+        Validation(iter([{}]), EssaisZ, EssaisSerializer, _params()).to_validate, DrfValidation
+    )
 
 
 def test_validation_avec_le_couple_de_classes_explicite():
     """Paramètres déjà renseignés conservés, couple de classes explicite respecté"""
-    explicit = Validation(iter([{}]), EssaisZ, None, _params(validation=(DjangoValidation, DjangoTrace), nb_errors_max=5, insert_method="upsert"))
+    explicit = Validation(
+        iter([{}]),
+        EssaisZ,
+        None,
+        _params(
+            validation=(DjangoValidation, DjangoTrace), nb_errors_max=5, insert_method="upsert"
+        ),
+    )
 
     assert isinstance(explicit.to_validate, DjangoValidation)
     assert explicit.to_validate.validator_class is None
-    assert (explicit.params_dict["nb_errors_max"], explicit.params_dict["insert_method"]) == (5, "upsert")
+    assert (explicit.params_dict["nb_errors_max"], explicit.params_dict["insert_method"]) == (
+        5,
+        "upsert",
+    )
 
 
 @pytest.mark.parametrize(
@@ -327,7 +404,12 @@ def test_validation_type_de_validateur_inconnu():
 def test_validation_validate_de_bout_en_bout():
     params = _params()
     params["file_io"].write("ancien contenu")
-    validation = Validation(iter([{"col_texte": "ok", "col_int": 1}, {"col_texte": "ko", "col_int": "x"}]), EssaisZ, EssaisSchema, params)
+    validation = Validation(
+        iter([{"col_texte": "ok", "col_int": 1}, {"col_texte": "ko", "col_int": "x"}]),
+        EssaisZ,
+        EssaisSchema,
+        params,
+    )
 
     assert validation.validate() == {2}
     assert params["file_io"].getvalue().startswith('"ok";"1"\n')

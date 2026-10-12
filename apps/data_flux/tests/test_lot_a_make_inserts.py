@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de make_insert (apps/data_flux/make_inserts.py) : lecture, validation djantic et upsert
+"""FR : Tests de make_insert (apps/data_flux/make_inserts.py) : lecture, validation djantic et upsert
+
+
      réels sur le modèle d'essai EssaisZ
 EN : Tests for make_insert
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import csv
 import logging
 import uuid
@@ -68,7 +70,14 @@ def test_make_insert_creation_puis_mise_a_jour(tmp_path, params):
     """Deux lignes créées, puis une mise à jour sur la clé col_int"""
     trace = params["trace"]
 
-    to_print = make_insert(EssaisZ, "essais", _file(tmp_path, [["a", "x", "", "1"], ["b", "y", "z", "2"]]), trace, EssaisZSchema, params)
+    to_print = make_insert(
+        EssaisZ,
+        "essais",
+        _file(tmp_path, [["a", "x", "", "1"], ["b", "y", "z", "2"]]),
+        trace,
+        EssaisZSchema,
+        params,
+    )
 
     assert to_print == "Import : essais\n\nPas d'erreurs\n"
     assert dict(EssaisZ.objects.values_list("col_int", "col_texte")) == {1: "a", 2: "b"}
@@ -76,7 +85,15 @@ def test_make_insert_creation_puis_mise_a_jour(tmp_path, params):
     assert trace.errors is False
     assert trace.time_to_process is not None
 
-    make_insert(EssaisZ, "essais", _file(tmp_path, [["a2", "x", "", "1"]]), trace, EssaisZSchema, params, extend_model=EssaisZImport)
+    make_insert(
+        EssaisZ,
+        "essais",
+        _file(tmp_path, [["a2", "x", "", "1"]]),
+        trace,
+        EssaisZSchema,
+        params,
+        extend_model=EssaisZImport,
+    )
 
     assert dict(EssaisZ.objects.values_list("col_int", "col_texte")) == {1: "a2", 2: "b"}
 
@@ -85,7 +102,14 @@ def test_make_insert_lignes_en_erreur(tmp_path, params):
     """Une ligne invalide est tracée et comptée, les autres sont insérées"""
     trace = params["trace"]
 
-    to_print = make_insert(EssaisZ, "essais", _file(tmp_path, [["a", "", "", "pas-un-entier"], ["b", "", "", "2"]]), trace, EssaisZSchema, params)
+    to_print = make_insert(
+        EssaisZ,
+        "essais",
+        _file(tmp_path, [["a", "", "", "pas-un-entier"], ["b", "", "", "2"]]),
+        trace,
+        EssaisZSchema,
+        params,
+    )
 
     trace.refresh_from_db()
     assert "Lignes en erreur" in to_print
@@ -99,7 +123,15 @@ def test_make_insert_do_nothing_et_champs_ajoutes(tmp_path, params):
     EssaisZ.objects.create(col_texte="deja", col_int=1)
     params["add_fields_dict"] = None
 
-    make_insert(EssaisZ, "essais", _file(tmp_path, [["nouveau", "", "", "1"], ["b", "", "", "2"]]), params["trace"], EssaisZSchema, params, insert_mode="do_nothing")
+    make_insert(
+        EssaisZ,
+        "essais",
+        _file(tmp_path, [["nouveau", "", "", "1"], ["b", "", "", "2"]]),
+        params["trace"],
+        EssaisZSchema,
+        params,
+        insert_mode="do_nothing",
+    )
 
     assert dict(EssaisZ.objects.values_list("col_int", "col_texte")) == {1: "deja", 2: "b"}
 
@@ -130,7 +162,15 @@ def test_make_insert_erreurs_du_chargeur(tmp_path, params, caplog, rows, columns
             return {"col_int"}
 
     with caplog.at_level(logging.ERROR, logger="imports"):
-        to_print = make_insert(EssaisZ, "essais", _file(tmp_path, rows), trace, EssaisZSchema, params, extend_model=_Import)
+        to_print = make_insert(
+            EssaisZ,
+            "essais",
+            _file(tmp_path, rows),
+            trace,
+            EssaisZSchema,
+            params,
+            extend_model=_Import,
+        )
 
     trace.refresh_from_db()
     assert message in caplog.text
@@ -142,8 +182,12 @@ def test_make_insert_erreurs_du_chargeur(tmp_path, params, caplog, rows, columns
 
 def test_make_insert_fichier_absent_et_excel_invalide(tmp_path, params, caplog):
     with caplog.at_level(logging.ERROR, logger="imports"):
-        make_insert(EssaisZ, "essais", tmp_path / "absent.csv", params["trace"], EssaisZSchema, params)
-        make_insert(EssaisZ, "essais", tmp_path / "absent.xlsx", params["trace"], EssaisZSchema, params)
+        make_insert(
+            EssaisZ, "essais", tmp_path / "absent.csv", params["trace"], EssaisZSchema, params
+        )
+        make_insert(
+            EssaisZ, "essais", tmp_path / "absent.xlsx", params["trace"], EssaisZSchema, params
+        )
 
     assert "FileToCsvError" in caplog.text
     assert "ExcelToCsvError" in caplog.text
@@ -156,8 +200,18 @@ def test_make_insert_erreurs_d_insertion(tmp_path, params, caplog, monkeypatch, 
     def _boom(self, **_kwargs):
         raise exception("insertion cassée")
 
-    with patched_attrs(monkeypatch, make_inserts.PostgresDjangoUpsert, insertion=_boom), caplog.at_level(logging.ERROR, logger="imports"):
-        make_insert(EssaisZ, "essais", _file(tmp_path, [["a", "", "", "1"]]), params["trace"], EssaisZSchema, params)
+    with (
+        patched_attrs(monkeypatch, make_inserts.PostgresDjangoUpsert, insertion=_boom),
+        caplog.at_level(logging.ERROR, logger="imports"),
+    ):
+        make_insert(
+            EssaisZ,
+            "essais",
+            _file(tmp_path, [["a", "", "", "1"]]),
+            params["trace"],
+            EssaisZSchema,
+            params,
+        )
 
     assert exception.__name__ in caplog.text or "Exception Générale" in caplog.text
     assert params["trace"].errors is True

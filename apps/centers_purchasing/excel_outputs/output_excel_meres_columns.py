@@ -1,4 +1,4 @@
-"""Module pour la définition des colonnes excel pour le module Centrales Mères
+"""Module pour la définition des colonnes excel pour le module Centrales Mères.
 
 Commentaire:
 
@@ -14,21 +14,16 @@ from apps.core.excel_outputs.excel_writer import (
     f_ligne,
 )
 
-
 columns_list_meres = [
     {
         "entete": "Code",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 14,
     },
@@ -36,13 +31,10 @@ columns_list_meres = [
         "entete": "Nom",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 35,
     },
@@ -50,15 +42,11 @@ columns_list_meres = [
         "entete": "Coef.\ncentrale\nmère",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -66,13 +54,10 @@ columns_list_meres = [
         "entete": "Commentaire",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 107,
     },

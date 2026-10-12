@@ -1,5 +1,4 @@
-"""
-Tests du module d'insertion des fichiers fournisseurs (apps/edi/bin/make_insertion_suppliers_invoices.py)
+"""Tests du module d'insertion des fichiers fournisseurs (apps/edi/bin/make_insertion_suppliers_invoices.py)
 
 - Cache fournisseur : repli dict, faux redis (bytes), redis injoignable.
 - make_insert_edi_files : chaîne data_flux réelle (marqueur integration) et chaque branche except.
@@ -7,6 +6,7 @@ Tests du module d'insertion des fichiers fournisseurs (apps/edi/bin/make_inserti
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import datetime
 import importlib
 import io
@@ -29,7 +29,7 @@ class FakeRedis:
     """Faux redis : stocke et renvoie des bytes comme le vrai client"""
 
     def __init__(self, fail: bool = False):
-        self.data = {}
+        self.data: dict = {}
         self.fail = fail
 
     def get(self, key):
@@ -80,7 +80,7 @@ def redis_cache(monkeypatch, cleared_caches):  # pylint: disable=W0613
 # CACHE FOURNISSEUR ================================================================================
 
 
-@pytest.mark.usefixtures('cleared_caches')
+@pytest.mark.usefixtures("cleared_caches")
 def test_get_suppliers(make_supplier_definition):
     make_supplier_definition("Widex", supplier="WIDEX", supplier_ident="Widex")
 
@@ -113,13 +113,13 @@ def test_get_cached_decode_les_bytes_et_ignore_le_vide(redis_cache):
     assert module.get_cached("Absent") is None
 
 
-@pytest.mark.usefixtures('cleared_caches')
+@pytest.mark.usefixtures("cleared_caches")
 def test_get_cached_redis_injoignable(monkeypatch):
     with patched_attrs(monkeypatch, module, cache=FakeRedis(fail=True)):
         assert module.get_cached("Widex_supplier") is None
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 def test_get_supplier_depuis_le_cache_sans_base(redis_cache):
     """Valeur en cache : aucune lecture de SupplierDefinition"""
     redis_cache.set("Widex_supplier", "WIDEX CACHE")
@@ -137,7 +137,7 @@ def test_get_supplier_depuis_la_base_puis_cache(make_supplier_definition, dict_c
     assert dict_cache["Widex_supplier"] == "WIDEX"
 
 
-@pytest.mark.usefixtures('cleared_caches')
+@pytest.mark.usefixtures("cleared_caches")
 def test_get_supplier_redis_injoignable_retombe_sur_la_base(make_supplier_definition, monkeypatch):
     make_supplier_definition("Widex", supplier="WIDEX", supplier_ident="Widex")
 
@@ -203,7 +203,9 @@ WIDEX_ROW = {
 def test_make_insert_edi_files_insertion_reelle(widex_context, supplier_csv):
     """Lecture csv, validation djantic et insertion réelles d'un fichier Widex"""
     trace, params = widex_context
-    file = supplier_csv("Widex", [WIDEX_ROW, {**WIDEX_ROW, "reference_article": "ART-WX2"}], headers=False)
+    file = supplier_csv(
+        "Widex", [WIDEX_ROW, {**WIDEX_ROW, "reference_article": "ART-WX2"}], headers=False
+    )
 
     to_print = module.make_insert_edi_files(
         EdiImport, "Widex", file, trace, forms_invoices.get_schema("WidexSchema"), params
@@ -214,12 +216,14 @@ def test_make_insert_edi_files_insertion_reelle(widex_context, supplier_csv):
     assert "Pas d'erreurs" in to_print
     assert trace.errors is False
     assert trace.time_to_process is not None
-    rows = EdiImport.objects.filter(uuid_identification=trace.uuid_identification).order_by("reference_article")
+    rows = EdiImport.objects.filter(uuid_identification=trace.uuid_identification).order_by(
+        "reference_article"
+    )
     assert [row.reference_article for row in rows] == ["ART-WX", "ART-WX2"]
     first = rows.first()
     assert first.invoice_date == datetime.date(2026, 1, 15)
-    assert first.qty == Decimal("2")
-    assert first.net_amount == Decimal("200")
+    assert first.qty == Decimal(2)
+    assert first.net_amount == Decimal(200)
     assert (first.supplier, first.supplier_ident, first.flow_name) == ("WIDEX", "Widex", "Widex")
 
 
@@ -240,7 +244,7 @@ def test_make_insert_edi_files_lignes_en_erreur(widex_context, supplier_csv):
     assert not EdiImport.objects.filter(uuid_identification=trace.uuid_identification).exists()
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 def test_make_insert_edi_files_sans_colonnes(make_trace, tmp_path):
     """Flux sans ColumnDefinition : TypeError attrapée en exception générale"""
     trace = make_trace(flow_name="Inconnu", comment="")
@@ -276,7 +280,9 @@ def test_make_insert_edi_files_sans_colonnes(make_trace, tmp_path):
     ],
     ids=lambda exc: type(exc).__name__,
 )
-def test_make_insert_edi_files_chaque_exception(exception, widex_context, monkeypatch, tmp_path, caplog):
+def test_make_insert_edi_files_chaque_exception(
+    exception, widex_context, monkeypatch, tmp_path, caplog
+):
     """Chaque exception du loader/validation/upsert est journalisée et met la trace en erreur"""
     trace, params = widex_context
 
@@ -286,7 +292,12 @@ def test_make_insert_edi_files_chaque_exception(exception, widex_context, monkey
 
     with patched_attrs(monkeypatch, module, FileLoader=_Loader):
         to_print = module.make_insert_edi_files(
-            EdiImport, "Widex", tmp_path / "f.csv", trace, forms_invoices.get_schema("WidexSchema"), params
+            EdiImport,
+            "Widex",
+            tmp_path / "f.csv",
+            trace,
+            forms_invoices.get_schema("WidexSchema"),
+            params,
         )
 
     trace.refresh_from_db()
@@ -307,7 +318,12 @@ def test_make_insert_edi_files_flux_edi_utilise_opto33(widex_context, monkeypatc
 
     with patched_attrs(monkeypatch, module, Opto33Loader=_Loader):
         module.make_insert_edi_files(
-            EdiImport, "Edi", tmp_path / "f.edi", trace, forms_invoices.get_schema("EdiSchema"), params
+            EdiImport,
+            "Edi",
+            tmp_path / "f.edi",
+            trace,
+            forms_invoices.get_schema("EdiSchema"),
+            params,
         )
 
     assert seen["source"] == tmp_path / "f.edi"
@@ -326,7 +342,12 @@ def test_make_insert_edi_files_trace_deja_en_erreur(widex_context, monkeypatch, 
 
     with patched_attrs(monkeypatch, module, FileLoader=_Loader):
         module.make_insert_edi_files(
-            EdiImport, "Widex", tmp_path / "f.csv", trace, forms_invoices.get_schema("WidexSchema"), params
+            EdiImport,
+            "Widex",
+            tmp_path / "f.csv",
+            trace,
+            forms_invoices.get_schema("WidexSchema"),
+            params,
         )
 
     trace.refresh_from_db()
@@ -336,6 +357,7 @@ def test_make_insert_edi_files_trace_deja_en_erreur(widex_context, monkeypatch, 
 def test_make_insert_edi_files_fermeture_io_deja_fermee(widex_context, monkeypatch, tmp_path):
     """Le buffer de validation fermé par un tiers ne lève pas d'erreur en finally"""
     trace, params = widex_context
+
     class _ClosedIO:
         """Buffer dont l'état n'est plus interrogeable (AttributeError sur closed)"""
 
@@ -347,11 +369,17 @@ def test_make_insert_edi_files_fermeture_io_deja_fermee(widex_context, monkeypat
         def __init__(self, **_kwargs):
             raise flux_exceptions.PathFileError("fichier")
 
-    with patched_attrs(monkeypatch, module, FileLoader=_Loader), patched_attrs(
-        monkeypatch, module, io=types.SimpleNamespace(StringIO=_ClosedIO)
+    with (
+        patched_attrs(monkeypatch, module, FileLoader=_Loader),
+        patched_attrs(monkeypatch, module, io=types.SimpleNamespace(StringIO=_ClosedIO)),
     ):
         to_print = module.make_insert_edi_files(
-            EdiImport, "Widex", tmp_path / "f.csv", trace, forms_invoices.get_schema("WidexSchema"), params
+            EdiImport,
+            "Widex",
+            tmp_path / "f.csv",
+            trace,
+            forms_invoices.get_schema("WidexSchema"),
+            params,
         )
 
     assert to_print == "Import : Widex\n"
@@ -370,9 +398,18 @@ def test_make_insert_edi_files_buffer_deja_ferme(widex_context, monkeypatch, tmp
         def __init__(self, **_kwargs):
             raise flux_exceptions.PathFileError("fichier")
 
-    with patched_attrs(monkeypatch, module, FileLoader=_Loader), patched_attrs(
-        monkeypatch, module, io=types.SimpleNamespace(StringIO=_closed_io)
+    with (
+        patched_attrs(monkeypatch, module, FileLoader=_Loader),
+        patched_attrs(monkeypatch, module, io=types.SimpleNamespace(StringIO=_closed_io)),
     ):
-        assert module.make_insert_edi_files(
-            EdiImport, "Widex", tmp_path / "f.csv", trace, forms_invoices.get_schema("WidexSchema"), params
-        ) == "Import : Widex\n"
+        assert (
+            module.make_insert_edi_files(
+                EdiImport,
+                "Widex",
+                tmp_path / "f.csv",
+                trace,
+                forms_invoices.get_schema("WidexSchema"),
+                params,
+            )
+            == "Import : Widex\n"
+        )

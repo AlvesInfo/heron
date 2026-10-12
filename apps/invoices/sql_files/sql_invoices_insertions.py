@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql, pour l'insertion en base des invoices
-EN : Module of sql queries, for the insertion in the base of invoices
+"""FR : Module des requêtes sql, pour l'insertion en base des invoices.
+
+EN : Module of sql queries, for the insertion in the base of invoices.
 
 Commentaire:
 
@@ -10,12 +10,13 @@ created by: Paulo ALVES
 modified at: 2023-03-11
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 SQL_FIX_ARTICLES = sql.SQL(
     """
-    update "edi_ediimport" edi 
-    set 
+    update "edi_ediimport" edi
+    set
         "axe_bu" = maj."axe_bu",
         "axe_prj" = maj."axe_prj",
         "axe_pro" = maj."axe_pro",
@@ -27,29 +28,29 @@ SQL_FIX_ARTICLES = sql.SQL(
         "item_weight" = maj."item_weight",
         "customs_code" = maj."customs_code"
     from (
-        select 
-            ee."id", 
-            aa."axe_bu", 
-            aa."axe_prj", 
-            aa."axe_pro", 
-            aa."axe_pys", 
+        select
+            ee."id",
+            aa."axe_bu",
+            aa."axe_prj",
+            aa."axe_pro",
+            aa."axe_pys",
             aa."axe_rfa",
             aa."uuid_big_category",
             aa."uuid_sub_big_category",
             aa."unit_weight",
             aa."item_weight",
             aa."customs_code"
-        from "edi_ediimport" ee 
-        join "articles_article" aa 
-        on ee."reference_article" = aa."reference" 
+        from "edi_ediimport" ee
+        join "articles_article" aa
+        on ee."reference_article" = aa."reference"
         and ee."third_party_num" = aa."third_party_num"
         where (
             ee."uuid_big_category" is null
-            or 
-            ee."axe_pro" isnull 
+            or
+            ee."axe_pro" isnull
         )
     ) maj
-    where edi."id" = maj."id" 
+    where edi."id" = maj."id"
     """
 )
 
@@ -58,7 +59,7 @@ SQL_FIX_IMPORT_UUID = sql.SQL(
     # insertion d'un uuid s'il est manquant
     """
     update "edi_ediimport" edi
-    set "import_uuid_identification" = gen_random_uuid() 
+    set "import_uuid_identification" = gen_random_uuid()
     where "import_uuid_identification" isnull
       and "valid" = true
     """
@@ -113,28 +114,28 @@ SQL_COMMON_DETAILS = sql.SQL(
         "sale_invoice",
         "invoice_year",
         "uuid_control",
-        "article_exists", 
-        "axe_pro_supplier", 
-        "axe_pro_supplier_exists", 
-        "code_center", 
-        "code_fournisseur", 
-        "code_maison", 
+        "article_exists",
+        "axe_pro_supplier",
+        "axe_pro_supplier_exists",
+        "code_center",
+        "code_fournisseur",
+        "code_maison",
         "maison",
-        "code_signboard", 
-        "invoice_type", 
-        "maison_exists", 
-        "siret_payeur", 
-        "supplier_exists", 
-        "supplier_ident", 
-        "supplier_name", 
-        "uuid_big_category", 
-        "uuid_identification", 
+        "code_signboard",
+        "invoice_type",
+        "maison_exists",
+        "siret_payeur",
+        "supplier_exists",
+        "supplier_ident",
+        "supplier_name",
+        "uuid_big_category",
+        "uuid_identification",
         "uuid_sub_big_category",
         "uuid_validation",
         "billing_date"
     )
     (
-        select 
+        select
             now() as "created_at",
             now() as "modified_at",
             "import_uuid_identification",
@@ -144,10 +145,10 @@ SQL_COMMON_DETAILS = sql.SQL(
             coalesce("command_reference", '') as "command_reference",
             coalesce("ee"."comment", '') as "comment",
             coalesce("ee"."customs_code", '') as "customs_code",
-            case 
-                when "delivery_number" isnull 
-                then null 
-                else "delivery_date" 
+            case
+                when "delivery_number" isnull
+                then null
+                else "delivery_date"
             end as "delivery_date",
             coalesce("delivery_number", '') as "delivery_number",
             coalesce("ee"."ean_code", '') as "ean_code",
@@ -186,47 +187,47 @@ SQL_COMMON_DETAILS = sql.SQL(
             "sale_invoice",
             "ee"."invoice_year",
             "ee"."uuid_control",
-            "ee"."article_exists", 
-            "ee"."axe_pro_supplier", 
-            "ee"."axe_pro_supplier_exists", 
-            "ee"."code_center", 
-            "ee"."code_fournisseur", 
-            "ee"."code_maison", 
+            "ee"."article_exists",
+            "ee"."axe_pro_supplier",
+            "ee"."axe_pro_supplier_exists",
+            "ee"."code_center",
+            "ee"."code_fournisseur",
+            "ee"."code_maison",
             "ee"."maison",
-            "ee"."code_signboard", 
-            "ee"."invoice_type", 
-            "ee"."maison_exists", 
-            "ee"."siret_payeur", 
-            "ee"."supplier_exists", 
-            "ee"."supplier_ident", 
-            "ee"."supplier_name", 
-            "ee"."uuid_big_category", 
-            "ee"."uuid_identification", 
+            "ee"."code_signboard",
+            "ee"."invoice_type",
+            "ee"."maison_exists",
+            "ee"."siret_payeur",
+            "ee"."supplier_exists",
+            "ee"."supplier_ident",
+            "ee"."supplier_name",
+            "ee"."uuid_big_category",
+            "ee"."uuid_identification",
             "ee"."uuid_sub_big_category",
-            -- on ajoute a common_details l'uuid et la billig_date 
+            -- on ajoute a common_details l'uuid et la billig_date
             -- de la table edi_validation en cours
             (
-                select 
-                "uuid_identification" 
-                from "edi_edivalidation" 
-                where "final"=false 
+                select
+                "uuid_identification"
+                from "edi_edivalidation"
+                where "final"=false
                 limit 1
             ) as "uuid_validation",
-            (                
-                select 
-                "billing_date" 
-                from "edi_edivalidation" 
-                where "final"=false 
-                limit 1    
+            (
+                select
+                "billing_date"
+                from "edi_edivalidation"
+                where "final"=false
+                limit 1
             ) as "billing_date"
          from "edi_ediimport" "ee"
          left join "articles_article" "aa"
-                on "aa"."reference" = "ee"."reference_article" 
-               and "aa"."third_party_num" = "ee"."third_party_num" 
+                on "aa"."reference" = "ee"."reference_article"
+               and "aa"."third_party_num" = "ee"."third_party_num"
          left join "parameters_unitchoices" "pu"
            on "ee"."unit_weight" = "pu"."num"
-         left join "centers_clients_maison" "ccm" 
-           on "ee"."cct_uuid_identification" = "ccm"."uuid_identification" 
+         left join "centers_clients_maison" "ccm"
+           on "ee"."cct_uuid_identification" = "ccm"."uuid_identification"
          left join "parameters_nature" "pn"
                 on "ee"."personnel_type" = "pn"."uuid_identification"
              where "ee"."valid" = true
@@ -263,32 +264,32 @@ SQL_PURCHASES_INVOICES = sql.SQL(
             "icc"."fcy",
             "icc"."code_plan_sage",
             "apa"."auuid"
-        from "edi_ediimport" "eee" 
-        left join "centers_clients_maison" "ccm" 
-        on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
+        from "edi_ediimport" "eee"
+        left join "centers_clients_maison" "ccm"
+        on "eee"."cct_uuid_identification" = "ccm"."uuid_identification"
         left join (
-            select 
-                "uuid_identification", 
-                "code_center", 
+            select
+                "uuid_identification",
+                "code_center",
                 "vat_regime_center",
                 "cpy",
                 "fcy",
                 "code_plan_sage"
             from "invoices_centersinvoices" "ici"
             where exists (
-                select 1 
-                from "invoices_centersinvoices" "cii" 
-                group by "code_center" 
+                select 1
+                from "invoices_centersinvoices" "cii"
+                group by "code_center"
                 having max("cii"."created_at") = "ici"."created_at"
                 and "cii"."code_center" = "ici"."code_center"
             )
-        ) "icc" 
+        ) "icc"
         on "icc"."code_center" = "ccm"."center_purchase"
         left join (
-            select 
-                "bs"."third_party_num", 
-                "aa"."mode", 
-                "aa"."code" as "type_reglement", 
+            select
+                "bs"."third_party_num",
+                "aa"."mode",
+                "aa"."code" as "type_reglement",
                 "bs"."vat_sheme_supplier" as "vat_regime",
                 "aa"."auuid"
             from "book_society" "bs"
@@ -297,21 +298,21 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         ) "apa"
         on "apa"."third_party_num" = "eee"."third_party_num"
         left join (
-            select 
-                "uuid_identification", 
-                "code_signboard" 
+            select
+                "uuid_identification",
+                "code_signboard"
             from "invoices_signboardsinvoices" "sci"
             where exists (
-                select 1 
-                from "invoices_signboardsinvoices" "sii" 
-                group by "code_signboard" 
+                select 1
+                from "invoices_signboardsinvoices" "sii"
+                group by "code_signboard"
                 having max("sii"."created_at") = "sci"."created_at"
             )
-        ) "isb" 
-        on "isb"."code_signboard" = "ccm"."sign_board" 
+        ) "isb"
+        on "isb"."code_signboard" = "ccm"."sign_board"
         left join "centers_purchasing_typefacture" "cpt"
         on "cpt"."invoice_type" = "eee"."invoice_type"
-        and "cpt"."child_center" = "eee"."code_center"  
+        and "cpt"."child_center" = "eee"."code_center"
         where "eee"."purchase_invoice" = true
           and "eee"."valid" = true
     )
@@ -348,7 +349,7 @@ SQL_PURCHASES_INVOICES = sql.SQL(
         date_trunc('month', now())::date as "integration_month",
         "code_plan_sage",
         "auuid"
-    from "purchases" 
+    from "purchases"
     """
 )
 
@@ -393,8 +394,8 @@ SQL_PURCHASES_DETAILS = sql.SQL(
         "flow_name",
         "bi_id"
     )
-    (    
-        select 
+    (
+        select
             now() as "created_at",
             now() as "modified_at",
             false as "export",
@@ -430,10 +431,10 @@ SQL_PURCHASES_DETAILS = sql.SQL(
             "ac"."purchase_account" as "account",
             "flow_name",
             "bi_id"
-         from "edi_ediimport" "ee" 
-         join "articles_article" "aa" 
-           on "ee"."third_party_num" = "aa"."third_party_num" 
-          and "ee"."reference_article" = "aa"."reference" 
+         from "edi_ediimport" "ee"
+         join "articles_article" "aa"
+           on "ee"."third_party_num" = "aa"."third_party_num"
+          and "ee"."reference_article" = "aa"."reference"
          left join "articles_articleaccount" "ac"
            on "aa"."uuid_identification" = "ac"."article"
           and "ee"."code_center" = "ac"."child_center"
@@ -442,20 +443,20 @@ SQL_PURCHASES_DETAILS = sql.SQL(
            on "ii"."third_party_num" = "ee"."third_party_num"
           and "ii"."invoice_number" = "ee"."invoice_number"
           and "ii"."invoice_year" = "ee"."invoice_year"
-         left join "accountancy_sectionsage" "abu" 
+         left join "accountancy_sectionsage" "abu"
            on "abu"."uuid_identification" = "ee"."axe_bu"
-         left join "accountancy_sectionsage" "prj" 
+         left join "accountancy_sectionsage" "prj"
            on "prj"."uuid_identification" = "ee"."axe_prj"
-         left join "accountancy_sectionsage" "pro" 
+         left join "accountancy_sectionsage" "pro"
            on "pro"."uuid_identification" = "ee"."axe_pro"
-         left join "accountancy_sectionsage" "pys" 
+         left join "accountancy_sectionsage" "pys"
            on "pys"."uuid_identification" = "ee"."axe_pys"
-         left join "accountancy_sectionsage" "rfa" 
+         left join "accountancy_sectionsage" "rfa"
            on "rfa"."uuid_identification" = "ee"."axe_rfa"
-         left join "parameters_category" "pc" 
-           on "pc"."uuid_identification" = "ee"."uuid_big_category" 
-         left join "parameters_subcategory" "ps" 
-           on "ps"."uuid_identification" = "ee"."uuid_sub_big_category" 
+         left join "parameters_category" "pc"
+           on "pc"."uuid_identification" = "ee"."uuid_big_category"
+         left join "parameters_subcategory" "ps"
+           on "ps"."uuid_identification" = "ee"."uuid_sub_big_category"
         where "ee"."purchase_invoice" = true
           and "ee"."valid" = true
     )
@@ -466,7 +467,7 @@ SQL_PURCHASES_DETAILS = sql.SQL(
 SQL_PURCHASES_ACCOUNTS = sql.SQL(
     # Mise à jour des comptes X3 comptable
     """
-    
+
     """
 )
 
@@ -481,7 +482,7 @@ SQL_PURCHASE_FOR_EXPORT_X3 = sql.SQL(
         "regime_tva_tiers" = "rrr"."regime_tva_tiers",
         "invoice_type_name" = "rrr"."invoice_type_name"
     from (
-        select 
+        select
             "isi"."id",
             '1' as "type_cours",
             "isi"."invoice_date" as "date_cours",
@@ -489,7 +490,7 @@ SQL_PURCHASE_FOR_EXPORT_X3 = sql.SQL(
             "isi"."invoice_date" as "date_depart_echeance",
             "cpc"."code_plan_sage",
             coalesce("bsi"."vat_sheme_supplier", '') as "regime_tva_tiers",
-            case 
+            case
                 when "cpt"."invoice_type" = '380'
                 then 'Facture'
                 else 'Avoir'
@@ -498,11 +499,11 @@ SQL_PURCHASE_FOR_EXPORT_X3 = sql.SQL(
         left join "centers_purchasing_childcenterpurchase" "cpc"
         on "isi"."code_center" = "cpc"."code"
         join "book_society" "bsi"
-          on "isi"."third_party_num" = "bsi"."third_party_num" 
+          on "isi"."third_party_num" = "bsi"."third_party_num"
         left join "centers_purchasing_typefacture" "cpt"
         on "cpt"."purchase_type_facture" = "isi"."invoice_type"
-        and "cpt"."child_center" = "isi"."code_center" 
-        where not "isi"."final"    
+        and "cpt"."child_center" = "isi"."code_center"
+        where not "isi"."final"
     ) "rrr"
     where "isv"."id" = "rrr"."id"
     and not "final"
@@ -511,29 +512,29 @@ SQL_PURCHASE_FOR_EXPORT_X3 = sql.SQL(
 
 SQL_CONTROL_PURCHASES_INSERTION = sql.SQL(
     """
-    select 
+    select
         is2.invoice_number
-    from invoices_invoice is2 
-    join invoices_invoicedetail is3 
-    on is2.uuid_identification  = is3.uuid_invoice 
-    group by 
-        is2.invoice_number, 
+    from invoices_invoice is2
+    join invoices_invoicedetail is3
+    on is2.uuid_identification  = is3.uuid_invoice
+    group by
+        is2.invoice_number,
         is2.third_party_num,
         is2.invoice_year,
-        is2.invoice_amount_without_tax, 
-        is2.invoice_amount_tax, 
-        is2.invoice_amount_with_tax 
+        is2.invoice_amount_without_tax,
+        is2.invoice_amount_tax,
+        is2.invoice_amount_with_tax
     having     (
-            is2.invoice_amount_without_tax 
-            - 
-            sum(is3.net_amount) 
-            + 
-            is2.invoice_amount_tax 
-            - 
-            sum(is3.vat_amount) 
-            + 
-            is2.invoice_amount_with_tax 
-            - 
+            is2.invoice_amount_without_tax
+            -
+            sum(is3.net_amount)
+            +
+            is2.invoice_amount_tax
+            -
+            sum(is3.vat_amount)
+            +
+            is2.invoice_amount_with_tax
+            -
             sum(is3.amount_with_vat)
     ) != 0
     """
@@ -545,15 +546,15 @@ SQL_PURCHASE_DETAILS_FOR_EXPORT_X3 = sql.SQL(
     update "invoices_invoicedetail" "isv"
     set "collectif" = "rrr"."collectif"
     from (
-        select 
+        select
             "isd"."id",
             coalesce("aac"."call_code", '') as "collectif"
         from "invoices_invoice" "isi"
         join "invoices_invoicedetail" "isd"
           on "isi"."uuid_identification" = "isd"."uuid_invoice"
-        join "accountancy_accountsage" "aac" 
-          on "isi"."code_plan_sage" = "aac"."code_plan_sage" 
-         and "isd"."account" = "aac"."account" 
+        join "accountancy_accountsage" "aac"
+          on "isi"."code_plan_sage" = "aac"."code_plan_sage"
+         and "isd"."account" = "aac"."account"
         where not "isi"."final"
     ) "rrr"
     where "isv"."id" = "rrr"."id"
@@ -567,17 +568,17 @@ SQL_CLEAR_INVOICES_SIGNBOARDS = sql.SQL(
     """
     delete from "invoices_signboardsinvoices" "isign"
     where "isign"."id" in (
-        select 
-            "isi"."id" 
+        select
+            "isi"."id"
         from "invoices_signboardsinvoices" "isi"
         join (
-            select 
+            select
                 max("id") as "id", "code_signboard", "created_at"
             from "invoices_signboardsinvoices" "inv"
             where exists (
                 select 1
                 from (
-                    select 
+                    select
                         "code_signboard", max("created_at") as "created_at"
                     from "invoices_signboardsinvoices"
                     group by "code_signboard"
@@ -587,7 +588,7 @@ SQL_CLEAR_INVOICES_SIGNBOARDS = sql.SQL(
             )
             group by "code_signboard", "created_at"
             having count(*) >1
-        ) "rc" 
+        ) "rc"
         on "rc"."code_signboard" = "isi"."code_signboard"
         and "rc"."created_at" = "isi"."created_at"
         and "rc"."id" != "isi"."id"
@@ -599,19 +600,19 @@ SQL_SALES_INVOICES = sql.SQL(
     # Insertion des entêtes de factures de ventes
     """
     with "ranked_partiesinvoices" AS (
-        SELECT 
+        SELECT
             "uuid_identification",
             "cct",
             "third_party_num",
             "created_at"
         FROM (
-            SELECT 
+            SELECT
                 "uuid_identification",
                 "cct",
                 "third_party_num",
                 "created_at",
                 ROW_NUMBER() OVER (
-                    PARTITION BY "cct", "third_party_num" 
+                    PARTITION BY "cct", "third_party_num"
                     ORDER BY "created_at" desc, "id" desc
                 ) as "rn"
             FROM "invoices_partiesinvoices"
@@ -619,16 +620,16 @@ SQL_SALES_INVOICES = sql.SQL(
         WHERE "rank"."rn" = 1
     ),
     "ranked_centersinvoices" as (
-        SELECT 
-            "uuid_identification", 
-            "code_center", 
+        SELECT
+            "uuid_identification",
+            "code_center",
             "vat_regime_center",
             "cpy",
             "fcy"
         FROM (
-            SELECT 
-                "uuid_identification", 
-                "code_center", 
+            SELECT
+                "uuid_identification",
+                "code_center",
                 "vat_regime_center",
                 "cpy",
                 "fcy",
@@ -641,12 +642,12 @@ SQL_SALES_INVOICES = sql.SQL(
         WHERE "rank"."rn" = 1
     ),
     "ranked_signboardsinvoices" as (
-        SELECT 
-            "uuid_identification", 
-            "code_signboard" 
+        SELECT
+            "uuid_identification",
+            "code_signboard"
         FROM (
-            SELECT 
-                "uuid_identification", 
+            SELECT
+                "uuid_identification",
                 "code_signboard",
                 ROW_NUMBER() OVER (
                     PARTITION BY "code_signboard"
@@ -668,12 +669,12 @@ SQL_SALES_INVOICES = sql.SQL(
             FROM accountancy_vatratsage
             WHERE vat_start_date <= CURRENT_DATE
             GROUP BY vat, vat_regime
-        ) vd ON vtr.vat = vd.vat 
-            AND vtr.vat_start_date = vd.vat_start_date 
+        ) vd ON vtr.vat = vd.vat
+            AND vtr.vat_start_date = vd.vat_start_date
             AND vtr.vat_regime = vd.vat_regime
     ),
     "amounts" as (
-        select 
+        select
             "vt"."id",
             "vt"."ccm_vat" as "vat",
             "vt"."net_amount",
@@ -682,38 +683,38 @@ SQL_SALES_INVOICES = sql.SQL(
                 "vt"."net_amount"::numeric * "vt"."vat_rate"::numeric, 2
             )::numeric as "vat_amount",
             (
-                round("vt"."net_amount"::numeric * "vt"."vat_rate"::numeric, 2)::numeric 
-                + 
+                round("vt"."net_amount"::numeric * "vt"."vat_rate"::numeric, 2)::numeric
+                +
                 "vt"."net_amount"::numeric
             )::numeric as "amount_with_vat"
         from (
             select distinct
-                "eee"."id", 
+                "eee"."id",
                 "eee"."net_amount",
-            CASE 
+            CASE
                 when eee.origin in (4, 5, 6, 7, 8, 9, 10, 12) then eee.vat_rate
                 WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN COALESCE(vr1.vat_rate, 0)
                 WHEN ccm.sage_vat_by_default = '001' THEN eee.vat_rate
                 ELSE COALESCE(avr.vat_rate, 0)
             END as vat_rate,
-            CASE 
+            CASE
                 when eee.origin in (4, 5, 6, 7, 8, 9, 10, 12) then eee.vat
                 WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN '001'
                 WHEN ccm.sage_vat_by_default = '001' THEN eee.vat
                 ELSE ccm.sage_vat_by_default
-            END as ccm_vat      
-            from "edi_ediimport" "eee" 
-            join "centers_clients_maison" "ccm" 
+            END as ccm_vat
+            from "edi_ediimport" "eee"
+            join "centers_clients_maison" "ccm"
             on "eee"."cct_uuid_identification" = "ccm"."uuid_identification"
-            JOIN current_vat_rates avr 
+            JOIN current_vat_rates avr
             ON avr.vat = ccm.sage_vat_by_default
-            LEFT JOIN current_vat_rates vr1 
-            ON vr1.vat = '001' 
+            LEFT JOIN current_vat_rates vr1
+            ON vr1.vat = '001'
             AND vr1.vat_regime = avr.vat_regime
-        ) "vt" 
+        ) "vt"
     ),
     "sales" as (
-        select 
+        select
             "icc"."vat_regime_center" as "vat_regime",
             "amo"."net_amount",
             "amo"."vat_amount",
@@ -721,18 +722,18 @@ SQL_SALES_INVOICES = sql.SQL(
             "pcc"."name" as "big_category",
             "pcc"."code" as "big_category_code",
             "pcc"."slug_name" as "big_category_slug_name",
-            "ccm"."cct", 
+            "ccm"."cct",
             "icc"."uuid_identification" as "centers",
             "parts"."uuid_identification" as "parties",
             "isb"."uuid_identification" as "signboard",
-            "ccm"."third_party_num", 
+            "ccm"."third_party_num",
             "icc"."code_center",
             "isb"."code_signboard",
             "eee"."devise",
             "bs"."payment_condition_client",
             "pcc"."ranking" as "big_category_ranking",
             -- Case when car la formation doit être facturée à la ligne
-            case 
+            case
                 when "eee"."third_party_num" = 'ZFORM'
                 then "eee"."import_uuid_identification"::varchar
                 else ''
@@ -741,30 +742,30 @@ SQL_SALES_INVOICES = sql.SQL(
             "icc"."cpy",
             "ccm"."center_purchase",
             "ccm"."type_x3"
-        from "edi_ediimport" "eee"        
+        from "edi_ediimport" "eee"
         join "amounts" "amo"
         on "amo"."id" = "eee"."id"
-        left join "centers_clients_maison" "ccm" 
-        on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
+        left join "centers_clients_maison" "ccm"
+        on "eee"."cct_uuid_identification" = "ccm"."uuid_identification"
         left join "book_society" "bs"
-        on "bs"."third_party_num" = "ccm"."third_party_num"  
-        
+        on "bs"."third_party_num" = "ccm"."third_party_num"
+
         -- modification pour doublons ---------------------------------------
-        left join ranked_centersinvoices "icc" 
+        left join ranked_centersinvoices "icc"
         on "icc"."code_center" = "ccm"."center_purchase"
-        
-        left join ranked_signboardsinvoices "isb" 
+
+        left join ranked_signboardsinvoices "isb"
         on "isb"."code_signboard" = "ccm"."sign_board"
-        
+
         left join "ranked_partiesinvoices" "parts"
         on "parts"."cct" = "ccm"."cct"
         and "parts"."third_party_num" = "ccm"."third_party_num"
         -- ------------------------------------------------------------------
-    
-        left join "parameters_category" "pcc" 
-        on "pcc"."uuid_identification" = "eee"."uuid_big_category" 
+
+        left join "parameters_category" "pcc"
+        on "pcc"."uuid_identification" = "eee"."uuid_big_category"
         left join (
-            select 
+            select
                 "ac"."uuid_identification",
                 "ac"."section" as "bu"
             from "accountancy_sectionsage" "ac"
@@ -774,8 +775,8 @@ SQL_SALES_INVOICES = sql.SQL(
           and "eee"."valid" = true
           and "ccm"."type_x3" in (1, 2)
           and "ccm"."cct" != "acs"."bu"
-    ) 
-    select 
+    )
+    select
         now() as "created_at",
         now() as "modified_at",
         false as "final",
@@ -783,18 +784,18 @@ SQL_SALES_INVOICES = sql.SQL(
         gen_random_uuid() as "uuid_identification",
         '' as "invoice_number",
         '' as "invoice_sage_number",
-        case 
-            when sum("net_amount") >= 0 
+        case
+            when sum("net_amount") >= 0
             then (
-                    select "sale_type_facture" 
-                    from "centers_purchasing_typefacture" 
-                    where "invoice_type" = '380' 
+                    select "sale_type_facture"
+                    from "centers_purchasing_typefacture"
+                    where "invoice_type" = '380'
                     and "child_center" = "center_purchase"
                 )
             else (
-                    select "sale_type_facture" 
-                    from "centers_purchasing_typefacture" 
-                    where "invoice_type" = '381' 
+                    select "sale_type_facture"
+                    from "centers_purchasing_typefacture"
+                    where "invoice_type" = '381'
                     and "child_center" = "center_purchase"
                 )
         end as "invoice_type",
@@ -826,14 +827,14 @@ SQL_SALES_INVOICES = sql.SQL(
         false as "send_email",
         "fcy",
         "cpy",
-        case 
+        case
             when sum("net_amount") >= 0 then 'Facture' else 'Avoir'
         end as "invoice_type_name",
         "type_x3"
     from "sales"
-    group by 
+    group by
         "vat_regime",
-        "big_category",        
+        "big_category",
         "big_category_code",
         "big_category_slug_name",
         "cct",
@@ -851,7 +852,7 @@ SQL_SALES_INVOICES = sql.SQL(
         "cpy",
         "center_purchase",
         "type_x3"
-    order by 
+    order by
         "cct",
         "big_category_ranking"
     """
@@ -868,10 +869,10 @@ SQL_SALES_FOR_EXPORT_X3 = sql.SQL(
         "date_depart_echeance" = "rrr"."date_depart_echeance",
         "code_plan_sage" = "rrr"."code_plan_sage"
     from (
-        select 
+        select
             "isi"."id",
             "avs"."vat_regime" as "regime_tva_maison",
-            case 
+            case
                 when "isi"."invoice_amount_without_tax" < 0
                 then coalesce("aac"."call_code", '')
                 else coalesce("acc"."call_code", '')
@@ -883,13 +884,13 @@ SQL_SALES_FOR_EXPORT_X3 = sql.SQL(
             "cpc"."code_plan_sage"
         from "invoices_saleinvoice" "isi"
         left join "centers_clients_maison" "ccm"
-        on "isi"."cct" = "ccm"."cct" 
-        left join "accountancy_accountsage" "aac" 
-        on "ccm"."debit_account" = "aac"."uuid_identification" 
+        on "isi"."cct" = "ccm"."cct"
+        left join "accountancy_accountsage" "aac"
+        on "ccm"."debit_account" = "aac"."uuid_identification"
         left join "accountancy_accountsage" "acc"
-        on "ccm"."credit_account" = "acc"."uuid_identification" 
+        on "ccm"."credit_account" = "acc"."uuid_identification"
         left join "accountancy_vatsage" "avs"
-        on "ccm"."sage_vat_by_default" = "avs"."vat" 
+        on "ccm"."sage_vat_by_default" = "avs"."vat"
         left join "centers_purchasing_childcenterpurchase" "cpc"
         on "isi"."code_center" = "cpc"."code"
         where not "isi"."final"
@@ -904,7 +905,7 @@ SQL_SALES_DETAILS_BACKUP = sql.SQL(
     # insertion des détails spécifiques aux ventes
     """
     with "amounts" as (
-        select 
+        select
             "vt"."id",
             "vt"."ccm_vat" as "vat",
             "vt"."net_amount",
@@ -913,16 +914,16 @@ SQL_SALES_DETAILS_BACKUP = sql.SQL(
                 "vt"."net_amount"::numeric * "vt"."vat_rate"::numeric, 2
             )::numeric as "vat_amount",
             (
-                round("vt"."net_amount"::numeric * "vt"."vat_rate"::numeric, 2)::numeric 
-                + 
+                round("vt"."net_amount"::numeric * "vt"."vat_rate"::numeric, 2)::numeric
+                +
                 "vt"."net_amount"::numeric
             )::numeric as "amount_with_vat"
         from (
             select
-                "eee"."id", 
+                "eee"."id",
                 "eee"."net_amount",
-                case 
-                    when "ccm"."sage_vat_by_default" = '001' and "eee"."vat_rate" = 0 
+                case
+                    when "ccm"."sage_vat_by_default" = '001' and "eee"."vat_rate" = 0
                         then (
                                 select distinct
                                     round(("vtr"."rate" / 100)::numeric, 5) as "vat_rate"
@@ -933,13 +934,13 @@ SQL_SALES_DETAILS_BACKUP = sql.SQL(
                                         "vat",
                                         "vat_regime"
                                     from "accountancy_vatratsage"
-                                    where "vat_start_date" <= now()::date 
+                                    where "vat_start_date" <= now()::date
                                     group by "vat", "vat_regime"
                                 ) "vd"
                                 on "vtr"."vat" = "vd"."vat"
                                 and "vtr"."vat_start_date" = "vd"."vat_start_date"
                                 and "vtr"."vat" = '001'
-                        ) 
+                        )
                     when "ccm"."sage_vat_by_default" = '001' then "eee"."vat_rate"
                     when "ccm"."sage_vat_by_default" != '001' then (
                                 select distinct
@@ -951,25 +952,25 @@ SQL_SALES_DETAILS_BACKUP = sql.SQL(
                                         "vat",
                                         "vat_regime"
                                     from "accountancy_vatratsage"
-                                    where "vat_start_date" <= now()::date 
+                                    where "vat_start_date" <= now()::date
                                     group by "vat", "vat_regime"
                                 ) "vd"
                                 on "vtr"."vat" = "vd"."vat"
                                 and "vtr"."vat_start_date" = "vd"."vat_start_date"
                                 and "vtr"."vat" = "ccm"."sage_vat_by_default"
-                        ) 
+                        )
                 end as "vat_rate",
-                case 
+                case
                     when "ccm"."sage_vat_by_default" = '001' and "eee"."vat_rate" = 0 then '001'
                     when "ccm"."sage_vat_by_default" = '001' then "eee"."vat"
                     else "ccm"."sage_vat_by_default"
-                end as "ccm_vat"        
-            from "edi_ediimport" "eee" 
-            join "centers_clients_maison" "ccm" 
+                end as "ccm_vat"
+            from "edi_ediimport" "eee"
+            join "centers_clients_maison" "ccm"
             on "eee"."cct_uuid_identification" = "ccm"."uuid_identification"
             join (
                     select distinct
-                        "vtr"."vat_regime", 
+                        "vtr"."vat_regime",
                         "vd"."vat",
                         round(("vtr"."rate" / 100)::numeric, 5) as "vat_rate"
                     from "accountancy_vatratsage" "vtr"
@@ -979,14 +980,14 @@ SQL_SALES_DETAILS_BACKUP = sql.SQL(
                             "vat",
                             "vat_regime"
                         from "accountancy_vatratsage"
-                        where "vat_start_date" <= now()::date 
+                        where "vat_start_date" <= now()::date
                         group by "vat", "vat_regime"
                     ) "vd"
                     on "vtr"."vat" = "vd"."vat"
                     and "vtr"."vat_start_date" = "vd"."vat_start_date"
             ) avr
-            on "avr"."vat" = "ccm"."sage_vat_by_default" 
-        ) "vt" 
+            on "avr"."vat" = "ccm"."sage_vat_by_default"
+        ) "vt"
     )
     insert into "invoices_saleinvoicedetail"
     (
@@ -1029,8 +1030,8 @@ SQL_SALES_DETAILS_BACKUP = sql.SQL(
         "account_od_600",
         "axe_prj_name"
     )
-    (    
-        select 
+    (
+        select
             now() as "created_at",
             now() as "modified_at",
             false as "export",
@@ -1070,7 +1071,7 @@ SQL_SALES_DETAILS_BACKUP = sql.SQL(
             "det"."account_od_600",
             "det"."axe_prj_name"
         from (
-            select 
+            select
                 "eee"."third_party_num",
                 -- TODO: GERER ICI LES PRIX DE VENTES
                 "gross_unit_price",
@@ -1107,112 +1108,112 @@ SQL_SALES_DETAILS_BACKUP = sql.SQL(
                 "ac"."sale_account" as "account",
                 "ac"."purchase_account" as "account_od_600",
                 "eee"."devise",
-                "ccm"."cct", 
+                "ccm"."cct",
                 "icc"."uuid_identification" as "centers",
                 "parts"."uuid_identification" as "parties",
                 "isb"."uuid_identification" as "signboard",
-                "ccm"."third_party_num" as "client_third_party_num", 
+                "ccm"."third_party_num" as "client_third_party_num",
                 "icc"."code_center",
                 "isb"."code_signboard",
                 "gr"."ranking",
                 -- Case when car la formation doit être facturée à la ligne
-                case 
+                case
                     when "eee"."third_party_num" = 'ZFORM'
                     then "eee"."import_uuid_identification"::varchar
                     else ''
                 end as "formation",
                 "ccm"."type_x3",
                 "prj"."name" as "axe_prj_name"
-            from "edi_ediimport" "eee" 
+            from "edi_ediimport" "eee"
             join "amounts" "amo"
-              on "amo"."id" = "eee"."id"   
-            join "articles_article" "aa" 
-              on "eee"."third_party_num" = "aa"."third_party_num" 
-             and "eee"."reference_article" = "aa"."reference" 
+              on "amo"."id" = "eee"."id"
+            join "articles_article" "aa"
+              on "eee"."third_party_num" = "aa"."third_party_num"
+             and "eee"."reference_article" = "aa"."reference"
             left join "articles_articleaccount" "ac"
               on "aa"."uuid_identification" = "ac"."article"
              and "eee"."code_center" = "ac"."child_center"
-             and "amo"."vat" = "ac"."vat" 
-            left join "centers_clients_maison" "ccm" 
-            on "eee"."cct_uuid_identification" = "ccm"."uuid_identification" 
+             and "amo"."vat" = "ac"."vat"
+            left join "centers_clients_maison" "ccm"
+            on "eee"."cct_uuid_identification" = "ccm"."uuid_identification"
             left join (
-                select 
-                    "uuid_identification", 
-                    "code_center", 
+                select
+                    "uuid_identification",
+                    "code_center",
                     "vat_regime_center"
                 from "invoices_centersinvoices" "ici"
                 where exists (
-                    select 1 
-                    from "invoices_centersinvoices" "cii" 
-                    group by "code_center" 
+                    select 1
+                    from "invoices_centersinvoices" "cii"
+                    group by "code_center"
                     having max("cii"."created_at") = "ici"."created_at"
                     and "cii"."code_center" = "ici"."code_center"
                 )
-            ) "icc" 
+            ) "icc"
             on "icc"."code_center" = "ccm"."center_purchase"
             left join (
-                select 
-                    "uuid_identification", 
-                    "code_signboard" 
+                select
+                    "uuid_identification",
+                    "code_signboard"
                 from "invoices_signboardsinvoices" "sci"
                 where exists (
-                    select 1 
-                    from "invoices_signboardsinvoices" "sii" 
-                    group by "code_signboard" 
+                    select 1
+                    from "invoices_signboardsinvoices" "sii"
+                    group by "code_signboard"
                     having max("sii"."created_at") = "sci"."created_at"
                     and "sii"."code_signboard" = "sci"."code_signboard"
                 )
-            ) "isb" 
-            on "isb"."code_signboard" = "ccm"."sign_board" 
+            ) "isb"
+            on "isb"."code_signboard" = "ccm"."sign_board"
             left join (
-                select 
-                    "uuid_identification", 
-                    "cct", 
-                    "third_party_num" 
+                select
+                    "uuid_identification",
+                    "cct",
+                    "third_party_num"
                 from "invoices_partiesinvoices" "ip"
                 where exists (
-                    select 1 
-                      from "invoices_partiesinvoices" "ipi" 
+                    select 1
+                      from "invoices_partiesinvoices" "ipi"
                      where "ipi"."cct" = "ip"."cct"
-                       and "ipi"."third_party_num" = "ip"."third_party_num" 
-                     group by "cct", 
-                              "third_party_num"  
+                       and "ipi"."third_party_num" = "ip"."third_party_num"
+                     group by "cct",
+                              "third_party_num"
                     having max("ipi"."created_at") = "ip"."created_at"
                 )
             ) "parts"
             on "parts"."cct" = "ccm"."cct"
             and "parts"."third_party_num" = "ccm"."third_party_num"
-            left join "accountancy_sectionsage" "abu" 
+            left join "accountancy_sectionsage" "abu"
                on "abu"."uuid_identification" = "eee"."axe_bu"
-             left join "accountancy_sectionsage" "prj" 
+             left join "accountancy_sectionsage" "prj"
                on "prj"."uuid_identification" = "eee"."axe_prj"
-             left join "accountancy_sectionsage" "pro" 
+             left join "accountancy_sectionsage" "pro"
                on "pro"."uuid_identification" = "eee"."axe_pro"
-             left join "accountancy_sectionsage" "pys" 
+             left join "accountancy_sectionsage" "pys"
                on "pys"."uuid_identification" = "eee"."axe_pys"
-             left join "accountancy_sectionsage" "rfa" 
+             left join "accountancy_sectionsage" "rfa"
                on "rfa"."uuid_identification" = "eee"."axe_rfa"
-            left join "parameters_category" "pc" 
-               on "pc"."uuid_identification" = "eee"."uuid_big_category" 
-             left join "parameters_subcategory" "ps" 
-               on "ps"."uuid_identification" = "eee"."uuid_sub_big_category" 
+            left join "parameters_category" "pc"
+               on "pc"."uuid_identification" = "eee"."uuid_big_category"
+             left join "parameters_subcategory" "ps"
+               on "ps"."uuid_identification" = "eee"."uuid_sub_big_category"
             left join (
-                select 
+                select
                     "axe_pro",
                     "base",
                     "gg"."grouping_goods",
                     "gg"."ranking"
                   from "centers_purchasing_axeprogroupinggoods" "ca"
-                  left join "centers_purchasing_groupinggoods" "gg" 
-                    on "ca"."grouping_goods" = "gg"."uuid_identification" 
+                  left join "centers_purchasing_groupinggoods" "gg"
+                    on "ca"."grouping_goods" = "gg"."uuid_identification"
              ) "gr"
              on "gr"."axe_pro" = "eee"."axe_pro"
             where "eee"."sale_invoice" = true
               and "eee"."valid" = true
               and "ccm"."cct" != "abu"."section"
-        ) det 
+        ) det
         join (
-            select 
+            select
                 "uuid_identification",
                 "big_category_slug_name",
                 "cct",
@@ -1226,9 +1227,9 @@ SQL_SALES_DETAILS_BACKUP = sql.SQL(
                 "formation",
                 "type_x3",
                 "final_at"
-            from "invoices_saleinvoice"  
+            from "invoices_saleinvoice"
             where not "final" and not "export"
-        ) "isi" 
+        ) "isi"
         on "isi"."big_category_slug_name" = "det"."big_category"
         and "isi"."cct" = "det"."cct"
         and "isi"."code_center" = "det"."code_center"
@@ -1244,7 +1245,7 @@ SQL_SALES_DETAILS_BACKUP = sql.SQL(
 SQL_SALES_DETAILS = sql.SQL(
     # insertion des détails spécifiques aux ventes
     """
-    WITH 
+    WITH
     -- Taux de TVA actuels avec vat_regime
     current_vat_rates AS (
         SELECT DISTINCT
@@ -1257,11 +1258,11 @@ SQL_SALES_DETAILS = sql.SQL(
             FROM accountancy_vatratsage
             WHERE vat_start_date <= CURRENT_DATE
             GROUP BY vat, vat_regime
-        ) vd ON vtr.vat = vd.vat 
-            AND vtr.vat_start_date = vd.vat_start_date 
+        ) vd ON vtr.vat = vd.vat
+            AND vtr.vat_start_date = vd.vat_start_date
             AND vtr.vat_regime = vd.vat_regime
     ),
-    
+
     -- Derniers centres
     latest_centers AS (
         SELECT ici.uuid_identification, ici.code_center, ici.vat_regime_center
@@ -1272,10 +1273,10 @@ SQL_SALES_DETAILS = sql.SQL(
             GROUP BY code_center
         ) mx ON ici.code_center = mx.code_center AND ici.created_at = mx.max_created_at
     ),
-    
+
     -- Dernières enseignes
     latest_signboards AS (
-        SELECT sci.uuid_identification, sci.code_signboard 
+        SELECT sci.uuid_identification, sci.code_signboard
         FROM invoices_signboardsinvoices sci
         JOIN (
             SELECT code_signboard, MAX(created_at) as max_created_at
@@ -1283,10 +1284,10 @@ SQL_SALES_DETAILS = sql.SQL(
             GROUP BY code_signboard
         ) mx ON sci.code_signboard = mx.code_signboard AND sci.created_at = mx.max_created_at
     ),
-    
+
     -- Dernières parties
     latest_parties AS (
-        SELECT ip.uuid_identification, ip.cct, ip.third_party_num 
+        SELECT ip.uuid_identification, ip.cct, ip.third_party_num
         FROM invoices_partiesinvoices ip
         JOIN (
             SELECT cct, third_party_num, MAX(created_at) as max_created_at
@@ -1294,10 +1295,10 @@ SQL_SALES_DETAILS = sql.SQL(
             GROUP BY cct, third_party_num
         ) mx ON ip.cct = mx.cct AND ip.third_party_num = mx.third_party_num AND ip.created_at = mx.max_created_at
     ),
-    
+
     -- Détails avec tous les calculs
     det AS (
-        SELECT 
+        SELECT
             eee.id,
             eee.gross_unit_price,
             eee.net_unit_price,
@@ -1309,13 +1310,13 @@ SQL_SALES_DETAILS = sql.SQL(
             COALESCE(eee.base_discount_03, 0) as base_discount_03,
             COALESCE(eee.discount_price_03, 0) as discount_price_03,
             eee.net_amount,
-            CASE 
+            CASE
                 when eee.origin in (4, 5, 6, 7, 8, 9, 10, 12) then eee.vat_rate
                 WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN COALESCE(vr1.vat_rate, 0)
                 WHEN ccm.sage_vat_by_default = '001' THEN eee.vat_rate
                 ELSE COALESCE(avr.vat_rate, 0)
             END as vat_rate,
-            CASE 
+            CASE
                 when eee.origin in (4, 5, 6, 7, 8, 9, 10, 12) then eee.vat
                 WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN '001'
                 WHEN ccm.sage_vat_by_default = '001' THEN eee.vat
@@ -1344,33 +1345,33 @@ SQL_SALES_DETAILS = sql.SQL(
             isb.code_signboard,
             eee.devise,
             ccm.type_x3,
-            CASE 
+            CASE
                 WHEN eee.third_party_num = 'ZFORM' THEN eee.import_uuid_identification::varchar
                 ELSE ''
             END as formation
         FROM edi_ediimport eee
-        JOIN centers_clients_maison ccm 
+        JOIN centers_clients_maison ccm
             ON eee.cct_uuid_identification = ccm.uuid_identification
-        JOIN current_vat_rates avr 
+        JOIN current_vat_rates avr
             ON avr.vat = ccm.sage_vat_by_default
-        JOIN articles_article aa 
-            ON eee.third_party_num = aa.third_party_num 
+        JOIN articles_article aa
+            ON eee.third_party_num = aa.third_party_num
             AND eee.reference_article = aa.reference
-        LEFT JOIN current_vat_rates vr1 
-            ON vr1.vat = '001' 
+        LEFT JOIN current_vat_rates vr1
+            ON vr1.vat = '001'
             AND vr1.vat_regime = avr.vat_regime
         LEFT JOIN articles_articleaccount ac
             ON aa.uuid_identification = ac.article
             AND eee.code_center = ac.child_center
-            AND CASE 
+            AND CASE
                 WHEN ccm.sage_vat_by_default = '001' AND eee.vat_rate = 0 THEN '001'
                 WHEN ccm.sage_vat_by_default = '001' THEN eee.vat
                 ELSE ccm.sage_vat_by_default
             END = ac.vat
         LEFT JOIN latest_centers icc ON icc.code_center = ccm.center_purchase
         LEFT JOIN latest_signboards isb ON isb.code_signboard = ccm.sign_board
-        LEFT JOIN latest_parties parts 
-            ON parts.cct = ccm.cct 
+        LEFT JOIN latest_parties parts
+            ON parts.cct = ccm.cct
             AND parts.third_party_num = ccm.third_party_num
         LEFT JOIN accountancy_sectionsage abu ON abu.uuid_identification = eee.axe_bu
         LEFT JOIN accountancy_sectionsage prj ON prj.uuid_identification = eee.axe_prj
@@ -1381,7 +1382,7 @@ SQL_SALES_DETAILS = sql.SQL(
         LEFT JOIN (
             SELECT axe_pro, base, gg.grouping_goods, gg.ranking
             FROM centers_purchasing_axeprogroupinggoods ca
-            LEFT JOIN centers_purchasing_groupinggoods gg 
+            LEFT JOIN centers_purchasing_groupinggoods gg
                 ON ca.grouping_goods = gg.uuid_identification
         ) gr ON gr.axe_pro = eee.axe_pro
         WHERE eee.sale_invoice = true
@@ -1430,7 +1431,7 @@ SQL_SALES_DETAILS = sql.SQL(
         "axe_prj_name"
     )
     (
-    
+
         select
             now() as created_at,
             now() as modified_at,
@@ -1471,7 +1472,7 @@ SQL_SALES_DETAILS = sql.SQL(
             det.account_od_600,
             det.axe_prj_name
         FROM det
-        JOIN invoices_saleinvoice isi 
+        JOIN invoices_saleinvoice isi
             ON isi.big_category_slug_name = det.big_category
             AND isi.cct = det.cct
             AND isi.code_center = det.code_center
@@ -1479,7 +1480,7 @@ SQL_SALES_DETAILS = sql.SQL(
             AND isi.devise = det.devise
             AND isi.formation = det.formation
             AND isi.type_x3 = det.type_x3
-            AND NOT isi.final 
+            AND NOT isi.final
             AND NOT isi.export
     )
     on conflict do nothing
@@ -1488,27 +1489,27 @@ SQL_SALES_DETAILS = sql.SQL(
 
 SQL_CONTROL_SALES_INSERTION = sql.SQL(
     """
-    select 
+    select
         is2.invoice_number
-    from invoices_saleinvoice is2 
-    join invoices_saleinvoicedetail is3 
-    on is2.uuid_identification  = is3.uuid_invoice 
-    group by 
-        is2.invoice_number, 
-        is2.invoice_amount_without_tax, 
-        is2.invoice_amount_tax, 
-        is2.invoice_amount_with_tax 
+    from invoices_saleinvoice is2
+    join invoices_saleinvoicedetail is3
+    on is2.uuid_identification  = is3.uuid_invoice
+    group by
+        is2.invoice_number,
+        is2.invoice_amount_without_tax,
+        is2.invoice_amount_tax,
+        is2.invoice_amount_with_tax
     having     (
-            is2.invoice_amount_without_tax 
-            - 
-            sum(is3.net_amount) 
-            + 
-            is2.invoice_amount_tax 
-            - 
-            sum(is3.vat_amount) 
-            + 
-            is2.invoice_amount_with_tax 
-            - 
+            is2.invoice_amount_without_tax
+            -
+            sum(is3.net_amount)
+            +
+            is2.invoice_amount_tax
+            -
+            sum(is3.vat_amount)
+            +
+            is2.invoice_amount_with_tax
+            -
             sum(is3.amount_with_vat)
     ) != 0
     """

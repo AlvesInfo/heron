@@ -1,25 +1,24 @@
-"""
-Views des Centrales Mères
-"""
+"""Views des Centrales Mères."""
+
 import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
-from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.centers_purchasing.excel_outputs.output_excel_meres_list import (
     excel_meres_list,
 )
-from apps.centers_purchasing.models import PrincipalCenterPurchase
 from apps.centers_purchasing.forms import MeresForm
+from apps.centers_purchasing.models import PrincipalCenterPurchase
+from apps.core.bin.change_traces import ChangeTraceMixin
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from heron.loggers import LOGGER_VIEWS
 
 
 # ECRANS DES CENTRALES MERES =======================================================================
 class MeresList(ListView):
-    """View de la liste des Centrales Mères"""
+    """View de la liste des Centrales Mères."""
 
     model = PrincipalCenterPurchase
     context_object_name = "meres"
@@ -28,7 +27,7 @@ class MeresList(ListView):
 
 
 class MereCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Centrales Mères"""
+    """CreateView de création des Centrales Mères."""
 
     model = PrincipalCenterPurchase
     form_class = MeresForm
@@ -37,7 +36,7 @@ class MereCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     error_message = "La Centrale Mère %(code)s n'a pu être créé, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("centers_purchasing:meres_list")
@@ -45,7 +44,7 @@ class MereCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -53,7 +52,7 @@ class MereCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 
 class MereUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des Centrales Mères"""
+    """UpdateView pour modification des Centrales Mères."""
 
     model = PrincipalCenterPurchase
     form_class = MeresForm
@@ -62,7 +61,7 @@ class MereUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     error_message = "La Centrale Mère %(code)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:meres_list")
         context["titre_table"] = (
@@ -72,8 +71,8 @@ class MereUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         )
         return context
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -81,12 +80,11 @@ class MereUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 def meres_export_list(request):
-    """
-    Export Excel de la liste des Centrales Mères
-    :param request: Request Django
-    :return: response_file
-    """
+    """Export Excel de la liste des Centrales Mères.
 
+    :param request: Request Django
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()

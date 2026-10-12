@@ -1,4 +1,4 @@
-"""Module d'export des Abonnement par maisons
+"""Module d'export des Abonnement par maisons.
 
 Commentaire:
 
@@ -11,11 +11,11 @@ modified by: Paulo ALVES
 
 import io
 
+from apps.centers_clients.models import MaisonSubcription
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
-from apps.centers_clients.models import MaisonSubcription
 from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 columns = [
@@ -23,13 +23,11 @@ columns = [
         "entete": "CODE MAISON",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center"},
+            "align": "center",
         },
         "width": 9,
     },
@@ -37,13 +35,10 @@ columns = [
         "entete": "MAISON",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 40,
     },
@@ -51,13 +46,10 @@ columns = [
         "entete": "ARTICLE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 25,
     },
@@ -65,15 +57,11 @@ columns = [
         "entete": "QTY",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0",
-            },
+            "num_format": "#,##0",
         },
         "width": 8,
     },
@@ -81,15 +69,11 @@ columns = [
         "entete": "UNITE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 7,
     },
@@ -97,15 +81,11 @@ columns = [
         "entete": "PRIX NET",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
@@ -113,15 +93,11 @@ columns = [
         "entete": "FONCTION",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -129,15 +105,11 @@ columns = [
         "entete": "ENSEIGNE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -145,8 +117,7 @@ columns = [
 
 
 def get_clean_rows():
-    """Retourne les lignes à écrire"""
-
+    """Retourne les lignes à écrire."""
     return [
         (
             row_dict.get("maison", ""),
@@ -172,12 +143,12 @@ def get_clean_rows():
 
 
 def excel_liste_subscriptions(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de la liste des Abonnements par maisons"""
+    """Fonction de génération du fichier de la liste des Abonnements par maisons."""
     return excel_list_export(
         file_io,
         file_name,
-        sheet_name='LISTE DES ABONNEMENTS',
-        title='LISTE DES ABONNEMENTS / CLIENTS',
+        sheet_name="LISTE DES ABONNEMENTS",
+        title="LISTE DES ABONNEMENTS / CLIENTS",
         columns=columns,
         rows=get_clean_rows(),
     )

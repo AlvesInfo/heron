@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests du suivi de progression : modèle SSEProgress, vues JSON et traqueur d'événements SSE
+"""FR : Tests du suivi de progression : modèle SSEProgress, vues JSON et traqueur d'événements SSE
+
+
 EN : Tests for progress tracking: SSEProgress model, JSON views and SSE events tracker
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import datetime
 import logging
 
@@ -42,13 +44,21 @@ def test_progress_str_et_pourcentages(make_progress):
     progress = make_progress(total_items=0)
 
     assert str(progress) == "email_sending - job-1 - pending (0/0)"
-    assert (progress.progress_percentage, progress.success_rate, progress.success_count) == (0, 0, 0)
+    assert (progress.progress_percentage, progress.success_rate, progress.success_count) == (
+        0,
+        0,
+        0,
+    )
 
     progress.total_items = 10
     progress.processed_items = 4
     progress.failed_items = 1
 
-    assert (progress.progress_percentage, progress.success_count, progress.success_rate) == (40, 3, 75)
+    assert (progress.progress_percentage, progress.success_count, progress.success_rate) == (
+        40,
+        3,
+        75,
+    )
 
 
 def test_progress_duree_et_estimations(make_progress):
@@ -106,10 +116,17 @@ def test_progress_update_progress(make_progress):
     progress.update_progress(failed=1, item_name="sans message")
 
     progress.refresh_from_db()
-    assert (progress.processed_items, progress.failed_items, progress.current_message) == (5, 2, "illisible")
+    assert (progress.processed_items, progress.failed_items, progress.current_message) == (
+        5,
+        2,
+        "illisible",
+    )
     assert progress.metadata == {
         "success": ["ok.pdf"],
-        "failed": [{"name": "ko.pdf", "error": "illisible"}, {"name": "sans message", "error": "Erreur inconnue"}],
+        "failed": [
+            {"name": "ko.pdf", "error": "illisible"},
+            {"name": "sans message", "error": "Erreur inconnue"},
+        ],
     }
 
 
@@ -121,21 +138,34 @@ def test_progress_update_progress_complete_des_metadonnees_partielles(make_progr
     success_only.update_progress(failed=1, item_name="ko.pdf")
     failed_only.update_progress(processed=1, item_name="ok.pdf")
 
-    assert success_only.metadata == {"success": [], "failed": [{"name": "ko.pdf", "error": "Erreur inconnue"}]}
+    assert success_only.metadata == {
+        "success": [],
+        "failed": [{"name": "ko.pdf", "error": "Erreur inconnue"}],
+    }
     assert failed_only.metadata == {"failed": [], "success": ["ok.pdf"]}
 
 
 def test_progress_to_dict(make_progress):
-    progress = make_progress(custom_title="Envoi", completion_message="Fini", processed_items=5, failed_items=1)
+    progress = make_progress(
+        custom_title="Envoi", completion_message="Fini", processed_items=5, failed_items=1
+    )
     progress.mark_as_started()
 
     payload = progress.to_dict()
 
     assert payload["job_id"] == "job-1"
     assert payload["status_display"] == "En cours"
-    assert (payload["processed_items"], payload["failed_items"], payload["success_count"]) == (5, 1, 4)
+    assert (payload["processed_items"], payload["failed_items"], payload["success_count"]) == (
+        5,
+        1,
+        4,
+    )
     assert (payload["progress_percentage"], payload["success_rate"]) == (50, 80)
-    assert (payload["custom_title"], payload["completion_message"], payload["metadata"]) == ("Envoi", "Fini", None)
+    assert (payload["custom_title"], payload["completion_message"], payload["metadata"]) == (
+        "Envoi",
+        "Fini",
+        None,
+    )
     assert payload["started_at"] == progress.started_at.isoformat()
     assert payload["completed_at"] is None
     assert payload["duration"] >= 0
@@ -149,8 +179,14 @@ def test_vues_sse_exigent_une_authentification(client):
 
 
 def test_detail_d_un_job(logged_client, make_user):
-    SSEProgress.objects.create(job_id="mine", user=logged_client.user, task_type="import", total_items=3)
-    SSEProgress.objects.create(job_id="theirs", user=make_user(email="autre@heron.local", username="autre"), task_type="import")
+    SSEProgress.objects.create(
+        job_id="mine", user=logged_client.user, task_type="import", total_items=3
+    )
+    SSEProgress.objects.create(
+        job_id="theirs",
+        user=make_user(email="autre@heron.local", username="autre"),
+        task_type="import",
+    )
 
     response = logged_client.get(reverse("core:job_detail", args=["mine"]))
     forbidden = logged_client.get(reverse("core:job_detail", args=["theirs"]))
@@ -166,7 +202,9 @@ def test_liste_des_jobs_de_l_utilisateur(logged_client, make_user):
     SSEProgress.objects.create(job_id="a", user=user, task_type="import", status="completed")
     SSEProgress.objects.create(job_id="b", user=user, task_type="export", status="pending")
     SSEProgress.objects.create(job_id="c", user=user, task_type="import", status="pending")
-    SSEProgress.objects.create(job_id="d", user=make_user(email="autre@heron.local", username="autre"), task_type="import")
+    SSEProgress.objects.create(
+        job_id="d", user=make_user(email="autre@heron.local", username="autre"), task_type="import"
+    )
 
     everything = logged_client.get(reverse("core:list_jobs"))
     imports = logged_client.get(reverse("core:list_jobs"), {"task_type": "import"})
@@ -180,8 +218,12 @@ def test_liste_des_jobs_de_l_utilisateur(logged_client, make_user):
 def test_jobs_actifs(logged_client):
     user = logged_client.user
     SSEProgress.objects.create(job_id="done", user=user, task_type="import", status="completed")
-    running = SSEProgress.objects.create(job_id="run", user=user, task_type="import", status="in_progress", started_at=timezone.now())
-    waiting = SSEProgress.objects.create(job_id="wait", user=user, task_type="import", status="pending")
+    running = SSEProgress.objects.create(
+        job_id="run", user=user, task_type="import", status="in_progress", started_at=timezone.now()
+    )
+    waiting = SSEProgress.objects.create(
+        job_id="wait", user=user, task_type="import", status="pending"
+    )
 
     response = logged_client.get(reverse("core:active_jobs"))
 
@@ -214,7 +256,11 @@ def test_suppression_d_un_job(logged_client):
 def sent(monkeypatch):
     """Enregistre les événements envoyés à django_eventstream"""
     events = []
-    monkeypatch.setattr(sse_progress.django_eventstream, "send_event", lambda channel, kind, data: events.append((channel, kind, data)))
+    monkeypatch.setattr(
+        sse_progress.django_eventstream,
+        "send_event",
+        lambda channel, kind, data: events.append((channel, kind, data)),
+    )
     return events
 
 
@@ -232,15 +278,41 @@ def test_tracker_envoie_les_evenements(sent):
 
     assert tracker.channel_name == "progress-job-1"
     assert SSETracker is SSEProgressTracker
-    assert [kind for _, kind, _ in sent] == ["start", "progress", "progress", "complete", "complete", "error", "warning", "info"]
+    assert [kind for _, kind, _ in sent] == [
+        "start",
+        "progress",
+        "progress",
+        "complete",
+        "complete",
+        "error",
+        "warning",
+        "info",
+    ]
     assert all(channel == "progress-job-1" for channel, _, _ in sent)
-    assert sent[0][2] == {"status": "started", "total": 4, "current": 0, "percentage": 0, "title": "Envoi"}
-    assert sent[1][2] == {"status": "in_progress", "current": 1, "total": 4, "percentage": 25, "remaining": 3, "message": "un"}
+    assert sent[0][2] == {
+        "status": "started",
+        "total": 4,
+        "current": 0,
+        "percentage": 0,
+        "title": "Envoi",
+    }
+    assert sent[1][2] == {
+        "status": "in_progress",
+        "current": 1,
+        "total": 4,
+        "percentage": 25,
+        "remaining": 3,
+        "message": "un",
+    }
     assert sent[2][2]["percentage"] == 0
     assert sent[3][2]["message"] == "Terminé avec succès"
     assert sent[4][2]["message"] == "Tout est parti"
     assert sent[5][2] == {"status": "error", "error": "plantage", "message": "Erreur: plantage"}
-    assert sent[6][2] == {"status": "warning", "warning": "attention", "message": "Attention: attention"}
+    assert sent[6][2] == {
+        "status": "warning",
+        "warning": "attention",
+        "message": "Attention: attention",
+    }
     assert sent[7][2] == {"a": 1}
 
 
@@ -264,7 +336,10 @@ def test_tracker_erreur_d_envoi_journalisee(monkeypatch, caplog):
 
 def test_tracker_sans_django_eventstream(monkeypatch, caplog, sent):
     """Sans la bibliothèque, un avertissement est journalisé et rien n'est envoyé"""
-    with patched_attrs(monkeypatch, sse_progress, SSE_AVAILABLE=False), caplog.at_level(logging.WARNING, logger="invoices_flux"):
+    with (
+        patched_attrs(monkeypatch, sse_progress, SSE_AVAILABLE=False),
+        caplog.at_level(logging.WARNING, logger="invoices_flux"),
+    ):
         tracker = SSEProgressTracker("job-1")
         tracker.send_start(total=1)
         silent = SSEProgressTracker("job-2", enabled=False)

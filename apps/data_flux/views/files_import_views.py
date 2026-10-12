@@ -1,6 +1,6 @@
-"""
-FR : Vue générique d'import et traitement de fichiers en base de donnée
-EN : Generic view for importing and processing files in the database
+"""FR : Vue générique d'import et traitement de fichiers en base de donnée.
+
+EN : Generic view for importing and processing files in the database.
 
 Commentaire:
 
@@ -11,19 +11,18 @@ modified at: 2023-05-18
 modified by: Paulo ALVES
 """
 
-from typing import AnyStr
-
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.http import HttpRequest, HttpResponse
 from django.contrib import messages
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
 from apps.core.exceptions import LaunchDoesNotExistsError
 from apps.parameters.bin.core import get_object
 
 
-def processing_files(request: HttpRequest, function_name: AnyStr) -> HttpResponse:
-    """Traitement des imports de fichiers, les fonctions de traitements doivent avoir
+def processing_files(request: HttpRequest, function_name: str) -> HttpResponse:
+    """Traitement des imports de fichiers, les fonctions de traitements doivent avoir.
+
     été programmées et paramétrées dans la table InvoiceFunctions
     :param request: request Django
     :param function_name: fonction à appliquer au fichier
@@ -38,18 +37,13 @@ def processing_files(request: HttpRequest, function_name: AnyStr) -> HttpRespons
             request,
             50,
             f"La fonction d'import '{function_name}' que vous souhaitez réaliser, "
-            "n'est pas paramétrée. Veuillez en faire la programmation et la définir sur cette page"
+            "n'est pas paramétrée. Veuillez en faire la programmation et la définir sur cette page",
         )
         request.session["level"] = 50
 
     if function is None:
         return redirect(reverse("parameters:functions_list"))
 
-    context = {
-        "titre_table": f"Import en masse de données - Fonction : {function_name}"
-    }
-
-    if request.method == "POST":
-        pass
+    context = {"titre_table": f"Import en masse de données - Fonction : {function_name}"}
 
     return render(request, "data_flux/import_file.html", context=context)

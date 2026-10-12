@@ -1,68 +1,62 @@
-"""
-FR : Module d'authentification OAuth2 pour l'API Gmail
-EN : OAuth2 authentication module for Gmail API
+"""FR : Module d'authentification OAuth2 pour l'API Gmail.
+
+EN : OAuth2 authentication module for Gmail API.
 
 Commentaire:
 Ce module gère l'authentification OAuth2 pour l'API Gmail.
 Il crée et rafraîchit automatiquement les tokens d'accès.
 
 created at: 2025-01-10
-created by: Paulo ALVES 
+created by: Paulo ALVES
 """
 
 import json
 from pathlib import Path
-from typing import Optional
 
+from django.utils.functional import SimpleLazyObject
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from django.utils.functional import SimpleLazyObject
 
 from heron.loggers import LOGGER_EMAIL
+
 from .config import config
 
 
 class GmailAuthenticator:
-    """Classe pour gérer l'authentification Gmail OAuth2"""
+    """Classe pour gérer l'authentification Gmail OAuth2."""
 
     def __init__(self):
-        """Initialise l'authenticator"""
+        """Initialise l'authenticator."""
         self.config = config
-        self.creds: Optional[Credentials] = None
+        self.creds: Credentials | None = None
         self.service = None
 
     def _load_token(self, token_file: Path) -> None:
-        """Charge le token OAuth2 enregistré, s'il existe et qu'il est lisible"""
+        """Charge le token OAuth2 enregistré, s'il existe et qu'il est lisible."""
         if not token_file.exists():
             return
 
         try:
-            self.creds = Credentials.from_authorized_user_file(
-                str(token_file), self.config.scopes
-            )
+            self.creds = Credentials.from_authorized_user_file(str(token_file), self.config.scopes)
             LOGGER_EMAIL.info("Token OAuth2 chargé depuis %s", token_file)
-        except Exception as error:
-            LOGGER_EMAIL.warning(
-                "Erreur lors du chargement du token: %s", error
-            )
+        except (OSError, ValueError) as error:
+            LOGGER_EMAIL.warning("Erreur lors du chargement du token: %s", error)
             self.creds = None
 
-    def _refresh_token(self) -> None:
-        """Rafraîchit le token expiré ; en cas d'échec les credentials sont abandonnés"""
+    def _refresh_token(self, creds: Credentials) -> None:
+        """Rafraîchit le token expiré ; en cas d'échec les credentials sont abandonnés."""
         try:
             LOGGER_EMAIL.info("Rafraîchissement du token OAuth2...")
-            self.creds.refresh(Request())
+            creds.refresh(Request())
             LOGGER_EMAIL.info("Token OAuth2 rafraîchi avec succès")
-        except Exception as error:
-            LOGGER_EMAIL.error(
-                "Erreur lors du rafraîchissement du token: %s", error
-            )
+        except Exception:
+            LOGGER_EMAIL.exception("Erreur lors du rafraîchissement du token")
             self.creds = None
 
     def _run_oauth_flow(self, credentials_file: Path) -> None:
-        """Lance le flow d'authentification OAuth2 à partir du fichier credentials.json"""
+        """Lance le flow d'authentification OAuth2 à partir du fichier credentials.json."""
         # Crée le fichier credentials.json depuis la configuration YAML si nécessaire
         self._create_credentials_file_if_needed(credentials_file)
 
@@ -74,9 +68,7 @@ class GmailAuthenticator:
                 f"en remplissant les informations oauth2.client_id et oauth2.client_secret"
             )
 
-        LOGGER_EMAIL.info(
-            "Lancement du flow d'authentification OAuth2..."
-        )
+        LOGGER_EMAIL.info("Lancement du flow d'authentification OAuth2...")
 
         try:
             flow = InstalledAppFlow.from_client_secrets_file(
@@ -84,27 +76,23 @@ class GmailAuthenticator:
             )
             self.creds = flow.run_local_server(port=0)
             LOGGER_EMAIL.info("Authentification OAuth2 réussie")
-        except Exception as error:
-            LOGGER_EMAIL.exception(
-                "Erreur lors de l'authentification OAuth2: %s", error
-            )
+        except Exception:
+            LOGGER_EMAIL.exception("Erreur lors de l'authentification OAuth2")
             raise
 
     def _save_token(self, token_file: Path) -> None:
-        """Sauvegarde le token pour la prochaine fois (un échec est seulement journalisé)"""
+        """Sauvegarde le token pour la prochaine fois (un échec est seulement journalisé)."""
         try:
-            with open(token_file, "w", encoding="utf-8") as token:
-                token.write(self.creds.to_json())
+            with Path(token_file).open("w", encoding="utf-8") as token:
+                token.write(self.creds.to_json() if self.creds else "")
             LOGGER_EMAIL.info("Token OAuth2 sauvegardé dans %s", token_file)
-        except Exception as error:
-            LOGGER_EMAIL.warning(
-                "Erreur lors de la sauvegarde du token: %s", error
-            )
+        except (OSError, ValueError) as error:
+            LOGGER_EMAIL.warning("Erreur lors de la sauvegarde du token: %s", error)
 
     def get_credentials(self) -> Credentials:
-        """
-        Récupère ou crée les credentials OAuth2
-        :return: Credentials OAuth2
+        """Récupère ou crée les credentials OAuth2.
+
+        :return: Credentials OAuth2.
         """
         token_file = self.config.token_file_path
         credentials_file = self.config.credentials_file_path
@@ -115,7 +103,7 @@ class GmailAuthenticator:
         # Si pas de credentials valides, on en crée de nouveaux
         if not self.creds or not self.creds.valid:
             if self.creds and self.creds.expired and self.creds.refresh_token:
-                self._refresh_token()
+                self._refresh_token(self.creds)
 
             # Si toujours pas de credentials, lance le flow OAuth2
             if not self.creds:
@@ -123,12 +111,13 @@ class GmailAuthenticator:
 
             self._save_token(token_file)
 
+        assert self.creds is not None  # noqa: S101 (rétrécissement de type pour mypy)
         return self.creds
 
     def _create_credentials_file_if_needed(self, credentials_file: Path):
-        """
-        Crée le fichier credentials.json depuis la configuration YAML si nécessaire
-        :param credentials_file: Chemin vers le fichier credentials.json
+        """Crée le fichier credentials.json depuis la configuration YAML si nécessaire.
+
+        :param credentials_file: Chemin vers le fichier credentials.json.
         """
         if not credentials_file.exists():
             LOGGER_EMAIL.info(
@@ -137,23 +126,20 @@ class GmailAuthenticator:
             credentials_dict = self.config.get_oauth2_credentials_dict()
 
             try:
-                with open(credentials_file, "w", encoding="utf-8") as file:
+                with Path(credentials_file).open("w", encoding="utf-8") as file:
                     json.dump(credentials_dict, file, indent=2)
                 LOGGER_EMAIL.info(
                     "Fichier credentials.json créé avec succès: %s",
                     credentials_file,
                 )
-            except Exception as error:
-                LOGGER_EMAIL.error(
-                    "Erreur lors de la création du fichier credentials.json: %s",
-                    error,
-                )
+            except Exception:
+                LOGGER_EMAIL.exception("Erreur lors de la création du fichier credentials.json")
                 raise
 
     def get_gmail_service(self):
-        """
-        Récupère le service Gmail API
-        :return: Service Gmail API
+        """Récupère le service Gmail API.
+
+        :return: Service Gmail API.
         """
         if self.service is None:
             try:
@@ -165,16 +151,14 @@ class GmailAuthenticator:
                     cache_discovery=False,
                 )
                 LOGGER_EMAIL.info("Service Gmail API créé avec succès")
-            except Exception as error:
-                LOGGER_EMAIL.exception(
-                    "Erreur lors de la création du service Gmail API: %s", error
-                )
+            except Exception:
+                LOGGER_EMAIL.exception("Erreur lors de la création du service Gmail API")
                 raise
 
         return self.service
 
     def revoke_credentials(self):
-        """Révoque les credentials OAuth2"""
+        """Révoque les credentials OAuth2."""
         token_file = self.config.token_file_path
 
         if token_file.exists():
@@ -183,10 +167,8 @@ class GmailAuthenticator:
                 LOGGER_EMAIL.info("Token OAuth2 révoqué et supprimé")
                 self.creds = None
                 self.service = None
-            except Exception as error:
-                LOGGER_EMAIL.error(
-                    "Erreur lors de la révocation du token: %s", error
-                )
+            except Exception:
+                LOGGER_EMAIL.exception("Erreur lors de la révocation du token")
                 raise
 
 

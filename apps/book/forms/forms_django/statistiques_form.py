@@ -1,34 +1,35 @@
-"""
-Forms des Parameters
-"""
+"""Forms des Parameters."""
+
 from django import forms
 
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.book.models import StatFamillyAxes, SupplierFamilyAxes
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
 class StatFamillyAxesForm(forms.ModelForm):
-    """Form pour les Statistiques"""
+    """Form pour les Statistiques."""
 
     use_required_attribute = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = StatFamillyAxes
         fields = ("name", "description", "regex_bool")
 
 
 class SupplierFamilyAxesForm(forms.ModelForm):
-    """Form pour les définitions des Statistiques Familles/Axes'"""
+    """Form pour les définitions des Statistiques Familles/Axes'."""
 
     use_required_attribute = False
+
     def __init__(self, *args, **kwargs):
+        """Rend la sous-catégorie facultative."""
         super().__init__(*args, **kwargs)
         self.fields["sub_category"].required = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = SupplierFamilyAxes
         fields = (
@@ -55,13 +56,13 @@ class SupplierFamilyAxesForm(forms.ModelForm):
 
 
 class DeleteSupplierFamilyAxesForm(forms.ModelForm):
-    """Form pour la suppression des définitions des Statistiques Familles/Axes"""
+    """Form pour la suppression des définitions des Statistiques Familles/Axes."""
 
     # Le champ id (AutoField) n'est pas généré par le ModelForm : déclaré pour valider l'existence
     id = forms.ModelChoiceField(queryset=SupplierFamilyAxes.objects.all())
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = SupplierFamilyAxes
         fields = ("id",)

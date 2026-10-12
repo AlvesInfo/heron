@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,R0913
-"""
-FR : Tests des imports de comptes articles (imports/articles_without_account.py, articles_update_account.py)
+"""FR : Tests des imports de comptes articles (imports/articles_without_account.py, articles_update_account.py)
+
+
 EN : Tests for article accounts imports
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import csv
 from pathlib import Path
 
@@ -15,7 +17,10 @@ from xlrd.biffh import XLRDError
 
 from apps.articles.forms.forms_djantic.forms_articles_account import ArticleAccountSageSchema
 from apps.articles.imports import articles_without_account
-from apps.articles.imports.articles_update_account import update_articles_accounts, upsert_articles_accounts
+from apps.articles.imports.articles_update_account import (
+    update_articles_accounts,
+    upsert_articles_accounts,
+)
 from apps.articles.imports.articles_without_account import (
     accounts_validation,
     delete_mac_files,
@@ -34,12 +39,26 @@ ARTICLE_UUID = "6fa459ea-ee8a-3ca4-894e-db77e160355e"
 
 def _line(article=ARTICLE_UUID, center="ACF", vat="001", purchase="607000", sale="707000"):
     """Ligne au format de l'écran articles sans comptes : 13 colonnes, comptes en 11 et 12"""
-    return [article, center, "FOUR001", "Fournisseur", "ART-1", "Libellé", "OPT", "Marchandises", "", vat, "FRA", purchase, sale]
+    return [
+        article,
+        center,
+        "FOUR001",
+        "Fournisseur",
+        "ART-1",
+        "Libellé",
+        "OPT",
+        "Marchandises",
+        "",
+        vat,
+        "FRA",
+        purchase,
+        sale,
+    ]
 
 
 def _write_xlsx(path: Path, data_rows):
-    """
-    Classeur au format de l'export : 1 entête (consommée par pandas) + 3 lignes de titres
+    """Classeur au format de l'export : 1 entête (consommée par pandas) + 3 lignes de titres
+
     (texte dans toutes les colonnes, sinon pandas convertit les comptes en float) + données
     """
     workbook = openpyxl.Workbook()
@@ -115,7 +134,7 @@ def test_upsert_articles_accounts(fake_make_insert):
 # VALIDATION DES COMPTES ===========================================================================
 
 
-@pytest.mark.usefixtures('comptes_sage')
+@pytest.mark.usefixtures("comptes_sage")
 def test_accounts_validation(make_account):
     """Vrai si tous les comptes existent dans le plan FRA, faux sinon"""
     make_account("BEL", "999999")
@@ -128,7 +147,7 @@ def test_accounts_validation(make_account):
 # EXCEL / CSV -> CSV D'IMPORT ======================================================================
 
 
-@pytest.mark.usefixtures('comptes_sage')
+@pytest.mark.usefixtures("comptes_sage")
 def test_file_for_insert_excel_to_csv_xlsx(tmp_path):
     """Chaque ligne est doublée pour la centrale GAF, le csv intermédiaire supprimé"""
     excel = _write_xlsx(tmp_path / "comptes.xlsx", [_line()])
@@ -137,11 +156,14 @@ def test_file_for_insert_excel_to_csv_xlsx(tmp_path):
 
     assert error is False
     assert Path(result) == tmp_path / "new_comptes.csv"
-    assert _read_csv(result) == [[ARTICLE_UUID, "ACF", "001", "607000", "707000"], [ARTICLE_UUID, "GAF", "001", "607000", "707000"]]
+    assert _read_csv(result) == [
+        [ARTICLE_UUID, "ACF", "001", "607000", "707000"],
+        [ARTICLE_UUID, "GAF", "001", "607000", "707000"],
+    ]
     assert sorted(p.name for p in tmp_path.iterdir()) == ["comptes.xlsx", "new_comptes.csv"]
 
 
-@pytest.mark.usefixtures('comptes_sage')
+@pytest.mark.usefixtures("comptes_sage")
 def test_file_for_insert_excel_to_csv_csv(tmp_path):
     """Un fichier csv est copié puis traité de la même façon"""
     source = _write_csv(tmp_path / "comptes.csv", [_line(), _line(vat="002", purchase="601000")])
@@ -153,21 +175,28 @@ def test_file_for_insert_excel_to_csv_csv(tmp_path):
     assert not (tmp_path / "copy_comptes.csv").exists()
 
 
-@pytest.mark.usefixtures('comptes_sage')
+@pytest.mark.usefixtures("comptes_sage")
 def test_file_for_insert_excel_to_csv_update_mode(tmp_path):
     """En update : les lignes GAF du fichier sont ignorées et les clés dédoublonnées"""
     source = _write_csv(
         tmp_path / "comptes.csv",
-        [_line(purchase="601000"), _line(center="GAF", purchase="999999"), _line(purchase="607000")],
+        [
+            _line(purchase="601000"),
+            _line(center="GAF", purchase="999999"),
+            _line(purchase="607000"),
+        ],
     )
 
     error, result = file_for_insert_excel_to_csv(source, update_mode=True)
 
     assert error is False
-    assert _read_csv(result) == [[ARTICLE_UUID, "ACF", "001", "607000", "707000"], [ARTICLE_UUID, "GAF", "001", "607000", "707000"]]
+    assert _read_csv(result) == [
+        [ARTICLE_UUID, "ACF", "001", "607000", "707000"],
+        [ARTICLE_UUID, "GAF", "001", "607000", "707000"],
+    ]
 
 
-@pytest.mark.usefixtures('comptes_sage')
+@pytest.mark.usefixtures("comptes_sage")
 def test_file_for_insert_excel_to_csv_informations_manquantes(tmp_path, caplog):
     """Une colonne obligatoire vide arrête la lecture : erreur explicite"""
     source = _write_csv(tmp_path / "comptes.csv", [_line(sale="")])
@@ -180,7 +209,7 @@ def test_file_for_insert_excel_to_csv_informations_manquantes(tmp_path, caplog):
     assert not (tmp_path / "new_comptes.csv").exists()
 
 
-@pytest.mark.usefixtures('comptes_sage')
+@pytest.mark.usefixtures("comptes_sage")
 def test_file_for_insert_excel_to_csv_compte_inconnu(tmp_path):
     """Un compte absent du plan FRA est refusé"""
     source = _write_csv(tmp_path / "comptes.csv", [_line(purchase="000000")])
@@ -226,12 +255,26 @@ def test_delete_mac_files(tmp_path):
 @pytest.mark.parametrize(
     ("function", "directory", "backup", "error_label", "flow"),
     [
-        (import_articles_without_account, "without_account", "without_account_backup", "import", "Articles_without_account"),
-        (update_articles_accounts, "update_accounts", "update_accounts_backup", "update", "Update_articles_accounts"),
+        (
+            import_articles_without_account,
+            "without_account",
+            "without_account_backup",
+            "import",
+            "Articles_without_account",
+        ),
+        (
+            update_articles_accounts,
+            "update_accounts",
+            "update_accounts_backup",
+            "update",
+            "Update_articles_accounts",
+        ),
     ],
 )
-@pytest.mark.usefixtures('comptes_sage')
-def test_import_complet(articles_dirs, fake_make_insert, function, directory, backup, error_label, flow):
+@pytest.mark.usefixtures("comptes_sage")
+def test_import_complet(
+    articles_dirs, fake_make_insert, function, directory, backup, error_label, flow
+):
     """Fichier valide intégré, fichier en erreur signalé, fichiers parasites supprimés, backup"""
     calls, _ = fake_make_insert
     processing = getattr(articles_dirs, directory)
@@ -244,16 +287,29 @@ def test_import_complet(articles_dirs, fake_make_insert, function, directory, ba
     errors, oks = function()
 
     assert oks == "\nLe fichier bon.xlsx a bien été intégré "
-    assert errors.startswith(f"\nIl y a eu une erreur d'{error_label} pour le fichier mauvais.csv: ")
+    assert errors.startswith(
+        f"\nIl y a eu une erreur d'{error_label} pour le fichier mauvais.csv: "
+    )
     assert calls[0]["flow_name"] == flow
     assert calls[0]["source"] == processing / "new_bon.csv"
     assert sorted(p.name for p in processing.iterdir()) == ["sous.dossier"]
-    assert sorted(p.name for p in getattr(articles_dirs, backup).iterdir()) == ["bon.xlsx", "mauvais.csv"]
+    assert sorted(p.name for p in getattr(articles_dirs, backup).iterdir()) == [
+        "bon.xlsx",
+        "mauvais.csv",
+    ]
 
 
-@pytest.mark.parametrize(("function", "directory", "error_label"), [(import_articles_without_account, "without_account", "import"), (update_articles_accounts, "update_accounts", "update")])
-@pytest.mark.usefixtures('comptes_sage')
-def test_import_trace_en_erreur_et_backup_existant(articles_dirs, fake_make_insert, function, directory, error_label):
+@pytest.mark.parametrize(
+    ("function", "directory", "error_label"),
+    [
+        (import_articles_without_account, "without_account", "import"),
+        (update_articles_accounts, "update_accounts", "update"),
+    ],
+)
+@pytest.mark.usefixtures("comptes_sage")
+def test_import_trace_en_erreur_et_backup_existant(
+    articles_dirs, fake_make_insert, function, directory, error_label
+):
     """Trace en erreur après insertion : message vers la trace ; backup déjà présent : fichier supprimé"""
     _, state = fake_make_insert
     state["errors"] = True
@@ -265,12 +321,15 @@ def test_import_trace_en_erreur_et_backup_existant(articles_dirs, fake_make_inse
     errors, oks = function()
 
     assert oks == ""
-    assert f"Il y a eu une erreur d'{error_label} pour le fichier bon.xlsx: Consulté la Trace N° {Trace.objects.get().uuid_identification}" in errors
+    assert (
+        f"Il y a eu une erreur d'{error_label} pour le fichier bon.xlsx: Consulté la Trace N° {Trace.objects.get().uuid_identification}"
+        in errors
+    )
     assert (backup_dir / "bon.xlsx").read_bytes() == b"ancien"
     assert not (processing / "bon.xlsx").exists()
 
 
-@pytest.mark.usefixtures('articles_dirs', 'fake_make_insert')
+@pytest.mark.usefixtures("articles_dirs", "fake_make_insert")
 def test_imports_sans_fichier():
     """Répertoires vides"""
     assert import_articles_without_account() == ("", "")

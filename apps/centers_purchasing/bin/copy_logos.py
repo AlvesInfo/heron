@@ -1,12 +1,11 @@
-"""
-Module de copy des logos vers le répertoire static
-"""
+"""Module de copy des logos vers le répertoire static."""
+
 from django.conf import settings
 
 
 def copy_static(logos_set: set) -> None:
-    """
-    Cpoie des logos dans le répsrtoire static, static/img et static/images
+    """Cpoie des logos dans le répsrtoire static, static/img et static/images.
+
     :param logos_set: set des logos
     :return:
     """

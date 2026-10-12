@@ -1,4 +1,4 @@
-"""Module pour la définition des colonnes excel pour le module Centrales Mères
+"""Module pour la définition des colonnes excel pour le module Centrales Mères.
 
 Commentaire:
 
@@ -14,21 +14,16 @@ from apps.core.excel_outputs.excel_writer import (
     f_ligne,
 )
 
-
 columns_list_categories = [
     {
         "entete": "Classement",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#CCC0DA",
-            },
+            "bg_color": "#CCC0DA",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -36,15 +31,11 @@ columns_list_categories = [
         "entete": "Code",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#CCC0DA",
-            },
+            "bg_color": "#CCC0DA",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -52,15 +43,11 @@ columns_list_categories = [
         "entete": "Nom",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#CCC0DA",
-            },
+            "bg_color": "#CCC0DA",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 25,
     },
@@ -68,15 +55,11 @@ columns_list_categories = [
         "entete": "Classement",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -84,15 +67,11 @@ columns_list_categories = [
         "entete": "Code",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -100,15 +79,11 @@ columns_list_categories = [
         "entete": "Nom",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 25,
     },
@@ -120,15 +95,11 @@ columns_list_functions = [
         "entete": "function_name",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 25,
     },
@@ -136,13 +107,10 @@ columns_list_functions = [
         "entete": "function",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 50,
     },
@@ -150,13 +118,10 @@ columns_list_functions = [
         "entete": "Dir Windows",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 60,
     },
@@ -164,13 +129,10 @@ columns_list_functions = [
         "entete": "Dir Linux",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 60,
     },
@@ -178,13 +140,10 @@ columns_list_functions = [
         "entete": "description",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 80,
     },
@@ -196,15 +155,11 @@ columns_list_numberings = [
         "entete": "Nom",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 20,
     },
@@ -212,15 +167,11 @@ columns_list_numberings = [
         "entete": "Fonction",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 25,
     },
@@ -228,15 +179,11 @@ columns_list_numberings = [
         "entete": "Prefix",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -244,15 +191,11 @@ columns_list_numberings = [
         "entete": "Suffixe",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -260,15 +203,11 @@ columns_list_numberings = [
         "entete": "Lpad",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 5,
     },
@@ -276,15 +215,11 @@ columns_list_numberings = [
         "entete": "Séparateur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },
@@ -292,13 +227,10 @@ columns_list_numberings = [
         "entete": "Description",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 60,
     },
@@ -310,15 +242,11 @@ columns_list_nature = [
         "entete": "Nom",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 30,
     },
@@ -326,15 +254,11 @@ columns_list_nature = [
         "entete": "Affichage",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 30,
     },
@@ -342,15 +266,11 @@ columns_list_nature = [
         "entete": "Pour\nContacts",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },
@@ -358,15 +278,11 @@ columns_list_nature = [
         "entete": "Pour\nPersonnel",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },
@@ -374,15 +290,11 @@ columns_list_nature = [
         "entete": "Pour\nFormation",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },

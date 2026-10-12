@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour les factures du tiers pas mois
+"""Module d'export du fichier excel pour les factures du tiers pas mois.
 
 Commentaire:
 
@@ -8,11 +8,13 @@ created by: Paulo ALVES
 modified at: 2022-05-12
 modified by: Paulo ALVES
 """
+
 import io
 from pathlib import Path
 
-from django.db import connection
 from django.conf import settings
+from django.db import connection
+
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
@@ -24,15 +26,11 @@ COLUMNS = [
         "entete": "tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },
@@ -40,15 +38,11 @@ COLUMNS = [
         "entete": "Type",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -56,15 +50,11 @@ COLUMNS = [
         "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 20,
     },
@@ -72,16 +62,12 @@ COLUMNS = [
         "entete": "Mois facture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "mmmm yyyy",
-            },
+            "align": "center",
+            "num_format": "mmmm yyyy",
         },
         "width": 12,
     },
@@ -89,13 +75,12 @@ COLUMNS = [
         "entete": "factures",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "left", "text_wrap": True},
+            "align": "left",
+            "text_wrap": True,
         },
         "width": 80,
     },
@@ -103,15 +88,11 @@ COLUMNS = [
         "entete": "Référence Article",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 20,
     },
@@ -119,48 +100,44 @@ COLUMNS = [
         "entete": "Axe RFA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
 ]
 
 
-def get_rows(file_path: Path, parmas_dict: dict = None):
-    """Renvoie les résultats de la requête nécessaire à l'export excel
+def get_rows(file_path: Path, parmas_dict: dict | None = None):
+    """Renvoie les résultats de la requête nécessaire à l'export excel.
+
     :param file_path: file pathlib.PATH
     :param parmas_dict: paramètre de la requête
-    :return: resultats de la requête
+    :return: resultats de la requête.
     """
     parmas_dict = parmas_dict or {}
 
     with file_path.open("r") as sql_file, connection.cursor() as cursor:
         query = sql_file.read()
-        # print(cursor.mogrify(query, parmas_dict).decode())
-        # LOGGER_EXPORT_EXCEL.exception(f"{cursor.mogrify(query).decode()!r}")
-        # print(query)
         cursor.execute(query, parmas_dict)
         return [row[1:9] for row in cursor.fetchall()]
 
 
 def control_rfa_period_excel(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de l'étape 3.6 - Contrôle période RFA"""
+    """Fonction de génération du fichier de l'étape 3.6 - Contrôle période RFA."""
     titre = "3.6 - Contrôle période RFA"
-    file_path = Path(f"{settings.APPS_DIR!s}/validation_purchases/sql_files/sql_control_rfa_period.sql")
+    file_path = Path(
+        f"{settings.APPS_DIR!s}/validation_purchases/sql_files/sql_control_rfa_period.sql"
+    )
     get_clean_rows = [row[:-1] for row in get_rows(file_path)]
 
     return excel_list_export(
         file_io,
         file_name,
-        sheet_name='RFA',
+        sheet_name="RFA",
         title=titre,
         columns=COLUMNS,
         rows=get_clean_rows,

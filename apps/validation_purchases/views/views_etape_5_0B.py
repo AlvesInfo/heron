@@ -1,21 +1,22 @@
+"""Vues de l'étape 5.0.B de la validation des achats : détail d'un fournisseur par client."""
+
 import pendulum
 from django.db import connection
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from heron.loggers import LOGGER_VIEWS
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.validation_purchases.excel_outputs.excel_third_suppliers_m_vs_m1 import (
     excel_third_suppliers_m_vs_m1,
 )
-
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 5.B - Contrôle Details Fournisseurs M vs M-1
 
 
 def third_suppliers_m_purchases(request, client, third_party_num):
-    """View de l'étape 5.B - Contrôle Details Fournisseurs M vs M-1"""
+    """View de l'étape 5.B - Contrôle Details Fournisseurs M vs M-1."""
     with connection.cursor() as cursor:
         sql_context_file = "apps/validation_purchases/sql_files/sql_third_suppliers_m_vs_m1.sql"
         elements = query_file_dict_cursor(
@@ -38,11 +39,13 @@ def third_suppliers_m_purchases(request, client, third_party_num):
 
 
 def third_suppliers_m_purchases_export(request, client, third_party_num):
-    """Export Excel du Contrôle Fournisseurs M vs M-1
+    """Export Excel du Contrôle Fournisseurs M vs M-1.
+
     :param client: CCT X3 Client
     :param third_party_num: Tiers fournisseur
     :param request: Request Django
-    :return: response_file"""
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()

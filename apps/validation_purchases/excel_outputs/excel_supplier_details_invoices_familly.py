@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour les factures founisseurs détaillées
+"""Module d'export du fichier excel pour les factures founisseurs détaillées.
 
 Commentaire:
 
@@ -8,12 +8,13 @@ created by: Paulo ALVES
 modified at: 2023-06-02
 modified by: Paulo ALVES
 """
+
 import io
 from pathlib import Path
 
+from django.conf import settings
 from django.db import connection
 
-from django.conf import settings
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
@@ -25,15 +26,11 @@ COLUMNS = [
         "entete": "Tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -41,15 +38,11 @@ COLUMNS = [
         "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 30,
     },
@@ -57,15 +50,11 @@ COLUMNS = [
         "entete": "Type\nPièce",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },
@@ -73,15 +62,11 @@ COLUMNS = [
         "entete": "N° Pièce",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -89,13 +74,12 @@ COLUMNS = [
         "entete": "Date\nPièce",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center", "num_format": "dd/mm/yyyy"},
+            "align": "center",
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -103,16 +87,12 @@ COLUMNS = [
         "entete": "Montant\nHT\nPièce",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
+            "align": "right",
+            "num_format": "#,##0.00",
         },
         "width": 10.6,
     },
@@ -120,16 +100,12 @@ COLUMNS = [
         "entete": "TVA\nPièce",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
+            "align": "right",
+            "num_format": "#,##0.00",
         },
         "width": 10.6,
     },
@@ -137,16 +113,12 @@ COLUMNS = [
         "entete": "Montant\nTTC\nPièce",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
+            "align": "right",
+            "num_format": "#,##0.00",
         },
         "width": 10.6,
     },
@@ -154,15 +126,11 @@ COLUMNS = [
         "entete": "CCT\nForun.",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -170,15 +138,11 @@ COLUMNS = [
         "entete": "CCT\nSage X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -186,15 +150,11 @@ COLUMNS = [
         "entete": "Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 31,
     },
@@ -202,13 +162,11 @@ COLUMNS = [
         "entete": "Devise",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center"},
+            "align": "center",
         },
         "width": 8,
     },
@@ -216,13 +174,11 @@ COLUMNS = [
         "entete": "Reférence article",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "left"},
+            "align": "left",
         },
         "width": 22,
     },
@@ -230,13 +186,11 @@ COLUMNS = [
         "entete": "Libellé article",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "left"},
+            "align": "left",
         },
         "width": 35,
     },
@@ -244,15 +198,11 @@ COLUMNS = [
         "entete": "AXE\nBU",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -260,15 +210,11 @@ COLUMNS = [
         "entete": "AXE\nPRJ",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -276,15 +222,11 @@ COLUMNS = [
         "entete": "AXE\nPRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -292,15 +234,11 @@ COLUMNS = [
         "entete": "AXE\nPYS",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -308,15 +246,11 @@ COLUMNS = [
         "entete": "AXE\nRFA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -324,15 +258,11 @@ COLUMNS = [
         "entete": "Grande Catégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -340,15 +270,11 @@ COLUMNS = [
         "entete": "Rubrique\nPresta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -356,16 +282,12 @@ COLUMNS = [
         "entete": "Qty",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0",
-            },
+            "align": "right",
+            "num_format": "#,##0",
         },
         "width": 8,
     },
@@ -373,16 +295,12 @@ COLUMNS = [
         "entete": "P.U\nBrut",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
+            "align": "right",
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
@@ -390,16 +308,12 @@ COLUMNS = [
         "entete": "Remise",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00 %",
-            },
+            "align": "right",
+            "num_format": "#,##0.00 %",
         },
         "width": 9,
     },
@@ -407,16 +321,12 @@ COLUMNS = [
         "entete": "P.U\nNet",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
+            "align": "right",
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
@@ -424,16 +334,12 @@ COLUMNS = [
         "entete": "Montant\nNet",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
+            "align": "right",
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
@@ -441,16 +347,12 @@ COLUMNS = [
         "entete": "TVA X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "000",
-            },
+            "align": "center",
+            "num_format": "000",
         },
         "width": 9,
     },
@@ -458,16 +360,12 @@ COLUMNS = [
         "entete": "Taux\nTVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00 %",
-            },
+            "align": "right",
+            "num_format": "#,##0.00 %",
         },
         "width": 9,
     },
@@ -475,16 +373,12 @@ COLUMNS = [
         "entete": "Montant\nTVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
+            "align": "right",
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
@@ -492,41 +386,35 @@ COLUMNS = [
         "entete": "Montant\nTTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
+            "align": "right",
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
 ]
 
 
-def get_rows(file_path: Path, parmas_dict: dict = None):
-    """Renvoie les résultats de la requête nécessaire à l'export excel
+def get_rows(file_path: Path, parmas_dict: dict | None = None):
+    """Renvoie les résultats de la requête nécessaire à l'export excel.
+
     :param file_path: file pathlib.PATH
     :param parmas_dict: paramètre de la requête
-    :return: resultats de la requête
+    :return: resultats de la requête.
     """
     parmas_dict = parmas_dict or {}
 
     with file_path.open("r") as sql_file, connection.cursor() as cursor:
         query = sql_file.read()
-        # print(cursor.mogrify(query, parmas_dict).decode())
-        # LOGGER_EXPORT_EXCEL.exception(f"{cursor.mogrify(query).decode()!r}")
-        # print(query)
         cursor.execute(query, parmas_dict)
         return cursor.fetchall()
 
 
 def excel_supplier_details_invoice(file_io: io.BytesIO, file_name: str, attr_dict: dict) -> dict:
-    """Fonction de génération du fichier du détail des factures d'un founisseur"""
+    """Fonction de génération du fichier du détail des factures d'un founisseur."""
     third_party_num = attr_dict.get("third_party_num")
     file_path = Path(
         f"{settings.APPS_DIR!s}/validation_purchases/sql_files/sql_invoice_supplier_details.sql"

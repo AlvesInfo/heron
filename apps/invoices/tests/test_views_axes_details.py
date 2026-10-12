@@ -1,4 +1,5 @@
 """Tests des vues des dictionnaires Entêtes / Axe Pro des détails de facturation"""
+
 import logging
 
 import pytest
@@ -80,7 +81,10 @@ def test_entetes_export(logged_client, make_entete_details, monkeypatch, caplog)
     def boom(*args, **kwargs):
         raise RuntimeError("boom")
 
-    with patched_attrs(monkeypatch, axes_details_views, response_file=boom), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, axes_details_views, response_file=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         response = logged_client.get(reverse("invoices:entete_details_export_list"))
 
     assert response.url == reverse("invoices:entete_details_list")
@@ -102,7 +106,9 @@ def test_axes_create(logged_client, make_section, make_entete_details):
     url = reverse("invoices:axes_details_create")
     assert logged_client.get(url).context["titre_table"].startswith("Création")
 
-    response = logged_client.post(url, {"axe_pro": section.uuid_identification, "column_name": entete.column_name})
+    response = logged_client.post(
+        url, {"axe_pro": section.uuid_identification, "column_name": entete.column_name}
+    )
 
     assert response.status_code == 302
     assert response.url == reverse("invoices:axes_details_list")
@@ -117,7 +123,9 @@ def test_axes_update(logged_client, make_axes_details, make_entete_details):
     url = reverse("invoices:axes_details_update", kwargs={"pk": axe.pk})
     assert logged_client.get(url).context["titre_table"].startswith("Mise à jour")
 
-    response = logged_client.post(url, {"axe_pro": axe.axe_pro.uuid_identification, "column_name": autre.column_name})
+    response = logged_client.post(
+        url, {"axe_pro": axe.axe_pro.uuid_identification, "column_name": autre.column_name}
+    )
 
     assert response.status_code == 302
     axe.refresh_from_db()
@@ -148,7 +156,10 @@ def test_axes_export(logged_client, make_axes_details, monkeypatch, caplog):
     def boom(*args, **kwargs):
         raise RuntimeError("boom")
 
-    with patched_attrs(monkeypatch, axes_details_views, response_file=boom), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, axes_details_views, response_file=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         response = logged_client.get(reverse("invoices:axes_details_export_list"))
 
     assert response.url == reverse("invoices:axes_details_list")

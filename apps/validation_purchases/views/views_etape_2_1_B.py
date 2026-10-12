@@ -1,41 +1,39 @@
-"""
-Views des details d'une facture
-"""
-import pendulum
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.db.models import Value
-from django.contrib.postgres.aggregates import StringAgg
+"""Views des details d'une facture."""
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+import pendulum
+from django.contrib.postgres.aggregates import StringAgg
+from django.db.models import Value
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
 from apps.core.bin.change_traces import trace_mark_delete
 from apps.core.bin.encoders import get_base_64, set_base_64_list
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.edi.models import EdiImport
-from apps.validation_purchases.forms import (
-    ChangeBigCategoryForm,
-    DeletePkForm,
-    ChangeCttForm,
-)
 from apps.validation_purchases.excel_outputs.excel_supplier_invoices_number import (
     excel_invoice_number,
 )
-
+from apps.validation_purchases.forms import (
+    ChangeBigCategoryForm,
+    ChangeCttForm,
+    DeletePkForm,
+)
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 2.1.B - DETAILS FACTURES
 
 
 def details_purchase(request, flow_name, enc_param):
-    """View de l'étape 2.B des écrans de contrôles
+    """View de l'étape 2.B des écrans de contrôles.
+
     Visualisation des détails des lignes d'une facture pour un fournisseur
     :param request: Request Django
     :param enc_param: paramètres encodés en base 64
     :param flow_name: flow_name pour le retour chevron
-    :return: view
+    :return: view.
     """
-    # print(get_base_64(enc_param))
     third_party_num, supplier, invoice_month, invoice_number = get_base_64(enc_param)
     invoices = (
         EdiImport.objects.annotate(
@@ -62,7 +60,9 @@ def details_purchase(request, flow_name, enc_param):
         "chevron_retour": reverse(
             "validation_purchases:integration_supplier_purchases",
             kwargs={
-                "enc_param": set_base_64_list([third_party_num, supplier, invoice_month, flow_name]),
+                "enc_param": set_base_64_list(
+                    [third_party_num, supplier, invoice_month, flow_name]
+                ),
             },
         ),
         "form": ChangeBigCategoryForm(),
@@ -75,11 +75,11 @@ def details_purchase(request, flow_name, enc_param):
 
 
 def delete_line_details_purchase(request):
-    """Suppression des lignes de factures non souhaitées
-    :param request: Request Django
-    :return: view
-    """
+    """Suppression des lignes de factures non souhaitées.
 
+    :param request: Request Django
+    :return: view.
+    """
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -99,16 +99,17 @@ def delete_line_details_purchase(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.error(f"delete_line_details_purchase, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("delete_line_details_purchase, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def details_purchases_export(request, enc_param):
-    """Export Excel de
+    """Export Excel de.
+
     :param request: Request Django
     :param enc_param: Paramètres get de la requête encodée base 64
-    :return: response_file
+    :return: response_file.
     """
     try:
         if request.method == "GET":

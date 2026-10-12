@@ -1,4 +1,4 @@
-"""Module d'enregistrement de tous les changement en opération CRUD de l'application
+"""Module d'enregistrement de tous les changement en opération CRUD de l'application.
 
 Commentaire:
 
@@ -8,17 +8,21 @@ created by: Paulo ALVES
 modified at:
 modified by:
 """
+
 import inspect
+from collections.abc import Callable
 from copy import deepcopy
+from typing import Any
 
 from django import forms
-from django.forms import model_to_dict
-from django.utils import timezone
-from django.views.generic import CreateView, UpdateView, DeleteView
 from django.db import models
+from django.forms import model_to_dict
+from django.http import HttpRequest
+from django.utils import timezone
+from django.views.generic import CreateView, DeleteView, UpdateView
 
-from heron.loggers import LOGGER_VIEWS
 from apps.core.models import ChangesTrace
+from heron.loggers import LOGGER_VIEWS
 
 ACTION_DICT = {
     "DELETE": 0,
@@ -29,7 +33,8 @@ ACTION_DICT = {
 
 
 def get_difference_dict(before, after):
-    """Retourne seulement des differences
+    """Retourne seulement des differences.
+
     :param before: avant changement
     :param after: après changement
     :return:
@@ -43,30 +48,38 @@ def get_difference_dict(before, after):
     }
 
 
+def caller_frame() -> str:
+    """Description tronquée du cadre appelant, pour tracer l'origine d'un changement."""
+    frame = inspect.currentframe()
+    return str(frame.f_back.f_back if frame and frame.f_back else None)[:255]
+
+
 class ChangeTraceMixin:
-    """
-    class Mixin qui sauvegarde les changements dans les données.
+    """class Mixin qui sauvegarde les changements dans les données.
 
-        class Classe(ChangeTraceMixin):
-            ....
+    class Classe(ChangeTraceMixin):
+        ....
     """
 
-    request = None
-    object_before = {}
-    object = None
+    # Attributs fournis par la vue Django qui mixe cette classe
+    request: HttpRequest
+    get_object: Callable[..., Any]
+    object_before: dict = {}
+    object: Any = None
     mark_delete = None
     action_type = None
 
-    def initialisation(self, object_model, mark_delete: bool = None):
+    def initialisation(self, object_model, *, mark_delete: bool | None = None):
         """Surcharge pour l'instanciation quand cette class mixin, est utilisée directement.
+
         :param object_model: Surcharge de l'attribut, lors d'une instanciation
-        :param mark_delete: Surcharge de l'attribut, lors d'une instanciation
+        :param mark_delete: Surcharge de l'attribut, lors d'une instanciation.
         """
         self.object = object_model
         self.mark_delete = mark_delete
 
     def post(self, request, *args, **kwargs):
-        """Surcharge de la méthode post, pour avoir les données avant changement"""
+        """Surcharge de la méthode post, pour avoir les données avant changement."""
         try:
             self.object_before = deepcopy(self.get_object().__dict__)
         except AttributeError:
@@ -74,11 +87,10 @@ class ChangeTraceMixin:
             Si l'on a une erreur AttributeError, c'est que c'est en création
             et qu'il n'y a donc pas d'attirbut de méthode de class get_object
             """
-        return super().post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)  # type: ignore[misc]
 
     def action(self):
-        """Renvoie le type d'action réalisée"""
-
+        """Renvoie le type d'action réalisée."""
         if self.action_type is None:
             if isinstance(self, (DeleteView,)):
                 self.action_type = "DELETE"
@@ -90,11 +102,11 @@ class ChangeTraceMixin:
                 self.action_type = "UNDIFINED"
 
     def has_change(self, before: dict, after: dict):
-        """
-        Fonction qui vérifie si le formulaire a changé un élément de l'objet
+        """Fonction qui vérifie si le formulaire a changé un élément de l'objet.
+
         :param before: instance du formulaire d'avant
         :param after: instance du formulaire au post
-        :return: boolean
+        :return: boolean.
         """
         before_to_test = {
             key: str(value) if isinstance(value, (models.fields.files.ImageFieldFile,)) else value
@@ -121,17 +133,17 @@ class ChangeTraceMixin:
             if test_after_value == "$,:!cnjEfegvfkgqe":
                 break
 
-            if test_after_value != value:
-                # Si les valeurs sont différentes on va tester si dans la définition du champ,
-                # il y a l'attribut blank= True, si c'est le cas et que la différence est
-                # entre '' et None c'est qu'il n'y a pas de différences
-                # sinon ont break la boucle.
-                if not (
-                    test_after_value in {"", None}
-                    and value in {"", None}
-                    and self.object._meta.get_field(key).blank
-                ):
-                    break
+            # Si les valeurs sont différentes on va tester si dans la définition du champ,
+            # il y a l'attribut blank= True, si c'est le cas et que la différence est
+            # entre '' et None c'est qu'il n'y a pas de différences
+            # sinon ont break la boucle.
+            if test_after_value != value and not (
+                test_after_value in {"", None}
+                and value in {"", None}
+                and self.object is not None
+                and self.object._meta.get_field(key).blank
+            ):
+                break
 
         # S'il n'y a pas eu de break dans la boucle alors cela n'a pas changé
         else:
@@ -141,8 +153,8 @@ class ChangeTraceMixin:
         return True
 
     def form_valid(self, form):
-        """
-        Surcharge de la méthode form_valid, pour enregistrer les données Avant/Après
+        """Surcharge de la méthode form_valid, pour enregistrer les données Avant/Après.
+
         et ajouter le niveau de message et sa couleur.
         """
         self.request.session["level"] = 20
@@ -161,7 +173,7 @@ class ChangeTraceMixin:
 
         if not self.has_change(before, after):
             self.form_succes_message = "Vous n'avez rien modifié!"
-            return super().form_valid(form)
+            return super().form_valid(form)  # type: ignore[misc]
 
         self.action()
 
@@ -174,7 +186,7 @@ class ChangeTraceMixin:
 
         ChangesTrace.objects.create(
             action_datetime=timezone.now(),
-            action_type=ACTION_DICT.get(self.action_type, 9),
+            action_type=ACTION_DICT.get(str(self.action_type), 9),
             function_name=self.__class__,
             action_by=user,
             before=before,
@@ -189,46 +201,49 @@ class ChangeTraceMixin:
         # Si la view appelante souhaite faire quelque chose après une validation du formulaire
         # On lance sa methode form_updated
         if hasattr(self, "form_updated"):
-            form_updated = getattr(self, "form_updated")
+            form_updated = self.form_updated
             form_updated()
 
-        return super().form_valid(form)
+        return super().form_valid(form)  # type: ignore[misc]
 
     def form_invalid(self, form):
         """On surcharge la méthode form_invalid, pour ajouter le niveau de message et sa couleur."""
         self.request.session["level"] = 50
-        LOGGER_VIEWS.error(f"ChangeTraceMixin error : {form.errors!r}")
+        LOGGER_VIEWS.error("ChangeTraceMixin error : %r", form.errors)
 
         # Si la view appelante souhaite faire quelque chose après une erreur dans le formulaire
         # On lance sa methode form_error
         if hasattr(self, "form_error"):
-            form_error = getattr(self, "form_error")
+            form_error = self.form_error
             form_error()
 
-        return super().form_invalid(form)
+        return super().form_invalid(form)  # type: ignore[misc]
 
 
 def trace_mark_delete(
     request,
     django_model: models.Model,
     data_dict: dict,
+    *,
     force_delete=False,
 ):
-    """Fonction trace des changements de données, pour views functions flag delete à True
+    """Fonction trace des changements de données, pour views functions flag delete à True.
+
     :param request: request au sens Django
     :param django_model: Model au sens Django
     :param data_dict: données validées, pour le filtre
-    :param force_delete: True si l'on souhaite éffacé definitivement
+    :param force_delete: True si l'on souhaite éffacé definitivement.
     """
-    function_call = str(inspect.currentframe().f_back)[:255]
+    function_call = caller_frame()
     model_object = django_model.objects.filter(**data_dict)
 
     if not model_object:
         LOGGER_VIEWS.error(
-            f"{function_call} error : les données ne retournent aucuns résultats :\n"
-            f"\tdata_dict: {str(data_dict)}\n"
-            f"\tmodel    : {str(django_model)}\n"
-            f"\tforce    : {str(force_delete)}\n"
+            "%s error : les données ne retournent aucuns résultats :\n\tdata_dict: %s\n\tmodel    : %s\n\tforce    : %s\n",
+            function_call,
+            data_dict,
+            django_model,
+            force_delete,
         )
         request.session["level"] = 50
 
@@ -272,22 +287,23 @@ def trace_mark_bulk_delete(
     django_model: models.Model,
     data_dict: dict,
     replacements: tuple = (),
+    *,
     force_delete=False,
 ):
-    """Fonction trace des changements de données, pour views functions flag delete à True
+    """Fonction trace des changements de données, pour views functions flag delete à True.
+
     :param request: request au sens Django
     :param django_model: Model au sens Django
     :param data_dict: données validées, pour le filtre
     :param replacements: Tuple des variables à remplacer
-    :param force_delete: True si l'on souhaite éffacé definitivement
+    :param force_delete: True si l'on souhaite éffacé definitivement.
     """
-    function_call = str(inspect.currentframe().f_back)[:255]
+    function_call = caller_frame()
     model_object = django_model.objects.filter(**data_dict)
 
     if not model_object:
         LOGGER_VIEWS.error(
-            f"{function_call} error : les données ne retournent aucuns résultats :\n"
-            f"{str(data_dict)}"
+            "%s error : les données ne retournent aucuns résultats :\n%s", function_call, data_dict
         )
         request.session["level"] = 50
 
@@ -297,7 +313,8 @@ def trace_mark_bulk_delete(
     before = dict(data_dict.items())
     after = {
         **dict(deepcopy(before).items()),
-        **{"modified_by": user.pk, "delete": True},
+        "modified_by": user.pk,
+        "delete": True,
     }
 
     for replacement in replacements:
@@ -330,11 +347,12 @@ def trace_form_change(
     request,
     form: forms.ModelForm,
 ):
-    """Fonction trace des changements de données, pour views functions flag delete à True
+    """Fonction trace des changements de données, pour views functions flag delete à True.
+
     :param request: request au sens Django
-    :param form: données validées, pour le filtre
+    :param form: données validées, pour le filtre.
     """
-    function_call = str(inspect.currentframe().f_back)[:255]
+    function_call = caller_frame()
 
     user = request.user
     action_datetime = timezone.now()
@@ -361,10 +379,10 @@ def trace_form_change(
 
 
 def _before_and_after(model: models.Model, before_dict: dict, key: str, value) -> bool:
-    """
-    Compare la valeur stockée (attname, ex. big_category_id) à la valeur demandée : une instance
+    """Compare la valeur stockée (attname, ex. big_category_id) à la valeur demandée : une instance.
+
     de modèle passée pour une clé étrangère est ramenée à la valeur de sa clé cible.
-    :return: True si la valeur est inchangée
+    :return: True si la valeur est inchangée.
     """
     field = model._meta.get_field(key)
     attname = getattr(field, "attname", key)
@@ -376,13 +394,14 @@ def _before_and_after(model: models.Model, before_dict: dict, key: str, value) -
 
 
 def trace_change(request, model: models.Model, before_kwargs: dict, update_kwargs: dict):
-    """Fonction trace des changements de données, pour views functions ou fonctions
+    """Fonction trace des changements de données, pour views functions ou fonctions.
+
     :param request: request au sens Django
     :param model: Model au sens django
     :param before_kwargs: dictionaire avant
-    :param update_kwargs: dictionnaire du changement pour update
+    :param update_kwargs: dictionnaire du changement pour update.
     """
-    function_call = str(inspect.currentframe().f_back)[:255]
+    function_call = caller_frame()
 
     user = request.user
     action_datetime = timezone.now()
@@ -402,7 +421,7 @@ def trace_change(request, model: models.Model, before_kwargs: dict, update_kwarg
         return False, message
 
     after = model.objects.filter(**before_kwargs)
-    after.update(**{**update_kwargs, **{"modified_by": user, "modified_at": timezone.now()}})
+    after.update(**{**update_kwargs, "modified_by": user, "modified_at": timezone.now()})
     after_dict = {key: value for key, value in after.first().__dict__.items() if key != "_state"}
 
     ChangesTrace.objects.create(

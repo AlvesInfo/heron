@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de preuve des corrections : paramètre limit des API JSON, tri des jobs actifs,
+"""FR : Tests de preuve des corrections : paramètre limit des API JSON, tri des jobs actifs,
+
+
      lignes vides ou courtes dans l'itérateur d'import de fichiers
 EN : Proof tests for fixes: JSON APIs limit parameter, active jobs ordering, empty or short
      lines in the file import iterator
@@ -8,6 +9,7 @@ EN : Proof tests for fixes: JSON APIs limit parameter, active jobs ordering, emp
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import csv
 import datetime
 import io
@@ -60,10 +62,20 @@ def test_jobs_actifs_en_cours_avant_en_attente(logged_client):
     """Les jobs en cours, du démarrage le plus récent au plus ancien, puis les jobs en attente"""
     user = logged_client.user
     now = timezone.now()
-    SSEProgress.objects.create(job_id="old", user=user, task_type="import", status="in_progress", started_at=now - datetime.timedelta(hours=1))
+    SSEProgress.objects.create(
+        job_id="old",
+        user=user,
+        task_type="import",
+        status="in_progress",
+        started_at=now - datetime.timedelta(hours=1),
+    )
     SSEProgress.objects.create(job_id="wait", user=user, task_type="import", status="pending")
-    SSEProgress.objects.create(job_id="new", user=user, task_type="import", status="in_progress", started_at=now)
-    SSEProgress.objects.create(job_id="done", user=user, task_type="import", status="completed", started_at=now)
+    SSEProgress.objects.create(
+        job_id="new", user=user, task_type="import", status="in_progress", started_at=now
+    )
+    SSEProgress.objects.create(
+        job_id="done", user=user, task_type="import", status="completed", started_at=now
+    )
 
     response = logged_client.get(reverse("core:active_jobs"))
 
@@ -82,13 +94,24 @@ def test_iter_lignes_vides_et_courtes_completees(tmp_path):
     source = _csv(tmp_path / "fichier.csv", [["code", "name"], ["ACF", "Acuitis"], [], ["GAF"]])
     params = {"exclude_rows_dict": {2: "rien"}}
 
-    with IterFileToInsert(source, {"code": None, "name": None}, first_line=2, params_dict=params) as file_iter:
+    with IterFileToInsert(
+        source, {"code": None, "name": None}, first_line=2, params_dict=params
+    ) as file_iter:
         rows = list(file_iter.chunk_dict(all_lines=True))
 
-    assert rows == [{"code": "ACF", "name": "Acuitis"}, {"code": "", "name": ""}, {"code": "GAF", "name": ""}]
+    assert rows == [
+        {"code": "ACF", "name": "Acuitis"},
+        {"code": "", "name": ""},
+        {"code": "GAF", "name": ""},
+    ]
 
-    with IterFileToInsert(source, {"code": None, "name": None}, first_line=2, params_dict=params) as file_iter:
-        assert list(file_iter.chunk_dict()) == [{"code": "ACF", "name": "Acuitis"}, {"code": "GAF", "name": ""}]
+    with IterFileToInsert(
+        source, {"code": None, "name": None}, first_line=2, params_dict=params
+    ) as file_iter:
+        assert list(file_iter.chunk_dict()) == [
+            {"code": "ACF", "name": "Acuitis"},
+            {"code": "GAF", "name": ""},
+        ]
 
     buffer = io.StringIO()
 
@@ -102,5 +125,7 @@ def test_iter_exclusion_sur_une_colonne_absente(tmp_path):
     """Une exclusion sur une colonne au-delà de la ligne ne lève plus d'IndexError"""
     source = _csv(tmp_path / "fichier.csv", [["ACF"], ["GAF"]])
 
-    with IterFileToInsert(source, {"code": None}, first_line=1, params_dict={"exclude_rows_dict": {3: "x"}}) as file_iter:
+    with IterFileToInsert(
+        source, {"code": None}, first_line=1, params_dict={"exclude_rows_dict": {3: "x"}}
+    ) as file_iter:
         assert [row["code"] for row in file_iter.chunk_dict()] == ["ACF", "GAF"]

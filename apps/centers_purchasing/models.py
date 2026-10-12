@@ -1,6 +1,6 @@
-"""
-FR : Module de la centrale d'achat
-EN : Central purchasing module
+"""FR : Module de la centrale d'achat.
+
+EN : Central purchasing module.
 
 Commentaire:
 
@@ -17,32 +17,32 @@ import uuid
 from django.db import models
 from django.urls import reverse
 
-from heron.models import FlagsTable
 from apps.accountancy.models import (
     AccountSage,
-    VatSage,
     SectionSage,
     VatRegimeSage,
+    VatSage,
 )
-from apps.parameters.models import SalePriceCategory, Category, SubCategory
+from apps.parameters.models import Category, SalePriceCategory, SubCategory
+from heron.models import FlagsTable
 
 
 class Action(FlagsTable):
-    """
-    Table des Actions. Elle permettra d'avoir une liste centralisée,
+    """Table des Actions. Elle permettra d'avoir une liste centralisée,.
+
     des actions à réaliser en fonction de la centrale d'achat, ou pour des validations
     ou modifications de valeurs à la volée.
     FR : Actions
-    EN : Actions
+    EN : Actions.
     """
 
 
 class PrincipalCenterPurchase(FlagsTable):
-    """
-    Table de la centrale mère. Elle est isolée des centrales filles
+    """Table de la centrale mère. Elle est isolée des centrales filles.
+
     pour des diagrammes ultérieurs ou différents
     FR : Centrale Mère
-    EN : Principal Center Purchase
+    EN : Principal Center Purchase.
     """
 
     code = models.CharField(unique=True, max_length=15, verbose_name="code")
@@ -53,26 +53,26 @@ class PrincipalCenterPurchase(FlagsTable):
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.code} - {self.name}"
 
     @staticmethod
     def get_absolute_url():
-        """Url de retour après create ou Update"""
+        """Url de retour après create ou Update."""
         return reverse("centers_purchasing:meres_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class ChildCenterPurchase(FlagsTable):
-    """
-    Table des centrales filles. Elle est isolée de la Centrale Mère
+    """Table des centrales filles. Elle est isolée de la Centrale Mère.
+
     pour des diagrammes ultérieurs ou différents.
     FR : Centrale Fille
-    EN : Child Center Purchase
+    EN : Child Center Purchase.
     """
 
     code = models.CharField(unique=True, max_length=15, verbose_name="code")
@@ -90,14 +90,10 @@ class ChildCenterPurchase(FlagsTable):
     societe_cpy_x3 = models.CharField(max_length=5, verbose_name="Société X3")
     site_fcy_x3 = models.CharField(max_length=5, verbose_name="Site X3")
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
-    legal_notice = models.TextField(
-        null=True, blank=True, verbose_name="mentions légales"
-    )
+    legal_notice = models.TextField(null=True, blank=True, verbose_name="mentions légales")
     footer = models.TextField(null=True, blank=True, verbose_name="bas de page")
     # email d'où sont envoyés les documents, ou bien qui reçoivent les mails
-    sending_email = models.EmailField(
-        null=True, blank=True, verbose_name="email d'envoi"
-    )
+    sending_email = models.EmailField(null=True, blank=True, verbose_name="email d'envoi")
     vat_regime_center = models.ForeignKey(
         VatRegimeSage,
         on_delete=models.PROTECT,
@@ -133,16 +129,17 @@ class ChildCenterPurchase(FlagsTable):
     iban = models.CharField(null=True, blank=True, max_length=80)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.code} - {self.name}"
 
     @staticmethod
     def get_absolute_url():
-        """Url de retour après create ou Update"""
+        """Url de retour après create ou Update."""
         return reverse("centers_purchasing:filles_list")
 
     def save(self, *args, **kwargs):
         # Nettoyer l'IBAN (enlever espaces et tirets)
+        """Normalise l'IBAN par groupes de quatre caractères avant l'enregistrement."""
         iban_clean = re.sub(r"[\s-]", "", str(self.iban or "").strip())
 
         # Formater par groupes de 4
@@ -151,18 +148,18 @@ class ChildCenterPurchase(FlagsTable):
         super().save(*args, **kwargs)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["base_center", "name"]
         unique_together = (("code", "base_center"),)
 
 
 class Signboard(FlagsTable):
-    """
-    Enseigne, qui va refacturer. Elle porte le logo, le facing de la facture et les textes et mails.
+    """Enseigne, qui va refacturer. Elle porte le logo, le facing de la facture et les textes et mails.
+
     L'enseigne est relié et dépendante d'une centrale fille.
     FR : Enseigne
-    EN : Signboard
+    EN : Signboard.
     """
 
     code = models.CharField(unique=True, max_length=15, verbose_name="code")
@@ -177,16 +174,12 @@ class Signboard(FlagsTable):
         db_column="uuid_sale_price_category",
     )
     name = models.CharField(unique=True, max_length=80, verbose_name="Nom")
-    logo = models.ImageField(
-        null=True, blank=True, upload_to="logos/", verbose_name="logo"
-    )
+    logo = models.ImageField(null=True, blank=True, upload_to="logos/", verbose_name="logo")
     generic_coefficient = models.DecimalField(
         max_digits=20, decimal_places=5, default=1, verbose_name="Coef. générique"
     )
     comment = models.TextField(null=True, blank=True, verbose_name="Commentaire")
-    message = models.TextField(
-        null=True, blank=True, verbose_name="message sur facture"
-    )
+    message = models.TextField(null=True, blank=True, verbose_name="message sur facture")
     child_center = models.ForeignKey(
         ChildCenterPurchase,
         on_delete=models.PROTECT,
@@ -198,34 +191,30 @@ class Signboard(FlagsTable):
         db_column="child_center",
     )
     email_contact = models.EmailField(verbose_name="email de contact")
-    email_object = models.CharField(
-        null=True, blank=True, max_length=255, verbose_name="objet"
-    )
-    email_template = models.TextField(
-        null=True, blank=True, verbose_name="entete template"
-    )
+    email_object = models.CharField(null=True, blank=True, max_length=255, verbose_name="objet")
+    email_template = models.TextField(null=True, blank=True, verbose_name="entete template")
     email_corp = models.TextField(null=True, blank=True, verbose_name="corp de mail")
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.code} - {self.name}"
 
     @staticmethod
     def get_absolute_url():
-        """Url de retour après create ou Update"""
+        """Url de retour après create ou Update."""
         return reverse("centers_purchasing:enseignes_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class SignboardModel(FlagsTable):
-    """
-    Tous les modèles (email, textes, pieds de page, ....), que l'enseigne va utiliser.
+    """Tous les modèles (email, textes, pieds de page, ....), que l'enseigne va utiliser.
+
     FR : Modèles pour les Enseignes
-    EN : Templates for Signs
+    EN : Templates for Signs.
     """
 
     sign_board = models.ForeignKey(
@@ -236,36 +225,30 @@ class SignboardModel(FlagsTable):
         verbose_name="Enseigne",
     )
     name = models.CharField(unique=True, max_length=80, verbose_name="Nom")
-    short_name = models.CharField(
-        null=True, blank=True, max_length=20, verbose_name="Intitulé"
-    )
-    action = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="action"
-    )
+    short_name = models.CharField(null=True, blank=True, max_length=20, verbose_name="Intitulé")
+    action = models.CharField(null=True, blank=True, max_length=80, verbose_name="action")
     comment = models.TextField(null=True, blank=True, verbose_name="commentaire")
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.sign_board} - {self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["sign_board", "name"]
         unique_together = (("sign_board", "name"),)
 
 
 class Translation(FlagsTable):
-    """
-    Table des traductions des modéles pour les enseignes
+    """Table des traductions des modéles pour les enseignes.
+
     FR : Traductions
-    EN : Translations
+    EN : Translations.
     """
 
     name = models.CharField(unique=True, max_length=80, verbose_name="nom")
-    short_name = models.CharField(
-        null=True, blank=True, max_length=20, verbose_name="intitulé"
-    )
+    short_name = models.CharField(null=True, blank=True, max_length=20, verbose_name="intitulé")
     french_text = models.TextField(verbose_name="français")
     german_text = models.TextField(null=True, blank=True, verbose_name="allemand")
     italian_text = models.TextField(null=True, blank=True, verbose_name="italien")
@@ -294,20 +277,20 @@ class Translation(FlagsTable):
     maltese_text = models.TextField(null=True, blank=True, verbose_name="malte")
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class SignboardModelTranslate(FlagsTable):
-    """
-    Table many to many pour les Modèles des Enseignes / Traductions
+    """Table many to many pour les Modèles des Enseignes / Traductions.
+
     FR : Modèles des Enseignes / Traductions
-    EN : Sign Templates / Translations
+    EN : Sign Templates / Translations.
     """
 
     sign_board_model = models.ForeignKey(
@@ -328,26 +311,24 @@ class SignboardModelTranslate(FlagsTable):
     )
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.sign_board_model} - {self.translation}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["sign_board_model", "translation"]
         unique_together = (("sign_board_model", "translation"),)
 
 
 class TranslationParamaters(FlagsTable):
-    """
-    Table de toutes les variables à interpoler dans les modèles
+    """Table de toutes les variables à interpoler dans les modèles.
+
     FR : Interpolations
-    EN : Interpolations
+    EN : Interpolations.
     """
 
     code = models.CharField(unique=True, max_length=80, verbose_name="code")
@@ -363,38 +344,35 @@ class TranslationParamaters(FlagsTable):
     field = models.CharField(max_length=80, verbose_name="champ")
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.code} - {self.translation}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["translation", "code"]
         unique_together = (("code", "translation"),)
 
 
 class GroupingGoods(FlagsTable):
-    """Table des regroupements de refacturation
-    sur la premiere page du type de facture Marchandise
+    """Table des regroupements de refacturation.
+
+    sur la premiere page du type de facture Marchandise.
     """
 
     ranking = models.IntegerField()
     base = models.CharField(max_length=35, verbose_name="base refac")
-    grouping_goods = models.CharField(
-        unique=True, max_length=35, verbose_name="regroupement"
-    )
+    grouping_goods = models.CharField(unique=True, max_length=35, verbose_name="regroupement")
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.ranking} - {self.base} - {self.grouping_goods}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["ranking"]
         unique_together = (("base", "grouping_goods"),)
@@ -408,7 +386,7 @@ class GroupingGoods(FlagsTable):
 
 
 class AxeProGroupingGoods(FlagsTable):
-    """Table associative des Axes PRO/Regroupement de facturation"""
+    """Table associative des Axes PRO/Regroupement de facturation."""
 
     axe_pro = models.OneToOneField(
         SectionSage,
@@ -431,7 +409,7 @@ class AxeProGroupingGoods(FlagsTable):
     )
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["grouping_goods", "axe_pro"]
         indexes = [
@@ -442,8 +420,9 @@ class AxeProGroupingGoods(FlagsTable):
 
 
 class AccountsAxeProCategory(FlagsTable):
-    """Tables des comptes comptables par defaut
-    en fonction de la centrale fille, la catégrorie, la rubrique presta, l'axe_pro et le taux de tva
+    """Tables des comptes comptables par defaut.
+
+    en fonction de la centrale fille, la catégrorie, la rubrique presta, l'axe_pro et le taux de tva.
 
     """
 
@@ -505,23 +484,21 @@ class AccountsAxeProCategory(FlagsTable):
     )
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"child_center", "big_category", "sub_category", "axe_pro", "vat"}
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "child_center": 0,
@@ -534,12 +511,10 @@ class AccountsAxeProCategory(FlagsTable):
         }
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["child_center", "big_category", "sub_category", "axe_pro", "vat"]
-        unique_together = (
-            ("child_center", "big_category", "sub_category", "axe_pro", "vat"),
-        )
+        unique_together = (("child_center", "big_category", "sub_category", "axe_pro", "vat"),)
         indexes = [
             models.Index(fields=["child_center"]),
             models.Index(fields=["big_category"]),
@@ -559,10 +534,10 @@ class AccountsAxeProCategory(FlagsTable):
 
 
 class ApplicableProVat(FlagsTable):
-    """
-    Table taux de tva applicables par AXES PRO, pour les clients Français.
+    """Table taux de tva applicables par AXES PRO, pour les clients Français.
+
     FR : Taux de tva applicables par AXES PRO
-    EN : VAT rates applicables by AXES PRO
+    EN : VAT rates applicables by AXES PRO.
     """
 
     child_center = models.ForeignKey(
@@ -592,12 +567,10 @@ class ApplicableProVat(FlagsTable):
     )
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["child_center", "axe_pro"]
         unique_together = (("child_center", "axe_pro", "vat"),)
@@ -616,10 +589,10 @@ class ApplicableProVat(FlagsTable):
 
 
 class TypeFacture(models.Model):
-    """Type de pièces pour l'import X3"""
+    """Type de pièces pour l'import X3."""
 
     class InvType(models.TextChoices):
-        """Invoice type choices"""
+        """Invoice type choices."""
 
         FA = "380", "Facture"
         AV = "381", "Avoir"
@@ -632,20 +605,18 @@ class TypeFacture(models.Model):
         related_name="type_piece_centrale_fille",
         db_column="child_center",
     )
-    invoice_type = models.CharField(
-        max_length=10, choices=InvType.choices, default=InvType.FA
-    )
+    invoice_type = models.CharField(max_length=10, choices=InvType.choices, default=InvType.FA)
     invoice_name = models.CharField(null=True, max_length=15)
     purchase_type_facture = models.CharField(max_length=10)
     sale_type_facture = models.CharField(max_length=10)
 
     @staticmethod
     def get_absolute_url():
-        """Retourne l'url en cas de success create, update ou delete"""
+        """Retourne l'url en cas de success create, update ou delete."""
         return reverse("centers_purchasing:type_facture_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["child_center", "invoice_type"]
         unique_together = (("child_center", "invoice_type"),)

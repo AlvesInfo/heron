@@ -1,6 +1,6 @@
-"""
-FR : Module des modèles de factures founisseurs
-EN : supplier invoice templates module
+"""FR : Module des modèles de factures founisseurs.
+
+EN : supplier invoice templates module.
 
 Commentaire:
 
@@ -10,19 +10,20 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 import uuid
 
 from django.db import models
 
-from heron.models import FlagExport, FlagsTable
-from apps.parameters.models import BaseInvoiceDetailsTable, BaseInvoiceTable, BaseCommonDetailsTable
 from apps.accountancy.models import CctSage, SectionSage
 from apps.book.models import Society
 from apps.edi.models import EdiImportControl, EdiValidation
+from apps.parameters.models import BaseCommonDetailsTable, BaseInvoiceDetailsTable, BaseInvoiceTable
+from heron.models import FlagExport, FlagsTable
 
 
 class CentersInvoices(models.Model):
-    """Table pour stocker l'historique des éléments centrale pour les factures"""
+    """Table pour stocker l'historique des éléments centrale pour les factures."""
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -53,7 +54,7 @@ class CentersInvoices(models.Model):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         constraints = [
             models.UniqueConstraint(
@@ -109,7 +110,7 @@ class CentersInvoices(models.Model):
 
 
 class SignboardsInvoices(models.Model):
-    """Table pour stocker l'historique des éléments enseigne pour les factures"""
+    """Table pour stocker l'historique des éléments enseigne pour les factures."""
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -123,7 +124,7 @@ class SignboardsInvoices(models.Model):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         constraints = [
             models.UniqueConstraint(
@@ -158,7 +159,7 @@ class SignboardsInvoices(models.Model):
 
 
 class PartiesInvoices(models.Model):
-    """Table fixe des adresses du facturé CCT et Tiers"""
+    """Table fixe des adresses du facturé CCT et Tiers."""
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -199,11 +200,11 @@ class PartiesInvoices(models.Model):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.created_at} - {self.cct} - {self.third_party_num}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         constraints = [
             models.UniqueConstraint(
@@ -253,9 +254,9 @@ class PartiesInvoices(models.Model):
 
 
 class Invoice(FlagExport, BaseInvoiceTable):
-    """
-    FR : Factures Fournisseurs
-    EN : Suppliers Invoices
+    """FR : Factures Fournisseurs.
+
+    EN : Suppliers Invoices.
     """
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -293,11 +294,11 @@ class Invoice(FlagExport, BaseInvoiceTable):
     code_plan_sage = models.CharField(null=True, blank=True, max_length=10)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.third_party_num} - {self.invoice_number} - {self.invoice_date}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         constraints = [
             models.UniqueConstraint(
@@ -337,9 +338,9 @@ class Invoice(FlagExport, BaseInvoiceTable):
 
 
 class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
-    """
-    FR : Detail des factures fournisseurs
-    EN : Suppliers Invoices detail
+    """FR : Detail des factures fournisseurs.
+
+    EN : Suppliers Invoices detail.
     """
 
     # Identification
@@ -371,7 +372,7 @@ class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     collectif = models.CharField(null=True, blank=True, max_length=15)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         indexes = [
             models.Index(fields=["uuid_invoice"], name="invoice_idx"),
@@ -384,9 +385,9 @@ class InvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
 
 
 class SaleInvoice(FlagExport, BaseInvoiceTable):
-    """
-    FR : Factures
-    EN : Invoices
+    """FR : Factures.
+
+    EN : Invoices.
     """
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -490,11 +491,11 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
     code_plan_sage = models.CharField(null=True, blank=True, max_length=10)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.invoice_number} - {self.invoice_date} - {self.cct}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         constraints = [
             models.UniqueConstraint(
@@ -618,17 +619,17 @@ class SaleInvoice(FlagExport, BaseInvoiceTable):
                 ]
             ),
             models.Index(
-                fields=['cct', 'global_invoice_file', 'invoice_month'],
-                name='idx_saleinvoice_pending',
-                condition=models.Q(final=False, printed=True, send_email=False, type_x3__in=[1, 2])
+                fields=["cct", "global_invoice_file", "invoice_month"],
+                name="idx_saleinvoice_pending",
+                condition=models.Q(final=False, printed=True, send_email=False, type_x3__in=[1, 2]),
             ),
         ]
 
 
 class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
-    """
-    FR : Detail des factures fournisseurs
-    EN : Suppliers Invoices detail
+    """FR : Detail des factures fournisseurs.
+
+    EN : Suppliers Invoices detail.
     """
 
     # Identification
@@ -663,7 +664,7 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
     axe_prj_name = models.CharField(null=True, blank=True, max_length=30)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         indexes = [
             models.Index(fields=["uuid_invoice"], name="sale_invoice_idx"),
@@ -676,9 +677,9 @@ class SaleInvoiceDetail(FlagExport, BaseInvoiceDetailsTable):
 
 
 class InvoiceCommonDetails(FlagExport, BaseCommonDetailsTable):
-    """
-    FR : Detail des n° de série
-    EN : Serial numbers detail
+    """FR : Detail des n° de série.
+
+    EN : Serial numbers detail.
     """
 
     import_uuid_identification = models.UUIDField(unique=True)
@@ -744,7 +745,7 @@ class InvoiceCommonDetails(FlagExport, BaseCommonDetailsTable):
     billing_date = models.DateField(null=True)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         indexes = [
             models.Index(
@@ -769,23 +770,23 @@ class InvoiceCommonDetails(FlagExport, BaseCommonDetailsTable):
 
 
 class EnteteDetails(FlagsTable):
-    """Tables des Entêtes sur les détails de facturation"""
+    """Tables des Entêtes sur les détails de facturation."""
 
     ranking = models.IntegerField(null=True, default=0)
     column_name = models.CharField(unique=True, max_length=35)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.column_name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["ranking"]
 
 
 class AxesDetails(FlagsTable):
-    """Tables des regroupements dans les détails"""
+    """Tables des regroupements dans les détails."""
 
     axe_pro = models.OneToOneField(
         SectionSage,
@@ -806,13 +807,13 @@ class AxesDetails(FlagsTable):
     )
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["axe_pro"]
 
 
 class ExportX3(FlagExport):
-    """class pour les fichiers export X3"""
+    """class pour les fichiers export X3."""
 
     uuid_edi_validation = models.ForeignKey(
         EdiValidation,
@@ -835,6 +836,6 @@ class ExportX3(FlagExport):
     alls_zip_file = models.FileField(null=True, upload_to="export")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["-created_at"]

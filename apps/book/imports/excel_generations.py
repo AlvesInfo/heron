@@ -1,6 +1,6 @@
-"""
-FR : Module générique de donwload de fichiers
-EN : Generic file download module
+"""FR : Module générique de donwload de fichiers.
+
+EN : Generic file download module.
 
 Commentaire:
 
@@ -10,18 +10,20 @@ created by: Paulo ALVES
 modified at: 2022-05-19
 modified by: Paulo ALVES
 """
+
 import io
 import shutil
 from pathlib import Path
 
-from apps.core.functions import functions_setups  # noqa: F401  amorçage Django hors serveur
 from django.conf import settings
-from apps.book.models import Society
+
 from apps.book.excel_outputs.book_excel_societies_list import excel_liste_societies
+from apps.book.models import Society
+from apps.core.functions import functions_setups  # noqa: F401  amorçage Django hors serveur
 
 
 def writre_book_files():
-    """Fonction d'écriture des fichiers excel volumineux à l'insertion ou update de données"""
+    """Fonction d'écriture des fichiers excel volumineux à l'insertion ou update de données."""
     files_to_write = [
         ("tiers", "LISTING_DES_TIERS.xlsx"),
         ("clients", "LISTING_DES_CLIENTS.xlsx"),
@@ -34,11 +36,11 @@ def writre_book_files():
         file_io.seek(0)
         new_file = Path(settings.MEDIA_EXCEL_FILES_DIR) / file_name
 
-        with new_file.open('wb') as write_file:
+        with new_file.open("wb") as write_file:
             shutil.copyfileobj(file_io, write_file, -1)
 
         file_io.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     writre_book_files()

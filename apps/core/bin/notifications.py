@@ -1,5 +1,4 @@
-"""
-CRUD pour les notifications utilisateur
+"""CRUD pour les notifications utilisateur.
 
 created at: 2025-02-14
 created by: Paulo ALVES
@@ -15,7 +14,7 @@ from apps.core.models.models_notifications import Notification
 
 
 def create_notification(user, title, message, level="info", link=None, created_by=None):
-    """Crée une notification pour un utilisateur"""
+    """Crée une notification pour un utilisateur."""
     return Notification.objects.create(
         user=user,
         title=title,
@@ -27,9 +26,9 @@ def create_notification(user, title, message, level="info", link=None, created_b
 
 
 def broadcast_notification(title, message, level="info", link=None, created_by=None):
-    """Crée une notification pour tous les utilisateurs actifs"""
-    User = get_user_model()
-    users = User.objects.filter(is_active=True)
+    """Crée une notification pour tous les utilisateurs actifs."""
+    user_model = get_user_model()
+    users = user_model.objects.filter(is_active=True)
     notifications = [
         Notification(
             user=user,
@@ -45,53 +44,50 @@ def broadcast_notification(title, message, level="info", link=None, created_by=N
 
 
 def get_unread_notifications(user):
-    """Retourne le QuerySet des notifications non lues"""
+    """Retourne le QuerySet des notifications non lues."""
     return Notification.objects.filter(user=user, is_read=False)
 
 
 def get_unread_count(user):
-    """Retourne le nombre de notifications non lues"""
+    """Retourne le nombre de notifications non lues."""
     return Notification.objects.filter(user=user, is_read=False).count()
 
 
 def get_all_notifications(user, limit=30):
-    """Retourne les notifications de l'utilisateur, en excluant les notifications lues
-    depuis plus d'une semaine"""
-    one_week_ago = timezone.now() - timedelta(days=7)
-    notifications = Notification.objects.filter(
-        models.Q(user=user)
-        & ~models.Q(is_read=True, read_at__lt=one_week_ago)
-    )[:limit]
+    """Retourne les notifications de l'utilisateur, en excluant les notifications lues.
 
-    return notifications
+    depuis plus d'une semaine.
+    """
+    one_week_ago = timezone.now() - timedelta(days=7)
+    return Notification.objects.filter(
+        models.Q(user=user) & ~models.Q(is_read=True, read_at__lt=one_week_ago)
+    )[:limit]
 
 
 def mark_notification_as_read(notification_uuid, user):
-    """Marque une notification comme lue"""
+    """Marque une notification comme lue."""
     try:
-        notification = Notification.objects.get(
-            uuid_identification=notification_uuid, user=user
-        )
+        notification = Notification.objects.get(uuid_identification=notification_uuid, user=user)
         notification.mark_as_read()
-        return True
     except Notification.DoesNotExist:
         return False
+    else:
+        return True
 
 
 def mark_all_as_read(user):
-    """Marque toutes les notifications comme lues"""
+    """Marque toutes les notifications comme lues."""
     return Notification.objects.filter(user=user, is_read=False).update(
         is_read=True, read_at=timezone.now()
     )
 
 
 def delete_notification(notification_uuid, user):
-    """Supprime une notification"""
+    """Supprime une notification."""
     try:
-        notification = Notification.objects.get(
-            uuid_identification=notification_uuid, user=user
-        )
+        notification = Notification.objects.get(uuid_identification=notification_uuid, user=user)
         notification.delete()
-        return True
     except Notification.DoesNotExist:
         return False
+    else:
+        return True

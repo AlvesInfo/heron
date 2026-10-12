@@ -1,6 +1,6 @@
-""" "
-FR : Module des vues pour les imports
-EN : Views module for imports
+"""FR : Module des vues pour les imports.
+
+EN : Views module for imports.
 
 Commentaire:
 
@@ -11,23 +11,23 @@ modified at: 2022-12-26
 modified by: Paulo ALVES
 """
 
-import uuid
 import threading
-from asgiref.sync import async_to_sync
+import uuid
 
-from django.shortcuts import render
+from asgiref.sync import async_to_sync
 from django.http import JsonResponse
+from django.shortcuts import render
 
 from apps.core.models import SSEProgress
+from apps.edi.loops.imports_loop_pool import (
+    celery_import_launch,
+    get_all_import_checks_async,
+    import_launch_bbgr,
+)
 from apps.parameters.bin.core import (
     have_action_in_progress,
     have_send_email_without_finalize,
     set_message,
-)
-from apps.edi.loops.imports_loop_pool import (
-    celery_import_launch,
-    import_launch_bbgr,
-    get_all_import_checks_async,
 )
 
 IMPORT_TEMPLATE = "edi/edi_import.html"
@@ -43,12 +43,13 @@ BBGR_IMPORTS = {
 
 
 def _import_launch_params(request, files_celery, user_pk, job_id):
-    """Paramètres du lancement selon le bouton posté
+    """Paramètres du lancement selon le bouton posté.
+
     :param request: Request Django
     :param files_celery: fichiers fournisseurs à importer
     :param user_pk: pk de l'utilisateur qui lance l'import
     :param job_id: identifiant du job suivi par la jauge
-    :return: (nombre d'étapes de la jauge, type de tâche, titre, fonction à lancer, arguments)
+    :return: (nombre d'étapes de la jauge, type de tâche, titre, fonction à lancer, arguments).
     """
     bbgr_import = next((name for name in BBGR_IMPORTS if name in request.POST), None)
 
@@ -73,8 +74,7 @@ def _import_launch_params(request, files_celery, user_pk, job_id):
 
 
 def import_edi_invoices(request):
-    """Bouton d'import des factures edi"""
-
+    """Bouton d'import des factures edi."""
     context = {
         "en_cours": False,
         "margin_table": 50,
@@ -85,9 +85,7 @@ def import_edi_invoices(request):
     in_action = have_action_in_progress()
 
     if in_action:
-        set_message(
-            request, 50, "Il y a des intégrations en cours, réessayez plus tard !"
-        )
+        set_message(request, 50, "Il y a des intégrations en cours, réessayez plus tard !")
 
         return render(request, IMPORT_TEMPLATE, context=context)
 
@@ -119,9 +117,7 @@ def import_edi_invoices(request):
 
     # Si l'on envoie un POST alors, on lance l'import en tâche de fond celery
     if request.method == "POST":
-        bool_files = any(
-            [have_statment, have_monthly, have_retours, have_receptions, files_celery]
-        )
+        bool_files = any([have_statment, have_monthly, have_retours, have_receptions, files_celery])
 
         # On vérifie qu'il y ait des fichiers
         if bool_files:
@@ -155,12 +151,9 @@ def import_edi_invoices(request):
             # Retourner JSON immédiatement
             return JsonResponse({"success": True, "job_id": job_id})
 
-        else:
-            set_message(request, 50, "Il n'y a aucuns fichiers EDI à traiter !")
+        set_message(request, 50, "Il n'y a aucuns fichiers EDI à traiter !")
 
-            return JsonResponse(
-                {"success": False, "error": "Il n'y a aucuns fichiers EDI à traiter !"}
-            )
+        return JsonResponse({"success": False, "error": "Il n'y a aucuns fichiers EDI à traiter !"})
 
     context.update(
         {

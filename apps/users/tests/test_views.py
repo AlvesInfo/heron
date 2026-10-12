@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,R0913
-"""
-FR : Tests des vues de l'app users (connexion, création, profil, groupes, téléversements, email)
+"""FR : Tests des vues de l'app users (connexion, création, profil, groupes, téléversements, email)
+
+
 EN : Tests for users app views
 
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import pytest
 from django.contrib.auth.models import Group
 from django.contrib.messages import get_messages
@@ -47,7 +49,9 @@ def test_connexion(client, make_user):
 
     wrong = Client().post(url, {"email": user.email, "mot_de_passe": "faux"})
     assert wrong.status_code == 200
-    assert [m.message for m in get_messages(wrong.wsgi_request)] == ["Email ou mot de passe, non trouvés"]
+    assert [m.message for m in get_messages(wrong.wsgi_request)] == [
+        "Email ou mot de passe, non trouvés"
+    ]
 
     invalid = Client().post(url, {"email": "pas un email", "mot_de_passe": "x"})
     assert invalid.status_code == 200
@@ -66,11 +70,15 @@ def test_connexion_avec_page_suivante(client, make_user):
     assert response.status_code == 302
     assert response.url == allowed
 
-    forbidden = Client().post(f"{url}?next=http://pirate.example/", {"email": user.email, "mot_de_passe": PASSWORD})
+    forbidden = Client().post(
+        f"{url}?next=http://pirate.example/", {"email": user.email, "mot_de_passe": PASSWORD}
+    )
     assert forbidden.url == "/"
 
     # Une url relative interne (cas du décorateur login_required) est suivie
-    relative = Client().post(f"{url}?next=/accounts/profil/", {"email": user.email, "mot_de_passe": PASSWORD})
+    relative = Client().post(
+        f"{url}?next=/accounts/profil/", {"email": user.email, "mot_de_passe": PASSWORD}
+    )
     assert relative.url == "/accounts/profil/"
 
 
@@ -94,17 +102,31 @@ def test_creation_par_superuser(superuser_client, make_group):
 
     response = superuser_client.post(
         url,
-        {"email": "nouveau@heron.local", "first_name": "Paul", "password": PASSWORD, "password_verif": PASSWORD, "staff": "on", "groups": ["Comptabilité", "Achats"]},
+        {
+            "email": "nouveau@heron.local",
+            "first_name": "Paul",
+            "password": PASSWORD,
+            "password_verif": PASSWORD,
+            "staff": "on",
+            "groups": ["Comptabilité", "Achats"],
+        },
     )
     created = User.objects.get(email="nouveau@heron.local")
 
     assert response.status_code == 200
     assert response.context["message_success"] is True
-    assert (created.username, created.is_staff, created.is_superuser, created.code_child_center) == ("nouveau", True, False, "ACU")
+    assert (
+        created.username,
+        created.is_staff,
+        created.is_superuser,
+        created.code_child_center,
+    ) == ("nouveau", True, False, "ACU")
     assert set(created.groups.values_list("name", flat=True)) == {"Comptabilité", "Achats"}
 
 
-def test_creation_par_staff_et_superuser_cree_un_superuser(staff_client, superuser_client, make_group):
+def test_creation_par_staff_et_superuser_cree_un_superuser(
+    staff_client, superuser_client, make_group
+):
     """Un staff ne peut créer ni staff ni superuser ; redirection sur next"""
     compta = make_group("Comptabilité")
     staff_client.user.groups.add(compta)
@@ -112,20 +134,37 @@ def test_creation_par_staff_et_superuser_cree_un_superuser(staff_client, superus
 
     response = staff_client.post(
         url + "?next=/accounts/profil/",
-        {"email": "a@heron.local", "username": "alpha", "password": PASSWORD, "password_verif": PASSWORD, "superuser": "on", "staff": "on", "groups": ["Comptabilité"]},
+        {
+            "email": "a@heron.local",
+            "username": "alpha",
+            "password": PASSWORD,
+            "password_verif": PASSWORD,
+            "superuser": "on",
+            "staff": "on",
+            "groups": ["Comptabilité"],
+        },
     )
     alpha = User.objects.get(email="a@heron.local")
     assert response.status_code == 302
     assert response.url == "/accounts/profil/"
     assert (alpha.username, alpha.is_staff, alpha.is_superuser) == ("alpha", False, False)
 
-    superuser_client.post(url, {"email": "b@heron.local", "password": PASSWORD, "password_verif": PASSWORD, "superuser": "on"})
+    superuser_client.post(
+        url,
+        {
+            "email": "b@heron.local",
+            "password": PASSWORD,
+            "password_verif": PASSWORD,
+            "superuser": "on",
+        },
+    )
     beta = User.objects.get(email="b@heron.local")
     assert (beta.is_staff, beta.is_superuser) == (True, True)
 
     # Un next vers un domaine étranger est ramené à la racine (pas de redirection ouverte)
     pirate = superuser_client.post(
-        url + "?next=http://pirate.example/", {"email": "c@heron.local", "password": PASSWORD, "password_verif": PASSWORD}
+        url + "?next=http://pirate.example/",
+        {"email": "c@heron.local", "password": PASSWORD, "password_verif": PASSWORD},
     )
     assert pirate.status_code == 302
     assert pirate.url == "/"
@@ -139,7 +178,9 @@ def test_creation_formulaire_invalide_et_utilisateur_simple(superuser_client, lo
     assert invalid.context["form"].errors
     assert logged_client.get(url).status_code == 200
 
-    plain = logged_client.post(url, {"email": "c@heron.local", "password": PASSWORD, "password_verif": PASSWORD})
+    plain = logged_client.post(
+        url, {"email": "c@heron.local", "password": PASSWORD, "password_verif": PASSWORD}
+    )
     assert plain.status_code == 302
     assert plain.url == "/"
     assert User.objects.filter(email="c@heron.local").exists() is False
@@ -159,7 +200,9 @@ def test_profil(logged_client):
     assert response.context["message"] == "Votre profil à bien été changé"
     assert (user.first_name, user.function, user.username) == ("Paul", "Dev", "test")
 
-    response = logged_client.post(url, {"username": "paulo", "password": PASSWORD, "password_verif": PASSWORD})
+    response = logged_client.post(
+        url, {"username": "paulo", "password": PASSWORD, "password_verif": PASSWORD}
+    )
     user.refresh_from_db()
     assert response.context["message"] == "Votre profil et votre mot passe ont bien été changés"
     assert user.check_password(PASSWORD)
@@ -201,7 +244,10 @@ def test_gestion_groupes_avec_subordonnes(staff_client, superuser_client, make_g
     assert response.context["form"].fields["groups"].initial == [compta.id]
 
     admin_response = superuser_client.get(url)
-    assert {pk for pk, _, _ in admin_response.context["users"]} == {staff_client.user.pk, subordinate.pk}
+    assert {pk for pk, _, _ in admin_response.context["users"]} == {
+        staff_client.user.pk,
+        subordinate.pk,
+    }
 
 
 def test_gestion_groupes_superuser_seul(make_superuser):
@@ -227,7 +273,9 @@ def test_modification_groupes(superuser_client, make_group, make_user, no_error_
     assert superuser_client.get(url).status_code == 405
     assert no_error_mail == []
 
-    unknown_group = superuser_client.post(url, {"pk": user.pk, "groups[]": [achats.id + 100]}, **AJAX)
+    unknown_group = superuser_client.post(
+        url, {"pk": user.pk, "groups[]": [achats.id + 100]}, **AJAX
+    )
     assert unknown_group.json() == {"success": "ko"}
     assert [kind for kind, _ in no_error_mail] == ["log", "mail"]
     assert "modification-groupes" in no_error_mail[0][1][1]
@@ -257,7 +305,10 @@ def test_groupes_acces_staff(superuser_client, make_group):
     assert superuser_client.get(url).status_code == 200
 
     superuser_client.post(url, {"group": [compta.id, achats.id]})
-    assert set(AuthGroupAccessStaff.objects.values_list("group_id", flat=True)) == {compta.id, achats.id}
+    assert set(AuthGroupAccessStaff.objects.values_list("group_id", flat=True)) == {
+        compta.id,
+        achats.id,
+    }
 
     superuser_client.post(url, {"group": [achats.id]})
     assert list(AuthGroupAccessStaff.objects.values_list("group_id", flat=True)) == [achats.id]
@@ -271,8 +322,22 @@ def test_groupes_acces_staff(superuser_client, make_group):
 @pytest.mark.parametrize(
     ("route", "good_name", "good_content", "bad_name", "type_insert", "label"),
     [
-        ("staff_insertions", "staffs.csv", staff_csv(["a@b.fr;a;b;c;d;e"]), "staffs.xlsx", 1, "un csv"),
-        ("users_insertions", "users.xlsx", users_xlsx([["a@b.fr", "a", "b", "c", "d"]]), "users.csv", 0, "un fichier excel"),
+        (
+            "staff_insertions",
+            "staffs.csv",
+            staff_csv(["a@b.fr;a;b;c;d;e"]),
+            "staffs.xlsx",
+            1,
+            "un csv",
+        ),
+        (
+            "users_insertions",
+            "users.xlsx",
+            users_xlsx([["a@b.fr", "a", "b", "c", "d"]]),
+            "users.csv",
+            0,
+            "un fichier excel",
+        ),
     ],
 )
 def test_televersement(staff_client, route, good_name, good_content, bad_name, type_insert, label):
@@ -291,7 +356,10 @@ def test_televersement(staff_client, route, good_name, good_content, bad_name, t
     assert list(staff_client.get(url).context["files_upload"]) == [uploaded]
 
     duplicate = staff_client.post(url, {"file": SimpleUploadedFile(good_name, good_content)})
-    assert duplicate.json() == {"isValid": False, "message": f"Erreur : - Le fichier {good_name}, a déjà été téléversé !"}
+    assert duplicate.json() == {
+        "isValid": False,
+        "message": f"Erreur : - Le fichier {good_name}, a déjà été téléversé !",
+    }
 
     bad = staff_client.post(url, {"file": SimpleUploadedFile(bad_name, b"x")})
     assert bad.json()["isValid"] is False
@@ -305,6 +373,7 @@ def test_televersement(staff_client, route, good_name, good_content, bad_name, t
 def test_televersement_formulaire_invalide(staff_client, monkeypatch):
     """Un fichier refusé par la validation (antivirus) n'est pas enregistré"""
     from django.core.exceptions import ValidationError  # pylint: disable=C0415
+
     from apps.users import views as users_views  # pylint: disable=C0415
 
     def _infected(_value):
@@ -312,9 +381,14 @@ def test_televersement_formulaire_invalide(staff_client, monkeypatch):
 
     monkeypatch.setattr(users_views.UploadStaffsForm.base_fields["file"], "validators", [_infected])
 
-    response = staff_client.post(reverse("accounts:staff_insertions"), {"file": SimpleUploadedFile("staffs.csv", b"x")})
+    response = staff_client.post(
+        reverse("accounts:staff_insertions"), {"file": SimpleUploadedFile("staffs.csv", b"x")}
+    )
 
-    assert response.json() == {"isValid": False, "message": "Erreur : - Le fichier staffs.csv, n'a pu être téléversé !"}
+    assert response.json() == {
+        "isValid": False,
+        "message": "Erreur : - Le fichier staffs.csv, n'a pu être téléversé !",
+    }
     assert UploadUserFile.objects.count() == 0
 
 
@@ -322,29 +396,49 @@ def test_televersement_formulaire_invalide(staff_client, monkeypatch):
     ("route", "type_insert", "other_type"),
     [("delete_staffs_upload_file", 1, 0), ("delete_users_upload_file", 0, 1)],
 )
-def test_suppression_fichier_televerse(staff_client, make_upload, media_tmp, route, type_insert, other_type):
+def test_suppression_fichier_televerse(
+    staff_client, make_upload, media_tmp, route, type_insert, other_type
+):
     """Suppression de son fichier (enregistrement + disque) ; autre type ou inconnu refusés"""
     upload = make_upload(staff_client.user, "mien.csv", b"x", type_insert=type_insert)
     other = make_upload(staff_client.user, "autre.csv", b"x", type_insert=other_type)
 
     assert (media_tmp / "users" / "mien.csv").is_file()
-    assert staff_client.post(reverse(f"accounts:{route}", kwargs={"pk": upload.pk}), **AJAX).json() == {"success": "ok"}
+    assert staff_client.post(
+        reverse(f"accounts:{route}", kwargs={"pk": upload.pk}), **AJAX
+    ).json() == {"success": "ok"}
     assert UploadUserFile.objects.filter(pk=upload.pk).exists() is False
     assert (media_tmp / "users" / "mien.csv").is_file() is False
-    assert staff_client.post(reverse(f"accounts:{route}", kwargs={"pk": other.pk}), **AJAX).json() == {"success": "ko"}
-    assert staff_client.post(reverse(f"accounts:{route}", kwargs={"pk": 99999}), **AJAX).json() == {"success": "ko"}
+    assert staff_client.post(
+        reverse(f"accounts:{route}", kwargs={"pk": other.pk}), **AJAX
+    ).json() == {"success": "ko"}
+    assert staff_client.post(reverse(f"accounts:{route}", kwargs={"pk": 99999}), **AJAX).json() == {
+        "success": "ko"
+    }
 
     plain = staff_client.post(reverse(f"accounts:{route}", kwargs={"pk": other.pk}))
     assert plain.status_code == 302
     assert plain.url == reverse("home")
-    assert staff_client.get(reverse(f"accounts:{route}", kwargs={"pk": other.pk})).status_code == 405
+    assert (
+        staff_client.get(reverse(f"accounts:{route}", kwargs={"pk": other.pk})).status_code == 405
+    )
 
 
 @pytest.mark.usefixtures("site")
 def test_integrations(staff_client, make_upload):
     """Lancement des intégrations staff (csv) et utilisateurs (excel)"""
-    make_upload(staff_client.user, "staffs.csv", staff_csv([f"s@heron.local;S;T;st;Compta;{PASSWORD}"]), type_insert=1)
-    make_upload(staff_client.user, "users.xlsx", users_xlsx([["u@heron.local", "U", "V", "uv", ""]]), type_insert=0)
+    make_upload(
+        staff_client.user,
+        "staffs.csv",
+        staff_csv([f"s@heron.local;S;T;st;Compta;{PASSWORD}"]),
+        type_insert=1,
+    )
+    make_upload(
+        staff_client.user,
+        "users.xlsx",
+        users_xlsx([["u@heron.local", "U", "V", "uv", ""]]),
+        type_insert=0,
+    )
 
     staff = staff_client.post(reverse("accounts:staff_integrations"), **AJAX).json()
     assert staff["od"] is False
@@ -373,9 +467,22 @@ def test_changement_email(logged_client, make_user):
     assert logged_client.get(url).status_code == 200
 
     cases = [
-        ({"last_email": "inconnu@heron.local", "email": "n@heron.local", "email_verif": "n@heron.local"}, "est inconnu"),
-        ({"last_email": current, "email": "n@heron.local", "email_verif": "m@heron.local"}, "ne sont pas identiques"),
-        ({"last_email": current, "email": "pris@heron.local", "email_verif": "pris@heron.local"}, "existe déjà"),
+        (
+            {
+                "last_email": "inconnu@heron.local",
+                "email": "n@heron.local",
+                "email_verif": "n@heron.local",
+            },
+            "est inconnu",
+        ),
+        (
+            {"last_email": current, "email": "n@heron.local", "email_verif": "m@heron.local"},
+            "ne sont pas identiques",
+        ),
+        (
+            {"last_email": current, "email": "pris@heron.local", "email_verif": "pris@heron.local"},
+            "existe déjà",
+        ),
     ]
 
     for data, expected in cases:
@@ -384,7 +491,9 @@ def test_changement_email(logged_client, make_user):
         assert expected in [m.message for m in get_messages(response.wsgi_request)][-1]
         assert logged_client.session["level"] == 50
 
-    response = logged_client.post(url, {"last_email": current, "email": "n@heron.local", "email_verif": "n@heron.local"})
+    response = logged_client.post(
+        url, {"last_email": current, "email": "n@heron.local", "email_verif": "n@heron.local"}
+    )
     assert response.status_code == 302
     assert response.url == reverse("logout_email")
     assert User.objects.filter(email="n@heron.local").exists()

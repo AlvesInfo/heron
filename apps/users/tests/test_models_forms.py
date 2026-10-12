@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de la configuration, des modèles, des formulaires et des sérialiseurs de l'app users
+"""FR : Tests de la configuration, des modèles, des formulaires et des sérialiseurs de l'app users
+
+
 EN : Tests for users app configuration, models, forms and serializers
 
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import importlib
 
 import pytest
@@ -17,8 +19,8 @@ from django.core import mail
 from django.utils import timezone
 
 from apps.users import urls as users_urls
-from apps.users.Exceptions import UsersError
 from apps.users.apps import UsersConfig
+from apps.users.Exceptions import UsersError
 from apps.users.forms.forms_django import forms as users_forms
 from apps.users.forms.forms_django.forms import (
     ChangeEmailForm,
@@ -30,8 +32,18 @@ from apps.users.forms.forms_django.forms import (
     UserLoginForm,
     UserRegisterForm,
 )
-from apps.users.forms.forms_serializers.serializer_for_insert_users import UsersSerializer, UsersSerializerUsers
-from apps.users.models import AuthGroupAccessStaff, AuthGroupName, UploadUserFile, User, UserChief, UserSession
+from apps.users.forms.forms_serializers.serializer_for_insert_users import (
+    UsersSerializer,
+    UsersSerializerUsers,
+)
+from apps.users.models import (
+    AuthGroupAccessStaff,
+    AuthGroupName,
+    UploadUserFile,
+    User,
+    UserChief,
+    UserSession,
+)
 from apps.users.tests.conftest import PASSWORD
 
 pytestmark = pytest.mark.django_db
@@ -56,9 +68,15 @@ def test_app_config_routes_et_admin():
 
 
 def test_manager_creation(make_user):
-    user = User.objects.create_user("paul", "Paul@Heron.local", PASSWORD, code_child_center="ACF", first_name="Paul")
-    admin_user = User.objects.create_superuser("root", "root@heron.local", PASSWORD, code_child_center="ACF")
-    no_password = User.objects.create_user("sans", "sans@heron.local", None, code_child_center="ACF")
+    user = User.objects.create_user(
+        "paul", "Paul@Heron.local", PASSWORD, code_child_center="ACF", first_name="Paul"
+    )
+    admin_user = User.objects.create_superuser(
+        "root", "root@heron.local", PASSWORD, code_child_center="ACF"
+    )
+    no_password = User.objects.create_user(
+        "sans", "sans@heron.local", None, code_child_center="ACF"
+    )
 
     assert user.email == "Paul@heron.local"
     assert user.check_password(PASSWORD)
@@ -116,7 +134,9 @@ def test_email_user_et_tables_annexes(make_user, make_group):
     user.email_user("Sujet", "Message", from_email="noreply@heron.local")
     group = make_group("Comptabilité", "Compta")
     access = AuthGroupAccessStaff.objects.create(group=group)
-    django_session = Session.objects.create(session_key="abc", session_data="", expire_date=timezone.now())
+    django_session = Session.objects.create(
+        session_key="abc", session_data="", expire_date=timezone.now()
+    )
     session = UserSession.objects.create(user=user, session=django_session)
     upload = UploadUserFile.objects.create(base_name_file="users.xlsx", user=user)
 
@@ -156,21 +176,30 @@ def test_formulaire_creation_choix_des_groupes(make_superuser, make_staff, make_
     ("data", "field", "message"),
     [
         ({"password": PASSWORD, "password_verif": "autre"}, "password", "identiques"),
-        ({"email": "staff@heron.local", "password": PASSWORD, "password_verif": PASSWORD}, "email", "existe déja"),
+        (
+            {"email": "staff@heron.local", "password": PASSWORD, "password_verif": PASSWORD},
+            "email",
+            "existe déja",
+        ),
         ({"password": "", "password_verif": ""}, "password", "obligatoire"),
         ({"password": "1234", "password_verif": "1234"}, "password", "court"),
     ],
 )
 def test_formulaire_creation_erreurs(make_staff, data, field, message):
     make_staff()
-    form = UserRegisterForm(make_staff("chef@heron.local", "chef"), {"email": "nouveau@heron.local", **data})
+    form = UserRegisterForm(
+        make_staff("chef@heron.local", "chef"), {"email": "nouveau@heron.local", **data}
+    )
 
     assert form.is_valid() is False
     assert any(message in error for error in form.errors[field])
 
 
 def test_formulaire_creation_valide(make_superuser):
-    form = UserRegisterForm(make_superuser(), {"email": "nouveau@heron.local", "password": PASSWORD, "password_verif": PASSWORD})
+    form = UserRegisterForm(
+        make_superuser(),
+        {"email": "nouveau@heron.local", "password": PASSWORD, "password_verif": PASSWORD},
+    )
 
     assert form.is_valid(), form.errors
 
@@ -203,9 +232,14 @@ def test_formulaire_groupes_et_acces_staff(make_staff, make_user, make_group):
     groups_form = UpdateGroupesForm(staff, target)
     access_form = GroupAccessStaffForm()
 
-    assert sorted(groups_form.fields["groups"].choices) == sorted([(compta.id, "Compta"), (achats.id, "Achats")])
+    assert sorted(groups_form.fields["groups"].choices) == sorted(
+        [(compta.id, "Compta"), (achats.id, "Achats")]
+    )
     assert groups_form.fields["groups"].initial == [achats.id]
-    assert set(access_form.fields["group"].choices) == {(compta.id, "Comptabilité"), (achats.id, "Achats")}
+    assert set(access_form.fields["group"].choices) == {
+        (compta.id, "Comptabilité"),
+        (achats.id, "Achats"),
+    }
     assert access_form.fields["group"].initial == [compta.id]
     assert GroupAccessStaffForm({"group": [str(achats.id)]}).is_valid()
     assert GroupAccessStaffForm({}).is_valid()
@@ -217,8 +251,13 @@ def test_formulaires_fichiers_et_email(settings):
     assert "file_staffs" in InsertStaffsForm().fields
     assert InsertStaffsForm().fields["file_staffs"].required is False
     assert UploadStaffsForm.Meta.fields == ("file",)
-    assert ChangeEmailForm({"last_email": "a@b.fr", "email": "c@d.fr", "email_verif": "c@d.fr"}).is_valid()
-    assert ChangeEmailForm({"last_email": "a@b.fr", "email": "x", "email_verif": "x"}).is_valid() is False
+    assert ChangeEmailForm(
+        {"last_email": "a@b.fr", "email": "c@d.fr", "email_verif": "c@d.fr"}
+    ).is_valid()
+    assert (
+        ChangeEmailForm({"last_email": "a@b.fr", "email": "x", "email_verif": "x"}).is_valid()
+        is False
+    )
 
     try:
         settings.DEBUG = True
@@ -235,8 +274,18 @@ def test_formulaires_fichiers_et_email(settings):
 
 def test_serialiseur_staffs(make_user):
     make_user(email="existe@heron.local", username="existe")
-    valid = UsersSerializer(data={"email": "new@heron.local", "password": PASSWORD, "code_child_center": "ACF", "username": "u" * 100, "function": None})
-    duplicate = UsersSerializer(data={"email": "existe@heron.local", "password": PASSWORD, "code_child_center": "ACF"})
+    valid = UsersSerializer(
+        data={
+            "email": "new@heron.local",
+            "password": PASSWORD,
+            "code_child_center": "ACF",
+            "username": "u" * 100,
+            "function": None,
+        }
+    )
+    duplicate = UsersSerializer(
+        data={"email": "existe@heron.local", "password": PASSWORD, "code_child_center": "ACF"}
+    )
     missing = UsersSerializer(data={"email": "new2@heron.local"})
 
     assert valid.is_valid(), valid.errors
@@ -249,7 +298,13 @@ def test_serialiseur_staffs(make_user):
 
 def test_serialiseur_utilisateurs():
     serializer = UsersSerializerUsers(
-        data={"email": "Nouveau@Heron.LOCAL", "password": PASSWORD, "code_child_center": "ACF", "function": "", "last_name": "N" * 90}
+        data={
+            "email": "Nouveau@Heron.LOCAL",
+            "password": PASSWORD,
+            "code_child_center": "ACF",
+            "function": "",
+            "last_name": "N" * 90,
+        }
     )
 
     assert serializer.is_valid(), serializer.errors

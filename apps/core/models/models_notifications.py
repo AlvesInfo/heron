@@ -1,5 +1,4 @@
-"""
-Modèle Django pour les notifications utilisateur
+"""Modèle Django pour les notifications utilisateur.
 
 created at: 2025-02-14
 created by: Paulo ALVES
@@ -7,13 +6,13 @@ created by: Paulo ALVES
 
 import uuid
 
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.utils import timezone
 
 
 class Notification(models.Model):
-    """Notification destinée à un utilisateur"""
+    """Notification destinée à un utilisateur."""
 
     LEVEL_CHOICES = [
         ("info", "Information"),
@@ -22,9 +21,7 @@ class Notification(models.Model):
         ("success", "Succès"),
     ]
 
-    uuid_identification = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -49,13 +46,13 @@ class Notification(models.Model):
     )
     is_read = models.BooleanField(default=False, verbose_name="Lu")
     read_at = models.DateTimeField(null=True, blank=True, verbose_name="Lu le")
-    link = models.CharField(
-        max_length=500, blank=True, null=True, verbose_name="Lien"
-    )
+    link = models.CharField(max_length=500, blank=True, null=True, verbose_name="Lien")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Créé le")
     modified_at = models.DateTimeField(auto_now=True, verbose_name="Modifié le")
 
     class Meta:
+        """Métadonnées Django du modèle."""
+
         verbose_name = "Notification"
         verbose_name_plural = "Notifications"
         ordering = ["-created_at"]
@@ -65,10 +62,11 @@ class Notification(models.Model):
         ]
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.title} - {self.user} ({'lu' if self.is_read else 'non lu'})"
 
     def mark_as_read(self):
-        """Marque la notification comme lue"""
+        """Marque la notification comme lue."""
         if not self.is_read:
             self.is_read = True
             self.read_at = timezone.now()
@@ -76,25 +74,24 @@ class Notification(models.Model):
 
     @property
     def time_since(self):
-        """Retourne le temps écoulé depuis la création"""
+        """Retourne le temps écoulé depuis la création."""
         delta = timezone.now() - self.created_at
         seconds = int(delta.total_seconds())
 
         if seconds < 60:
             return "à l'instant"
-        elif seconds < 3600:
+        if seconds < 3600:
             minutes = seconds // 60
             return f"il y a {minutes} min"
-        elif seconds < 86400:
+        if seconds < 86400:
             hours = seconds // 3600
             return f"il y a {hours} h"
-        else:
-            days = seconds // 86400
-            return f"il y a {days} j"
+        days = seconds // 86400
+        return f"il y a {days} j"
 
     @property
     def level_icon(self):
-        """Retourne l'icône Semantic UI correspondant au niveau"""
+        """Retourne l'icône Semantic UI correspondant au niveau."""
         icons = {
             "info": "info circle",
             "warning": "exclamation triangle",
@@ -105,7 +102,7 @@ class Notification(models.Model):
 
     @property
     def level_color(self):
-        """Retourne la couleur Semantic UI correspondant au niveau"""
+        """Retourne la couleur Semantic UI correspondant au niveau."""
         colors = {
             "info": "blue",
             "warning": "yellow",
@@ -115,7 +112,7 @@ class Notification(models.Model):
         return colors.get(self.level, "blue")
 
     def to_dict(self):
-        """Convertit en dictionnaire pour l'API JSON"""
+        """Convertit en dictionnaire pour l'API JSON."""
         return {
             "uuid": str(self.uuid_identification),
             "title": self.title,

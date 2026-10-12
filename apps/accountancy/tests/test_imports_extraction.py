@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des extractions post-import (imports/extraction_cct.py, imports/extraction_code_plan.py)
+"""FR : Tests des extractions post-import (imports/extraction_cct.py, imports/extraction_code_plan.py)
+
+
 EN : Tests for post-import extractions
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import pytest
 
 from apps.accountancy.imports.extraction_cct import update_cct_sage
@@ -27,7 +29,10 @@ def test_update_code_plan_cree_les_plans_distincts(make_account):
 
     update_code_plan()
 
-    assert list(CodePlanSage.objects.values_list("code_plan_sage", flat=True).order_by("pk")) == ["BEL", "FRA"]
+    assert list(CodePlanSage.objects.values_list("code_plan_sage", flat=True).order_by("pk")) == [
+        "BEL",
+        "FRA",
+    ]
 
 
 def test_update_code_plan_idempotent(make_account, make_code_plan):
@@ -55,7 +60,16 @@ def test_update_code_plan_sans_compte():
 
 def test_update_cct_sage_cree_depuis_les_sections_cct(make_section):
     """Seules les sections de l'axe CCT alimentent CctSage, avec l'uuid de la section"""
-    paris = make_section("CCT", "AF0001", name="Paris", short_name="PAR", chargeable=True, regroup_01="R1", regroup_02="R2", active=True)
+    paris = make_section(
+        "CCT",
+        "AF0001",
+        name="Paris",
+        short_name="PAR",
+        chargeable=True,
+        regroup_01="R1",
+        regroup_02="R2",
+        active=True,
+    )
     make_section("BU", "AF0001", name="Pas un cct")
 
     update_cct_sage()
@@ -73,7 +87,15 @@ def test_update_cct_sage_cree_depuis_les_sections_cct(make_section):
 def test_update_cct_sage_met_a_jour_les_existants(make_section, make_cct):
     """Un cct existant est mis à jour et garde son propre uuid"""
     existing = make_cct("AF0001", name="Ancien nom", chargeable=True)
-    make_section("CCT", "AF0001", name="Nouveau nom", short_name="NN", chargeable=False, active=False, regroup_01="X")
+    make_section(
+        "CCT",
+        "AF0001",
+        name="Nouveau nom",
+        short_name="NN",
+        chargeable=False,
+        active=False,
+        regroup_01="X",
+    )
 
     update_cct_sage()
 

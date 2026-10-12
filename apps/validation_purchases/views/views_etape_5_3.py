@@ -1,27 +1,29 @@
-import pendulum
-from django.db import connection
-from django.contrib import messages
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.db.models import Q
+"""Vues de l'étape 5.3 de la validation des achats : chiffre d'affaires par CCT."""
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.functions.functions_postgresql import query_file_dict_cursor
+import pendulum
+from django.contrib import messages
+from django.db import connection
+from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
 from apps.core.bin.change_traces import trace_change
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from apps.core.functions.functions_postgresql import query_file_dict_cursor
+from apps.edi.models import EdiValidation
 from apps.validation_purchases.excel_outputs.excel_ca_cct import (
     excel_ca_cct,
 )
-from apps.edi.models import EdiValidation
 from apps.validation_purchases.forms import CaCctValidationForm
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 5.3 - Contrôle CA Cosium / Ventes Héron
 
 
 def ca_cct(request):
-    """View de l'étape 5.3 - Contrôle CA Cosium / Ventes Héron"""
+    """View de l'étape 5.3 - Contrôle CA Cosium / Ventes Héron."""
     with connection.cursor() as cursor:
         sql_context_file = "apps/validation_purchases/sql_files/sql_ca_cct.sql"
         elements = query_file_dict_cursor(cursor, file_path=sql_context_file)
@@ -29,7 +31,7 @@ def ca_cct(request):
         mois = 1
 
         for _ in range(1, 3):
-            mois_dict[f"M{mois-1}"] = (
+            mois_dict[f"M{mois - 1}"] = (
                 pendulum.now()
                 .subtract(months=mois)
                 .start_of("month")
@@ -50,13 +52,15 @@ def ca_cct(request):
 
 
 def ca_cct_export(request):
-    """Export Excel 5.3 - Contrôle CA Cosium / Ventes Héron
+    """Export Excel 5.3 - Contrôle CA Cosium / Ventes Héron.
+
     :param request: Request Django
-    :return: response_file"""
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()
-            file_name = "CONTROLE_CA_CCT_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+            file_name = f"CONTROLE_CA_CCT_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
 
             return response_file(
                 excel_ca_cct,
@@ -71,8 +75,7 @@ def ca_cct_export(request):
 
 
 def ca_cct_validation(request):
-    """Validation de l'écran de Contrôle 5.3 - Contrôle CA Cosium / Ventes Héron"""
-
+    """Validation de l'écran de Contrôle 5.3 - Contrôle CA Cosium / Ventes Héron."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -106,10 +109,10 @@ def ca_cct_validation(request):
                 message = "Le contrôle du CA Cosium / Ventes Héron est maintenant invalidé"
 
         except Exception:
-            LOGGER_VIEWS.exception(f"Views : ca_cct_validation error : {form.cleaned_data!r}")
+            LOGGER_VIEWS.exception("Views : ca_cct_validation error : %r", form.cleaned_data)
 
     else:
-        LOGGER_VIEWS.error(f"Views : ca_cct_validation error, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("Views : ca_cct_validation error, form invalid : %r", form.errors)
 
     messages.add_message(request, level, message)
 

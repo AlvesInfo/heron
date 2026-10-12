@@ -1,8 +1,8 @@
-"""
-FR : Tables de correspondance entre les données heron (codes X3) et le modèle
+"""FR : Tables de correspondance entre les données heron (codes X3) et le modèle.
+
      de facture attendu par le serveur Factur-X (facturx-fr)
 EN : Mapping tables between heron data (X3 codes) and the invoice model
-     expected by the Factur-X server (facturx-fr)
+     expected by the Factur-X server (facturx-fr).
 
 Commentaire:
 

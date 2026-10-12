@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql de post-traitement après import des fichiers de factures fournisseur
-EN : Post-processing sql module after importing supplier invoice files
+"""FR : Module des requêtes sql de post-traitement après import des fichiers de factures fournisseur.
+
+EN : Post-processing sql module after importing supplier invoice files.
 
 Commentaire:
 
@@ -10,16 +10,17 @@ created by: Paulo ALVES
 modified at: 2022-11-27
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 SQL_QTY = sql.SQL(
     """
 update "edi_ediimport"
-set 
-    "qty" = case 
-                when "qty" = 0 or qty isnull 
-                then 1::numeric 
-                else "qty" 
+set
+    "qty" = case
+                when "qty" = 0 or qty isnull
+                then 1::numeric
+                else "qty"
             end,
     "devise" = case when "devise" is null then 'EUR' else "devise" end,
     "active" = false,
@@ -34,21 +35,21 @@ post_all_dict = {
     "sql_in_use_third_party_num": sql.SQL(
         """
         with alls as (
-            select 
+            select
                 "third_party_num"
             from (
-                select 
-                    "third_party_num" 
-                from "edi_ediimport" ee 
+                select
+                    "third_party_num"
+                from "edi_ediimport" ee
                 union all
                 select
-                    "third_party_num" 
-                from "invoices_invoice" sii 
+                    "third_party_num"
+                from "invoices_invoice" sii
             ) r
             group by "third_party_num"
         )
         update "book_society" bs
-        set "in_use" = true 
+        set "in_use" = true
         where exists (select 1 from alls aa where aa."third_party_num" = bs."third_party_num")
     """
     ),
@@ -67,31 +68,31 @@ post_all_dict = {
     ),
     "sql_update_bu": sql.SQL(
         """
-        update "edi_ediimport" "edi" 
+        update "edi_ediimport" "edi"
         set "axe_bu" = (
-            select 
+            select
                 "acs"."uuid_identification"
             from "accountancy_sectionsage" "acs"
             where "acs"."axe" = 'BU'
               and "acs"."section" = 'REFAC0'
             limit 1
         )
-        where "edi"."third_party_num" = 'ZREFAC0' 
+        where "edi"."third_party_num" = 'ZREFAC0'
         """
     ),
     "sql_update_bu_articles": sql.SQL(
         """
-        update "articles_article" "aa" 
+        update "articles_article" "aa"
         set "axe_bu" = (
-            select 
+            select
                 "acs"."uuid_identification"
             from "accountancy_sectionsage" "acs"
             where "acs"."axe" = 'BU'
               and "acs"."section" = 'REFAC0'
             limit 1
         )
-        where "aa"."third_party_num" = 'ZREFAC0' 
+        where "aa"."third_party_num" = 'ZREFAC0'
           and "aa"."new_article" = true
         """
-    )
+    ),
 }

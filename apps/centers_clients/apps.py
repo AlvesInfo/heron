@@ -1,6 +1,10 @@
+"""Configuration Django de l'application centers_clients."""
+
 from django.apps import AppConfig
 
 
 class CentersClientsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.centers_clients'
+    """Configuration de l'application centers_clients."""
+
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.centers_clients"

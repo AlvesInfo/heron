@@ -1,4 +1,5 @@
-#! /home/paulo/.envs/heron/bin/python3
+"""Script autonome de lancement manuel des imports Sage."""
+
 import os
 import platform
 import sys
@@ -18,5 +19,5 @@ django.setup()
 
 from apps.accountancy.loops.import_sage_data import main
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

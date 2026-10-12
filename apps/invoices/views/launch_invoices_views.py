@@ -1,7 +1,6 @@
-# ruff: noqa: E722
-"""
-FR : View des lancements de la facturations
-EN : View of invoicing launches
+"""FR : View des lancements de la facturations.
+
+EN : View of invoicing launches.
 
 Commentaire:
 
@@ -12,51 +11,50 @@ modified at: 2023-06-07
 modified by: Paulo ALVES
 """
 
-import uuid
 import threading
+import uuid
 import zipfile
-from zipfile import ZipFile
 from pathlib import Path
+from zipfile import ZipFile
 
 import pendulum
-from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponse
-from django.db.models import Q, Count
-from django.utils import timezone
 from django.db import transaction
+from django.db.models import Count, Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils import timezone
 
-from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.content_types import CONTENT_TYPE_FILE
-from apps.core.functions.functions_setups import settings
-from apps.core.functions.functions_dates import get_date_apostrophe, long_date_string
-from apps.core.models import SSEProgress
-from apps.periods.forms import MonthForm
-from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
-from apps.invoices.bin.generate_invoices_facturx import (
-    get_facturx_in_progress,
-    get_facturx_candidates,
-    get_facturx_groups,
-)
-from apps.invoices.bin.facturx_client import FacturXClient, FacturXClientError
-from apps.invoices.bin.invoices_insertions import invoices_insertion
-from apps.invoices.models import Invoice, SaleInvoice
-from apps.edi.models import EdiImport, EdiValidation, EdiImportControl
-from apps.invoices.bin.pre_controls import control_insertion, control_alls_missings
-from apps.invoices.bin.finalize import finalize_global_invoices, set_validations
-from apps.invoices.loops.send_emails_with_gmail import send_invoices_emails_gmail
-from apps.invoices.tasks import launch_celery_pdf_launch, launch_celery_facturx_launch
 from apps.articles.models import Article
+from apps.book.bin.checks import check_emails_to_send
 from apps.centers_purchasing.sql_files.sql_elements import (
     articles_acuitis_without_accounts,
 )
-from apps.book.bin.checks import check_emails_to_send
+from apps.core.bin.content_types import CONTENT_TYPE_FILE
+from apps.core.functions.functions_dates import get_date_apostrophe, long_date_string
+from apps.core.functions.functions_setups import settings
+from apps.core.models import SSEProgress
+from apps.edi.models import EdiImport, EdiImportControl, EdiValidation
+from apps.invoices.bin.facturx_client import FacturXClient, FacturXClientError
+from apps.invoices.bin.finalize import finalize_global_invoices, set_validations
+from apps.invoices.bin.generate_invoices_facturx import (
+    get_facturx_candidates,
+    get_facturx_groups,
+    get_facturx_in_progress,
+)
+from apps.invoices.bin.generate_invoices_pdf import get_invoices_in_progress
+from apps.invoices.bin.invoices_insertions import invoices_insertion
+from apps.invoices.bin.pre_controls import control_alls_missings, control_insertion
+from apps.invoices.loops.send_emails_with_gmail import send_invoices_emails_gmail
+from apps.invoices.models import Invoice, SaleInvoice
+from apps.invoices.tasks import launch_celery_facturx_launch, launch_celery_pdf_launch
+from apps.periods.forms import MonthForm
+from heron.loggers import LOGGER_VIEWS
 
 
 def generate_invoices_insertions(request):
-    """Vue de l'intégration des factures définitives"""
-
+    """Vue de l'intégration des factures définitives."""
     titre_table = "Génération de la facturation"
 
     # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
@@ -177,7 +175,7 @@ def generate_invoices_insertions(request):
 
 
 def generate_pdf_invoice(request):
-    """Vue de génération des factures en pdf"""
+    """Vue de génération des factures en pdf."""
     titre_table = "Génération des factures de ventes en pdf"
 
     # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
@@ -217,14 +215,11 @@ def generate_pdf_invoice(request):
     insertion, pdf_invoices, email_invoices = get_invoices_in_progress()
 
     # Si l'on envoie un POST alors, on lance l'import en tâche de fond celery
-    if all(
-        [request.method == "POST", not insertion, not pdf_invoices, not email_invoices]
-    ):
+    if all([request.method == "POST", not insertion, not pdf_invoices, not email_invoices]):
         user_pk = request.user.pk
         job_id = str(uuid.uuid4())  # Générer un job_id unique
         count_cct_sales_list = (
-            sale_invoices
-            .values("cct", "global_invoice_file")
+            sale_invoices.values("cct", "global_invoice_file")
             .annotate(dcount=Count("cct"))
             .values_list("cct", "global_invoice_file")
             .count()
@@ -268,8 +263,23 @@ def generate_pdf_invoice(request):
     return render(request, "invoices/generate_pdf_invoices.html", context=context)
 
 
+def _facturx_server_status(client: FacturXClient, *, en_cours: bool) -> tuple[bool, str]:
+    """(serveur disponible, version) du serveur Factur-X ; pas d'appel si un traitement est en cours."""
+    if en_cours:
+        return False, ""
+
+    try:
+        health = client.health()
+    except FacturXClientError as error:
+        LOGGER_VIEWS.warning("Serveur Factur-X indisponible : %s", error)
+        return False, ""
+
+    return health.get("status") == "ok", health.get("version", "")
+
+
 def generate_facturx_invoice(request):
     """Vue de génération des factures de ventes au format Factur-X (PDF/A-3 + XML CII).
+
     Seules les factures dont le pdf a été produit (printed) et sans Factur-X sont traitées.
     """
     titre_table = "Génération des factures de ventes au format Factur-X"
@@ -282,16 +292,7 @@ def generate_facturx_invoice(request):
 
     # Vérification du serveur Factur-X
     client = FacturXClient()
-    server_ok = False
-    server_version = ""
-
-    if not en_cours:
-        try:
-            health = client.health()
-            server_ok = health.get("status") == "ok"
-            server_version = health.get("version", "")
-        except FacturXClientError as error:
-            LOGGER_VIEWS.warning(f"Serveur Factur-X indisponible : {error}")
+    server_ok, server_version = _facturx_server_status(client, en_cours=en_cours)
 
     context = {
         "margin_table": 50,
@@ -372,7 +373,7 @@ def generate_facturx_invoice(request):
 
 
 def invoices_pdf_files(request):
-    """View pour download les factures pdf"""
+    """View pour download les factures pdf."""
     # On va récupérer les dates initiiales à l'arrivée sur la vue à la date de la période en cours
     form = MonthForm(request.POST or None)
 
@@ -428,11 +429,18 @@ def invoices_pdf_files(request):
     return render(request, "invoices/invoices_pdf_list.html", context=context)
 
 
+def _check_inside(directory: Path, file_path: Path, message: str) -> None:
+    """PermissionError si le chemin sort du répertoire autorisé (le nom vient de l'URL)."""
+    if directory not in file_path.parents:
+        raise PermissionError(message)
+
+
 def get_pdf_file(request, file_name):
-    """Récupération des fichiers pdf des factures de ventes générées
+    """Récupération des fichiers pdf des factures de ventes générées.
+
     :param request: Request Django
     :param file_name: Paramètres get du nom du fichier à télécharger
-    :return: response_file
+    :return: response_file.
     """
     try:
         if request.method == "GET":
@@ -461,24 +469,20 @@ def get_pdf_file(request, file_name):
                 ) as zip_file:
                     # On itère sur les pdf pour les zipper
                     for pdf_invoice in pdf_invoices:
-                        file = Path(
-                            settings.SALES_INVOICES_FILES_DIR
-                        ) / pdf_invoice.get("global_invoice_file")
-                        zip_file.write(
-                            file, file.name, compress_type=compression, compresslevel=9
+                        file = Path(settings.SALES_INVOICES_FILES_DIR) / pdf_invoice.get(
+                            "global_invoice_file"
                         )
+                        zip_file.write(file, file.name, compress_type=compression, compresslevel=9)
 
             sales_dir = Path(settings.SALES_INVOICES_FILES_DIR).resolve()
             file_path = (sales_dir / file_name).resolve()
 
-            # Le nom vient de l'URL : on refuse toute sortie du répertoire des factures
-            if sales_dir not in file_path.parents:
-                raise PermissionError(f"chemin hors du répertoire des factures : {file_name!r}")
+            _check_inside(
+                sales_dir, file_path, f"chemin hors du répertoire des factures : {file_name!r}"
+            )
 
             content_type = CONTENT_TYPE_FILE.get(file_path.suffix, "text/plain")
-            response = HttpResponse(
-                file_path.open("rb").read(), content_type=content_type
-            )
+            response = HttpResponse(file_path.open("rb").read(), content_type=content_type)
             response["Content-Disposition"] = f"attachment; filename={file_name}"
 
             return response
@@ -490,8 +494,7 @@ def get_pdf_file(request, file_name):
 
 
 def send_email_pdf_invoice(request):
-    """Vue d'envoi de toutes les factures pdf, par mail"""
-
+    """Vue d'envoi de toutes les factures pdf, par mail."""
     titre_table = "Envoi global, des factures de vente par mail"
 
     # On contrôle qu'il y ait des pdf à envoyer par mail
@@ -518,7 +521,9 @@ def send_email_pdf_invoice(request):
 
     if emails_errors_list:
         request.session["level"] = 50
-        messages.add_message(request, 50, "Il y a des Emails dans les Tiers X3 qui ne sont pas valides")
+        messages.add_message(
+            request, 50, "Il y a des Emails dans les Tiers X3 qui ne sont pas valides"
+        )
         context["emails_errors"] = True
         context["emails_errors_list"] = emails_errors_list
 
@@ -527,22 +532,19 @@ def send_email_pdf_invoice(request):
     insertion, pdf_invoices, email_invoices = get_invoices_in_progress()
 
     # Si l'on envoie un POST alors, on lance l'import en tâche de fond celery
-    if all(
-        [request.method == "POST", not insertion, not pdf_invoices, not email_invoices]
-    ):
+    if all([request.method == "POST", not insertion, not pdf_invoices, not email_invoices]):
         user_pk = request.user.pk
 
         # Préparation des envois pas emails
         job_id = str(uuid.uuid4())
         total_emails = (
-            SaleInvoice.objects
-            .filter(
+            SaleInvoice.objects.filter(
                 final=False,
                 printed=True,
                 send_email=False,
                 type_x3__in=[1, 2],
             )
-            .values('cct', 'global_invoice_file', 'invoice_month')
+            .values("cct", "global_invoice_file", "invoice_month")
             .distinct()
             .count()
         )
@@ -590,14 +592,11 @@ def send_email_pdf_invoice(request):
     return render(request, "invoices/send_email_invoices.html", context=context)
 
 
-@transaction.atomic
-def finalize_period(request):
-    """
-    Finalisation de la période de facturation et création d'une nouvelle entrée dans edi_validation
-    :return:
-    """
-    titre_table = "Finalisation de la période de facturation "
+def _finalize_blocking_redirect(request):
+    """Redirection vers l'écran à compléter si la facturation ne peut pas être finalisée, sinon None.
 
+    Contrôles dans l'ordre : nouveaux articles, articles sans compte, intégrations validées, cct.
+    """
     # on va vérifier qu'il n'y a pas de nouveaux articles
     new_articles = Article.objects.filter(
         Q(new_article=True)
@@ -612,58 +611,51 @@ def finalize_period(request):
 
     if new_articles:
         request.session["level"] = 50
-        messages.add_message(
-            request,
-            50,
-            "il reste des nouveaux articles, à compléter!",
-        )
+        messages.add_message(request, 50, "il reste des nouveaux articles, à compléter!")
         return redirect(reverse("articles:new_articles_list"))
 
     without_accounts = EdiImport.objects.raw(articles_acuitis_without_accounts)
-    # print(without_accounts)
 
     if without_accounts:
         request.session["level"] = 50
-        messages.add_message(
-            request,
-            50,
-            "il reste des nouveaux comptes, à compléter!",
-        )
+        messages.add_message(request, 50, "il reste des nouveaux comptes, à compléter!")
         return redirect(reverse("articles:articles_without_account_list"))
 
     set_validations()
 
-    integration_valid = EdiImportControl.objects.filter(
-        Q(valid=False) | Q(valid__isnull=True)
-    )
-    # print(integration_valid)
+    integration_valid = EdiImportControl.objects.filter(Q(valid=False) | Q(valid__isnull=True))
 
     if integration_valid:
         request.session["level"] = 50
-        messages.add_message(
-            request,
-            50,
-            "Les Intégration ne sont pas toutes validées",
-        )
+        messages.add_message(request, 50, "Les Intégration ne sont pas toutes validées")
         return redirect(reverse("validation_purchases:integration_purchases"))
 
     not_cct = EdiImport.objects.filter(cct_uuid_identification__isnull=True)
-    # print(integration_valid)
 
     if not_cct:
         request.session["level"] = 50
-        messages.add_message(
-            request,
-            50,
-            "Ils manquent des cct dans les factures!",
-        )
+        messages.add_message(request, 50, "Ils manquent des cct dans les factures!")
         return redirect(reverse("validation_purchases:without_cct_purchases"))
+
+    return None
+
+
+@transaction.atomic
+def finalize_period(request):
+    """Finalisation de la période de facturation et création d'une nouvelle entrée dans edi_validation.
+
+    :return:
+    """
+    titre_table = "Finalisation de la période de facturation "
+
+    blocking = _finalize_blocking_redirect(request)
+
+    if blocking is not None:
+        return blocking
 
     # On met à True les validations vérifiées
     edi_validation = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
-        .order_by("-id")
-        .first()
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
     )
     edi_validation.articles_news = True
     edi_validation.articles_without_account = True
@@ -673,9 +665,7 @@ def finalize_period(request):
 
     # On contrôle qu'il n'y ai pas des factures non finalisées et envoyées par mail
     not_finalize = control_insertion()
-    initial_period = pendulum.parse(edi_validation.billing_period.isoformat()).add(
-        months=1
-    )
+    initial_period = pendulum.parse(edi_validation.billing_period.isoformat()).add(months=1)
     initial_value = (
         f"{initial_period.start_of('month').date().isoformat()}"
         "_"
@@ -729,9 +719,7 @@ def finalize_period(request):
             )
     elif any(
         [
-            SaleInvoice.objects.filter(
-                Q(export__isnull=True) | Q(export=False)
-            ).exists(),
+            SaleInvoice.objects.filter(Q(export__isnull=True) | Q(export=False)).exists(),
             Invoice.objects.filter(Q(export__isnull=True) | Q(export=False)).exists(),
         ]
     ):

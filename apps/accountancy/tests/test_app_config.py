@@ -1,20 +1,21 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de la configuration de l'app accountancy (apps.py, urls, admin, packages)
+"""FR : Tests de la configuration de l'app accountancy (apps.py, urls, admin, packages)
+
+
 EN : Tests for accountancy app configuration
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import importlib
 
 import pytest
-from django.contrib import admin
 from django.apps import apps as django_apps
+from django.contrib import admin
 from django.db.models import BigAutoField
 
-from apps.accountancy import models as accountancy_models
-from apps.accountancy import urls as accountancy_urls
+from apps.accountancy import models as accountancy_models, urls as accountancy_urls
 from apps.accountancy.apps import AccountancyConfig
 from apps.accountancy.models import pieces, sage, sage_axes_sections
 

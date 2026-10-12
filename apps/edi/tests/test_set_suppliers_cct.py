@@ -1,10 +1,12 @@
-"""
-Tests des identifiants de maisons par fournisseur (apps.edi.bin.set_suppliers_cct) :
+"""Tests des identifiants de maisons par fournisseur (apps.edi.bin.set_suppliers_cct) :
+
+
 création des book_suppliercct manquants, mise à jour des cct et enseignes des imports.
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import datetime
 
 import pytest
@@ -41,7 +43,9 @@ def identifiers(third_party_num):
     )
 
 
-def test_add_news_cct_sage_pour_les_tiers_importes(edi_batch, automate, maisons, make_supplier_cct, make_society):
+def test_add_news_cct_sage_pour_les_tiers_importes(
+    edi_batch, automate, maisons, make_supplier_cct, make_society
+):
     edi_batch([{}], third_party_num="FOUR001")
     edi_batch([{}], third_party_num="FOUR002")
     # identifiant déjà renseigné pour AF0001 chez FOUR001 : conservé
@@ -51,12 +55,17 @@ def test_add_news_cct_sage_pour_les_tiers_importes(edi_batch, automate, maisons,
 
     assert identifiers("FOUR001") == {"AF0001": "MAG01|", "AF0002": "AF0002|"}
     assert identifiers("FOUR002") == {"AF0001": "AF0001|", "AF0002": "AF0002|"}
-    assert SupplierCct.objects.filter(created_by=automate, third_party_num__in=["FOUR001", "FOUR002"]).count() == 3
+    assert (
+        SupplierCct.objects.filter(
+            created_by=automate, third_party_num__in=["FOUR001", "FOUR002"]
+        ).count()
+        == 3
+    )
     # le tiers propriétaire des maisons (CLI001) reçoit aussi ses identifiants
     assert set(identifiers("CLI001")) == {"AF0001", "AF0002"}
 
 
-@pytest.mark.usefixtures('automate', 'maisons')
+@pytest.mark.usefixtures("automate", "maisons")
 def test_add_news_cct_sage_pour_un_tiers(edi_batch):
     edi_batch([{}], third_party_num="FOUR001")
     edi_batch([{}], third_party_num="FOUR002")
@@ -67,7 +76,7 @@ def test_add_news_cct_sage_pour_un_tiers(edi_batch):
     assert identifiers("FOUR002") == {}
 
 
-@pytest.mark.usefixtures('automate', 'maisons')
+@pytest.mark.usefixtures("automate", "maisons")
 def test_add_news_cct_sage_force_add(make_society):
     make_society("NEWS001", is_client=False)
 
@@ -78,7 +87,7 @@ def test_add_news_cct_sage_force_add(make_society):
     assert set(identifiers("NEWS001")) == {"AF0001", "AF0002"}
 
 
-@pytest.mark.usefixtures('maisons')
+@pytest.mark.usefixtures("maisons")
 def test_add_news_cct_sage_sans_automate(edi_batch):
     edi_batch([{}], third_party_num="FOUR001")
 
@@ -96,9 +105,19 @@ def imports_a_rattacher(edi_batch, maisons, make_supplier_cct, make_society):
     _, rows = edi_batch(
         [
             {"code_maison": "MAG01", "valid": True, "code_signboard": None},
-            {"code_maison": "MAG02", "valid": True, "cct_uuid_identification": maisons[1], "code_signboard": "OLD"},
+            {
+                "code_maison": "MAG02",
+                "valid": True,
+                "cct_uuid_identification": maisons[1],
+                "code_signboard": "OLD",
+            },
             {"code_maison": "MAG01", "valid": False},
-            {"code_maison": "X2", "valid": True, "third_party_num": "FOUR002", "code_signboard": "ACF"},
+            {
+                "code_maison": "X2",
+                "valid": True,
+                "third_party_num": "FOUR002",
+                "code_signboard": "ACF",
+            },
         ],
         third_party_num="FOUR001",
     )
@@ -114,7 +133,11 @@ def test_update_edi_import_cct_tous_les_tiers(imports_a_rattacher, maisons):
     assert second.cct_uuid_identification == maisons[0]
     assert invalid.cct_uuid_identification is None
     assert other.cct_uuid_identification == maisons[1]
-    assert (first.code_signboard, second.code_signboard, other.code_signboard) == ("ACF", "ACF", "ACF")
+    assert (first.code_signboard, second.code_signboard, other.code_signboard) == (
+        "ACF",
+        "ACF",
+        "ACF",
+    )
 
 
 def test_update_edi_import_cct_seulement_les_vides(imports_a_rattacher, maisons):
@@ -134,7 +157,9 @@ def test_update_edi_import_cct_pour_un_tiers(imports_a_rattacher, maisons):
 
 
 def test_set_signboard(edi_batch, make_maison, make_child_center, make_signboard):
-    maison = make_maison("AF0001", center_purchase=make_child_center("GAF"), sign_board=make_signboard("GAF"))
+    maison = make_maison(
+        "AF0001", center_purchase=make_child_center("GAF"), sign_board=make_signboard("GAF")
+    )
     _, rows = edi_batch(
         [
             {"cct_uuid_identification": maison, "code_center": None, "code_signboard": None},

@@ -1,23 +1,25 @@
+"""Routes URL de l'application validation_sales."""
+
 from django.urls import path
 
 from .views import (
     # MENU CONTROLES VENTES
     compare_turnover_sales,
-    compare_turnover_sales_export,
     compare_turnover_sales_details,
+    compare_turnover_sales_export,
     compare_turnover_sales_export_details,
-    controls_cct_sales_suppliers,
-    controls_cct_sales_export,
     controls_cct_sales,
-    controls_cct_sales_suppliers_export,
+    controls_cct_sales_export,
+    controls_cct_sales_suppliers,
     controls_cct_sales_suppliers_details,
     controls_cct_sales_suppliers_details_export,
-    # MENU CONTROLES SAGE
-    sage_controls_globals_sales,
+    controls_cct_sales_suppliers_export,
     invoices_sales_export_globals,
     sage_controls_details_sales,
-    validation_sales_export_details,
     sage_controls_familles_sales,
+    # MENU CONTROLES SAGE
+    sage_controls_globals_sales,
+    validation_sales_export_details,
     validation_sales_export_familles,
 )
 

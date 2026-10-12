@@ -1,5 +1,5 @@
-"""
-Views pour réafecter sur une facture, précédente, soit un mauvais code de la part du fournisseur,
+"""Views pour réafecter sur une facture, précédente, soit un mauvais code de la part du fournisseur,.
+
 ou une mauvaise affectation de l'opérateur qui a effectué la facturationion précédente.
 
 Commentaire:
@@ -10,21 +10,22 @@ created by: Paulo ALVES
 modified at: 2023-07-07
 modified by: Paulo ALVES
 """
-from django.urls import reverse
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render
+
 from django.contrib import messages
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.shortcuts import render
+from django.urls import reverse
 from django.utils.html import format_html
 
 from apps.core.functions.functions_http import get_pagination_buttons
-from apps.invoices.models import InvoiceCommonDetails
-from apps.invoices.forms import InvoiceSearchForm
-from apps.invoices.filters import InvoiceFilter
 from apps.invoices.bin.pre_controls import control_insertion
+from apps.invoices.filters import InvoiceFilter
+from apps.invoices.forms import InvoiceSearchForm
+from apps.invoices.models import InvoiceCommonDetails
 
 
 def invoice_search_list(request):
-    """Affichage de la page de recherche des Factures pour la réaffectation"""
+    """Affichage de la page de recherche des Factures pour la réaffectation."""
     limit = 50
 
     # On contrôle qu'il n'y ai pas des factures non finalisées, mais envoyées par mail
@@ -42,31 +43,29 @@ def invoice_search_list(request):
         )
         context = {
             "margin_table": 50,
-            "titre_table": 'Recherche ré-affectation Facture',
+            "titre_table": "Recherche ré-affectation Facture",
             "not_finalize": True,
             "chevron_retour": reverse("home"),
         }
         return render(request, "invoices/invoices_search.html", context=context)
 
-    queryset = (
-        InvoiceCommonDetails.objects.values(
-            "import_uuid_identification",
-            "third_party_num",
-            "third_party_num__name",
-            "invoice_number",
-            "invoice_year",
-            "cct",
-        )
-        .order_by(
-            "third_party_num", "invoice_number", "cct",
-        )
+    queryset = InvoiceCommonDetails.objects.values(
+        "import_uuid_identification",
+        "third_party_num",
+        "third_party_num__name",
+        "invoice_number",
+        "invoice_year",
+        "cct",
+    ).order_by(
+        "third_party_num",
+        "invoice_number",
+        "cct",
     )
     invoices_filter = InvoiceFilter(request.GET, queryset=queryset)
     attrs_filter = dict(invoices_filter.data.items())
     paginator = Paginator(invoices_filter.qs, limit)
     page = request.GET.get("page")
     form = InvoiceSearchForm(attrs_filter)
-    # import pdb;pdb.set_trace()
     try:
         invoices = paginator.page(page)
     except PageNotAnInteger:
@@ -81,7 +80,7 @@ def invoice_search_list(request):
         titre_count = " (1 Facture trouvé)"
 
     if count > 1:
-        titre_count = f" ({str(count)} Facture trouvés)"
+        titre_count = f" ({count!s} Facture trouvés)"
 
     context = {
         "invoices": paginator.get_page(page),

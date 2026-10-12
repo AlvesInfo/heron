@@ -1,31 +1,29 @@
-"""
-Views des Abonnements
-"""
+"""Views des Abonnements."""
+
 import pendulum
+from django.contrib import messages
 from django.db import connection
 from django.db.models import Count
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.contrib import messages
 
-from heron.loggers import LOGGER_VIEWS
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.periods.forms import MonthForm
-from apps.compta.excel_outputs.output_excel_sales_cosium import excel_sales_cosium
-from apps.compta.excel_outputs.output_excel_ca_cosium import excel_ca_cosium
-from apps.compta.models import CaClients
-from apps.compta.models import VentesCosium
-from apps.edi.models import EdiImport
 from apps.compta.bin.generate_ca import set_ca
+from apps.compta.excel_outputs.output_excel_ca_cosium import excel_ca_cosium
+from apps.compta.excel_outputs.output_excel_sales_cosium import excel_sales_cosium
 from apps.compta.imports.import_ventes_cosium import (
     force_update_sales,
     set_cct_ventes,
     update_exchange_rates,
 )
+from apps.compta.models import CaClients, VentesCosium
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from apps.edi.models import EdiImport
+from apps.periods.forms import MonthForm
+from heron.loggers import LOGGER_VIEWS
 
 
 def export_sales_cosium(request):
-    """Export des ventes Cosium par périodes"""
+    """Export des ventes Cosium par périodes."""
     form = MonthForm(request.POST or None)
 
     try:
@@ -34,36 +32,35 @@ def export_sales_cosium(request):
 
             today = pendulum.now()
             file_name = (
-                f"VENTES_COSIUM_{dte_d}_{dte_f}_"
-                f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+                f"VENTES_COSIUM_{dte_d}_{dte_f}_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
             )
             return response_file(excel_sales_cosium, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
 
         if form.errors:
-            LOGGER_VIEWS.error(f"erreur form : {str(form.data)!r}")
+            LOGGER_VIEWS.error("erreur form : %r", str(form.data))
 
-    except Exception as error:
-        LOGGER_VIEWS.exception(f"erreur export_sales_cosium : {error!r}")
+    except Exception:
+        LOGGER_VIEWS.exception("erreur export_sales_cosium")
 
     state = (
-            VentesCosium.objects.values("code_maison", "code_cosium")
-            .filter(cct_uuid_identification__isnull=True)
-            .annotate(dcount=Count("code_maison"))
-            .order_by("code_cosium")
-        )
+        VentesCosium.objects.values("code_maison", "code_cosium")
+        .filter(cct_uuid_identification__isnull=True)
+        .annotate(dcount=Count("code_maison"))
+        .order_by("code_cosium")
+    )
 
     context = {
         "titre_table": "VENTES COSIUM PAR PERIODE",
         "form": form,
         "state": state,
-        "nb_paging": state.count() + 18
+        "nb_paging": state.count() + 18,
     }
 
     return render(request, "compta/export_sales_cosium.html", context=context)
 
 
 def export_ca_cosium(request):
-    """Export des ventes Cosium par périodes"""
+    """Export des ventes Cosium par périodes."""
     form = MonthForm(request.POST or None)
     message_ca = ""
 
@@ -80,14 +77,13 @@ def export_ca_cosium(request):
                 )
                 return response_file(excel_ca_cosium, file_name, CONTENT_TYPE_EXCEL, dte_d, dte_f)
 
-            else:
-                message_ca = "Le CA pour cette période, semble ne pas avoir été importé"
+            message_ca = "Le CA pour cette période, semble ne pas avoir été importé"
 
         if form.errors:
-            LOGGER_VIEWS.error(f"erreur form : {str(form.data)!r}")
+            LOGGER_VIEWS.error("erreur form : %r", str(form.data))
 
-    except Exception as error:
-        LOGGER_VIEWS.exception(f"erreur export_ca_cosium : {error!r}")
+    except Exception:
+        LOGGER_VIEWS.exception("erreur export_ca_cosium")
 
     context = {
         "titre_table": "CA MAISONS/FAMILLES PAR PERIODE",
@@ -102,7 +98,7 @@ def export_ca_cosium(request):
 
 
 def reset_clients_in_sales(request):
-    """Mise à jour forcée des ctt manquants au cas où un cct a été ajouté"""
+    """Mise à jour forcée des ctt manquants au cas où un cct a été ajouté."""
     try:
         with connection.cursor() as cursor:
             set_cct_ventes(cursor)
@@ -110,8 +106,8 @@ def reset_clients_in_sales(request):
         request.session["level"] = 20
         messages.add_message(request, 20, "La mise à jour des cct a bien été effectuée!")
 
-    except Exception as error:
-        LOGGER_VIEWS.exception(f"erreur reset_clients_in_sales : {error!r}")
+    except Exception:
+        LOGGER_VIEWS.exception("erreur reset_clients_in_sales")
 
         request.session["level"] = 50
         messages.add_message(request, 50, "Une erreur c'est produite au reset des CCT !")
@@ -120,7 +116,7 @@ def reset_clients_in_sales(request):
 
 
 def reset_exhange_rates_in_sales(request):
-    """Mise à jour forcée des taux de change"""
+    """Mise à jour forcée des taux de change."""
     form = MonthForm(request.POST or None)
 
     if request.method == "POST":
@@ -149,7 +145,7 @@ def reset_exhange_rates_in_sales(request):
             messages.add_message(request, 20, message)
             return redirect(reverse("compta:export_sales_cosium"))
 
-        LOGGER_VIEWS.error(f"erreur form reset_exhange_rates_in_sales : {str(form.data)!r}")
+        LOGGER_VIEWS.error("erreur form reset_exhange_rates_in_sales : %r", str(form.data))
         request.session["level"] = 50
         messages.add_message(request, 50, "Une erreur c'est produite au reset des Ventes !")
 
@@ -162,7 +158,7 @@ def reset_exhange_rates_in_sales(request):
 
 
 def reset_sales(request):
-    """Mise à jour forcée des ventes, si erreur sur Ventes Cosium et après rectification"""
+    """Mise à jour forcée des ventes, si erreur sur Ventes Cosium et après rectification."""
     form = MonthForm(request.POST or None)
 
     if request.method == "POST":
@@ -186,7 +182,7 @@ def reset_sales(request):
 
             return redirect("compta:export_sales_cosium")
 
-        LOGGER_VIEWS.error(f"erreur form reset_sales : {str(form.data)!r}")
+        LOGGER_VIEWS.error("erreur form reset_sales : %r", str(form.data))
         request.session["level"] = 50
         messages.add_message(request, 50, "Une erreur c'est produite au reset des Ventes !")
 
@@ -207,7 +203,7 @@ def reset_sales(request):
 
 
 def reset_ca(request):
-    """Reset du CA, si erreur sur Ventes Cosium et après rectification"""
+    """Reset du CA, si erreur sur Ventes Cosium et après rectification."""
     form = MonthForm(request.POST or None)
 
     if request.method == "POST":
@@ -234,7 +230,7 @@ def reset_ca(request):
 
             return redirect("compta:export_ca_cosium")
 
-        LOGGER_VIEWS.error(f"erreur form reset_ca : {str(form.data)!r}")
+        LOGGER_VIEWS.error("erreur form reset_ca : %r", str(form.data))
         request.session["level"] = 50
         messages.add_message(request, 50, "Une erreur c'est produite au reset du CA !")
 

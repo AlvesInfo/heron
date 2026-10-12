@@ -1,6 +1,5 @@
-"""
-Garde-fou de la directive D1 : le projet (settings, apps, URLconf) doit se charger sans base.
-"""
+"""Garde-fou de la directive D1 : le projet (settings, apps, URLconf) doit se charger sans base."""
+
 import os
 import subprocess
 import sys
@@ -19,8 +18,8 @@ print("patterns:", len(heron.urls.urlpatterns))
 
 
 def test_urlconf_imports_without_any_database():
-    """
-    L'URLconf s'importe alors que la base configurée n'existe pas : aucun module du projet ne
+    """L'URLconf s'importe alors que la base configurée n'existe pas : aucun module du projet ne
+
     doit interroger la base à l'import (anciennement les schémas djantic d'apps.edi).
     """
     env = {

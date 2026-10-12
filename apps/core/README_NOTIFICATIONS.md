@@ -62,19 +62,19 @@ from apps.core.bin.notifications import create_notification
 
 # Notification simple
 create_notification(
-    user=destinataire,       # objet User (obligatoire)
-    title="Titre",           # str (obligatoire)
-    message="Contenu",       # str (obligatoire)
+    user=destinataire,  # objet User (obligatoire)
+    title="Titre",  # str (obligatoire)
+    message="Contenu",  # str (obligatoire)
 )
 
 # Notification complete avec tous les parametres
 create_notification(
-    user=destinataire,       # objet User
+    user=destinataire,  # objet User
     title="Import termine",  # titre court
     message="245 lignes importees avec succes.",  # detail
-    level="success",         # info | warning | error | success
+    level="success",  # info | warning | error | success
     link="/import/resultats/",  # URL vers laquelle naviguer au clic
-    created_by=request.user, # l'utilisateur qui a declenche l'action
+    created_by=request.user,  # l'utilisateur qui a declenche l'action
 )
 ```
 
@@ -83,6 +83,7 @@ create_notification(
 ```python
 from apps.core.bin.notifications import create_notification
 from apps.users.models import User
+
 
 # Notifier un utilisateur apres un import
 def post_import(request, nb_lignes):
@@ -95,6 +96,7 @@ def post_import(request, nb_lignes):
         created_by=request.user,
     )
 
+
 # Notifier un administrateur d'une erreur
 def notifier_erreur(message_erreur):
     for admin in User.objects.filter(is_superuser=True):
@@ -104,6 +106,7 @@ def notifier_erreur(message_erreur):
             message=message_erreur,
             level="error",
         )
+
 
 # Notifier plusieurs utilisateurs
 def notifier_groupe(users, titre, message):
@@ -119,13 +122,13 @@ Toutes les fonctions sont dans `apps.core.bin.notifications` :
 
 ```python
 from apps.core.bin.notifications import (
-    create_notification,        # Creer une notification
-    get_unread_notifications,   # QuerySet des non lues
-    get_unread_count,           # Nombre de non lues (int)
-    get_all_notifications,      # Toutes les notifications (limit=50)
+    create_notification,  # Creer une notification
+    get_unread_notifications,  # QuerySet des non lues
+    get_unread_count,  # Nombre de non lues (int)
+    get_all_notifications,  # Toutes les notifications (limit=50)
     mark_notification_as_read,  # Marquer une notification comme lue
-    mark_all_as_read,           # Marquer toutes comme lues
-    delete_notification,        # Supprimer une notification
+    mark_all_as_read,  # Marquer toutes comme lues
+    delete_notification,  # Supprimer une notification
 )
 ```
 

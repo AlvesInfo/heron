@@ -1,4 +1,5 @@
 """Tests des tâches celery de facturation (appelées directement, fonctions métier patchées)"""
+
 import logging
 import smtplib
 
@@ -38,7 +39,9 @@ def test_launch_invoices_insertions_succes(make_action, progress, user, monkeypa
         return trace, "ok\n"
 
     with patched_attrs(monkeypatch, tasks, invoices_insertion=fake_insertion):
-        result = tasks.launch_invoices_insertions(str(user.uuid_identification), "2026-01-31", progress.job_id)
+        result = tasks.launch_invoices_insertions(
+            str(user.uuid_identification), "2026-01-31", progress.job_id
+        )
 
     assert calls == [(str(user.uuid_identification), "2026-01-31", progress.job_id)]
     assert trace.created_by == user
@@ -53,7 +56,9 @@ def test_launch_invoices_insertions_succes(make_action, progress, user, monkeypa
 def test_launch_invoices_insertions_sans_job(make_action, user, monkeypatch):
     """Sans job_id rien n'est inséré et la trace reste à None (plus de str() dans le finally)"""
     make_action("insertion_invoices")
-    with patched_attrs(monkeypatch, tasks, invoices_insertion=lambda *a: (_ for _ in ()).throw(AssertionError)):
+    with patched_attrs(
+        monkeypatch, tasks, invoices_insertion=lambda *a: (_ for _ in ()).throw(AssertionError)
+    ):
         result = tasks.launch_invoices_insertions(str(user.uuid_identification), "2026-01-31")
 
     assert "launch_invoices_insertions : " in result
@@ -63,8 +68,13 @@ def test_launch_invoices_insertions_type_error(make_action, progress, user, monk
     make_action("insertion_invoices")
     trace = FakeTrace(fail_created_by=True)
 
-    with patched_attrs(monkeypatch, tasks, invoices_insertion=lambda *a: (trace, "")), caplog.at_level(logging.ERROR):
-        tasks.launch_invoices_insertions(str(user.uuid_identification), "2026-01-31", progress.job_id)
+    with (
+        patched_attrs(monkeypatch, tasks, invoices_insertion=lambda *a: (trace, "")),
+        caplog.at_level(logging.ERROR),
+    ):
+        tasks.launch_invoices_insertions(
+            str(user.uuid_identification), "2026-01-31", progress.job_id
+        )
 
     assert "TypeError" in caplog.text
     assert trace.errors is True
@@ -74,10 +84,14 @@ def test_launch_invoices_insertions_type_error(make_action, progress, user, monk
 
 def test_launch_invoices_insertions_exception(make_action, progress, user, monkeypatch, caplog):
     make_action("insertion_invoices")
-    with raising_once(RuntimeError("boom")) as boom, patched_attrs(
-        monkeypatch, tasks, invoices_insertion=boom
-    ), caplog.at_level(logging.ERROR):
-        tasks.launch_invoices_insertions(str(user.uuid_identification), "2026-01-31", progress.job_id)
+    with (
+        raising_once(RuntimeError("boom")) as boom,
+        patched_attrs(monkeypatch, tasks, invoices_insertion=boom),
+        caplog.at_level(logging.ERROR),
+    ):
+        tasks.launch_invoices_insertions(
+            str(user.uuid_identification), "2026-01-31", progress.job_id
+        )
 
     assert refresh(progress).status == "failed"
     assert "Exception Générale" in caplog.text
@@ -85,7 +99,10 @@ def test_launch_invoices_insertions_exception(make_action, progress, user, monke
 
 def test_launch_invoices_insertions_jauge_inconnue(make_action, user, monkeypatch, caplog):
     make_action("insertion_invoices")
-    with patched_attrs(monkeypatch, tasks, invoices_insertion=lambda *a: (FakeTrace(), "")), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, tasks, invoices_insertion=lambda *a: (FakeTrace(), "")),
+        caplog.at_level(logging.ERROR),
+    ):
         tasks.launch_invoices_insertions(str(user.uuid_identification), "2026-01-31", "inconnu")
 
     assert "Impossible de marquer le SSEProgress" in caplog.text
@@ -109,7 +126,10 @@ def test_launch_celery_pdf_launch(progress, user, make_sale_invoice, celery_reco
 def test_launch_celery_pdf_launch_erreur(progress, user, celery_recorder, monkeypatch, caplog):
     celery_recorder(tasks, raise_on_get=RuntimeError("celery down"))
 
-    with patched_attrs(monkeypatch, tasks, process_update=lambda: None), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, tasks, process_update=lambda: None),
+        caplog.at_level(logging.ERROR),
+    ):
         tasks.launch_celery_pdf_launch(str(user.pk), progress.job_id)
 
     assert refresh(progress).status == "failed"
@@ -127,8 +147,12 @@ def test_launch_celery_pdf_launch_jauge_inconnue(user, celery_recorder, caplog):
 
 def test_launch_generate_pdf_invoices_succes(progress, user, monkeypatch):
     trace = FakeTrace()
-    with patched_attrs(monkeypatch, tasks, invoices_pdf_generation=lambda cct, num: (trace, "pdf ok\n")):
-        result = tasks.launch_generate_pdf_invoices("AF0001", "AF0001.pdf", user.pk, progress.job_id)
+    with patched_attrs(
+        monkeypatch, tasks, invoices_pdf_generation=lambda cct, num: (trace, "pdf ok\n")
+    ):
+        result = tasks.launch_generate_pdf_invoices(
+            "AF0001", "AF0001.pdf", user.pk, progress.job_id
+        )
 
     assert trace.created_by == user
     assert trace.saved == 1
@@ -138,7 +162,10 @@ def test_launch_generate_pdf_invoices_succes(progress, user, monkeypatch):
 
 def test_launch_generate_pdf_invoices_type_error(progress, user, monkeypatch, caplog):
     trace = FakeTrace(fail_created_by=True)
-    with patched_attrs(monkeypatch, tasks, invoices_pdf_generation=lambda cct, num: (trace, "")), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, tasks, invoices_pdf_generation=lambda cct, num: (trace, "")),
+        caplog.at_level(logging.ERROR),
+    ):
         tasks.launch_generate_pdf_invoices("AF0001", "AF0001.pdf", user.pk, progress.job_id)
 
     assert trace.errors is True
@@ -148,9 +175,11 @@ def test_launch_generate_pdf_invoices_type_error(progress, user, monkeypatch, ca
 
 
 def test_launch_generate_pdf_invoices_exception(progress, user, monkeypatch, caplog):
-    with raising_once(RuntimeError("boom")) as boom, patched_attrs(
-        monkeypatch, tasks, invoices_pdf_generation=boom
-    ), caplog.at_level(logging.ERROR):
+    with (
+        raising_once(RuntimeError("boom")) as boom,
+        patched_attrs(monkeypatch, tasks, invoices_pdf_generation=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         tasks.launch_generate_pdf_invoices("AF0001", "AF0001.pdf", user.pk, progress.job_id)
 
     assert "Exception Générale" in caplog.text
@@ -189,8 +218,12 @@ def test_launch_celery_facturx_launch_jauge_inconnue(user, celery_recorder, capl
 @pytest.mark.parametrize("trace_errors", [False, True])
 def test_launch_generate_facturx_invoices(progress, user, monkeypatch, trace_errors):
     trace = FakeTrace(errors=trace_errors)
-    with patched_attrs(monkeypatch, tasks, invoices_facturx_generation=lambda cct, num: (trace, "")):
-        result = tasks.launch_generate_facturx_invoices("AF0001", "AF0001.pdf", user.pk, progress.job_id)
+    with patched_attrs(
+        monkeypatch, tasks, invoices_facturx_generation=lambda cct, num: (trace, "")
+    ):
+        result = tasks.launch_generate_facturx_invoices(
+            "AF0001", "AF0001.pdf", user.pk, progress.job_id
+        )
 
     assert trace.saved == 1
     assert trace.created_by == user
@@ -200,15 +233,20 @@ def test_launch_generate_facturx_invoices(progress, user, monkeypatch, trace_err
 
 def test_launch_generate_facturx_invoices_erreurs(progress, user, monkeypatch, caplog):
     trace = FakeTrace(fail_created_by=True)
-    with patched_attrs(monkeypatch, tasks, invoices_facturx_generation=lambda cct, num: (trace, "")), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, tasks, invoices_facturx_generation=lambda cct, num: (trace, "")),
+        caplog.at_level(logging.ERROR),
+    ):
         tasks.launch_generate_facturx_invoices("AF0001", "AF0001.pdf", user.pk, progress.job_id)
 
     assert trace.errors is True
     assert "TypeError" in caplog.text
 
-    with raising_once(RuntimeError("boom")) as boom, patched_attrs(
-        monkeypatch, tasks, invoices_facturx_generation=boom
-    ), caplog.at_level(logging.ERROR):
+    with (
+        raising_once(RuntimeError("boom")) as boom,
+        patched_attrs(monkeypatch, tasks, invoices_facturx_generation=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         tasks.launch_generate_facturx_invoices("AF0001", "AF0001.pdf", user.pk, progress.job_id)
 
     assert "Exception Générale" in caplog.text
@@ -216,7 +254,9 @@ def test_launch_generate_facturx_invoices_erreurs(progress, user, monkeypatch, c
 
 
 # ENVOI DES MAILS ==================================================================================
-def test_launch_celery_send_invoice_mails_toutes(user, make_email, make_sale_invoice, celery_recorder):
+def test_launch_celery_send_invoice_mails_toutes(
+    user, make_email, make_sale_invoice, celery_recorder
+):
     make_email()
     make_sale_invoice("AF0001", printed=True, global_invoice_file="AF0001.pdf")
     make_sale_invoice("AF0002", invoice_number="FV2", printed=True, send_email=True)
@@ -226,10 +266,15 @@ def test_launch_celery_send_invoice_mails_toutes(user, make_email, make_sale_inv
 
     assert recorder.applied == 1
     assert [kw["context_dict"]["cct"] for _, kw in recorder.signatures] == ["AF0001"]
-    assert recorder.signatures[0][1]["context_dict"]["email_text"].strip() == "Bonjour,voici vos factures."
+    assert (
+        recorder.signatures[0][1]["context_dict"]["email_text"].strip()
+        == "Bonjour,voici vos factures."
+    )
 
 
-def test_launch_celery_send_invoice_mails_un_cct(user, make_email, make_sale_invoice, celery_recorder):
+def test_launch_celery_send_invoice_mails_un_cct(
+    user, make_email, make_sale_invoice, celery_recorder
+):
     make_email()
     make_sale_invoice("AF0001", printed=True, send_email=True, global_invoice_file="AF0001.pdf")
     recorder = celery_recorder(tasks)
@@ -239,7 +284,9 @@ def test_launch_celery_send_invoice_mails_un_cct(user, make_email, make_sale_inv
     assert [kw["context_dict"]["cct"] for _, kw in recorder.signatures] == ["AF0001"]
 
 
-def test_launch_celery_send_invoice_mails_erreurs(user, make_email, celery_recorder, monkeypatch, caplog):
+def test_launch_celery_send_invoice_mails_erreurs(
+    user, make_email, celery_recorder, monkeypatch, caplog
+):
     make_email()
     recorder = celery_recorder(tasks)
 
@@ -276,14 +323,23 @@ def test_send_invoice_email(user, monkeypatch, caplog):
     assert trace.saved == 1
     assert "cct : AF0001" in result["Envoie de la facture par mail : "]
 
-    with patched_attrs(monkeypatch, tasks, invoices_send_by_email=lambda ctx: (FakeTrace(fail_created_by=True), "")), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(
+            monkeypatch,
+            tasks,
+            invoices_send_by_email=lambda ctx: (FakeTrace(fail_created_by=True), ""),
+        ),
+        caplog.at_level(logging.ERROR),
+    ):
         tasks.send_invoice_email(context, user.pk)
 
     assert "TypeError" in caplog.text
 
-    with raising_once(RuntimeError("boom")) as boom, patched_attrs(
-        monkeypatch, tasks, invoices_send_by_email=boom
-    ), caplog.at_level(logging.ERROR):
+    with (
+        raising_once(RuntimeError("boom")) as boom,
+        patched_attrs(monkeypatch, tasks, invoices_send_by_email=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         tasks.send_invoice_email(context, user.pk)
 
     assert "Exception Générale" in caplog.text
@@ -298,7 +354,12 @@ def test_launch_export_x3(user, monkeypatch, caplog):
     assert trace.created_by == user
     assert trace.saved == 1
 
-    with patched_attrs(monkeypatch, tasks, export_files_x3=lambda *a: (FakeTrace(fail_created_by=True), "")), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(
+            monkeypatch, tasks, export_files_x3=lambda *a: (FakeTrace(fail_created_by=True), "")
+        ),
+        caplog.at_level(logging.ERROR),
+    ):
         assert tasks.launch_export_x3("sale", "AC00", "AC00_1.txt", user.pk) is False
 
     assert "TypeError" in caplog.text
@@ -306,9 +367,11 @@ def test_launch_export_x3(user, monkeypatch, caplog):
 
 def test_launch_export_x3_exception(user, monkeypatch, caplog):
     """Exception avant la création de la trace : la tâche renvoie False (plus d'AttributeError)"""
-    with raising_once(RuntimeError("boom")) as boom, patched_attrs(
-        monkeypatch, tasks, export_files_x3=boom
-    ), caplog.at_level(logging.ERROR):
+    with (
+        raising_once(RuntimeError("boom")) as boom,
+        patched_attrs(monkeypatch, tasks, export_files_x3=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         assert tasks.launch_export_x3("sale", "AC00", "AC00_1.txt", user.pk) is False
 
     assert "Exception Générale: launch_export_x3" in caplog.text
@@ -323,7 +386,10 @@ def test_launch_celery_send_emails_essais(user, make_email, celery_recorder, mon
 
     assert recorder.applied == 1
     assert len(recorder.signatures) == 6
-    assert {kw["context_dict"]["email_list"] for _, kw in recorder.signatures} == {"admin.bi@acuitis.com", "sav.acuitis@alves-info.fr"}
+    assert {kw["context_dict"]["email_list"] for _, kw in recorder.signatures} == {
+        "admin.bi@acuitis.com",
+        "sav.acuitis@alves-info.fr",
+    }
 
     class _Group:
         def __init__(self, *tasks):
@@ -355,14 +421,23 @@ def test_send_invoice_email_essais(user, monkeypatch, caplog):
     assert trace.saved == 1
     assert "cct : essai" in result["Envoie de la facture par mail : "]
 
-    with patched_attrs(monkeypatch, tasks, essais_send_by_email=lambda ctx: (FakeTrace(fail_created_by=True), "")), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(
+            monkeypatch,
+            tasks,
+            essais_send_by_email=lambda ctx: (FakeTrace(fail_created_by=True), ""),
+        ),
+        caplog.at_level(logging.ERROR),
+    ):
         tasks.send_invoice_email_essais({"cct": "essai"}, user.pk)
 
     assert "TypeError" in caplog.text
 
-    with raising_once(RuntimeError("boom")) as boom, patched_attrs(
-        monkeypatch, tasks, essais_send_by_email=boom
-    ), caplog.at_level(logging.ERROR):
+    with (
+        raising_once(RuntimeError("boom")) as boom,
+        patched_attrs(monkeypatch, tasks, essais_send_by_email=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         tasks.send_invoice_email_essais({"cct": "essai"}, user.pk)
 
     assert "send_invoice_email_essais" in caplog.text

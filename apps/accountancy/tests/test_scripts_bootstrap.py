@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'amorçage Django des scripts autonomes (BASE_DIR selon la machine)
+"""FR : Tests de l'amorçage Django des scripts autonomes (BASE_DIR selon la machine)
+
+
 EN : Tests for standalone scripts Django bootstrap (BASE_DIR depending on the host)
 
 Commentaire:
@@ -12,6 +13,7 @@ nom de machine simulé pour couvrir les deux branches.
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import importlib
 import platform
 import sys

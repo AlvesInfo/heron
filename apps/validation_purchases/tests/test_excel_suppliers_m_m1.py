@@ -1,13 +1,17 @@
 """Tests des exports 5.A / 5.B : fournisseurs M vs M-1 d'une maison, et détail d'un fournisseur"""
+
 import io
 import logging
 from decimal import Decimal
 
 import pytest
 
-from apps.validation_purchases.excel_outputs import excel_suppliers_m_vs_m1, excel_third_suppliers_m_vs_m1
-from apps.validation_purchases.tests.helpers_excel_2 import MONTH_M, MONTH_M1
 from apps.core.excel_outputs import generic_list_export
+from apps.validation_purchases.excel_outputs import (
+    excel_suppliers_m_vs_m1,
+    excel_third_suppliers_m_vs_m1,
+)
+from apps.validation_purchases.tests.helpers_excel_2 import MONTH_M, MONTH_M1
 from conftest import patched_attrs
 
 pytestmark = pytest.mark.django_db
@@ -19,18 +23,48 @@ def suppliers_data(make_maison, make_edi_import, make_purchase_invoice_2, make_s
     maison = make_maison("AF0001", intitule="Maison Paris")
     make_society("FOUR001", is_client=False, name="Fournisseur Un")
     make_society("FOUR002", is_client=False, name="Fournisseur Deux")
-    make_edi_import("FOUR001", "A1", cct_uuid_identification=maison, purchase_invoice=True, net_amount=Decimal("100"), invoice_number="E1", invoice_date=MONTH_M)
-    make_edi_import("FOUR001", "A2", cct_uuid_identification=maison, purchase_invoice=True, net_amount=Decimal("0"), invoice_number="E0", invoice_date=MONTH_M)
-    make_edi_import("FOUR002", "B1", cct_uuid_identification=maison, purchase_invoice=True, net_amount=Decimal("30"), invoice_number="E2", invoice_date=MONTH_M)
-    make_purchase_invoice_2(maison.cct, "FOUR001", integration_month=MONTH_M1, net_amount=Decimal("60"))
-    make_purchase_invoice_2(maison.cct, "FOUR001", integration_month=MONTH_M1, final=False, net_amount=Decimal("999"))
+    make_edi_import(
+        "FOUR001",
+        "A1",
+        cct_uuid_identification=maison,
+        purchase_invoice=True,
+        net_amount=Decimal(100),
+        invoice_number="E1",
+        invoice_date=MONTH_M,
+    )
+    make_edi_import(
+        "FOUR001",
+        "A2",
+        cct_uuid_identification=maison,
+        purchase_invoice=True,
+        net_amount=Decimal(0),
+        invoice_number="E0",
+        invoice_date=MONTH_M,
+    )
+    make_edi_import(
+        "FOUR002",
+        "B1",
+        cct_uuid_identification=maison,
+        purchase_invoice=True,
+        net_amount=Decimal(30),
+        invoice_number="E2",
+        invoice_date=MONTH_M,
+    )
+    make_purchase_invoice_2(
+        maison.cct, "FOUR001", integration_month=MONTH_M1, net_amount=Decimal(60)
+    )
+    make_purchase_invoice_2(
+        maison.cct, "FOUR001", integration_month=MONTH_M1, final=False, net_amount=Decimal(999)
+    )
     return maison
 
 
 def test_excel_suppliers_m_vs_m1(suppliers_data, excel_io):
     file_io = io.BytesIO()
 
-    result = excel_suppliers_m_vs_m1.excel_suppliers_m_vs_m1(file_io, "m_m1.xlsx", suppliers_data.cct.cct)
+    result = excel_suppliers_m_vs_m1.excel_suppliers_m_vs_m1(
+        file_io, "m_m1.xlsx", suppliers_data.cct.cct
+    )
 
     assert "OK" in result
     rows = excel_io(file_io)
@@ -58,8 +92,14 @@ def test_excel_suppliers_m_vs_m1_erreur(monkeypatch, caplog):
     def boom(*args, **kwargs):
         raise ValueError("boom")
 
-    with patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom), patched_attrs(monkeypatch, excel_suppliers_m_vs_m1, titre_page_writer=boom), caplog.at_level(logging.ERROR):
-        result = excel_suppliers_m_vs_m1.excel_suppliers_m_vs_m1(io.BytesIO(), "m_m1.xlsx", "AF0001")
+    with (
+        patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom),
+        patched_attrs(monkeypatch, excel_suppliers_m_vs_m1, titre_page_writer=boom),
+        caplog.at_level(logging.ERROR),
+    ):
+        result = excel_suppliers_m_vs_m1.excel_suppliers_m_vs_m1(
+            io.BytesIO(), "m_m1.xlsx", "AF0001"
+        )
 
     assert result == {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
     assert "m_m1.xlsx" in caplog.text
@@ -86,7 +126,13 @@ def test_excel_third_suppliers_m_vs_m1_erreur(monkeypatch, caplog):
     def boom(*args, **kwargs):
         raise ValueError("boom")
 
-    with patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom), patched_attrs(monkeypatch, excel_third_suppliers_m_vs_m1, titre_page_writer=boom), caplog.at_level(logging.ERROR):
-        result = excel_third_suppliers_m_vs_m1.excel_third_suppliers_m_vs_m1(io.BytesIO(), "d.xlsx", "AF0001", "FOUR001")
+    with (
+        patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom),
+        patched_attrs(monkeypatch, excel_third_suppliers_m_vs_m1, titre_page_writer=boom),
+        caplog.at_level(logging.ERROR),
+    ):
+        result = excel_third_suppliers_m_vs_m1.excel_third_suppliers_m_vs_m1(
+            io.BytesIO(), "d.xlsx", "AF0001", "FOUR001"
+        )
 
     assert result == {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}

@@ -1,6 +1,6 @@
-"""
-FR : Module d'import des données des parametres ou data de remplissage de tables
-EN : Parameter data import module or table filling data
+"""FR : Module d'import des données des parametres ou data de remplissage de tables.
+
+EN : Parameter data import module or table filling data.
 
 Commentaire:
 
@@ -10,28 +10,30 @@ created by: Paulo ALVES
 modified at: 2023-05-13
 modified by: Paulo ALVES
 """
+
 import uuid
 from pathlib import Path
 
 from django.utils import timezone
 
-from apps.core.functions.functions_setups import settings
-from apps.core.bin.import_files import import_file_process
-from apps.centers_purchasing.forms.forms_djantic.forms_data import (
-    AxeProAccountSchema,
+from apps.centers_purchasing.bin.data_post_processing_pool import (
+    post_axe_pro_account,
 )
 from apps.centers_purchasing.bin.data_pre_processing_pool import (
     translate_accounts_axe_pro_category,
 )
-from apps.centers_purchasing.bin.data_post_processing_pool import (
-    post_axe_pro_account,
+from apps.centers_purchasing.forms.forms_djantic.forms_data import (
+    AxeProAccountSchema,
 )
 from apps.centers_purchasing.models import AccountsAxeProCategory
+from apps.core.bin.import_files import import_file_process
+from apps.core.functions.functions_setups import settings
 
 
 def axe_pro_account(file_path: Path):
-    """Import du fichier des Axes pro / catégories / comptes
-    :param file_path: Fichier à importer
+    """Import du fichier des Axes pro / catégories / comptes.
+
+    :param file_path: Fichier à importer.
     """
     params_dict = {
         "model": AccountsAxeProCategory,
@@ -47,7 +49,6 @@ def axe_pro_account(file_path: Path):
         },
         "translate_file": translate_accounts_axe_pro_category,
         "pre_processing": None,
-        # "post_processing": post_axe_pro_account,
     }
     import_file_process(
         file_path=file_path,

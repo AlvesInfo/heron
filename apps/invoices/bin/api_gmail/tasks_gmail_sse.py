@@ -1,6 +1,6 @@
-"""
-FR : Tâches Celery avec SSE (Server-Sent Events) pour l'API Gmail
-EN : Celery tasks with SSE (Server-Sent Events) for Gmail API
+"""FR : Tâches Celery avec SSE (Server-Sent Events) pour l'API Gmail.
+
+EN : Celery tasks with SSE (Server-Sent Events) for Gmail API.
 
 Commentaire:
 Version avec suivi SSE en temps réel pour afficher la progression
@@ -13,34 +13,34 @@ created by: Paulo ALVES
 import time
 import uuid
 from dataclasses import dataclass
-from typing import Any, AnyStr, Dict
 from pathlib import Path
+from typing import Any
 
 import pendulum
-from celery import shared_task
-from django.db.models import Count
-from django.db import connection
 from bs4 import BeautifulSoup
+from celery import shared_task
+from django.db import connection
+from django.db.models import Count
 from pydantic.error_wrappers import ValidationError
 
-from heron.loggers import LOGGER_INVOICES, LOGGER_EMAIL
 from apps.core.bin.clean_celery import clean_memory
-from apps.users.models import User
-from apps.data_flux.trace import get_trace
-from apps.invoices.models import SaleInvoice
-from apps.parameters.models import Email
+from apps.core.bin.sse_progress import SSEProgressTracker
 from apps.core.functions.functions_setups import settings
 from apps.core.functions.functions_validations import CheckEmail
 from apps.core.models import SSEProgress
-from apps.core.bin.sse_progress import SSEProgressTracker
+from apps.data_flux.trace import get_trace
 
 # Le sender est un objet paresseux : l'authentification Gmail n'a lieu qu'au premier envoi
 from apps.invoices.bin.api_gmail.sender import sender
+from apps.invoices.models import SaleInvoice
+from apps.parameters.models import Email
+from apps.users.models import User
+from heron.loggers import LOGGER_EMAIL, LOGGER_INVOICES
 
 
 @dataclass
 class _SendJob:
-    """État d'un envoi en masse : utilisateur, progression en base, flux SSE et compteurs"""
+    """État d'un envoi en masse : utilisateur, progression en base, flux SSE et compteurs."""
 
     user: Any
     progress: Any
@@ -50,8 +50,8 @@ class _SendJob:
     nb_errors: int = 0
 
 
-def _email_context() -> Dict:
-    """Sujet et corps (html et texte) du mail de facturation"""
+def _email_context() -> dict:
+    """Sujet et corps (html et texte) du mail de facturation."""
     email = Email.objects.get(name=0)
 
     return {
@@ -61,10 +61,10 @@ def _email_context() -> Dict:
     }
 
 
-def _invoices_to_send(cct: AnyStr, period: AnyStr):
-    """
-    Factures à envoyer, regroupées par cct et fichier de synthèse : celles du cct et de la
-    période demandés, sinon toutes les factures imprimées, non finales et non envoyées
+def _invoices_to_send(cct: str, period: str):
+    """Factures à envoyer, regroupées par cct et fichier de synthèse : celles du cct et de la.
+
+    période demandés, sinon toutes les factures imprimées, non finales et non envoyées.
     """
     if cct and period:
         # Si l'on demande un cct on doit avoir la période pour filtrer
@@ -81,8 +81,8 @@ def _invoices_to_send(cct: AnyStr, period: AnyStr):
     )
 
 
-def _prepare_emails(cct_invoices_list, context_dict: Dict) -> tuple[list, list]:
-    """Prépare les emails à envoyer et, en parallèle, la correspondance cct / facture de chacun"""
+def _prepare_emails(cct_invoices_list, context_dict: dict) -> tuple[list, list]:
+    """Prépare les emails à envoyer et, en parallèle, la correspondance cct / facture de chacun."""
     email_list = []
     cct_invoice_mapping = []
 
@@ -106,8 +106,8 @@ def _prepare_emails(cct_invoices_list, context_dict: Dict) -> tuple[list, list]:
     return email_list, cct_invoice_mapping
 
 
-def _record_sent(job: _SendJob, i: int, mapping: Dict, result) -> None:
-    """Email envoyé : facture marquée envoyée, trace de succès, progression et événement SSE"""
+def _record_sent(job: _SendJob, i: int, mapping: dict, result) -> None:
+    """Email envoyé : facture marquée envoyée, trace de succès, progression et événement SSE."""
     SaleInvoice.objects.filter(
         cct=mapping["cct"],
         global_invoice_file=mapping["global_invoice_file"],
@@ -142,8 +142,8 @@ def _record_sent(job: _SendJob, i: int, mapping: Dict, result) -> None:
     )
 
 
-def _record_error(job: _SendJob, i: int, mapping: Dict, result) -> None:
-    """Email refusé : trace d'erreur, progression en échec et avertissement SSE"""
+def _record_error(job: _SendJob, i: int, mapping: dict, result) -> None:
+    """Email refusé : trace d'erreur, progression en échec et avertissement SSE."""
     trace = get_trace(
         trace_name="Send invoices mail ERROR (Gmail API SSE)",
         file_name=str(mapping["file_path"]),
@@ -170,9 +170,9 @@ def _record_error(job: _SendJob, i: int, mapping: Dict, result) -> None:
     )
 
 
-def _send_one(job: _SendJob, i: int, email_data: tuple, mapping: Dict) -> None:
-    """
-    Envoie un email et enregistre son résultat. L'email n'est compté qu'une fois : en succès dès
+def _send_one(job: _SendJob, i: int, email_data: tuple, mapping: dict) -> None:
+    """Envoie un email et enregistre son résultat. L'email n'est compté qu'une fois : en succès dès.
+
     qu'il est parti (même si l'enregistrement du suivi échoue ensuite), en erreur sinon.
     """
     sent = False
@@ -189,10 +189,9 @@ def _send_one(job: _SendJob, i: int, email_data: tuple, mapping: Dict) -> None:
 
     except Exception as error:
         LOGGER_INVOICES.exception(
-            "❌ [%d/%d] Exception lors de l'envoi de l'email : %s",
+            "❌ [%d/%d] Exception lors de l'envoi de l'email",
             i,
             job.total,
-            error,
         )
 
         if sent:
@@ -210,8 +209,10 @@ def _send_one(job: _SendJob, i: int, email_data: tuple, mapping: Dict) -> None:
     job.nb_errors += not sent
 
 
-def _send_emails(job_id: AnyStr, user, email_list: list, cct_invoice_mapping: list, metadata: Dict) -> Dict:
-    """Envoie les emails avec suivi de progression (base et SSE) et renvoie les statistiques"""
+def _send_emails(
+    job_id: str, user, email_list: list, cct_invoice_mapping: list, metadata: dict
+) -> dict:
+    """Envoie les emails avec suivi de progression (base et SSE) et renvoie les statistiques."""
     total = len(email_list)
 
     # Crée l'objet de progression SSE en DB
@@ -236,7 +237,9 @@ def _send_emails(job_id: AnyStr, user, email_list: list, cct_invoice_mapping: li
 
     start_time = time.time()
 
-    for i, (email_data, mapping) in enumerate(zip(email_list, cct_invoice_mapping), 1):
+    for i, (email_data, mapping) in enumerate(
+        zip(email_list, cct_invoice_mapping, strict=False), 1
+    ):
         _send_one(job, i, email_data, mapping)
 
     elapsed_time = time.time() - start_time
@@ -270,14 +273,14 @@ def _send_emails(job_id: AnyStr, user, email_list: list, cct_invoice_mapping: li
     }
 
 
-def _report_failure(job_id: AnyStr, error: Exception) -> None:
-    """Marque le job en échec en base et envoie l'événement SSE d'erreur"""
+def _report_failure(job_id: str, error: Exception) -> None:
+    """Marque le job en échec en base et envoie l'événement SSE d'erreur."""
     try:
         progress = SSEProgress.objects.get(job_id=job_id)
         progress.mark_as_failed(str(error))
 
         sse = SSEProgressTracker(job_id)
-        sse.send_error(f"❌ Erreur critique : {str(error)}")
+        sse.send_error(f"❌ Erreur critique : {error!s}")
     except Exception:
         LOGGER_EMAIL.exception("Impossible de signaler l'échec du job %s", job_id)
 
@@ -285,16 +288,16 @@ def _report_failure(job_id: AnyStr, error: Exception) -> None:
 @shared_task(name="celery_send_invoices_emails_gmail_sse")
 @clean_memory
 def launch_celery_send_invoice_mails_gmail_sse(
-    user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None, job_id: AnyStr = None
+    user_pk: str, cct: str | None = None, period: str | None = None, job_id: str | None = None
 ):
-    """
-    Main pour lancement de l'envoi des factures par mails via l'API Gmail
+    """Main pour lancement de l'envoi des factures par mails via l'API Gmail.
+
     avec suivi SSE en temps réel
     :param user_pk: pk de l'utilisateur qui a lancé le process
     :param cct: cct de la facture à envoyer
     :param period: période de la facturation
     :param job_id: identifiant du job transmis par la vue (sinon généré)
-    :return: dict avec job_id et statistiques
+    :return: dict avec job_id et statistiques.
     """
     job_id = job_id or str(uuid.uuid4())
 
@@ -310,7 +313,9 @@ def launch_celery_send_invoice_mails_gmail_sse(
     try:
         user = User.objects.get(pk=user_pk)
         context_dict = _email_context()
-        email_list, cct_invoice_mapping = _prepare_emails(_invoices_to_send(cct, period), context_dict)
+        email_list, cct_invoice_mapping = _prepare_emails(
+            _invoices_to_send(cct or "", period or ""), context_dict
+        )
 
         if not email_list:
             LOGGER_INVOICES.warning("⚠️  Aucun email à envoyer")
@@ -322,9 +327,8 @@ def launch_celery_send_invoice_mails_gmail_sse(
 
     except Exception as error:
         LOGGER_INVOICES.exception(
-            "❌ Erreur GLOBALE lors de l'envoi des factures via l'API Gmail SSE (job_id: %s): %s",
+            "❌ Erreur GLOBALE lors de l'envoi des factures via l'API Gmail SSE (job_id: %s)",
             job_id,
-            error,
         )
 
         # Marque comme failed en DB et envoie événement SSE d'erreur
@@ -333,15 +337,13 @@ def launch_celery_send_invoice_mails_gmail_sse(
         return {"success": False, "error": str(error), "job_id": job_id}
 
 
-def prepare_invoice_email_data(context_dict: Dict):
-    """
-    Prépare les données pour l'envoi d'une facture par email
+def prepare_invoice_email_data(context_dict: dict):
+    """Prépare les données pour l'envoi d'une facture par email.
+
     :param context_dict: Dictionnaire des éléments pour l'envoi d'emails
-    :return: Dictionnaire avec les données préparées ou None si erreur
+    :return: Dictionnaire avec les données préparées ou None si erreur.
     """
-    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / context_dict.get(
-        "global_invoice_file"
-    )
+    file_path = Path(settings.SALES_INVOICES_FILES_DIR) / context_dict["global_invoice_file"]
 
     if not file_path.exists():
         LOGGER_EMAIL.error("❌ Fichier non trouvé: %s", file_path)
@@ -414,11 +416,7 @@ def prepare_invoice_email_data(context_dict: Dict):
             if i == 0:
                 context_email["cct"] = cct_name
                 context_email["synthese"] = (
-                    f"<p "
-                    f'style="'
-                    f"padding: 0;"
-                    f"margin: 0 0 10px 0;"
-                    f'font-size: 11pt;">{synthese}</p>'
+                    f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">{synthese}</p>'
                 )
                 context_email["service"] = service
                 context_email["centrale"] = center
@@ -438,8 +436,7 @@ def prepare_invoice_email_data(context_dict: Dict):
                         pass
 
             context_email["factures"] += (
-                f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">'
-                f"{invoice}</p>"
+                f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">{invoice}</p>'
             )
 
     mail_to_list = [mail for mail in mail_to_list if mail]

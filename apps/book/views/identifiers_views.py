@@ -1,34 +1,65 @@
-"""
-Views des identifiants des Tiers X3
-"""
+"""Views des identifiants des Tiers X3."""
+
 import pendulum
 from django.contrib import messages
+from django.db import transaction
+from django.forms import modelformset_factory
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.db import transaction
-from django.http import JsonResponse
-from django.forms import modelformset_factory
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.core.bin.change_traces import trace_form_change, trace_change
-from apps.core.bin.encoders import get_base_64
 from apps.book.bin.checks import check_cct_identifier
+from apps.book.excel_outputs.book_excel_supplier_cct import excel_liste_supplier_cct
+from apps.book.forms import SupplierCctForm, SupplierCctUnitForm
+from apps.book.models import Society, SupplierCct
+from apps.core.bin.change_traces import trace_change, trace_form_change
+from apps.core.bin.encoders import get_base_64
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.edi.bin.set_suppliers_cct import (
     add_news_cct_sage,
     update_edi_import_cct_uui_identification,
 )
-from apps.book.models import Society, SupplierCct
-from apps.book.forms import SupplierCctForm, SupplierCctUnitForm
-from apps.book.excel_outputs.book_excel_supplier_cct import excel_liste_supplier_cct
+from heron.loggers import LOGGER_VIEWS
 
 # Identifiants des tiers pour l'import des factures
 
 
+def _apply_cct_identifiers(request, formset):
+    """Applique les identifiants modifiés du formset validé et pose les messages utilisateur."""
+    message = ""
+
+    for form in formset:
+        if not form.changed_data:
+            continue
+
+        changed, message = check_cct_identifier(form.cleaned_data)
+
+        # None : identifiant déjà pris par un autre cct, False : rien à changer
+        if not changed:
+            messages.add_message(request, 50, message)
+            continue
+
+        LOGGER_VIEWS.info("form.cleaned_data : %s %s", form.cleaned_data, form)
+        trace_form_change(request, form)
+        message = (
+            "Les identifiants du cct "
+            f"{form.cleaned_data.get('id').cct_uuid_identification.cct}, "
+            "on bien été changés."
+        )
+        request.session["level"] = 20
+        messages.add_message(request, 20, message)
+
+        # Mise à jour du champ cct_uuid_identification dans edi_import quand il est null
+        update_edi_import_cct_uui_identification()
+
+    if not message:
+        messages.add_message(request, 50, "Vous n'avez rien modifié !")
+
+
 @transaction.atomic
 def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
-    """UpdateView pour modification des couples Tiers/Code Maisons"""
+    """UpdateView pour modification des couples Tiers/Code Maisons."""
     # Contexte minimal pour que l'écran s'affiche (avec son message) si le chargement échoue
     context = {
         "titre_table": f"Identifiants des CCT pour le tiers {third_party_num}",
@@ -42,7 +73,7 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
         # Ajout des cct par défaut pour les maisons existantes, pour éviter de les saisir
         add_news_cct_sage(third_party_num=third_party_num, force_add=True)
 
-        SupplierCctFormset = modelformset_factory(
+        supplier_cct_formset = modelformset_factory(
             SupplierCct,
             fields=("id", "cct_identifier"),
             form=SupplierCctForm,
@@ -76,55 +107,29 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
 
         if request.method == "POST":
             request.session["level"] = 50
-            formset = SupplierCctFormset(request.POST, initial=queryset)
-            message = ""
+            formset = supplier_cct_formset(request.POST, initial=queryset)
 
             if formset.is_valid():
-
-                for form in formset:
-                    if form.changed_data:
-                        changed, message = check_cct_identifier(form.cleaned_data)
-
-                        # None : identifiant déjà pris par un autre cct, False : rien à changer
-                        if not changed:
-                            messages.add_message(request, 50, message)
-                        else:
-                            LOGGER_VIEWS.info("form.cleaned_data : %s %s", form.cleaned_data, form)
-                            trace_form_change(request, form)
-                            message = (
-                                "Les identifiants du cct "
-                                f"{form.cleaned_data.get('id').cct_uuid_identification.cct}, "
-                                "on bien été changés."
-                            )
-                            request.session["level"] = 20
-                            messages.add_message(request, 20, message)
-
-                            # Mise à jour du champ cct_uuid_identification
-                            # dans edi_import quand il est null
-                            update_edi_import_cct_uui_identification()
-
-                if not message:
-                    messages.add_message(request, 50, "Vous n'avez rien modifié !")
+                _apply_cct_identifiers(request, formset)
 
             else:
                 messages.add_message(
                     request, 50, "Une erreur c'est produite, veuillez consulter les logs"
                 )
 
-                LOGGER_VIEWS.exception(f"erreur form : {formset.errors!r}")
+                LOGGER_VIEWS.error("erreur form : %r", formset.errors)
 
-    except Exception as error:
+    except Exception:
         request.session["level"] = 50
         messages.add_message(request, 50, "Une erreur c'est produite, veuillez consulter les logs")
-        LOGGER_VIEWS.exception(f"erreur form : {str(error)!r}")
+        LOGGER_VIEWS.exception("erreur form")
 
     return render(request, "book/supplier_cct.html", context=context)
 
 
 @transaction.atomic
 def change_supplier_cct_unit(request):
-    """Changement 1 à 1 des identifiants par fournisseurs"""
-
+    """Changement 1 à 1 des identifiants par fournisseurs."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -178,17 +183,17 @@ def change_supplier_cct_unit(request):
 
     else:
         messages.add_message(request, 50, f"Une erreur c'est produite : {form.errors}")
-        LOGGER_VIEWS.exception(f"cct_change, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("cct_change, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def export_list_supplier_cct(request, third_party_num):
-    """
-    Export Excel de la liste des Sociétés
+    """Export Excel de la liste des Sociétés.
+
     :param request: Request Django
     :param third_party_num: identification du tiers
-    :return: response_file
+    :return: response_file.
     """
     try:
         if request.method == "GET":

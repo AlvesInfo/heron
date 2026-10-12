@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'API dropdown des TVA (apps/accountancy/bin/api_get_models_accountacy.py)
+"""FR : Tests de l'API dropdown des TVA (apps/accountancy/bin/api_get_models_accountacy.py)
+
+
 EN : Tests for VAT dropdown API
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import pytest
 
 from apps.accountancy.bin.api_get_models_accountacy import get_vat, get_vat_alls
@@ -28,7 +30,13 @@ def test_get_vat_alls(make_vat):
 
 @pytest.mark.parametrize(
     ("query", "expected"),
-    [("int", ["011"]), ("00", ["001", "002"]), ("1|fra", ["001"]), ("zzz", []), ("", ["001", "002", "011"])],
+    [
+        ("int", ["011"]),
+        ("00", ["001", "002"]),
+        ("1|fra", ["001"]),
+        ("zzz", []),
+        ("", ["001", "002", "011"]),
+    ],
 )
 def test_get_vat_recherche(make_vat, query, expected):
     """La recherche est insensible à la casse sur 'tva|régime'"""

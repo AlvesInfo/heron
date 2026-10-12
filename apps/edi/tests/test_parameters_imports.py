@@ -1,9 +1,9 @@
-"""
-Tests des paramètres d'import des factures fournisseurs (apps/edi/parameters/invoices_imports.py)
+"""Tests des paramètres d'import des factures fournisseurs (apps/edi/parameters/invoices_imports.py)
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import pytest
 
 from apps.edi.models import ColumnDefinition, SupplierDefinition
@@ -30,7 +30,7 @@ def test_get_columns_respecte_le_ranking(make_supplier_definition):
     assert list(get_columns(ColumnDefinition, "FluxRanking")) == ["a", "b"]
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 def test_get_columns_flux_inconnu():
     assert get_columns(ColumnDefinition, "Inconnu") == {}
 
@@ -45,7 +45,12 @@ def test_get_first_line(make_supplier_definition):
 def test_get_loader_params_dict_valeurs_par_defaut(make_supplier_definition):
     """Les paramètres vides du fournisseur prennent les valeurs csv par défaut"""
     make_supplier_definition(
-        "FluxVide", encoding=None, delimiter=None, lineterminator=None, quotechar=None, escapechar=None
+        "FluxVide",
+        encoding=None,
+        delimiter=None,
+        lineterminator=None,
+        quotechar=None,
+        escapechar=None,
     )
 
     assert get_loader_params_dict(SupplierDefinition, "FluxVide") == {
@@ -59,7 +64,12 @@ def test_get_loader_params_dict_valeurs_par_defaut(make_supplier_definition):
 
 def test_get_loader_params_dict_valeurs_renseignees(make_supplier_definition):
     make_supplier_definition(
-        "FluxTab", encoding="cp1252", delimiter="\t", lineterminator="\r\n", quotechar="'", escapechar="\\"
+        "FluxTab",
+        encoding="cp1252",
+        delimiter="\t",
+        lineterminator="\r\n",
+        quotechar="'",
+        escapechar="\\",
     )
 
     assert get_loader_params_dict(SupplierDefinition, "FluxTab") == {

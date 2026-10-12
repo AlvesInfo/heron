@@ -1,7 +1,9 @@
+"""Import des maisons clientes depuis le fichier d'extraction de la BI."""
+
+import csv
 import os
 import platform
 import sys
-import csv
 from pathlib import Path
 
 import django
@@ -18,13 +20,12 @@ django.setup()
 
 from django.db import transaction
 
-from apps.core.functions.functions_setups import settings
-from apps.accountancy.models import AccountSage, CodePlanSage, CctSage
+from apps.accountancy.models import AccountSage, CctSage, CodePlanSage
 from apps.book.models import Society
-from apps.centers_clients.models import Maison, MaisonBi
 from apps.centers_clients.forms import ImportMaisonBiForm, MaisonImportForm
+from apps.centers_clients.models import Maison, MaisonBi
+from apps.core.functions.functions_setups import settings
 from heron.loggers import LOGGER_IMPORT
-
 
 # Colonnes du fichier csv, dans l'ordre
 ROW_FIELDS = (
@@ -63,11 +64,11 @@ COMMON_FIELDS = (
 
 
 def _initials_from_bi(line: dict, code_plan_sage: CodePlanSage) -> dict:
-    """
-    Données de la maison reprises de la B.I (ligne avec un code maison) : vide si le trio
+    """Données de la maison reprises de la B.I (ligne avec un code maison) : vide si le trio.
+
     maison B.I / cct / tiers ou le formulaire de la maison sont invalides
     :param line: ligne du fichier, par nom de colonne
-    :param code_plan_sage: plan de comptes Sage de la maison
+    :param code_plan_sage: plan de comptes Sage de la maison.
     """
     form = ImportMaisonBiForm(
         {"maison_bi": line["code_maison"], "cct": line["cct"], "tiers": line["third_party_num"]}
@@ -106,20 +107,20 @@ def _initials_from_bi(line: dict, code_plan_sage: CodePlanSage) -> dict:
     )
 
     if not form_bi.is_valid():
-        LOGGER_IMPORT.info("%s %s %s %s", "depuis B.I : ", cct, ' - form_bi : ', form_bi.errors)
+        LOGGER_IMPORT.info("%s %s %s %s", "depuis B.I : ", cct, " - form_bi : ", form_bi.errors)
         return {}
 
-    LOGGER_IMPORT.info("%s %s", 'initials dans bi : ', form_bi.cleaned_data)
+    LOGGER_IMPORT.info("%s %s", "initials dans bi : ", form_bi.cleaned_data)
 
     return form_bi.cleaned_data
 
 
 def _initials_direct(line: dict, code_plan_sage: CodePlanSage) -> dict:
-    """
-    Données de la maison prises directement dans le fichier (ligne sans code maison) : vide si
+    """Données de la maison prises directement dans le fichier (ligne sans code maison) : vide si.
+
     le formulaire de la maison est invalide
     :param line: ligne du fichier, par nom de colonne
-    :param code_plan_sage: plan de comptes Sage de la maison
+    :param code_plan_sage: plan de comptes Sage de la maison.
     """
     form = MaisonImportForm(
         {
@@ -147,19 +148,20 @@ def _initials_direct(line: dict, code_plan_sage: CodePlanSage) -> dict:
     )
 
     if not form.is_valid():
-        LOGGER_IMPORT.info("%s %s %s %s", "direct     : ", line["cct"], ' - from : ', form.errors)
+        LOGGER_IMPORT.info("%s %s %s %s", "direct     : ", line["cct"], " - from : ", form.errors)
         return {}
 
-    LOGGER_IMPORT.info("%s %s", 'initials dans bi : ', form.cleaned_data)
+    LOGGER_IMPORT.info("%s %s", "initials dans bi : ", form.cleaned_data)
 
     return form.cleaned_data
 
 
 @transaction.atomic
 def import_file(file_path: Path):
-    """Import de maison depuis un fichier csv
+    """Import de maison depuis un fichier csv.
+
     :param file_path: chemin du fichier
-    :return: None
+    :return: None.
     """
     code_plan_sage = CodePlanSage.objects.get(code_plan_sage="FRA")
 

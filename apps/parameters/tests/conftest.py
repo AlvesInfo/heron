@@ -1,6 +1,7 @@
 # pylint: disable=W0621,E0401,R0913
-"""
-FR : conftest de l'app parameters - fabriques du référentiel de paramétrage
+"""FR : conftest de l'app parameters - fabriques du référentiel de paramétrage
+
+
 EN : parameters app conftest - settings referential factories
 
 Commentaire:
@@ -14,10 +15,11 @@ ventes Cosium minimales.
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import datetime
+from collections.abc import Callable
 from decimal import Decimal
 from typing import Any
-from collections.abc import Callable
 
 import pytest
 
@@ -53,7 +55,11 @@ def make_email(db) -> Callable[..., Email]:  # pylint: disable=W0613
     """Fabrique d'emails types (factures par défaut)"""
 
     def _factory(name: int = 0, **kwargs: Any) -> Email:
-        defaults = {"description": "Envoi des factures", "subject": "Vos factures", "email_body": "<p>Bonjour</p>"}
+        defaults = {
+            "description": "Envoi des factures",
+            "subject": "Vos factures",
+            "email_body": "<p>Bonjour</p>",
+        }
         defaults.update(kwargs)
         return Email.objects.get_or_create(name=name, defaults=defaults)[0]
 
@@ -64,9 +70,17 @@ def make_email(db) -> Callable[..., Email]:  # pylint: disable=W0613
 def make_exchange_rate(make_country_currency) -> Callable[..., ExchangeRate]:
     """Fabrique de taux de change mensuels (base EUR)"""
 
-    def _factory(currency: str = "CHF", rate_month: datetime.date = datetime.date(2026, 1, 1), rate: str = "1", **kwargs: Any) -> ExchangeRate:
+    def _factory(
+        currency: str = "CHF",
+        rate_month: datetime.date = datetime.date(2026, 1, 1),
+        rate: str = "1",
+        **kwargs: Any,
+    ) -> ExchangeRate:
         return ExchangeRate.objects.create(
-            currency_change=make_country_currency(currency, currency), rate_month=rate_month, rate=Decimal(rate), **kwargs
+            currency_change=make_country_currency(currency, currency),
+            rate_month=rate_month,
+            rate=Decimal(rate),
+            **kwargs,
         )
 
     return _factory
@@ -86,14 +100,16 @@ def make_vente(make_maison) -> Callable[..., Any]:
             "code_ean": "3660000000001",
             "date_vente": sale_month.replace(day=15),
             "sale_month": sale_month,
-            "ca_ht_ap_remise": Decimal("100"),
-            "ca_ht_avt_remise": Decimal("110"),
-            "pv_brut_unitaire": Decimal("110"),
-            "pv_net_unitaire": Decimal("100"),
-            "px_vente_ttc_devise": Decimal("120"),
-            "px_vente_ttc_devise_apres_remise": Decimal("120"),
+            "ca_ht_ap_remise": Decimal(100),
+            "ca_ht_avt_remise": Decimal(110),
+            "pv_brut_unitaire": Decimal(110),
+            "pv_net_unitaire": Decimal(100),
+            "px_vente_ttc_devise": Decimal(120),
+            "px_vente_ttc_devise_apres_remise": Decimal(120),
         }
         defaults.update(kwargs)
-        return VentesCosium.objects.create(cct_uuid_identification=maison or make_maison(), **defaults)
+        return VentesCosium.objects.create(
+            cct_uuid_identification=maison or make_maison(), **defaults
+        )
 
     return _factory

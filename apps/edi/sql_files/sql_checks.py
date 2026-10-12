@@ -1,6 +1,6 @@
-"""
-FR : Module des strings sql pour les validations
-EN : Sql strings module for validations
+"""FR : Module des strings sql pour les validations.
+
+EN : Sql strings module for validations.
 
 Commentaire:
 
@@ -10,60 +10,61 @@ created by: Paulo ALVES
 modified at: 2022-12-16
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 sql_edi_import_duplicates = sql.SQL(
     """
     with "alls" as (
-        select 
-            max("created_at") as "created_at", 
-            "uuid_identification", 
-            "third_party_num", 
-            "invoice_number", 
-            "invoice_year" 
-          from "edi_ediimport" "ee" 
+        select
+            max("created_at") as "created_at",
+            "uuid_identification",
+            "third_party_num",
+            "invoice_number",
+            "invoice_year"
+          from "edi_ediimport" "ee"
           where "delete" = false
-         group by "uuid_identification", 
-            "third_party_num", 
-            "invoice_number", 
+         group by "uuid_identification",
+            "third_party_num",
+            "invoice_number",
             "invoice_year"
     ),
     "doublons" as (
-        select 
-            "third_party_num", 
-            "invoice_number", 
+        select
+            "third_party_num",
+            "invoice_number",
             "invoice_year"
           from "alls" "aa"
-         group by "third_party_num", 
-            "invoice_number" , 
+         group by "third_party_num",
+            "invoice_number" ,
             "invoice_year"
         having count(*) > 1
     ),
     "max_alls" as (
-        select 
-            max("created_at") as "created_at", 
-            "third_party_num", 
-            "invoice_number", 
+        select
+            max("created_at") as "created_at",
+            "third_party_num",
+            "invoice_number",
             "invoice_year"
           from "alls"
-         group by "third_party_num", 
-            "invoice_number", 
-            "invoice_year" 
+         group by "third_party_num",
+            "invoice_number",
+            "invoice_year"
     ),
     "results" as (
-        select 
+        select
             "al"."uuid_identification",
             "dd"."third_party_num",
             "dd"."invoice_number",
             "dd"."invoice_year"
-         from "doublons" "dd" 
+         from "doublons" "dd"
          join "alls" "al"
            on "dd"."third_party_num" = "al"."third_party_num"
           and "dd"."invoice_number" = "al"."invoice_number"
           and "dd"."invoice_year" = "al"."invoice_year"
         where exists (
-            select 1 
-             from "max_alls" "ma" 
+            select 1
+             from "max_alls" "ma"
             where "ma"."third_party_num" = "al"."third_party_num"
               and "ma"."invoice_number" = "al"."invoice_number"
               and "ma"."invoice_year" = "al"."invoice_year"
@@ -71,8 +72,8 @@ sql_edi_import_duplicates = sql.SQL(
         )
     ),
     results_ident as (
-        select 
-            "uuid_identification", 
+        select
+            "uuid_identification",
             array_agg(
                 (
                     '(Tiers : '||"third_party_num"||
@@ -86,13 +87,13 @@ sql_edi_import_duplicates = sql.SQL(
         from "results"
         group by "uuid_identification"
     )
-    select 
-    "uuid_identification", 
+    select
+    "uuid_identification",
     "commentaire",
     "couples"
     from results_ident
-    group by     
-    "uuid_identification", 
+    group by
+    "uuid_identification",
     "commentaire",
     "couples"
 """
@@ -101,65 +102,65 @@ sql_edi_import_duplicates = sql.SQL(
 sql_edi_import_duplicates_delete = sql.SQL(
     """
 with "alls" as (
-    select 
-        max("created_at") as "created_at", 
+    select
+        max("created_at") as "created_at",
         "uuid_identification",
-        "third_party_num", 
-        "invoice_number", 
-        "invoice_year" 
-      from "edi_ediimport" "ee" 
+        "third_party_num",
+        "invoice_number",
+        "invoice_year"
+      from "edi_ediimport" "ee"
      group by
         "uuid_identification",
-        "third_party_num", 
-        "invoice_number", 
+        "third_party_num",
+        "invoice_number",
         "invoice_year"
 ),
 "max_keep" as (
-    select 
+    select
         max("created_at") as "created_at",
         "third_party_num",
         "invoice_number",
         "invoice_year"
     from "alls"
-    group by 
+    group by
         "third_party_num",
         "invoice_number",
         "invoice_year"
 ),
 "doublons" as (
-    select 
-        "third_party_num", 
-        "invoice_number", 
+    select
+        "third_party_num",
+        "invoice_number",
         "invoice_year"
       from "alls" "aa"
-     group by "third_party_num", 
-        "invoice_number" , 
+     group by "third_party_num",
+        "invoice_number" ,
         "invoice_year"
     having count(*) > 1
 ),
 "results" as (
-    select 
+    select
         "al"."uuid_identification",
         "dd"."third_party_num",
         "dd"."invoice_number",
         "dd"."invoice_year"
-     from "doublons" "dd" 
+     from "doublons" "dd"
      join "alls" "al"
        on "dd"."third_party_num" = "al"."third_party_num"
       and "dd"."invoice_number" = "al"."invoice_number"
       and "dd"."invoice_year" = "al"."invoice_year"
     where not exists (
-        select 1 
-         from "max_keep" "ma" 
+        select 1
+         from "max_keep" "ma"
         where "ma"."third_party_num" = "al"."third_party_num"
           and "ma"."invoice_number" = "al"."invoice_number"
           and "ma"."invoice_year" = "al"."invoice_year"
           and "ma"."created_at" = "al"."created_at"
         )
    )
-    delete from "edi_ediimport" "ei" 
+    delete from "edi_ediimport" "ei"
     where exists (
-        select 1 from "results" "re" 
+        select 1 from "results" "re"
         where "ei"."uuid_identification" = "re"."uuid_identification"
         and "ei"."third_party_num" = "re"."third_party_num"
         and "ei"."invoice_number" = "re"."invoice_number"
@@ -171,35 +172,35 @@ with "alls" as (
 sql_invoices_duplicates = sql.SQL(
     """
     with "results" as (
-        select 
-            "ee"."uuid_identification", 
-            "sii"."third_party_num", 
-            "sii"."invoice_number", 
-            "sii"."invoice_year" 
+        select
+            "ee"."uuid_identification",
+            "sii"."third_party_num",
+            "sii"."invoice_number",
+            "sii"."invoice_year"
           from (
-            select 
+            select
                 "uuid_identification",
                 "third_party_num",
                 "invoice_number",
                 "invoice_year"
-              from "edi_ediimport" 
+              from "edi_ediimport"
              where "delete" = false
-             group by "uuid_identification", 
-                "third_party_num", 
-                "invoice_number", 
+             group by "uuid_identification",
+                "third_party_num",
+                "invoice_number",
                 "invoice_year"
-          ) "ee" 
+          ) "ee"
           join "invoices_invoicecommondetails" "sii"
             on "ee"."third_party_num" = "sii"."third_party_num"
            and "ee"."invoice_number" = "sii"."invoice_number"
            and "ee"."invoice_year" = "sii"."invoice_year"
-           -- Ajouter car si l'on importe après une première génération 
+           -- Ajouter car si l'on importe après une première génération
            -- cela efface toute la table
            and "sii"."final" = true
     ),
     results_ident as (
-        select 
-            "uuid_identification", 
+        select
+            "uuid_identification",
             array_agg(
                 (
                     '(Tiers : '||"third_party_num"||
@@ -211,13 +212,13 @@ sql_invoices_duplicates = sql.SQL(
         from "results"
         group by "uuid_identification"
     )
-    select 
-        "uuid_identification", 
+    select
+        "uuid_identification",
         "commentaire",
         "couples"
     from results_ident
-    group by     
-        "uuid_identification", 
+    group by
+        "uuid_identification",
         "commentaire",
         "couples"
 """
@@ -225,35 +226,35 @@ sql_invoices_duplicates = sql.SQL(
 
 sql_invoices_duplicates_delete = sql.SQL(
     """
-    delete from "edi_ediimport" "ei" 
+    delete from "edi_ediimport" "ei"
     where exists (
             select 1 from (
-                    select 
-                "ee"."uuid_identification", 
-                "sii"."third_party_num", 
-                "sii"."invoice_number", 
-                "sii"."invoice_year" 
+                    select
+                "ee"."uuid_identification",
+                "sii"."third_party_num",
+                "sii"."invoice_number",
+                "sii"."invoice_year"
               from (
-                select 
+                select
                     "uuid_identification",
                     "third_party_num",
                     "invoice_number",
                     "invoice_year"
-                  from "edi_ediimport" 
+                  from "edi_ediimport"
                  where "delete" = false
-                 group by "uuid_identification", 
-                    "third_party_num", 
-                    "invoice_number", 
+                 group by "uuid_identification",
+                    "third_party_num",
+                    "invoice_number",
                     "invoice_year"
-              ) "ee" 
+              ) "ee"
               join "invoices_invoicecommondetails" "sii"
                 on "ee"."third_party_num" = "sii"."third_party_num"
                and "ee"."invoice_number" = "sii"."invoice_number"
                and "ee"."invoice_year" = "sii"."invoice_year"
-               -- Ajouter car si l'on importe après une première génération 
+               -- Ajouter car si l'on importe après une première génération
                -- cela efface toute la table
                and "sii"."final" = true
-        ) "re" 
+        ) "re"
         where "ei"."uuid_identification" = "re"."uuid_identification"
         and "ei"."third_party_num" = "re"."third_party_num"
         and "ei"."invoice_number" = "re"."invoice_number"

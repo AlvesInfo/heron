@@ -1,4 +1,4 @@
-"""Module d'export des achats
+"""Module d'export des achats.
 
 Commentaire:
 
@@ -8,6 +8,7 @@ created by: Paulo ALVES
 modified at: 2024-06-27
 modified by: Paulo ALVES
 """
+
 import io
 import os
 import platform
@@ -34,12 +35,13 @@ from heron.loggers import LOGGER_EXPORT_EXCEL
 
 
 def get_achats(file_io: io.BytesIO, file_name: str, dte_d: pendulum, dte_f: pendulum):
-    """Rempli le stream StringIO de la requête postgresql
+    """Rempli le stream StringIO de la requête postgresql.
+
     :param file_io: stream de type StringIO
     :param file_name: name of file
     :param dte_d: date de début de période
     :param dte_f: date de fin de période
-    :return: None
+    :return: None.
     """
     try:
         file_path = Path(settings.APPS_DIR) / "invoices/sql_files/sql_export_achats.sql"
@@ -50,14 +52,12 @@ def get_achats(file_io: io.BytesIO, file_name: str, dte_d: pendulum, dte_f: pend
                 .replace("#dte_d", dte_d.date().isoformat())
                 .replace("#dte_f", dte_f.date().isoformat())
             )
-            sql_copy = (
-                """COPY ({query}) TO STDOUT WITH CSV HEADER DELIMITER AS ';' QUOTE AS '"'"""
-            )
+            sql_copy = """COPY ({query}) TO STDOUT WITH CSV HEADER DELIMITER AS ';' QUOTE AS '"'"""
             sql_expert = sql_copy.format(query=query)
             cursor.copy_expert(sql=sql_expert, file=file_io)
 
     except Exception:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
+        LOGGER_EXPORT_EXCEL.exception("%r", file_name)
         return {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
 
     return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}

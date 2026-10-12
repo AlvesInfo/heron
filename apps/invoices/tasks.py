@@ -1,6 +1,6 @@
-"""
-FR : Module de génération des factures pdf de ventes sous task Celery
-EN : Module for generating pdf sales invoices under task Celery
+"""FR : Module de génération des factures pdf de ventes sous task Celery.
+
+EN : Module for generating pdf sales invoices under task Celery.
 
 Commentaire:
 
@@ -11,9 +11,8 @@ modified at: 2023-06-07
 modified by: Paulo ALVES
 """
 
-import time
-from typing import AnyStr, Dict
 import smtplib
+import time
 
 import pendulum
 from bs4 import BeautifulSoup
@@ -21,32 +20,30 @@ from celery import group, shared_task
 from django.db import transaction
 from django.db.models import Count
 
-from heron.loggers import LOGGER_INVOICES, LOGGER_X3
-from heron import celery_app
 from apps.core.bin.clean_celery import clean_memory
-from apps.core.functions.functions_setups import settings
-from apps.users.models import User
-from apps.invoices.models import SaleInvoice
-from apps.parameters.models import Email
-from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.exceptions import EmailException
+from apps.core.functions.functions_setups import settings
+from apps.core.functions.functions_utilitaires import iter_slice
 from apps.core.models import SSEProgress
-from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation, Maison
-from apps.invoices.bin.generate_invoices_facturx import (
-    invoices_facturx_generation,
-    get_facturx_groups,
-)
-from apps.invoices.bin.invoices_insertions import invoices_insertion
-from apps.invoices.bin.send_invoices_emails import invoices_send_by_email
-from apps.invoices.bin.send_emails_essais import essais_send_by_email
-from apps.invoices.loops.mise_a_jour_loop import process_update
-from apps.parameters.models import ActionInProgress
-from apps.invoices.bin.export_x3 import export_files_x3
 from apps.core.utils.progress_bar import update_progress_threaded
 
 # Import des tâches Gmail pour qu'elles soient découvertes par Celery
 from apps.invoices.bin.api_gmail import tasks_gmail  # noqa: F401
-
+from apps.invoices.bin.export_x3 import export_files_x3
+from apps.invoices.bin.generate_invoices_facturx import (
+    get_facturx_groups,
+    invoices_facturx_generation,
+)
+from apps.invoices.bin.generate_invoices_pdf import Maison, invoices_pdf_generation
+from apps.invoices.bin.invoices_insertions import invoices_insertion
+from apps.invoices.bin.send_emails_essais import essais_send_by_email
+from apps.invoices.bin.send_invoices_emails import invoices_send_by_email
+from apps.invoices.loops.mise_a_jour_loop import process_update
+from apps.invoices.models import SaleInvoice
+from apps.parameters.models import ActionInProgress, Email
+from apps.users.models import User
+from heron import celery_app
+from heron.loggers import LOGGER_INVOICES, LOGGER_X3
 
 EMAIL_HOST = settings.EMAIL_HOST
 EMAIL_PORT = settings.EMAIL_PORT
@@ -57,13 +54,13 @@ EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 @shared_task(name="invoices_insertions_launch")
 @clean_memory
 def launch_invoices_insertions(
-    user_uuid: User, invoice_date: pendulum.date, job_id: str = None
+    user_uuid: User, invoice_date: pendulum.date, job_id: str | None = None
 ):
-    """
-    Insertion des factures définitives achats et ventes
+    """Insertion des factures définitives achats et ventes.
+
     :param user_uuid: uuid de l'utilisateur qui a lancé le process
     :param invoice_date: date de la facture
-    :param job_id: ID du job pour le suivi SSEProgress
+    :param job_id: ID du job pour le suivi SSEProgress.
     """
     start_initial = time.time()
     error = False
@@ -91,29 +88,24 @@ def launch_invoices_insertions(
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        LOGGER_INVOICES.exception(f"TypeError : {except_error!r}")
+        LOGGER_INVOICES.exception("TypeError")
 
     except Exception as except_error:
         error = True
-        LOGGER_INVOICES.exception(
-            f"Exception Générale: launch_invoices_insertions\n{except_error!r}"
-        )
+        LOGGER_INVOICES.exception("Exception Générale: launch_invoices_insertions")
         # Marquer comme échoué (on n'arrive ici qu'avec un job_id : le try est vide sinon)
         try:
             if not progress:
                 progress = SSEProgress.objects.get(job_id=job_id)
             progress.mark_as_failed(str(except_error))
-        except Exception as e:
-            LOGGER_INVOICES.error(
-                f"Impossible de marquer le SSEProgress comme failed: {e}"
-            )
+        except Exception:
+            LOGGER_INVOICES.exception("Impossible de marquer le SSEProgress comme failed")
 
     finally:
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment
-                + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
@@ -124,20 +116,20 @@ def launch_invoices_insertions(
         action.save()
 
     LOGGER_INVOICES.warning(
-        to_print
-        + f"launch_invoices_insertions : {time.time() - start_initial} s"
-        + "\n\n======================================================================="
-        "======================================================================="
+        "%slaunch_invoices_insertions : %s s\n\n%s",
+        to_print,
+        time.time() - start_initial,
+        "=" * 142,
     )
 
     return {"launch_invoices_insertions : ": f"{time.time() - start_initial} s"}
 
 
-def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
-    """
-    Main pour lancement de la génération des pdf avec Celery
+def launch_celery_pdf_launch(user_pk: str, job_id: str):
+    """Main pour lancement de la génération des pdf avec Celery.
+
     :param user_pk: uuid de l'utilisateur qui a lancé le process
-    :param job_id: id du job à executer pour suivi SSEProgress
+    :param job_id: id du job à executer pour suivi SSEProgress.
     """
     error = False
     progress = None
@@ -182,7 +174,7 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
             )
 
         result = group(*tasks_list)().get(3600)
-        LOGGER_INVOICES.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+        LOGGER_INVOICES.warning("result : %r,\nin %s s", result, time.time() - start_all)
 
         # Marquer comme terminé (rafraîchi depuis la base pour avoir les dernières valeurs)
         progress.refresh_from_db()
@@ -199,29 +191,28 @@ def launch_celery_pdf_launch(user_pk: AnyStr, job_id: str):
                 # Essayer de récupérer le SSEProgress si pas encore fait
                 progress = SSEProgress.objects.get(job_id=job_id)
             progress.mark_as_failed(str(ex_error))
-        except Exception as e:
-            LOGGER_INVOICES.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
+        except Exception:
+            LOGGER_INVOICES.exception("Impossible de marquer le SSEProgress comme failed")
 
     finally:
         # Sans jauge (job_id inconnu) il n'y a rien à mettre à jour
         if progress is not None:
             if error:
-                update_progress_threaded(job_id=job_id, **{"mark_as_failed": True})
+                update_progress_threaded(job_id=job_id, mark_as_failed=True)
             else:
-                update_progress_threaded(job_id=job_id, **{"mark_as_completed": True})
+                update_progress_threaded(job_id=job_id, mark_as_completed=True)
 
 
 @shared_task(name="launch_generate_pdf_invoices")
 @clean_memory
-def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int, job_id: str):
-    """
-    Génération des pdf des factures de ventes pour un cct
+def launch_generate_pdf_invoices(cct: Maison.cct, num_file: str, user_pk: int, job_id: str):
+    """Génération des pdf des factures de ventes pour un cct.
+
     :param cct: maison de la facture pdf à générer
     :param num_file: numero du fichier full
     :param user_pk: uuid de l'utilisateur qui a lancé le process
-    :param job_id: uuid du process
+    :param job_id: uuid du process.
     """
-
     start_initial = time.time()
 
     error = False
@@ -242,20 +233,17 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        LOGGER_INVOICES.exception(f"TypeError : {except_error!r}")
+        LOGGER_INVOICES.exception("TypeError")
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_INVOICES.exception(
-            f"Exception Générale: launch_generate_pdf_invoices : {cct}\n{except_error!r}"
-        )
+        LOGGER_INVOICES.exception("Exception Générale: launch_generate_pdf_invoices : %s", cct)
 
     finally:
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment
-                + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
             update_progress_threaded(
                 job_id,
@@ -269,19 +257,17 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: AnyStr, user_pk: int
             trace.save()
 
     LOGGER_INVOICES.warning(
-        to_print + f"Génération du pdf {cct} : {time.time() - start_initial} s "
+        "%sGénération du pdf %s : %s s ", to_print, cct, time.time() - start_initial
     )
 
-    return {
-        "Generation facture pdf : ": f"cct : {str(cct)} - {time.time() - start_initial} s"
-    }
+    return {"Generation facture pdf : ": f"cct : {cct!s} - {time.time() - start_initial} s"}
 
 
-def launch_celery_facturx_launch(user_pk: AnyStr, job_id: str):
-    """
-    Main pour lancement de la génération des Factur-X avec Celery
+def launch_celery_facturx_launch(user_pk: str, job_id: str):
+    """Main pour lancement de la génération des Factur-X avec Celery.
+
     :param user_pk: uuid de l'utilisateur qui a lancé le process
-    :param job_id: id du job à executer pour suivi SSEProgress
+    :param job_id: id du job à executer pour suivi SSEProgress.
     """
     error = False
     progress = None
@@ -313,9 +299,7 @@ def launch_celery_facturx_launch(user_pk: AnyStr, job_id: str):
             )
 
         result = group(*tasks_list)().get(3600)
-        LOGGER_INVOICES.warning(
-            f"result Factur-X : {result!r},\nin {time.time() - start_all} s"
-        )
+        LOGGER_INVOICES.warning("result Factur-X : %r,\nin %s s", result, time.time() - start_all)
 
         progress.refresh_from_db()
         progress.mark_as_completed()
@@ -323,38 +307,34 @@ def launch_celery_facturx_launch(user_pk: AnyStr, job_id: str):
     except Exception as ex_error:
         error = True
         LOGGER_INVOICES.exception(
-            f"Erreur détectée dans apps.invoices.tasks.launch_celery_facturx_launch() : "
-            f"{ex_error!r}"
+            "Erreur détectée dans apps.invoices.tasks.launch_celery_facturx_launch()"
         )
         try:
             if not progress:
                 progress = SSEProgress.objects.get(job_id=job_id)
             progress.mark_as_failed(str(ex_error))
-        except Exception as e:
-            LOGGER_INVOICES.error(f"Impossible de marquer le SSEProgress comme failed: {e}")
+        except Exception:
+            LOGGER_INVOICES.exception("Impossible de marquer le SSEProgress comme failed")
 
     finally:
         # Sans jauge (job_id inconnu) il n'y a rien à mettre à jour
         if progress is not None:
             if error:
-                update_progress_threaded(job_id=job_id, **{"mark_as_failed": True})
+                update_progress_threaded(job_id=job_id, mark_as_failed=True)
             else:
-                update_progress_threaded(job_id=job_id, **{"mark_as_completed": True})
+                update_progress_threaded(job_id=job_id, mark_as_completed=True)
 
 
 @shared_task(name="launch_generate_facturx_invoices")
 @clean_memory
-def launch_generate_facturx_invoices(
-    cct: Maison.cct, num_file: AnyStr, user_pk: int, job_id: str
-):
-    """
-    Génération des Factur-X des factures de ventes pour un cct / pdf global
+def launch_generate_facturx_invoices(cct: Maison.cct, num_file: str, user_pk: int, job_id: str):
+    """Génération des Factur-X des factures de ventes pour un cct / pdf global.
+
     :param cct: maison des factures
     :param num_file: numero du fichier pdf global
     :param user_pk: uuid de l'utilisateur qui a lancé le process
-    :param job_id: uuid du process
+    :param job_id: uuid du process.
     """
-
     start_initial = time.time()
 
     error = False
@@ -376,13 +356,11 @@ def launch_generate_facturx_invoices(
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        LOGGER_INVOICES.exception(f"TypeError : {except_error!r}")
+        LOGGER_INVOICES.exception("TypeError")
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_INVOICES.exception(
-            f"Exception Générale: launch_generate_facturx_invoices : {cct}\n{except_error!r}"
-        )
+        LOGGER_INVOICES.exception("Exception Générale: launch_generate_facturx_invoices : %s", cct)
 
     finally:
         if error:
@@ -400,24 +378,22 @@ def launch_generate_facturx_invoices(
             trace.save()
 
     LOGGER_INVOICES.warning(
-        to_print + f"Génération Factur-X {cct} : {time.time() - start_initial} s "
+        "%sGénération Factur-X %s : %s s ", to_print, cct, time.time() - start_initial
     )
 
-    return {
-        "Generation Factur-X : ": f"cct : {str(cct)} - {time.time() - start_initial} s"
-    }
+    return {"Generation Factur-X : ": f"cct : {cct!s} - {time.time() - start_initial} s"}
 
 
 @shared_task(name="celery_send_invoices_emails")
 @clean_memory
 def launch_celery_send_invoice_mails(
-    user_pk: AnyStr, cct: AnyStr = None, period: AnyStr = None
+    user_pk: str, cct: str | None = None, period: str | None = None
 ):
-    """
-    Main pour lancement de l'enoi des factures par mails
+    """Main pour lancement de l'enoi des factures par mails.
+
     :param user_pk: uuid de l'utilisateur qui a lancé le process
     :param cct: cct de la fcture à envoyer
-    :param period: période de la facturation
+    :param period: période de la facturation.
     """
     # récupération du texte du corps de mail et sujet
     email = Email.objects.get(name=0)
@@ -456,24 +432,18 @@ def launch_celery_send_invoice_mails(
         )
 
     try:
-        tasks_list = []
-        for cct_dict in cct_invoices_list:
-            tasks_list.append(
-                celery_app.signature(
-                    "send_invoice_email",
-                    kwargs={
-                        "context_dict": {**context_dict, **cct_dict},
-                        "user_pk": str(user_pk),
-                    },
-                )
+        tasks_list = [
+            celery_app.signature(
+                "send_invoice_email",
+                kwargs={"context_dict": {**context_dict, **cct_dict}, "user_pk": str(user_pk)},
             )
+            for cct_dict in cct_invoices_list
+        ]
 
         group(*tasks_list).apply_async()
 
     except (smtplib.SMTPException, ValueError) as error:
-        raise EmailException(
-            "Erreur envoi email launch_celery_send_invoice_mails"
-        ) from error
+        raise EmailException("Erreur envoi email launch_celery_send_invoice_mails") from error
 
     except Exception:
         LOGGER_INVOICES.exception(
@@ -483,13 +453,12 @@ def launch_celery_send_invoice_mails(
 
 @shared_task(name="send_invoice_email")
 @clean_memory
-def send_invoice_email(context_dict: Dict, user_pk: int):
-    """
-    Envoi d'une facture par mail
-    :param context_dict: dictionnaire des éléments pour l'envoi d'emails
-    :param user_pk: uuid de l'utilisateur qui a lancé le process
-    """
+def send_invoice_email(context_dict: dict, user_pk: int):
+    """Envoi d'une facture par mail.
 
+    :param context_dict: dictionnaire des éléments pour l'envoi d'emails
+    :param user_pk: uuid de l'utilisateur qui a lancé le process.
+    """
     start_initial = time.time()
 
     error = False
@@ -504,37 +473,34 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        LOGGER_INVOICES.exception(f"TypeError : {except_error!r}")
+        LOGGER_INVOICES.exception("TypeError")
 
-    except Exception as except_error:
+    except Exception:
         error = True
         LOGGER_INVOICES.exception(
-            f"Exception Générale: launch_generate_pdf_invoices : "
-            f"{context_dict.get('cct')}\n{except_error!r}"
+            "Exception Générale: launch_generate_pdf_invoices : %s", context_dict.get("cct")
         )
 
     finally:
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment
-                + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
             trace.save()
 
     LOGGER_INVOICES.warning(
-        to_print
-        + (
-            f"Envoie de la facture par mail {context_dict.get('cct')} "
-            f": {time.time() - start_initial} s "
-        )
+        "%sEnvoie de la facture par mail %s : %s s ",
+        to_print,
+        context_dict.get("cct"),
+        time.time() - start_initial,
     )
 
     return {
         "Envoie de la facture par mail : ": (
-            f"cct : {str(context_dict.get('cct'))} - {time.time() - start_initial} s"
+            f"cct : {context_dict.get('cct')!s} - {time.time() - start_initial} s"
         )
     }
 
@@ -542,15 +508,14 @@ def send_invoice_email(context_dict: Dict, user_pk: int):
 @shared_task(name="launch_export_x3")
 @clean_memory
 def launch_export_x3(export_type, centrale, file_name, user_pk: int, nb_fac=5000):
-    """
-    Envoi d'une facture par mail
+    """Envoi d'une facture par mail.
+
     :param export_type: type d'export odana, sale, purchase, gdaud
     :param centrale: centrale pour laquelle on lance l'export
     :param file_name: nom du fichier à générer
     :param nb_fac: nombre de factures présentes dans le fichier
-    :param user_pk: uuid de l'utilisateur qui a lancé le process
+    :param user_pk: uuid de l'utilisateur qui a lancé le process.
     """
-
     start_initial = time.time()
 
     error = False
@@ -565,42 +530,43 @@ def launch_export_x3(export_type, centrale, file_name, user_pk: int, nb_fac=5000
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        LOGGER_X3.exception(f"TypeError : {except_error!r}")
+        LOGGER_X3.exception("TypeError")
 
-    except Exception as except_error:
+    except Exception:
         error = True
         LOGGER_X3.exception(
-            f"Exception Générale: launch_export_x3 : "
-            f"{export_type} - {centrale} - user : {str(user_pk)}\n{except_error!r}"
+            "Exception Générale: launch_export_x3 : %s - %s - user : %s",
+            export_type,
+            centrale,
+            user_pk,
         )
 
     finally:
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment
-                + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
             trace.save()
 
     LOGGER_X3.warning(
-        to_print
-        + (
-            f"Génération des fichiers  {export_type}, pour la société {centrale} "
-            f": {time.time() - start_initial} s "
-        )
+        "%sGénération des fichiers  %s, pour la société %s : %s s ",
+        to_print,
+        export_type,
+        centrale,
+        time.time() - start_initial,
     )
 
     # Sans trace (exception avant sa création) l'export est en échec
     return trace is not None and not trace.errors
 
 
-def launch_celery_send_emails_essais(user_pk: AnyStr):
-    """
-    Essais d'envoi des factures par mails
-    :param user_pk: uuid de l'utilisateur qui a lancé le process
+def launch_celery_send_emails_essais(user_pk: str):
+    """Essais d'envoi des factures par mails.
+
+    :param user_pk: uuid de l'utilisateur qui a lancé le process.
     """
     # récupération du texte du corps de mail et sujet
     email = Email.objects.get(name=0)
@@ -620,28 +586,23 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
     nb_mails = nb_iter * len(mails_essis_dict)
 
     try:
-        tasks_list = []
+        tasks_list: list = []
 
         for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
             context_dict["email_list"] = mails_essis_dict.get(i)
 
-            for _ in range_list:
-                tasks_list.append(
-                    celery_app.signature(
-                        "send_invoice_email_essais",
-                        kwargs={
-                            "context_dict": {**context_dict},
-                            "user_pk": str(user_pk),
-                        },
-                    )
+            tasks_list.extend(
+                celery_app.signature(
+                    "send_invoice_email_essais",
+                    kwargs={"context_dict": {**context_dict}, "user_pk": str(user_pk)},
                 )
+                for _ in range_list
+            )
 
         group(*tasks_list).apply_async()
 
     except (smtplib.SMTPException, ValueError) as error:
-        raise EmailException(
-            "Erreur envoi email launch_celery_send_emails_essais"
-        ) from error
+        raise EmailException("Erreur envoi email launch_celery_send_emails_essais") from error
 
     except Exception:
         LOGGER_INVOICES.exception(
@@ -651,13 +612,12 @@ def launch_celery_send_emails_essais(user_pk: AnyStr):
 
 @shared_task(name="send_invoice_email_essais")
 @clean_memory
-def send_invoice_email_essais(context_dict: Dict, user_pk: int):
-    """
-    Essais d'envoi d'une facture par mail
-    :param context_dict: dictionnaire des éléments pour l'envoi d'emails
-    :param user_pk: uuid de l'utilisateur qui a lancé le process
-    """
+def send_invoice_email_essais(context_dict: dict, user_pk: int):
+    """Essais d'envoi d'une facture par mail.
 
+    :param context_dict: dictionnaire des éléments pour l'envoi d'emails
+    :param user_pk: uuid de l'utilisateur qui a lancé le process.
+    """
     start_initial = time.time()
 
     error = False
@@ -672,36 +632,33 @@ def send_invoice_email_essais(context_dict: Dict, user_pk: int):
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        LOGGER_INVOICES.exception(f"TypeError : {except_error!r}")
+        LOGGER_INVOICES.exception("TypeError")
 
-    except Exception as except_error:
+    except Exception:
         error = True
         LOGGER_INVOICES.exception(
-            f"Exception Générale: send_invoice_email_essais : "
-            f"{context_dict.get('cct')}\n{except_error!r}"
+            "Exception Générale: send_invoice_email_essais : %s", context_dict.get("cct")
         )
 
     finally:
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment
-                + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         if trace is not None:
             trace.save()
 
     LOGGER_INVOICES.warning(
-        to_print
-        + (
-            f"Envoie de la facture par mail {context_dict.get('cct')} "
-            f": {time.time() - start_initial} s "
-        )
+        "%sEnvoie de la facture par mail %s : %s s ",
+        to_print,
+        context_dict.get("cct"),
+        time.time() - start_initial,
     )
 
     return {
         "Envoie de la facture par mail : ": (
-            f"cct : {str(context_dict.get('cct'))} - {time.time() - start_initial} s"
+            f"cct : {context_dict.get('cct')!s} - {time.time() - start_initial} s"
         )
     }

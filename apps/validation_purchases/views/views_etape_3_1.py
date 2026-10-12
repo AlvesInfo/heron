@@ -1,30 +1,32 @@
+"""Vues de l'étape 3.1 de la validation des achats : contrôle des familles d'articles."""
+
 import pendulum
 from django.contrib import messages
 from django.db import connection
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.http import JsonResponse
 from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.edi.models import EdiValidation
 from apps.validation_purchases.excel_outputs.excel_integration_invoices_familly import (
     excel_integration_invoices_familly,
 )
 from apps.validation_purchases.excel_outputs.excel_supplier_details_invoices_familly import (
     excel_supplier_details_invoice,
 )
-from apps.edi.models import EdiValidation
 from apps.validation_purchases.forms import FamiliesValidationForm
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 3.1 - CONTROLE FAMILLES
 
 
 def families_invoices_purchases(request):
-    """View de l'étape 3.1 des écrans de contrôles"""
+    """View de l'étape 3.1 des écrans de contrôles."""
     sql_context_file = "apps/validation_purchases/sql_files/sql_families_invoices.sql"
 
     with connection.cursor() as cursor:
@@ -47,14 +49,16 @@ def families_invoices_purchases(request):
 
 
 def families_invoices_purchases_export(request):
-    """Export Excel de
+    """Export Excel de.
+
     :param request: Request Django
-    :return: response_file"""
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                "FACTURES_CONTROLE_FAMILLES_" f"{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
+                f"FACTURES_CONTROLE_FAMILLES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
             )
 
             return response_file(
@@ -70,10 +74,12 @@ def families_invoices_purchases_export(request):
 
 
 def supplier_details_invoices_purchases_export(request, third_party_num):
-    """Export Excel de
+    """Export Excel de.
+
     :param request: Request Django
     :param third_party_num: Tiers X3
-    :return: response_file"""
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()
@@ -97,8 +103,7 @@ def supplier_details_invoices_purchases_export(request, third_party_num):
 
 
 def families_validation(request):
-    """Validation de l'écran de contrôle des familles d'achat"""
-
+    """Validation de l'écran de contrôle des familles d'achat."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -131,10 +136,10 @@ def families_validation(request):
                 message = "Le contrôle des familles est maintenant invalidé"
 
         except Exception:
-            LOGGER_VIEWS.exception(f"Views : families_validation error : {form.cleaned_data!r}")
+            LOGGER_VIEWS.exception("Views : families_validation error : %r", form.cleaned_data)
 
     else:
-        LOGGER_VIEWS.error(f"Views : families_validation error, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("Views : families_validation error, form invalid : %r", form.errors)
 
     messages.add_message(request, level, message)
 

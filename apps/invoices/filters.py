@@ -1,16 +1,15 @@
-"""
-Filtres pour des recherches dans les views
-"""
+"""Filtres pour des recherches dans les views."""
+
 import django_filters
 
 from apps.invoices.models import InvoiceCommonDetails
 
 
 class InvoiceFilter(django_filters.FilterSet):
-    """Filtre des factures"""
+    """Filtre des factures."""
 
     class Meta:
-        """class Meta django"""
+        """class Meta django."""
 
         model = InvoiceCommonDetails
         fields = {

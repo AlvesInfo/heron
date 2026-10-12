@@ -1,6 +1,6 @@
-"""
-FR : Module des models des périodes
-EN : Periods models module
+"""FR : Module des models des périodes.
+
+EN : Periods models module.
 
 Commentaire:
 
@@ -10,14 +10,15 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 from django.db import models
 
 
 class Periode(models.Model):
-    """
-    Table des Peridoe, sert à selectionner des dates périodes et between
+    """Table des Peridoe, sert à selectionner des dates périodes et between.
+
     FR : Périodes
-    EN : Periods
+    EN : Periods.
     """
 
     year = models.IntegerField(default=0, verbose_name="année")
@@ -29,11 +30,11 @@ class Periode(models.Model):
     end_date = models.DateField()
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.year} - {self.period_type} - {self.wording}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = [
             "period_type",

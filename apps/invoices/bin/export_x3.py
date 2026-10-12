@@ -1,5 +1,5 @@
-"""
-FR : Module d'export des fichier X3 à intégrer dans Sage
+"""FR : Module d'export des fichier X3 à intégrer dans Sage.
+
 EN : X3 file export module to be integrated into Sage
 Commentaire:
 
@@ -9,9 +9,10 @@ created by: Paulo ALVES
 modified at: 2023-08-17
 modified by: Paulo ALVES
 """
+
 import os
-import sys
 import platform
+import sys
 import time
 
 import django
@@ -27,23 +28,33 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 
 django.setup()
 
-from heron.loggers import LOGGER_X3
 from apps.data_flux.trace import get_trace
 from apps.invoices.bin.export_x3_odana_invoices import write_odana
-from apps.invoices.bin.export_x3_sale_invoices import write_bicpar
-from apps.invoices.bin.export_x3_purchase_invoices import write_bispard
-from apps.invoices.bin.export_x3_purchase_gdaud_invoices import write_bispar_gdaud
-from apps.invoices.bin.export_x3_purchase_sdoa_invoices import write_bispar_sdoa
 from apps.invoices.bin.export_x3_purchase_do_invoices import write_bispar_do
+from apps.invoices.bin.export_x3_purchase_gdaud_invoices import write_bispar_gdaud
+from apps.invoices.bin.export_x3_purchase_invoices import write_bispard
+from apps.invoices.bin.export_x3_purchase_sdoa_invoices import write_bispar_sdoa
+from apps.invoices.bin.export_x3_sale_invoices import write_bicpar
+from heron.loggers import LOGGER_X3
+
+
+class ExportX3Error(Exception):
+    """Type d'export X3 inconnu."""
+
+
+def _check_export_type(export_type: str, functions_dict: dict) -> None:
+    """ExportX3Error si le type d'export demandé n'a pas de fonction associée."""
+    if export_type not in functions_dict:
+        raise ExportX3Error(f"la fonction {export_type!r}, n'existe pas !")
 
 
 def export_files_x3(export_type, centrale, file_name, nb_fac):
-    """
-    Export des fichiers X3, pour insertion de la facturation dans Sage
+    """Export des fichiers X3, pour insertion de la facturation dans Sage.
+
     :param export_type: type d'export odana, sale, purchase, gdaud
     :param file_name: nom du fichier à générer
     :param nb_fac: nombre de factures présentes dans le fichier
-    :param centrale: centrale pour laquelle on lance l'export
+    :param centrale: centrale pour laquelle on lance l'export.
     """
     start = time.time()
     error = False
@@ -66,15 +77,14 @@ def export_files_x3(export_type, centrale, file_name, nb_fac):
     }
 
     try:
-        if export_type not in functions_dict:
-            raise Exception(f"la fonction {export_type!r}, n'existe pas !")
+        _check_export_type(export_type, functions_dict)
 
-        fonction = functions_dict.get(export_type)
+        fonction = functions_dict[export_type]
         fonction(centrale, file_name, nb_fac)
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_X3.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_X3.exception("Exception Générale")
 
     finally:
         if error:

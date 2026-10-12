@@ -1,47 +1,49 @@
-"""
-FR : Export Excel générique : une ou plusieurs feuilles « titre, date d'édition, entêtes
+"""FR : Export Excel générique : une ou plusieurs feuilles « titre, date d'édition, entêtes.
+
      (éventuellement fusionnées), lignes alternées, mise en page », avec des points d'extension
      pour les cas particuliers (écriture spécifique des lignes, traitement après écriture,
      pied de page, zéros masqués).
      Chaque module d'export d'une app se réduit à ses colonnes, sa requête et un appel à
      `excel_list_export` (une feuille) ou `excel_sheets_export` (plusieurs feuilles).
-EN : Generic Excel export (single or multi sheet) with extension hooks
+EN : Generic Excel export (single or multi sheet) with extension hooks.
 
 Commentaire:
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
-import io
-from dataclasses import dataclass, field
-from typing import Any, Callable, Iterable, Sequence
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_excel_optimized import GenericExcelOptimized
+import io
+from collections.abc import Callable, Iterable, Sequence
+from dataclasses import dataclass, field
+from typing import Any
+
 from apps.core.excel_outputs.excel_writer import (
     columns_headers_writer,
     output_day_writer,
     sheet_formatting,
     titre_page_writer,
 )
+from apps.core.functions.functions_excel_optimized import GenericExcelOptimized
+from heron.loggers import LOGGER_EXPORT_EXCEL
 
 KO_MESSAGE = {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
 PAGE_NUMBERS_FOOTER = "&R&P/&N"
 
 # writer(excel, sheet, columns, rows, f_lignes, f_lignes_odd) -> sauts de page (liste) ou None
 RowsWriter = Callable[[GenericExcelOptimized, int, Sequence[dict], Iterable, list, list], Any]
-# after_rows(excel, sheet, first_row, nb_rows)
+# after_rows : appelée avec excel, sheet, first_row et nb_rows
 AfterRows = Callable[[GenericExcelOptimized, int, int, int], None]
 
 
 def ok_message(file_name: str) -> dict:
-    """Message de succès standard des exports"""
+    """Message de succès standard des exports."""
     return {"OK": f"GENERATION DU FICHIER {file_name} TERMINEE AVEC SUCCES"}
 
 
 def with_headers(columns: Sequence[dict], headers: dict[int, str]) -> list[dict]:
-    """
-    Copie des colonnes avec de nouvelles entêtes : `with_headers(COLUMNS, {3: "Mois M-1"})`.
+    """Copie des colonnes avec de nouvelles entêtes : `with_headers(COLUMNS, {3: "Mois M-1"})`.
+
     Évite de modifier les listes de colonnes partagées au niveau des modules.
     """
     return [
@@ -50,14 +52,16 @@ def with_headers(columns: Sequence[dict], headers: dict[int, str]) -> list[dict]
     ]
 
 
-def month_headers(columns: Sequence[dict], indexes: Iterable[int], months: Iterable[str]) -> list[dict]:
-    """Copie des colonnes dont les entêtes `indexes` reçoivent les libellés `months`, dans l'ordre"""
-    return with_headers(columns, dict(zip(indexes, months)))
+def month_headers(
+    columns: Sequence[dict], indexes: Iterable[int], months: Iterable[str]
+) -> list[dict]:
+    """Copie des colonnes dont les entêtes `indexes` reçoivent les libellés `months`, dans l'ordre."""
+    return with_headers(columns, dict(zip(indexes, months, strict=False)))
 
 
 @dataclass
 class SheetSpec:  # pylint: disable=R0903
-    """Description d'une feuille : contenu, entêtes et mise en page"""
+    """Description d'une feuille : contenu, entêtes et mise en page."""
 
     name: str
     title: str
@@ -79,10 +83,15 @@ class SheetSpec:  # pylint: disable=R0903
 
 
 def write_alternate_rows(
-    excel: GenericExcelOptimized, sheet: int, first_row: int, rows: Iterable, f_lignes: list, f_lignes_odd: list
+    excel: GenericExcelOptimized,
+    sheet: int,
+    first_row: int,
+    rows: Iterable,
+    f_lignes: list,
+    f_lignes_odd: list,
 ) -> int:
-    """
-    Écrit les lignes à partir de first_row en alternant les formats selon la parité de la ligne
+    """Écrit les lignes à partir de first_row en alternant les formats selon la parité de la ligne.
+
     (formats préparés une seule fois) ; renvoie le nombre de lignes écrites.
     """
     even, odd = excel.prepare_row_formats(f_lignes), excel.prepare_row_formats(f_lignes_odd)
@@ -90,13 +99,15 @@ def write_alternate_rows(
 
     for count, row in enumerate(rows, 1):
         index = first_row + count - 1
-        excel.write_rows_with_prepared_formats(sheet, index, 0, row, even if index % 2 == 0 else odd)
+        excel.write_rows_with_prepared_formats(
+            sheet, index, 0, row, even if index % 2 == 0 else odd
+        )
 
     return count
 
 
 def _write_sheet(excel: GenericExcelOptimized, sheet: int, spec: SheetSpec) -> None:
-    """Écrit une feuille complète selon sa description"""
+    """Écrit une feuille complète selon sa description."""
     columns = spec.columns() if callable(spec.columns) else spec.columns
 
     if spec.hide_zero:
@@ -112,7 +123,9 @@ def _write_sheet(excel: GenericExcelOptimized, sheet: int, spec: SheetSpec) -> N
         columns_headers_writer(excel, sheet, spec.header_row, 0, columns)
 
     f_lignes = [dict_row.get("f_ligne") for dict_row in columns]
-    f_lignes_odd = [{**dict_row.get("f_ligne"), "bg_color": spec.odd_color} for dict_row in columns]
+    f_lignes_odd = [
+        {**(dict_row.get("f_ligne") or {}), "bg_color": spec.odd_color} for dict_row in columns
+    ]
     rows = spec.rows() if callable(spec.rows) else spec.rows
     first_row = spec.header_row + 1
     page_breaks = None
@@ -147,10 +160,10 @@ def _write_sheet(excel: GenericExcelOptimized, sheet: int, spec: SheetSpec) -> N
 
 
 def excel_sheets_export(
-    file_io: io.BytesIO, file_name: str, sheets: Sequence[SheetSpec], in_memory: bool = False
+    file_io: io.BytesIO, file_name: str, sheets: Sequence[SheetSpec], *, in_memory: bool = False
 ) -> dict:
-    """
-    Génère un classeur d'une ou plusieurs feuilles décrites par des SheetSpec.
+    """Génère un classeur d'une ou plusieurs feuilles décrites par des SheetSpec.
+
     Toute erreur (requête ou écriture) est journalisée et donne le retour KO.
     """
     excel = GenericExcelOptimized([file_io, [spec.name for spec in sheets]], in_memory=in_memory)
@@ -160,7 +173,7 @@ def excel_sheets_export(
             _write_sheet(excel, number, spec)
 
     except Exception:
-        LOGGER_EXPORT_EXCEL.exception(f"{file_name!r}")
+        LOGGER_EXPORT_EXCEL.exception("%r", file_name)
         return dict(KO_MESSAGE)
 
     finally:
@@ -180,8 +193,8 @@ def excel_list_export(
     in_memory: bool = False,
     **options: Any,
 ) -> dict:
-    """
-    Export d'une feuille : titre (ligne 0), date d'édition (ligne 1), entêtes fusionnées
+    """Export d'une feuille : titre (ligne 0), date d'édition (ligne 1), entêtes fusionnées.
+
     éventuelles (ligne header_row - 1), entêtes de colonnes (ligne header_row), lignes à partir
     de header_row + 1, puis mise en page.
     :param rows: lignes, ou fonction sans argument les renvoyant (évaluée dans le try)
@@ -189,11 +202,9 @@ def excel_list_export(
     :param in_memory: classeur généré en mémoire
     :param options: options de SheetSpec (orientation, repeat_row, fit_page, header_row, odd_color,
                     odd_first, merged_headers, hide_zero, write_headers, writer, after_rows, footer)
-    :return: {"OK": ...} ou {"KO": ...}
+    :return: {"OK": ...} ou {"KO": ...}.
 
     Les options sont transmises à `SheetSpec` (clé ou valeur inconnue -> TypeError/AttributeError).
     """
-    spec = SheetSpec(
-        name=sheet_name, title=title, columns=columns, rows=rows, **options
-    )
+    spec = SheetSpec(name=sheet_name, title=title, columns=columns, rows=rows, **options)
     return excel_sheets_export(file_io, file_name, [spec], in_memory=in_memory)

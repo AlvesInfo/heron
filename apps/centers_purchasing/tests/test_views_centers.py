@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des vues des centrales mères, centrales filles et enseignes
+"""FR : Tests des vues des centrales mères, centrales filles et enseignes
+
+
 EN : Tests for principal centers, child centers and signboards views
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import logging
 
 import pytest
@@ -39,7 +41,10 @@ def test_liste_des_centrales_meres(logged_client, make_principal_center):
 
 def test_creation_centrale_mere(logged_client):
     get = logged_client.get(reverse("centers_purchasing:mere_create"))
-    response = logged_client.post(reverse("centers_purchasing:mere_create"), {"code": "HA", "name": "Héron Achats", "generic_coefficient": "1"})
+    response = logged_client.post(
+        reverse("centers_purchasing:mere_create"),
+        {"code": "HA", "name": "Héron Achats", "generic_coefficient": "1"},
+    )
 
     mere = PrincipalCenterPurchase.objects.get(code="HA")
     assert get.status_code == 200
@@ -56,7 +61,9 @@ def test_creation_centrale_mere(logged_client):
 
 def test_creation_centrale_mere_invalide(logged_client, caplog):
     with caplog.at_level(logging.ERROR, logger="views"):
-        response = logged_client.post(reverse("centers_purchasing:mere_create"), {"code": "", "name": ""})
+        response = logged_client.post(
+            reverse("centers_purchasing:mere_create"), {"code": "", "name": ""}
+        )
 
     assert response.status_code == 200
     assert logged_client.session["level"] == 50
@@ -69,13 +76,19 @@ def test_modification_centrale_mere(logged_client, make_principal_center):
     url = reverse("centers_purchasing:mere_update", args=[mere.pk])
 
     get = logged_client.get(url)
-    response = logged_client.post(url, {"code": "HA", "name": "Héron Achats SAS", "generic_coefficient": "1.5"})
+    response = logged_client.post(
+        url, {"code": "HA", "name": "Héron Achats SAS", "generic_coefficient": "1.5"}
+    )
 
     mere.refresh_from_db()
     assert get.context["titre_table"] == "Mise à jour de la Centrale Mère : HA - Héron Achats"
     assert get.context["chevron_retour"] == reverse("centers_purchasing:meres_list")
     assert response.status_code == 302
-    assert (mere.name, str(mere.generic_coefficient), mere.modified_by) == ("Héron Achats SAS", "1.50000", logged_client.user)
+    assert (mere.name, str(mere.generic_coefficient), mere.modified_by) == (
+        "Héron Achats SAS",
+        "1.50000",
+        logged_client.user,
+    )
     assert "a été modifiée avec success" in _messages(response)[0]
 
 
@@ -86,7 +99,9 @@ def test_export_centrales_meres(logged_client, make_principal_center, monkeypatc
     post = logged_client.post(reverse("centers_purchasing:meres_export_list"))
 
     assert response.status_code == 200
-    assert response["Content-Disposition"].startswith("attachment; filename=LISTING_DES_CENTRALES_MERES_")
+    assert response["Content-Disposition"].startswith(
+        "attachment; filename=LISTING_DES_CENTRALES_MERES_"
+    )
     assert response.content[:2] == b"PK"
     assert post.status_code == 302
     assert post.url == reverse("centers_purchasing:meres_list")
@@ -94,7 +109,10 @@ def test_export_centrales_meres(logged_client, make_principal_center, monkeypatc
     def _boom(*_args, **_kwargs):
         raise RuntimeError("excel cassé")
 
-    with patched_attrs(monkeypatch, meres_views, excel_meres_list=_boom), caplog.at_level(logging.ERROR, logger="views"):
+    with (
+        patched_attrs(monkeypatch, meres_views, excel_meres_list=_boom),
+        caplog.at_level(logging.ERROR, logger="views"),
+    ):
         error = logged_client.get(reverse("centers_purchasing:meres_export_list"))
 
     assert error.status_code == 302
@@ -105,7 +123,16 @@ def test_export_centrales_meres(logged_client, make_principal_center, monkeypatc
 
 
 def _fille_data(**overrides):
-    data = {"code": "ACF", "base_center": "HA", "name": "Acuitis", "generic_coefficient": "1", "societe_cpy_x3": "ACU", "site_fcy_x3": "ACF", "code_plan_sage": "FRA", "iban": "FR7630006000"}
+    data = {
+        "code": "ACF",
+        "base_center": "HA",
+        "name": "Acuitis",
+        "generic_coefficient": "1",
+        "societe_cpy_x3": "ACU",
+        "site_fcy_x3": "ACF",
+        "code_plan_sage": "FRA",
+        "iban": "FR7630006000",
+    }
     data.update(overrides)
     return data
 
@@ -131,7 +158,11 @@ def test_creation_centrale_fille(logged_client, make_principal_center):
     assert get.context["titre_table"] == "Création d'une nouvelle Centrale Fille"
     assert response.status_code == 302
     assert response.url == reverse("centers_purchasing:filles_list")
-    assert (fille.base_center.code, fille.iban, fille.created_by) == ("HA", "FR76 3000 6000", logged_client.user)
+    assert (fille.base_center.code, fille.iban, fille.created_by) == (
+        "HA",
+        "FR76 3000 6000",
+        logged_client.user,
+    )
     assert "ACF a été créé avec success" in _messages(response)[0]
 
 
@@ -150,12 +181,18 @@ def test_modification_centrale_fille(logged_client, make_child_center, make_prin
     url = reverse("centers_purchasing:fille_update", args=[fille.pk])
 
     get = logged_client.get(url)
-    response = logged_client.post(url, _fille_data(name="Acuitis renommée", legal_notice="<p>Mentions</p>"))
+    response = logged_client.post(
+        url, _fille_data(name="Acuitis renommée", legal_notice="<p>Mentions</p>")
+    )
 
     fille.refresh_from_db()
     assert get.context["titre_table"] == "Mise à jour de la Centrale Fille : ACF - Acuitis"
     assert response.status_code == 302
-    assert (fille.name, fille.legal_notice, fille.modified_by) == ("Acuitis renommée", "<p>Mentions</p>", logged_client.user)
+    assert (fille.name, fille.legal_notice, fille.modified_by) == (
+        "Acuitis renommée",
+        "<p>Mentions</p>",
+        logged_client.user,
+    )
     assert "a été modifiée avec success" in _messages(response)[0]
 
 
@@ -166,13 +203,18 @@ def test_export_centrales_filles(logged_client, make_child_center, monkeypatch, 
     post = logged_client.post(reverse("centers_purchasing:filles_export_list"))
 
     assert response.status_code == 200
-    assert response["Content-Disposition"].startswith("attachment; filename=LISTING_DES_CENTRALES_FILLES_")
+    assert response["Content-Disposition"].startswith(
+        "attachment; filename=LISTING_DES_CENTRALES_FILLES_"
+    )
     assert post.url == reverse("centers_purchasing:filles_list")
 
     def _boom(*_args, **_kwargs):
         raise RuntimeError("excel cassé")
 
-    with patched_attrs(monkeypatch, filles_views, excel_filles_list=_boom), caplog.at_level(logging.ERROR, logger="views"):
+    with (
+        patched_attrs(monkeypatch, filles_views, excel_filles_list=_boom),
+        caplog.at_level(logging.ERROR, logger="views"),
+    ):
         error = logged_client.get(reverse("centers_purchasing:filles_export_list"))
 
     assert error.status_code == 302
@@ -183,7 +225,14 @@ def test_export_centrales_filles(logged_client, make_child_center, monkeypatch, 
 
 
 def _enseigne_data(**overrides):
-    data = {"child_center": "ACF", "code": "ACF", "name": "Acuitis", "generic_coefficient": "1", "comment": "", "message": "<p>Merci</p>"}
+    data = {
+        "child_center": "ACF",
+        "code": "ACF",
+        "name": "Acuitis",
+        "generic_coefficient": "1",
+        "comment": "",
+        "message": "<p>Merci</p>",
+    }
     data.update(overrides)
     return data
 
@@ -203,7 +252,9 @@ def test_creation_enseigne_avec_logo(logged_client, media_dirs, make_child_cente
     make_child_center("ACF")
 
     get = logged_client.get(reverse("centers_purchasing:enseigne_create"))
-    response = logged_client.post(reverse("centers_purchasing:enseigne_create"), _enseigne_data(logo=logo_file("acuitis.png")))
+    response = logged_client.post(
+        reverse("centers_purchasing:enseigne_create"), _enseigne_data(logo=logo_file("acuitis.png"))
+    )
 
     enseigne = Signboard.objects.get(code="ACF")
     assert get.context["create"] is True
@@ -221,13 +272,17 @@ def test_creation_enseigne_avec_logo(logged_client, media_dirs, make_child_cente
 def test_creation_enseigne_invalide(logged_client, media_dirs, make_child_center):
     make_child_center("ACF")
 
-    response = logged_client.post(reverse("centers_purchasing:enseigne_create"), _enseigne_data(name=""))
+    response = logged_client.post(
+        reverse("centers_purchasing:enseigne_create"), _enseigne_data(name="")
+    )
 
     assert response.status_code == 200
     assert Signboard.objects.count() == 0
 
 
-def test_modification_enseigne_supprime_le_logo_orphelin(logged_client, media_dirs, make_child_center, make_signboard, logo_file):
+def test_modification_enseigne_supprime_le_logo_orphelin(
+    logged_client, media_dirs, make_child_center, make_signboard, logo_file
+):
     """Case 'supprimer le logo' cochée : le logo est retiré et son fichier devenu orphelin effacé"""
     make_child_center("ACF")
     enseigne = make_signboard("ACF", name="Acuitis")
@@ -243,20 +298,29 @@ def test_modification_enseigne_supprime_le_logo_orphelin(logged_client, media_di
     assert get.context["enseigne"] == enseigne
     assert "ancien.png" in get.content.decode()
     assert response.status_code == 302
-    assert (enseigne.name, bool(enseigne.logo), enseigne.modified_by) == ("Acuitis maison", False, logged_client.user)
+    assert (enseigne.name, bool(enseigne.logo), enseigne.modified_by) == (
+        "Acuitis maison",
+        False,
+        logged_client.user,
+    )
     assert not (media_dirs.logos / "ancien.png").exists()
     assert not (media_dirs.logos / "perdu.png").exists()
     assert "a été modifiée avec success" in _messages(response)[0]
 
 
-def test_modification_enseigne_conserve_le_logo(logged_client, media_dirs, make_child_center, make_signboard, logo_file):
+def test_modification_enseigne_conserve_le_logo(
+    logged_client, media_dirs, make_child_center, make_signboard, logo_file
+):
     make_child_center("ACF")
     enseigne = make_signboard("ACF", name="Acuitis")
     enseigne.logo.save("garde.png", logo_file("garde.png"), save=True)
     other = make_signboard("GAF", name="GrandAudition")
     other.logo.save("autre.png", logo_file("autre.png"), save=True)
 
-    response = logged_client.post(reverse("centers_purchasing:enseigne_update", args=[enseigne.pk]), _enseigne_data(comment="mis à jour"))
+    response = logged_client.post(
+        reverse("centers_purchasing:enseigne_update", args=[enseigne.pk]),
+        _enseigne_data(comment="mis à jour"),
+    )
 
     enseigne.refresh_from_db()
     assert response.status_code == 302
@@ -279,7 +343,10 @@ def test_export_enseignes(logged_client, make_signboard, monkeypatch, caplog):
     def _boom(*_args, **_kwargs):
         raise RuntimeError("excel cassé")
 
-    with patched_attrs(monkeypatch, enseignes_views, excel_enseignes_list=_boom), caplog.at_level(logging.ERROR, logger="views"):
+    with (
+        patched_attrs(monkeypatch, enseignes_views, excel_enseignes_list=_boom),
+        caplog.at_level(logging.ERROR, logger="views"),
+    ):
         error = logged_client.get(reverse("centers_purchasing:enseignes_export_list"))
 
     assert error.status_code == 302

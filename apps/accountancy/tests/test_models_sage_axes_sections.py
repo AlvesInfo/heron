@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des modèles AxeSage et SectionSage (apps/accountancy/models/sage_axes_sections.py)
+"""FR : Tests des modèles AxeSage et SectionSage (apps/accountancy/models/sage_axes_sections.py)
+
+
 EN : Tests for AxeSage and SectionSage models
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import pytest
 from django.db import IntegrityError, transaction
 from django.db.models import Manager

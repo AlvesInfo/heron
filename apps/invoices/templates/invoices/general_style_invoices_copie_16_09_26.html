@@ -1,0 +1,159 @@
+{% load static %}
+
+<style>
+@page {
+    size: 21cm 29.7cm;
+    margin: 10mm 10mm 32mm 10mm;
+}
+
+@font-face {
+    font-family: "ClanMedium";
+    src: url('{{ domain }}/static/ClanMedium.otf');
+}
+
+@font-face {
+    font-family: "ClanBook";
+    src: url('{{ domain }}/static/ClanBook.otf');
+}
+
+@font-face {
+    font-family: "ClanThin";
+    src: url('{{ domain }}/static/ClanThin.otf');
+}
+
+table, p {
+	border-collapse: collapse;
+	font-family:'ClanBook',sans-serif;
+	font-size:11px;
+	border-spacing: 0;
+}
+
+.entete {
+	background-color:black;
+	color:white;
+	font-family:'ClanMedium', sans-serif;
+    border-spacing: 0;
+}
+
+.entete td:first-child {
+    {#border-left-style: solid;#}
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
+    padding-left:5px;
+}
+
+.entete td:last-child {
+    {#border-right-style: solid;#}
+    border-bottom-right-radius: 14px;
+    border-top-right-radius: 14px;
+}
+
+tr.lignes { page-break-inside: avoid; }
+
+tr.bordures > td, tr.lignes > td, tr.lignes-light > td {
+	border-left:1px solid #dadada;
+	border-right:1px solid #dadada;
+}
+
+tr.bordures > td:first-child, tr.bordures > td:last-child, tr.lignes > td:first-child, tr.lignes > td:last-child, tr.lignes-light > td:first-child, tr.lignes-light > td:last-child {
+	border-left:none;
+	border-right:none;
+}
+
+tr.entete > td, td.entete > td {
+    padding: 5px;
+}
+
+tr.lignes > td {
+    padding: 2px 5px;
+}
+
+tr.lignes-light > td {
+    padding: 5px 5px 3px;
+}
+
+.tableauFacturation {
+	width:100%;
+}
+
+.merci {
+	text-align:center;
+}
+
+.mentionsLegales {
+	font-size:0.6em;
+}
+
+.footer {
+    position: fixed;
+    bottom: -22mm;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 22mm;
+    overflow: hidden;
+}
+
+.fin-doc {
+    page-break-after: always;
+}
+
+/* Section adresses */
+.addresses-section {
+    display: flex;
+    margin: 5px 0;
+}
+
+.addresses-section > * {
+    margin-right: 10px;
+}
+.addresses-section > *:last-child {
+    margin-right: 0;
+}
+
+.address-box {
+    flex: 1;
+    border: 1px solid rgba(34, 36, 38, 0.4);
+    border-radius: 0.28571429rem;
+    padding: 8px;
+    margin: 3mm 0 !important;
+}
+
+@media print {
+
+    @font-face {
+        font-family: "ClanMedium";
+        src: url('{{ domain }}/static/ClanMedium.otf');
+    }
+
+    @font-face {
+        font-family: "ClanBook";
+        src: url('{{ domain }}/static/ClanBook.otf');
+    }
+
+    @font-face {
+        font-family: "ClanThin";
+        src: url('{{ domain }}/static/ClanThin.otf');
+    }
+
+        /* Adresses */
+    .addresses-section {
+        break-inside: avoid !important;
+    }
+
+    .address-box {
+        -webkit-print-color-adjust: exact !important;
+        font-family:'ClanBook',sans-serif;
+	    font-size:11px;
+    }
+
+    .address-title {
+        margin-bottom: 2mm !important;
+    }
+
+    span.ligne-bank {
+        padding: 1mm 0 !important;
+        margin: 1mm 0 0 3mm !important;
+    }
+}
+</style>

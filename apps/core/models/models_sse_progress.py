@@ -1,21 +1,20 @@
-"""
-Modèle Django pour suivre la progression SSE
-À ajouter dans apps/core/models.py
+"""Modèle Django pour suivre la progression SSE.
+
+À ajouter dans apps/core/models.py.
 
 created at: 2025-01-10
 created by: Paulo ALVES
 """
 
-
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.conf import settings
 
 
 class SSEProgress(models.Model):
-    """
-    Modèle générique pour suivre la progression de tâches avec SSE
-    Réutilisable pour n'importe quelle tâche (envoi emails, import, export, etc.)
+    """Modèle générique pour suivre la progression de tâches avec SSE.
+
+    Réutilisable pour n'importe quelle tâche (envoi emails, import, export, etc.).
     """
 
     job_id = models.CharField(
@@ -119,6 +118,8 @@ class SSEProgress(models.Model):
     )
 
     class Meta:
+        """Métadonnées Django du modèle."""
+
         verbose_name = "Progression SSE"
         verbose_name_plural = "Progressions SSE"
         ordering = ["-created_at"]
@@ -130,30 +131,31 @@ class SSEProgress(models.Model):
         ]
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.task_type} - {self.job_id} - {self.status} ({self.processed_items}/{self.total_items})"
 
     @property
     def progress_percentage(self):
-        """Calcule le pourcentage de progression"""
+        """Calcule le pourcentage de progression."""
         if self.total_items == 0:
             return 0
         return int((self.processed_items / self.total_items) * 100)
 
     @property
     def success_count(self):
-        """Nombre d'éléments traités avec succès"""
+        """Nombre d'éléments traités avec succès."""
         return self.processed_items - self.failed_items
 
     @property
     def success_rate(self):
-        """Calcule le taux de succès"""
+        """Calcule le taux de succès."""
         if self.processed_items == 0:
             return 0
         return int((self.success_count / self.processed_items) * 100)
 
     @property
     def duration(self):
-        """Calcule la durée du job en secondes"""
+        """Calcule la durée du job en secondes."""
         if not self.started_at:
             return 0
 
@@ -163,7 +165,7 @@ class SSEProgress(models.Model):
 
     @property
     def estimated_remaining_time(self):
-        """Estime le temps restant en secondes"""
+        """Estime le temps restant en secondes."""
         if self.processed_items == 0 or self.duration == 0:
             return None
 
@@ -176,25 +178,25 @@ class SSEProgress(models.Model):
 
     @property
     def items_per_second(self):
-        """Calcule le nombre d'éléments traités par seconde"""
+        """Calcule le nombre d'éléments traités par seconde."""
         if self.duration == 0 or self.processed_items == 0:
             return 0
         return round(self.processed_items / self.duration, 2)
 
     def mark_as_started(self):
-        """Marque le job comme démarré"""
+        """Marque le job comme démarré."""
         self.status = "in_progress"
         self.started_at = timezone.now()
         self.save()
 
     def mark_as_completed(self):
-        """Marque le job comme terminé"""
+        """Marque le job comme terminé."""
         self.status = "completed"
         self.completed_at = timezone.now()
         self.save()
 
     def mark_as_failed(self, error_message=None):
-        """Marque le job comme échoué"""
+        """Marque le job comme échoué."""
         self.status = "failed"
         self.completed_at = timezone.now()
         if error_message:
@@ -202,7 +204,7 @@ class SSEProgress(models.Model):
         self.save()
 
     def update_progress(self, processed=0, failed=0, message=None, item_name=None):
-        """Met à jour la progression
+        """Met à jour la progression.
 
         :param processed: Nombre d'items traités à ajouter
         :param failed: Nombre d'items en erreur à ajouter
@@ -243,7 +245,7 @@ class SSEProgress(models.Model):
         self.save()
 
     def to_dict(self):
-        """Convertit en dictionnaire pour l'API"""
+        """Convertit en dictionnaire pour l'API."""
         return {
             "job_id": self.job_id,
             "task_type": self.task_type,
@@ -262,9 +264,7 @@ class SSEProgress(models.Model):
             "metadata": self.metadata,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "started_at": self.started_at.isoformat() if self.started_at else None,
-            "completed_at": self.completed_at.isoformat()
-            if self.completed_at
-            else None,
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
             "duration": self.duration,
             "estimated_remaining_time": self.estimated_remaining_time,
             "items_per_second": self.items_per_second,

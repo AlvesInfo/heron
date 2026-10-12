@@ -1,6 +1,6 @@
-"""
-FR : Module d'insertion provisoire
-EN : Provisional insert module
+"""FR : Module d'insertion provisoire.
+
+EN : Provisional insert module.
 
 Commentaire:
 
@@ -11,14 +11,15 @@ modified at: 2023-03-11
 modified by: Paulo ALVES
 """
 
-from typing import AnyStr
+import csv
 import io
 import os
 import platform
 import sys
-import csv
 import time
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any, NoReturn
 from uuid import UUID
 
 import django
@@ -36,56 +37,55 @@ django.setup()
 
 import pendulum
 from django.conf import settings
-from django.utils import timezone
 from django.db.models import Count, Q
+from django.utils import timezone
 
-from heron.loggers import LOGGER_EDI, LOGGER_INVOICES
-from apps.core.bin.echeances import get_payment_method_elements, get_due_date
+from apps.centers_purchasing.bin.update_account_article import update_axes_edi
+from apps.core.bin.echeances import get_due_date, get_payment_method_elements
 from apps.core.functions.functions_setups import connection, transaction
 from apps.core.utils.progress_bar import update_progress_threaded
+from apps.data_flux.models import Trace
 from apps.data_flux.postgres_save import (
+    PostgresDjangoUpsert,
     PostgresKeyError,
     PostgresTypeError,
-    PostgresDjangoUpsert,
 )
 from apps.data_flux.trace import get_trace
-from apps.users.models import User
-from apps.edi.models import EdiImport
 from apps.edi.bin.cct_update import update_cct_edi_import
+from apps.edi.models import EdiImport, EdiValidation
+from apps.invoices.bin.columns import COL_SALES_DICT, COLS_PURCHASE_DICT
+from apps.invoices.bin.invoives_nums import get_invoice_num, get_purchase_num
 from apps.invoices.bin.pre_controls import control_alls_missings
+from apps.invoices.loops.mise_a_jour_loop import process_update
 from apps.invoices.models import Invoice, SaleInvoice
-from apps.parameters.bin.generic_nums import get_generic_cct_num
-from apps.data_flux.models import Trace
 from apps.invoices.sql_files.sql_invoices_insertions import (
+    SQL_CLEAR_INVOICES_SIGNBOARDS,
+    SQL_COMMON_DETAILS,
+    SQL_CONTROL_PURCHASES_INSERTION,
+    SQL_CONTROL_SALES_INSERTION,
     SQL_FIX_ARTICLES,
     SQL_FIX_IMPORT_UUID,
-    SQL_COMMON_DETAILS,
-    SQL_PURCHASES_INVOICES,
+    SQL_PURCHASE_DETAILS_FOR_EXPORT_X3,
     SQL_PURCHASE_FOR_EXPORT_X3,
     SQL_PURCHASES_DETAILS,
-    SQL_PURCHASE_DETAILS_FOR_EXPORT_X3,
-    SQL_CONTROL_PURCHASES_INSERTION,
-    SQL_CLEAR_INVOICES_SIGNBOARDS,
-    SQL_SALES_INVOICES,
-    SQL_SALES_FOR_EXPORT_X3,
+    SQL_PURCHASES_INVOICES,
     SQL_SALES_DETAILS,
-    SQL_CONTROL_SALES_INSERTION,
+    SQL_SALES_FOR_EXPORT_X3,
+    SQL_SALES_INVOICES,
 )
-from apps.invoices.bin.columns import COLS_PURCHASE_DICT, COL_SALES_DICT
-from apps.invoices.bin.invoives_nums import get_purchase_num, get_invoice_num
-from apps.invoices.loops.mise_a_jour_loop import process_update
-from apps.centers_purchasing.bin.update_account_article import update_axes_edi
+from apps.parameters.bin.generic_nums import get_generic_cct_num
 from apps.parameters.models import CounterNums
-from apps.edi.models import EdiValidation
+from apps.users.models import User
+from heron.loggers import LOGGER_EDI, LOGGER_INVOICES
 
 
 class InvoicesInsertionError(Exception):
-    """Exception niveau module pour les erreurs d'insertion des factures"""
+    """Exception niveau module pour les erreurs d'insertion des factures."""
 
 
 def set_fix_uuid(cursor: connection.cursor) -> None:
-    """
-    Ajout de l'import_uuid_identification, au cas où il en manque
+    """Ajout de l'import_uuid_identification, au cas où il en manque.
+
     :param cursor: cursor django pour la db
     :return:
     """
@@ -93,8 +93,8 @@ def set_fix_uuid(cursor: connection.cursor) -> None:
 
 
 def set_common_details(cursor: connection.cursor) -> None:
-    """
-    Ajout des détails de factures pour la partie commune
+    """Ajout des détails de factures pour la partie commune.
+
     :param cursor: cursor django pour la db
     :return:
     """
@@ -102,8 +102,8 @@ def set_common_details(cursor: connection.cursor) -> None:
 
 
 def set_sales_details(cursor: connection.cursor) -> None:
-    """
-    Ajout des détails de factures de vente
+    """Ajout des détails de factures de vente.
+
     :param cursor: cursor django pour la db
     :return:
     """
@@ -111,18 +111,16 @@ def set_sales_details(cursor: connection.cursor) -> None:
 
 
 def set_purchases_invoices(
-    cursor: connection.cursor, user: User, invoice_date_iso: AnyStr
-) -> [bool, AnyStr]:
-    """
-    Remplissage du fichier io pour insertion en base des factures de vente
+    cursor: connection.cursor, user: User, invoice_date_iso: str
+) -> tuple[bool, str]:
+    """Remplissage du fichier io pour insertion en base des factures de vente.
+
     :param cursor: cursor django pour la db
     :param user: utilisateur qui a lancé la commande
     :param invoice_date_iso: mois d'intégration de la facture au format isoformat
     :return:
     """
-    integration_month = (
-        pendulum.parse(invoice_date_iso).date().start_of("month").isoformat()
-    )
+    integration_month = pendulum.parse(invoice_date_iso).date().start_of("month").isoformat()
     model = Invoice
     file_name = "select ..."
     trace_name = "Insertion des factures d'achat"
@@ -138,9 +136,7 @@ def set_purchases_invoices(
     get_payment_method_elements.cache_clear()
 
     try:
-        csv_writer = csv.writer(
-            file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL
-        )
+        csv_writer = csv.writer(file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
         cursor.execute(SQL_PURCHASES_INVOICES)
 
         for line in cursor.fetchall():
@@ -152,7 +148,6 @@ def set_purchases_invoices(
                 f"{str(line_to_write[8].month).zfill(2)}"
                 f"{get_purchase_num()}"
             )[-20:]
-            # print(get_due_date(str(line_to_write[8]), auuid))
             # date_echeance
             line_to_write[17] = get_due_date(str(line_to_write[8]), auuid)
             # created_by
@@ -161,8 +156,6 @@ def set_purchases_invoices(
             line_to_write[26] = user.uuid_identification
             # Mois d'intégration = période de facturation
             line_to_write[29] = integration_month
-            # print(line_to_write)
-            # print(dict(zip(COLS_PURCHASE_DICT, line_to_write)))
 
             csv_writer.writerow(line_to_write)
 
@@ -171,7 +164,7 @@ def set_purchases_invoices(
             model=model,
             fields_dict=COLS_PURCHASE_DICT,
             cnx=connection,
-            exclude_update_fields={},
+            exclude_update_fields=set(),
         )
         file_io.seek(0)
         postgres_upsert.insertion(
@@ -183,25 +176,24 @@ def set_purchases_invoices(
         )
 
     # Exceptions PostgresDjangoUpsert ==========================================================
-    except PostgresKeyError as except_error:
+    except PostgresKeyError:
         error = True
-        LOGGER_EDI.exception(f"PostgresKeyError : {except_error!r}")
+        LOGGER_EDI.exception("PostgresKeyError")
 
-    except PostgresTypeError as except_error:
+    except PostgresTypeError:
         error = True
-        LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
+        LOGGER_EDI.exception("PostgresTypeError")
 
     # Exception Générale =======================================================================
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception("Exception Générale")
 
     finally:
         if error:
             trace.errors = True
             trace.comment = (
-                trace.comment
-                + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
@@ -218,11 +210,26 @@ def set_purchases_invoices(
     return error, to_print
 
 
+def _sales_line(line: tuple, invoice_date, user: User) -> list:
+    """Ligne de facture de vente à écrire : numéro, dates de période et utilisateur renseignés."""
+    invoice_num = get_invoice_num(invoice_date)
+    line_to_write = list(line)
+    line_to_write[5] = invoice_num
+    line_to_write[6] = f"{line[34]!s}{invoice_num}"
+    line_to_write[8] = invoice_date.isoformat()
+    line_to_write[9] = invoice_date.start_of("month").isoformat()
+    line_to_write[10] = invoice_date.year
+    line_to_write[20] = user.uuid_identification
+    line_to_write[21] = user.uuid_identification
+
+    return line_to_write
+
+
 def set_sales_invoices(
-    cursor: connection.cursor, user: User, invoice_date_iso: AnyStr
-) -> [bool, AnyStr]:
-    """
-    Remplissage du fichier io pour insertion en base des factures de vente
+    cursor: connection.cursor, user: User, invoice_date_iso: str
+) -> tuple[bool, str]:
+    """Remplissage du fichier io pour insertion en base des factures de vente.
+
     :param cursor: cursor django pour la db
     :param user: utilisateur qui a lancé la commande
     :param invoice_date_iso: date de la facture au format isoformat
@@ -235,8 +242,7 @@ def set_sales_invoices(
     application_name = "sales_invoices_insertion"
     flow_name = "Sales_Insertion"
     comment = (
-        f"Facturation de Ventes pour la période : "
-        f"{invoice_date.format('MMMM YYYY', locale='fr')}"
+        f"Facturation de Ventes pour la période : {invoice_date.format('MMMM YYYY', locale='fr')}"
     )
     trace = get_trace(trace_name, file_name, application_name, flow_name, comment)
     error = False
@@ -244,31 +250,19 @@ def set_sales_invoices(
     to_print = ""
 
     try:
-        csv_writer = csv.writer(
-            file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL
-        )
+        csv_writer = csv.writer(file_io, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
         cursor.execute(SQL_CLEAR_INVOICES_SIGNBOARDS)
         cursor.execute(SQL_SALES_INVOICES)
 
         for line in cursor.fetchall():
-            invoice_num = get_invoice_num(invoice_date)
-            line_to_write = list(line)
-            line_to_write[5] = invoice_num
-            line_to_write[6] = f"{str(line[34])}{invoice_num}"
-            line_to_write[8] = invoice_date.isoformat()
-            line_to_write[9] = invoice_date.start_of("month").isoformat()
-            line_to_write[10] = invoice_date.year
-            line_to_write[20] = user.uuid_identification
-            line_to_write[21] = user.uuid_identification
-
-            csv_writer.writerow(line_to_write)
+            csv_writer.writerow(_sales_line(line, invoice_date, user))
 
         file_io.seek(0)
         postgres_upsert = PostgresDjangoUpsert(
             model=model,
             fields_dict=COL_SALES_DICT,
             cnx=connection,
-            exclude_update_fields={},
+            exclude_update_fields=set(),
         )
         file_io.seek(0)
         postgres_upsert.insertion(
@@ -280,25 +274,24 @@ def set_sales_invoices(
         )
 
     # Exceptions PostgresDjangoUpsert ==========================================================
-    except PostgresKeyError as except_error:
+    except PostgresKeyError:
         error = True
-        LOGGER_EDI.exception(f"PostgresKeyError : {except_error!r}")
+        LOGGER_EDI.exception("PostgresKeyError")
 
-    except PostgresTypeError as except_error:
+    except PostgresTypeError:
         error = True
-        LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
+        LOGGER_EDI.exception("PostgresTypeError")
 
     # Exception Générale =======================================================================
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception("Exception Générale")
 
     finally:
         if error:
             trace.errors = True
             trace.comment = (
-                trace.comment
-                + "\n. Une erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
@@ -316,11 +309,11 @@ def set_sales_invoices(
 
 
 def control_purchases_insertion(cursor: connection.cursor) -> bool:
-    """
-    Controle des montants totaux des entêtes factures de ventes par rapport au montant du détail,
+    """Controle des montants totaux des entêtes factures de ventes par rapport au montant du détail,.
+
     sur les HT, TVA et TTC.
     :param cursor: cursor django pour la db
-    :return: False if OK else True
+    :return: False if OK else True.
     """
     cursor.execute(SQL_CONTROL_PURCHASES_INSERTION)
 
@@ -328,11 +321,11 @@ def control_purchases_insertion(cursor: connection.cursor) -> bool:
 
 
 def control_sales_insertion(cursor: connection.cursor) -> bool:
-    """
-    Controle des montants totaux des entêtes factures de ventes par rapport au montant du détail,
+    """Controle des montants totaux des entêtes factures de ventes par rapport au montant du détail,.
+
     sur les HT, TVA et TTC.
     :param cursor: cursor django pour la db
-    :return: False if OK else True
+    :return: False if OK else True.
     """
     cursor.execute(SQL_CONTROL_SALES_INSERTION)
 
@@ -340,8 +333,7 @@ def control_sales_insertion(cursor: connection.cursor) -> bool:
 
 
 def num_full_sales_invoices():
-    """Insertion des numérotaions full par cct"""
-
+    """Insertion des numérotaions full par cct."""
     sales_list = (
         SaleInvoice.objects.filter(final=False, type_x3__in=(1, 2))
         .values("cct")
@@ -367,14 +359,14 @@ def num_full_sales_invoices():
         )
 
 
-def delete_pdf_files(cursor: connection.cursor) -> bool:
-    """
-    Supprime les fichiers pdf, des factures devant être supprimées
+def delete_pdf_files(cursor: connection.cursor) -> None:
+    """Supprime les fichiers pdf, des factures devant être supprimées.
+
     :param cursor: cursor django pour la db
-    :return: False if OK else True
+    :return: False if OK else True.
     """
     sql_pdf_delete = """
-    select 
+    select
         global_invoice_file
     from invoices_saleinvoice
     where "final" = false
@@ -390,21 +382,21 @@ def delete_pdf_files(cursor: connection.cursor) -> bool:
                 file_path.unlink()
 
 
-def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> bool:
-    """
-    Réinitialise la numérotation des factures de d'achat après suppressions
+def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> None:
+    """Réinitialise la numérotation des factures de d'achat après suppressions.
+
     :param cursor: cursor django pour la db
-    :return: False if OK else True
+    :return: False if OK else True.
     """
     sql_initialize = """
-    select 
+    select
         max(
             right(
                 "invoice_sage_number",
                 (
-                    select 
-                        "lpad_num" 
-                    from "parameters_counter" "pc" 
+                    select
+                        "lpad_num"
+                    from "parameters_counter" "pc"
                     where "uuid_identification" = 'ad95c27f-9800-46d4-8e63-55191023f0a4'::uuid
                 )
             )::int
@@ -426,21 +418,21 @@ def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> bool:
         pass
 
 
-def reinitialize_sales_invoices_nums(cursor: connection.cursor) -> bool:
-    """
-    Réinitialise la numérotation des factures de ventes après suppressions
+def reinitialize_sales_invoices_nums(cursor: connection.cursor) -> None:
+    """Réinitialise la numérotation des factures de ventes après suppressions.
+
     :param cursor: cursor django pour la db
-    :return: False if OK else True
+    :return: False if OK else True.
     """
     sql_initialize = """
-    select 
+    select
         max(
             right(
                 "invoice_number",
                 (
-                    select 
-                        "lpad_num" 
-                    from "parameters_counter" "pc" 
+                    select
+                        "lpad_num"
+                    from "parameters_counter" "pc"
                     where "uuid_identification" = '8aad17a2-90a8-4a72-a8c6-caccdadf5a8b'::uuid
                 )
             )::int
@@ -463,34 +455,27 @@ def reinitialize_sales_invoices_nums(cursor: connection.cursor) -> bool:
 
 
 def sanitaze_before(cursor):
-    """
-    Suppression et nettoyage des factures non finalisées
-    :return: None
+    """Suppression et nettoyage des factures non finalisées.
+
+    :return: None.
     """
     # On supprime les factures pdf dont les factures sont à "final" = false
     delete_pdf_files(cursor)
 
     # On supprime les éxistant non définitifs
     cursor.execute(
-        "delete from invoices_invoicecommondetails "
-        'where ("final" isnull or "final" = false)'
+        'delete from invoices_invoicecommondetails where ("final" isnull or "final" = false)'
     )
 
-    cursor.execute(
-        'delete from invoices_invoicedetail where ("final" isnull or "final" = false)'
-    )
+    cursor.execute('delete from invoices_invoicedetail where ("final" isnull or "final" = false)')
 
-    cursor.execute(
-        'delete from invoices_invoice where ("final" isnull or "final" = false)'
-    )
+    cursor.execute('delete from invoices_invoice where ("final" isnull or "final" = false)')
 
     cursor.execute(
         'delete from invoices_saleinvoicedetail where ("final" isnull or "final" = false)'
     )
 
-    cursor.execute(
-        'delete from invoices_saleinvoice where ("final" isnull or "final" = false)'
-    )
+    cursor.execute('delete from invoices_saleinvoice where ("final" isnull or "final" = false)')
 
     # On réinitialise les compteurs de numérotation, pour qu'il n'y ait pas de décalages
     reinitialize_purchase_invoices_nums(cursor)
@@ -498,10 +483,10 @@ def sanitaze_before(cursor):
 
 
 def copy_edi_import(cursor):
-    """
-    On copie la table edi_import avec toutes ses données (si la table n'est pas vide),
+    """On copie la table edi_import avec toutes ses données (si la table n'est pas vide),.
+
     afin d'avoir une sauvegarde fraiche avant de faire les insertions
-    :return: None
+    :return: None.
     """
     if EdiImport.objects.exists():
         sql_delete_copy = "DROP TABLE IF EXISTS edi_ediimport_copy"
@@ -510,16 +495,74 @@ def copy_edi_import(cursor):
         cursor.execute(sql_copy)
 
 
-def invoices_insertion(
-    user_uuid: User, invoice_date: pendulum.date, job_id: str
-) -> (Trace.objects, AnyStr):
-    """
-    Inserion des factures en mode provisoire avant la validation définitive
-    :param user_uuid: utilisateur qui a lancé la commande
-    :param invoice_date: date de la facture
-    :param job_id: pour affichage de la progession des tâches
-    :return: to_print
-    """
+class _InsertionSteps:
+    """Enchaîne les étapes de l'insertion : journal, progression SSE, chronométrage et compte rendu."""
+
+    def __init__(self, job_id: str) -> None:
+        self.job_id = job_id
+        self.start = time.time()
+        self.report = ""
+
+    def done(self, *, message: str, item_name: str, label: str | None = None) -> None:
+        """Notifie la fin d'une étape dans la jauge et journalise sa durée si `label` est donné."""
+        update_progress_threaded(self.job_id, processed=1, message=message, item_name=item_name)
+
+        if label:
+            LOGGER_INVOICES.info("%s :%s s", label, time.time() - self.start)
+            self.start = time.time()
+
+    def run(
+        self,
+        action: Callable[[], Any],
+        *,
+        message: str,
+        item_name: str,
+        title: str | None = None,
+        label: str | None = None,
+    ) -> Any:
+        """Joue `action` dans une transaction puis notifie la progression."""
+        if title:
+            LOGGER_INVOICES.warning(title)
+
+        with transaction.atomic():
+            result = action()
+
+        self.done(message=message, item_name=item_name, label=label)
+
+        return result
+
+    def fail(self, *, message: str, item_name: str, error: str) -> NoReturn:
+        """Marque l'étape en échec dans la jauge puis lève InvoicesInsertionError."""
+        update_progress_threaded(
+            self.job_id, processed=1, failed=1, message=message, item_name=item_name
+        )
+        raise InvoicesInsertionError(error)
+
+
+def _insert_purchases(cursor, user: User, invoice_date) -> str:
+    """Insère les factures d'achat et leurs détails ; InvoicesInsertionError si les entêtes échouent."""
+    error, to_print = set_purchases_invoices(cursor, user, invoice_date)
+
+    if error:
+        raise InvoicesInsertionError("Erreur à l'insertion des entêtes de factures d'achat")
+
+    cursor.execute(SQL_PURCHASE_FOR_EXPORT_X3)
+    cursor.execute(SQL_PURCHASES_DETAILS)
+    cursor.execute(SQL_PURCHASE_DETAILS_FOR_EXPORT_X3)
+
+    return to_print
+
+
+def _insert_sales(cursor, user: User, invoice_date) -> tuple[bool, str]:
+    """Insère les entêtes de factures de vente et prépare l'export X3 ; (erreur, compte rendu)."""
+    error, to_print = set_sales_invoices(cursor, user, invoice_date)
+    cursor.execute(SQL_SALES_FOR_EXPORT_X3)
+
+    return error, to_print
+
+
+def _prepare_insertion(invoice_date, job_id: str) -> Trace:
+    """Trace, date de facturation, mise à jour des cct et pré-contrôle avant l'insertion."""
     start = time.time()
     trace = get_trace(
         f"Insertion de la facturation : {invoice_date}",
@@ -530,9 +573,7 @@ def invoices_insertion(
     )
     # On met à jour la billing date dans la table edi_edivalidation
     edi_validations = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
-        .order_by("-id")
-        .first()
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
     )
     edi_validations.billing_date = invoice_date
     edi_validations.save()
@@ -545,7 +586,7 @@ def invoices_insertion(
         message="Mise à jour Centrales et Enseignes",
         item_name="update_cct_edi_import",
     )
-    LOGGER_INVOICES.info(f"update_cct_edi_import :{time.time() - start} s")
+    LOGGER_INVOICES.info("update_cct_edi_import :%s s", time.time() - start)
     start = time.time()
 
     # Pré-contrôle des données avant insertion
@@ -556,236 +597,164 @@ def invoices_insertion(
         message="Pré-contrôle",
         item_name="control_alls_missings",
     )
-    LOGGER_INVOICES.info(f"control_alls_missings :{time.time() - start} s")
-    start = time.time()
+    LOGGER_INVOICES.info("control_alls_missings :%s s", time.time() - start)
 
     if controls:
-        # TODO : FAIRE LE PRE CONTROLE QUAND TOUS LE PROCESS EST TERMINE
-        # Renvoyer une erreur si le pré-contrôle n'est pas vide
+        # Limitation connue : le pré-contrôle n'est pas joué ici (il le sera quand tout le
+        # processus sera terminé) ; une erreur devrait être renvoyée s'il n'est pas vide
         ...
 
-    alls_print = ""
+    return trace
+
+
+def _run_insertion_steps(cursor, user: User, invoice_date, steps: _InsertionSteps) -> None:
+    """Étapes 1 à 12 de l'insertion sur le curseur ouvert ; le compte rendu est dans `steps.report`."""
+    # Étape 1 : Nettoyages et suppressions
+    steps.run(
+        lambda: sanitaze_before(cursor),
+        title=r"Nettoyages et suppressions",
+        message="Suppression des factures non finalisées",
+        item_name="sanitaze_before",
+        label="suppression",
+    )
+    # Étape 2 : Copie de sécurité
+    steps.run(
+        lambda: copy_edi_import(cursor),
+        title=r"Copie de la table edi_ediimport",
+        message="Copie de sécurité de la table edi_ediimport",
+        item_name="copy_edi_import",
+        label="Copie",
+    )
+    # Étape 3 : Préparatifs
+    steps.run(
+        lambda: set_fix_uuid(cursor),
+        title=r"Prépartifs insertion des factures",
+        message="Insertion des import_uuid_identification",
+        item_name="set_fix_uuid",
+        label="set_fix_uuid",
+    )
+    # Étape 4 : Mise à jour des articles
+    steps.run(
+        lambda: cursor.execute(SQL_FIX_ARTICLES),
+        message="Mise à jour des articles",
+        item_name="sql_fix_articles",
+    )
+    # Étape 5 : Mise à jour des centres, enseignes et parties
+    steps.run(
+        process_update,
+        message=(
+            "Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices avant insertion"
+        ),
+        item_name="process_update",
+        label="process_update",
+    )
+    # Étape 6 : Mise à jour des axes articles
+    steps.run(
+        update_axes_edi,
+        message="Mise à jour des axes articles",
+        item_name="update_axes_edi",
+        label="update_axes_edi",
+    )
+    # Étape 7 : Insertion des données communes - TRANSACTION CRITIQUE
+    steps.run(
+        lambda: set_common_details(cursor),
+        message="Insertion des données commmunes, achats et ventes",
+        item_name="set_common_details",
+        label="set_common_details",
+    )
+    # Étape 8 : Insertion des factures d'achats - TRANSACTION CRITIQUE
+    steps.report += steps.run(
+        lambda: _insert_purchases(cursor, user, invoice_date),
+        title=r"Insertion des factures d'achat",
+        message="Insertion des factures d'achat",
+        item_name="set_purchases_invoices",
+        label="set_purchases_invoices",
+    )
+    # Étape 9 : Contrôle des achats
+    LOGGER_INVOICES.warning(r"Contrôle des factures d'achat")
+    if control_purchases_insertion(cursor):
+        steps.report = (
+            "Il y a eu une erreur à l'insertion des factures d'achat, "
+            "les totaux ne correspondent pas"
+        )
+        steps.fail(
+            message="Erreur sur les factures d'achat",
+            item_name="control_purchases_insertion",
+            error="Il y a eu une erreur à l'insertion des factures d'achat",
+        )
+
+    steps.done(
+        message="Contrôle des factures d'achat",
+        item_name="control_purchases_insertion",
+        label="control_purchases_insertion",
+    )
+    # Étape 10 : Insertion des factures de vente - TRANSACTION CRITIQUE
+    LOGGER_INVOICES.warning(r"Insertion des factures de vente")
+    with transaction.atomic():
+        error, to_print = _insert_sales(cursor, user, invoice_date)
+        steps.report += to_print
+
+    if error:
+        steps.fail(
+            message="Erreur sur les factures de vente",
+            item_name="set_sales_invoices",
+            error="Erreur à l'insertion des entêtes de factures de vente",
+        )
+
+    steps.done(
+        message="Insertion entêtes de factures de vente",
+        item_name="set_sales_invoices",
+        label="set_sales_invoices",
+    )
+    # Étape 11 : Insertion des détails des factures de vente
+    steps.run(
+        lambda: set_sales_details(cursor),
+        title=r"Insertion des détails des factures de vente",
+        message="Insertion des détails des factures de vente",
+        item_name="set_sales_details",
+        label="set_sales_details",
+    )
+    # Étape 12 : Contrôle final des factures de vente
+    LOGGER_INVOICES.warning(r"Contrôle des factures de vente")
+    if control_sales_insertion(cursor):
+        steps.report = (
+            "Il y a eu une erreur à l'insertion des factures de vente, "
+            "les totaux ne correspondent pas"
+        )
+        steps.fail(
+            message="Erreur sur le contrôle des factures de vente",
+            item_name="control_sales_insertion",
+            error="Il y a eu une erreur à l'insertion des factures de vente",
+        )
+
+    steps.done(
+        message="Contrôle des factures de vente réussi",
+        item_name="control_sales_insertion",
+        label="control_sales_insertion",
+    )
+
+    # Limitation connue : pas de contrôle des champs éventuellement manquants
+    # (TVA, régime de TVA, collectif...)
+
+
+def invoices_insertion(
+    user_uuid: User, invoice_date: pendulum.date, job_id: str
+) -> tuple[Trace, str]:
+    """Inserion des factures en mode provisoire avant la validation définitive.
+
+    :param user_uuid: utilisateur qui a lancé la commande
+    :param invoice_date: date de la facture
+    :param job_id: pour affichage de la progession des tâches
+    :return: to_print.
+    """
+    trace = _prepare_insertion(invoice_date, job_id)
+    steps = _InsertionSteps(job_id)
     error = False
 
     try:
         with connection.cursor() as cursor:
             user = User.objects.get(uuid_identification=user_uuid)
-
-            # Étape 1 : Nettoyages et suppressions
-            LOGGER_INVOICES.warning(r"Nettoyages et suppressions")
-            with transaction.atomic():
-                sanitaze_before(cursor)
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Suppression des factures non finalisées",
-                item_name="sanitaze_before",
-            )
-            LOGGER_INVOICES.info(f"suppression :{time.time() - start} s")
-            start = time.time()
-
-            # Étape 2 : Copie de sécurité
-            LOGGER_INVOICES.warning(r"Copie de la table edi_ediimport")
-            with transaction.atomic():
-                copy_edi_import(cursor)
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Copie de sécurité de la table edi_ediimport",
-                item_name="copy_edi_import",
-            )
-            LOGGER_INVOICES.info(f"Copie :{time.time() - start} s")
-            start = time.time()
-
-            # Étape 3 : Préparatifs
-            LOGGER_INVOICES.warning(r"Prépartifs insertion des factures")
-            with transaction.atomic():
-                set_fix_uuid(cursor)
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Insertion des import_uuid_identification",
-                item_name="set_fix_uuid",
-            )
-            LOGGER_INVOICES.info(f"set_fix_uuid :{time.time() - start} s")
-            start = time.time()
-
-            # Étape 4 : Mise à jour des articles
-            with transaction.atomic():
-                cursor.execute(SQL_FIX_ARTICLES)
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Mise à jour des articles",
-                item_name="sql_fix_articles",
-            )
-
-            # Étape 5 : Mise à jour des centres, enseignes et parties
-            with transaction.atomic():
-                process_update()
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message=(
-                    "Mise à jour des CentersInvoices, SignboardsInvoices et PartiesInvoices "
-                    "avant insertion"
-                ),
-                item_name="process_update",
-            )
-            LOGGER_INVOICES.info(f"process_update :{time.time() - start} s")
-            start = time.time()
-
-            # Étape 6 : Mise à jour des axes articles
-            with transaction.atomic():
-                update_axes_edi()
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Mise à jour des axes articles",
-                item_name="update_axes_edi",
-            )
-            LOGGER_INVOICES.info(f"update_axes_edi :{time.time() - start} s")
-            start = time.time()
-
-            # Étape 7 : Insertion des données communes - TRANSACTION CRITIQUE
-            with transaction.atomic():
-                set_common_details(cursor)
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Insertion des données commmunes, achats et ventes",
-                item_name="set_common_details",
-            )
-            LOGGER_INVOICES.info(f"set_common_details :{time.time() - start} s")
-            start = time.time()
-
-            # Étape 8 : Insertion des factures d'achats - TRANSACTION CRITIQUE
-            LOGGER_INVOICES.warning(r"Insertion des factures d'achat")
-            with transaction.atomic():
-                error, to_print = set_purchases_invoices(cursor, user, invoice_date)
-
-                if error:
-                    raise InvoicesInsertionError(
-                        "Erreur à l'insertion des entêtes de factures d'achat"
-                    )
-
-                alls_print += to_print
-                cursor.execute(SQL_PURCHASE_FOR_EXPORT_X3)
-                cursor.execute(SQL_PURCHASES_DETAILS)
-                cursor.execute(SQL_PURCHASE_DETAILS_FOR_EXPORT_X3)
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Insertion des factures d'achat",
-                item_name="set_purchases_invoices",
-            )
-            LOGGER_INVOICES.info(f"set_purchases_invoices :{time.time() - start} s")
-            start = time.time()
-
-            # Étape 9 : Contrôle des achats
-            LOGGER_INVOICES.warning(r"Contrôle des factures d'achat")
-            if control_purchases_insertion(cursor):
-                alls_print = (
-                    "Il y a eu une erreur à l'insertion des factures d'achat, "
-                    "les totaux ne correspondent pas"
-                )
-                update_progress_threaded(
-                    job_id,
-                    processed=1,
-                    failed=1,
-                    message="Erreur sur les factures d'achat",
-                    item_name="control_purchases_insertion",
-                )
-                raise Exception(
-                    "Il y a eu une erreur à l'insertion des factures d'achat"
-                )
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Contrôle des factures d'achat",
-                item_name="control_purchases_insertion",
-            )
-            LOGGER_INVOICES.info(f"control_purchases_insertion :{time.time() - start} s")
-            start = time.time()
-
-            # Étape 10 : Insertion des factures de vente - TRANSACTION CRITIQUE
-            LOGGER_INVOICES.warning(r"Insertion des factures de vente")
-            with transaction.atomic():
-                error, to_print = set_sales_invoices(cursor, user, invoice_date)
-                alls_print += to_print
-                cursor.execute(SQL_SALES_FOR_EXPORT_X3)
-
-            if error:
-                update_progress_threaded(
-                    job_id,
-                    processed=1,
-                    failed=1,
-                    message="Erreur sur les factures de vente",
-                    item_name="set_sales_invoices",
-                )
-                raise InvoicesInsertionError("Erreur à l'insertion des entêtes de factures de vente")
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Insertion entêtes de factures de vente",
-                item_name="set_sales_invoices",
-            )
-            LOGGER_INVOICES.info(f"set_sales_invoices :{time.time() - start} s")
-            start = time.time()
-
-            # Étape 11 : Insertion des détails des factures de vente
-            LOGGER_INVOICES.warning(r"Insertion des détails des factures de vente")
-            with transaction.atomic():
-                set_sales_details(cursor)
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Insertion des détails des factures de vente",
-                item_name="set_sales_details",
-            )
-            LOGGER_INVOICES.info(f"set_sales_details :{time.time() - start} s")
-            start = time.time()
-
-            # Étape 12 : Contrôle final des factures de vente
-            LOGGER_INVOICES.warning(r"Contrôle des factures de vente")
-            if control_sales_insertion(cursor):
-                update_progress_threaded(
-                    job_id,
-                    processed=1,
-                    failed=1,
-                    message="Erreur sur le contrôle des factures de vente",
-                    item_name="control_sales_insertion",
-                )
-                alls_print = (
-                    "Il y a eu une erreur à l'insertion des factures de vente, "
-                    "les totaux ne correspondent pas"
-                )
-                raise Exception(
-                    "Il y a eu une erreur à l'insertion des factures de vente"
-                )
-
-            update_progress_threaded(
-                job_id,
-                processed=1,
-                message="Contrôle des factures de vente réussi",
-                item_name="control_sales_insertion",
-            )
-            LOGGER_INVOICES.info(f"control_sales_insertion :{time.time() - start} s")
-            start = time.time()
-
-            # TODO: FAIRE LE CONTROLE SUR TOUS LES CHAMPS EVENTUELLEMENT MANQUANTS
-            #  EX.: TVA, REGIME DE TVA, COLLECTIF....
+            _run_insertion_steps(cursor, user, invoice_date, steps)
 
         # Étape 13 : Numérotation des factures globales
         LOGGER_INVOICES.warning(r"insertion numérotation globale")
@@ -799,41 +768,30 @@ def invoices_insertion(
         with transaction.atomic():
             num_full_sales_invoices()
 
-        LOGGER_INVOICES.info(f"num_full_sales_invoices :{time.time() - start} s")
+        LOGGER_INVOICES.info("num_full_sales_invoices :%s s", time.time() - steps.start)
 
     # Exceptions PostgresDjangoUpsert ==========================================================
-    except PostgresKeyError as except_error:
-        LOGGER_EDI.exception(f"PostgresKeyError : {except_error!r}")
+    except PostgresKeyError:
+        LOGGER_EDI.exception("PostgresKeyError")
         error = True
 
-    except PostgresTypeError as except_error:
-        LOGGER_EDI.exception(f"PostgresTypeError : {except_error!r}")
+    except PostgresTypeError:
+        LOGGER_EDI.exception("PostgresTypeError")
         error = True
 
     # Exception Générale =======================================================================
-    except Exception as except_error:
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+    except Exception:
+        LOGGER_EDI.exception("Exception Générale")
         error = True
 
     finally:
         if error:
-            update_progress_threaded(job_id=job_id, **{"mark_as_failed": True})
+            update_progress_threaded(job_id=job_id, mark_as_failed=True)
         else:
-            update_progress_threaded(job_id=job_id, **{"mark_as_completed": True})
+            update_progress_threaded(job_id=job_id, mark_as_completed=True)
 
         # Fermeture explicite de la connexion Django pour éviter les fuites de connexions
         # dans les threads (CRITICAL: sans cela, chaque thread garde sa connexion ouverte)
         connection.close()
 
-    return trace, alls_print
-
-
-if __name__ == "__main__":
-    utilisateur = User.objects.get(email="paulo@alves.ovh")
-    to_print_ = invoices_insertion(utilisateur.uuid_identification, "2025-10-31")
-    # set_purchases_invoices (cur, utilisateur)
-    # if to_print_:
-    #     print(to_print_)
-    #     raise Exception("Il y a eu une erreur à l'insertion des factures de vente")
-    # with connection.cursor() as cur:
-    #     delete_pdf_files(cur)
+    return trace, steps.report

@@ -1,23 +1,25 @@
-"""
-FR: Formulaires de validation
+"""FR: Formulaires de validation.
+
 EN: Django forms for validation
 for django verions == 1.11 | 2.0 | 2.1 | 2.2 | 3.2
     author: Paulo ALVES
     created at: 2022-03-11
     modified at: 2022-03-11
-    version : 0.02
+    version : 0.02.
 """
+
 from django import forms
 
-from apps.core.validations.forms_base import TruncatedTextField, NullZeroDecimalField
+from apps.core.validations.forms_base import NullZeroDecimalField, TruncatedTextField
 from apps.edi.models import EdiImport
 
 
 class EdiForm(forms.ModelForm):
+    """FR : EdiForm pour la validation des fichiers edi.
+
+    EN : EdiForm for edi files validation.
     """
-    FR : EdiForm pour la validation des fichiers edi
-    EN : EdiForm for edi files validation
-    """
+
     supplier = TruncatedTextField()
     supplier_ident = TruncatedTextField()
     siret_payeur = TruncatedTextField()
@@ -56,7 +58,8 @@ class EdiForm(forms.ModelForm):
     invoice_amount_with_tax = NullZeroDecimalField()
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
+
         model = EdiImport
         # tous les champs éditables du modèle, id explicitement exclu (une liste figée
         # ignorerait silencieusement les champs ajoutés au modèle, ce formulaire doit tout valider)

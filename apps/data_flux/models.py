@@ -1,4 +1,4 @@
-"""Module du modèle de données pour la gestion d'erreurs et de lecture trace
+"""Module du modèle de données pour la gestion d'erreurs et de lecture trace.
 
 Commentaire:
 
@@ -8,19 +8,20 @@ created by: Paulo ALVES
 modified at:
 modified by:
 """
+
 import uuid
 
-from django.utils.translation import gettext_lazy as _
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from heron.models import FlagsTable
 
 
 class Trace(FlagsTable):
-    """
-    Table pour les traces apllicatives ou des actions utilisateurs
+    """Table pour les traces apllicatives ou des actions utilisateurs.
+
     FR : Table Traces Apllicatives
-    EN : Applications Traces Table
+    EN : Applications Traces Table.
     """
 
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -40,20 +41,20 @@ class Trace(FlagsTable):
     invoices = models.BooleanField(null=True, default=False)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["-created_at", "trace_name", "file_name"]
 
 
 class Line(models.Model):
-    """
-    Table pour les lignes des traces
+    """Table pour les lignes des traces.
+
     FR : Table Lignes Traces Apllicatives
-    EN : Applications Traces Lines Table
+    EN : Applications Traces Lines Table.
     """
 
     class Insertiontype(models.TextChoices):
-        """Insertion choices"""
+        """Insertion choices."""
 
         IN = "Create", _("Create")
         UP = "Update", _("Update")
@@ -76,10 +77,10 @@ class Line(models.Model):
 
 
 class Error(models.Model):
-    """
-    Table pour les lignes d'erreurs des traces
+    """Table pour les lignes d'erreurs des traces.
+
     FR : Table Lignes Erreurs Traces Apllicatives
-    EN : Applications Traces Lines Errors Table
+    EN : Applications Traces Lines Errors Table.
     """
 
     line = models.ForeignKey(
@@ -97,6 +98,8 @@ class Error(models.Model):
 
 
 class UploadFiles(models.Model):
+    """Fichier téléversé en attente de traitement."""
+
     base_name_file = models.TextField(null=True, blank=True)
     stack_id = models.IntegerField(blank=True, null=True)
     id_md5_file = models.CharField(blank=True, null=True, max_length=256)
@@ -107,17 +110,19 @@ class UploadFiles(models.Model):
     """
     action : (
         ACCOUNTS,
-    ) 
+    )
     exemple hashlib :
         hashlib.sha512(open("D:\\chanson.txt").read().encode()).hexdigest()
     """
 
     class Meta:
+        """Métadonnées Django du modèle."""
+
         ordering = ["file"]
 
 
 class Essais(models.Model):
-    """EssaiS"""
+    """EssaiS."""
 
     col_texte = models.CharField(max_length=12)
     col_2 = models.CharField(null=True, blank=True, max_length=10)
@@ -126,7 +131,7 @@ class Essais(models.Model):
 
 
 class EssaisZ(models.Model):
-    """EssaiSZ"""
+    """EssaiSZ."""
 
     trace = models.ForeignKey(
         Trace,
@@ -141,7 +146,7 @@ class EssaisZ(models.Model):
     col_int = models.IntegerField(unique=True)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         constraints = [
             models.UniqueConstraint(fields=["col_texte", "col_2", "col_3"], name="unique_essaisz")

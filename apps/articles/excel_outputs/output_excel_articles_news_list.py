@@ -1,4 +1,4 @@
-"""Module d'export de la liste des articles excel
+"""Module d'export de la liste des articles excel.
 
 Commentaire:
 
@@ -8,6 +8,7 @@ created by: Paulo ALVES
 modified at: 2022-05-12
 modified by: Paulo ALVES
 """
+
 import io
 
 from django.db.models import Q
@@ -17,9 +18,8 @@ from apps.articles.models import Article
 from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 
-def get_clean_rows() -> iter:
-    """Retourne les lignes à écrire"""
-
+def get_clean_rows() -> list:
+    """Retourne les lignes à écrire."""
     return [
         (
             f"{row.get('third_party_num', '')} - {row.get('third_party_num__short_name') or ''}",
@@ -37,7 +37,8 @@ def get_clean_rows() -> iter:
             row.get("customs_code", ""),
             "X" if row.get("error_sub_category", "") else "",
         )
-        for row in Article.objects.filter(Q(new_article=True) | Q(error_sub_category=True)).values(
+        for row in Article.objects.filter(Q(new_article=True) | Q(error_sub_category=True))
+        .values(
             "third_party_num",
             "third_party_num__short_name",
             "reference",
@@ -53,7 +54,8 @@ def get_clean_rows() -> iter:
             "unit_weight__unity",
             "customs_code",
             "error_sub_category",
-        ).values(
+        )
+        .values(
             "third_party_num",
             "third_party_num__short_name",
             "reference",
@@ -74,7 +76,7 @@ def get_clean_rows() -> iter:
 
 
 def excel_liste_articles_news(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de la liste des nouveaux articles excel"""
+    """Fonction de génération du fichier de la liste des nouveaux articles excel."""
     titre = "LISTE DE NOUVEAUX ARTICLES"
     columns = columns_list_articles_news
 

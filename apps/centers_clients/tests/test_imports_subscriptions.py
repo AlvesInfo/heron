@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,R0913
-"""
-FR : Tests de l'import des abonnements par maison (imports/import_subcriptions.py)
+"""FR : Tests de l'import des abonnements par maison (imports/import_subcriptions.py)
+
+
 EN : Tests for subscriptions import
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import csv
 from pathlib import Path
 
@@ -13,7 +15,9 @@ import openpyxl
 import pytest
 from xlrd.biffh import XLRDError
 
-from apps.centers_clients.forms.forms_djantic.forms_maison_subscription import MaisonSubcriptionSchema
+from apps.centers_clients.forms.forms_djantic.forms_maison_subscription import (
+    MaisonSubcriptionSchema,
+)
 from apps.centers_clients.imports import import_subcriptions
 from apps.centers_clients.imports.import_subcriptions import (
     file_for_insert_excel_to_csv,
@@ -35,7 +39,16 @@ def fake_make_insert(monkeypatch):
     state = {"errors": False}
 
     def _recorder(model, flow_name, source, trace, validator, params_dict_loader):
-        calls.append({"model": model, "flow_name": flow_name, "source": source, "trace": trace, "validator": validator, "params": params_dict_loader})
+        calls.append(
+            {
+                "model": model,
+                "flow_name": flow_name,
+                "source": source,
+                "trace": trace,
+                "validator": validator,
+                "params": params_dict_loader,
+            }
+        )
         trace.errors = state["errors"]
         trace.save()
         return f"Import : {flow_name}"
@@ -45,22 +58,34 @@ def fake_make_insert(monkeypatch):
 
 
 @pytest.fixture
-def referentiel(make_maison, make_article, make_unit, make_invoice_function, make_signboard, make_subscription):
+def referentiel(
+    make_maison, make_article, make_unit, make_invoice_function, make_signboard, make_subscription
+):
     """Maison AF0001, article ABO-1 déjà abonné, unité U, fonction ABONNEMENT, enseigne ACF"""
     maison = make_maison("AF0001")
     article = make_article("ABO-1")
     unit = make_unit(1, "U")
     function = make_invoice_function("ABONNEMENT")
     signboard = make_signboard("ACF")
-    make_subscription(maison=maison, article=article, unit_weight=unit, function=function, for_signboard=signboard)
-    return {"maison": maison, "article": article, "unit": unit, "function": function, "signboard": signboard}
+    make_subscription(
+        maison=maison, article=article, unit_weight=unit, function=function, for_signboard=signboard
+    )
+    return {
+        "maison": maison,
+        "article": article,
+        "unit": unit,
+        "function": function,
+        "signboard": signboard,
+    }
 
 
 def _write_xlsx(path: Path, data_rows):
     """Classeur au format de l'écran des abonnements : 1 entête pandas + 3 lignes ignorées + données"""
     workbook = openpyxl.Workbook()
     sheet = workbook.active
-    sheet.append(["CODE MAISON", "MAISON", "ARTICLE", "QTY", "UNITE", "PRIX NET", "FONCTION", "ENSEIGNE"])
+    sheet.append(
+        ["CODE MAISON", "MAISON", "ARTICLE", "QTY", "UNITE", "PRIX NET", "FONCTION", "ENSEIGNE"]
+    )
     sheet.append(["ignorée 1"] + [""] * 7)
     sheet.append(["ignorée 2"] + [""] * 7)
     sheet.append(["ignorée 3"] + [""] * 7)
@@ -98,7 +123,7 @@ def test_insert_maison_subscription_cree_la_trace(fake_make_insert):
     assert set(calls[0]["params"]["add_fields_dict"]) == {"created_at", "modified_at"}
 
 
-@pytest.mark.usefixtures('fake_make_insert')
+@pytest.mark.usefixtures("fake_make_insert")
 def test_insert_maison_subscription_reutilise_la_trace(make_trace):
     """Une trace existante est réutilisée"""
     existing = make_trace()
@@ -123,7 +148,7 @@ def test_get_fields_values(referentiel):
     assert units == {"U": str(referentiel["unit"].pk)}
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_get_fields_values_article_sans_abonnement_ignore(make_article):
     """Seuls les articles déjà abonnés sont proposés"""
     make_article("AUTRE")
@@ -136,18 +161,34 @@ def test_get_fields_values_article_sans_abonnement_ignore(make_article):
 
 def test_file_for_insert_excel_to_csv_valide(referentiel, tmp_path):
     """Les libellés sont traduits en identifiants, le prix arrondi, le csv intermédiaire supprimé"""
-    excel = _write_xlsx(tmp_path / "abonnements.xlsx", [("AF0001", "Maison", "ABO-1", 2, "U", 99.899, "ABONNEMENT", "ACF")])
+    excel = _write_xlsx(
+        tmp_path / "abonnements.xlsx",
+        [("AF0001", "Maison", "ABO-1", 2, "U", 99.899, "ABONNEMENT", "ACF")],
+    )
 
     error, result = file_for_insert_excel_to_csv(excel)
 
     assert error is False
     assert Path(result) == tmp_path / "abonnements.csv"
     # pandas lit les colonnes numériques en float (lignes ignorées vides) : "2.0", prix arrondi à 2 décimales
-    assert _read_csv(result) == [["AF0001", str(referentiel["article"].uuid_identification), "2.0", str(referentiel["unit"].pk), "99.90", "ABONNEMENT", "ACF"]]
-    assert sorted(path.name for path in tmp_path.iterdir()) == ["abonnements.csv", "abonnements.xlsx"]
+    assert _read_csv(result) == [
+        [
+            "AF0001",
+            str(referentiel["article"].uuid_identification),
+            "2.0",
+            str(referentiel["unit"].pk),
+            "99.90",
+            "ABONNEMENT",
+            "ACF",
+        ]
+    ]
+    assert sorted(path.name for path in tmp_path.iterdir()) == [
+        "abonnements.csv",
+        "abonnements.xlsx",
+    ]
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_file_for_insert_excel_to_csv_doublon(tmp_path):
     """Deux lignes sur le même quadruplet : erreur de doublon et pas de csv produit"""
     row = ("AF0001", "Maison", "ABO-1", 1, "U", 10, "ABONNEMENT", "ACF")
@@ -162,10 +203,13 @@ def test_file_for_insert_excel_to_csv_doublon(tmp_path):
     assert not (tmp_path / "abonnements.csv").exists()
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_file_for_insert_excel_to_csv_valeur_inconnue(tmp_path):
     """Un article inconnu donne None : erreur explicite avec les valeurs traduites"""
-    excel = _write_xlsx(tmp_path / "abonnements.xlsx", [("AF0001", "Maison", "INCONNU", 1, "U", 10, "ABONNEMENT", "ACF")])
+    excel = _write_xlsx(
+        tmp_path / "abonnements.xlsx",
+        [("AF0001", "Maison", "INCONNU", 1, "U", 10, "ABONNEMENT", "ACF")],
+    )
 
     error, message = file_for_insert_excel_to_csv(excel)
 
@@ -173,7 +217,7 @@ def test_file_for_insert_excel_to_csv_valeur_inconnue(tmp_path):
     assert "contient des erreurs : AF0001 - None - 1" in message
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_file_for_insert_excel_to_csv_format_non_supporte(tmp_path, monkeypatch, caplog):
     """Un classeur non lisible (XLRDError) est signalé"""
 
@@ -195,17 +239,20 @@ def test_file_for_insert_excel_to_csv_format_non_supporte(tmp_path, monkeypatch,
 # IMPORT COMPLET ===================================================================================
 
 
-@pytest.mark.usefixtures('subscription_dirs', 'fake_make_insert')
+@pytest.mark.usefixtures("subscription_dirs", "fake_make_insert")
 def test_import_sans_fichier():
     """Répertoire vide : aucun message"""
     assert import_abonnements_par_maisons() == ("", "")
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_import_fichier_valide(subscription_dirs, fake_make_insert):
     """Fichier intégré : message ok, csv supprimé, excel déplacé en backup"""
     calls, _ = fake_make_insert
-    _write_xlsx(subscription_dirs.processing / "abos.xlsx", [("AF0001", "M", "ABO-1", 1, "U", 10, "ABONNEMENT", "ACF")])
+    _write_xlsx(
+        subscription_dirs.processing / "abos.xlsx",
+        [("AF0001", "M", "ABO-1", 1, "U", 10, "ABONNEMENT", "ACF")],
+    )
 
     errors, oks = import_abonnements_par_maisons()
 
@@ -217,11 +264,14 @@ def test_import_fichier_valide(subscription_dirs, fake_make_insert):
     assert Trace.objects.get().errors is False
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_import_fichier_en_erreur_de_conversion(subscription_dirs, fake_make_insert):
     """Fichier invalide : trace en erreur avec le détail, message d'erreur, excel sauvegardé"""
     calls, _ = fake_make_insert
-    _write_xlsx(subscription_dirs.processing / "abos.xlsx", [("AF0001", "M", "INCONNU", 1, "U", 10, "ABONNEMENT", "ACF")])
+    _write_xlsx(
+        subscription_dirs.processing / "abos.xlsx",
+        [("AF0001", "M", "INCONNU", 1, "U", 10, "ABONNEMENT", "ACF")],
+    )
 
     errors, oks = import_abonnements_par_maisons()
 
@@ -235,12 +285,15 @@ def test_import_fichier_en_erreur_de_conversion(subscription_dirs, fake_make_ins
     assert (subscription_dirs.backup / "abos.xlsx").is_file()
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_import_trace_en_erreur_apres_insertion(subscription_dirs, fake_make_insert):
     """Si l'insertion marque la trace en erreur, le message renvoie vers la trace"""
     _, state = fake_make_insert
     state["errors"] = True
-    _write_xlsx(subscription_dirs.processing / "abos.xlsx", [("AF0001", "M", "ABO-1", 1, "U", 10, "ABONNEMENT", "ACF")])
+    _write_xlsx(
+        subscription_dirs.processing / "abos.xlsx",
+        [("AF0001", "M", "ABO-1", 1, "U", 10, "ABONNEMENT", "ACF")],
+    )
 
     errors, oks = import_abonnements_par_maisons()
 
@@ -248,11 +301,14 @@ def test_import_trace_en_erreur_apres_insertion(subscription_dirs, fake_make_ins
     assert f"Consulté la Trace N° {Trace.objects.get().uuid_identification}" in errors
 
 
-@pytest.mark.usefixtures('referentiel', 'fake_make_insert')
+@pytest.mark.usefixtures("referentiel", "fake_make_insert")
 def test_import_backup_deja_present(subscription_dirs):
     """Si le backup existe déjà, l'excel est simplement supprimé"""
     (subscription_dirs.backup / "abos.xlsx").write_bytes(b"ancien")
-    _write_xlsx(subscription_dirs.processing / "abos.xlsx", [("AF0001", "M", "ABO-1", 1, "U", 10, "ABONNEMENT", "ACF")])
+    _write_xlsx(
+        subscription_dirs.processing / "abos.xlsx",
+        [("AF0001", "M", "ABO-1", 1, "U", 10, "ABONNEMENT", "ACF")],
+    )
 
     import_abonnements_par_maisons()
 

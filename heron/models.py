@@ -1,6 +1,6 @@
-"""
-FR : Module de l'application Héron, des tables Abstraites
-EN : Héron application module, Abstract tables
+"""FR : Module de l'application Héron, des tables Abstraites.
+
+EN : Héron application module, Abstract tables.
 
 Commentaire:
 
@@ -10,33 +10,35 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class DatesTable(models.Model):
-    """
-    Table Abstraite de base pour les tables
+    """Table Abstraite de base pour les tables.
+
     FR : Table Abstraite de Base Dates
-    EN : Flags Abstract Table Dates
+    EN : Flags Abstract Table Dates.
     """
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     modified_at = models.DateTimeField(auto_now=True, verbose_name=_("modified at"))
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         abstract = True
 
 
 class FlagsTable(DatesTable):
-    """
-    Table Abstraite de base pour les tables
+    """Table Abstraite de base pour les tables.
+
     FR : Table Abstraite de Base Flags
-    EN : Flags Abstract Table Flags
+    EN : Flags Abstract Table Flags.
     """
+
     active = models.BooleanField(null=True, default=False)
     delete = models.BooleanField(null=True, default=False)
     export = models.BooleanField(null=True, default=False)
@@ -88,16 +90,16 @@ class FlagsTable(DatesTable):
     )
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         abstract = True
 
 
 class FlagExport(DatesTable):
-    """
-    Table Abstraite de base pour les tables qui ont besoins d'exports
+    """Table Abstraite de base pour les tables qui ont besoins d'exports.
+
     FR : Table Abstraite de base pour les tables qui ont besoins d'exports
-    EN : Basic Abstract Table for tables that need exports
+    EN : Basic Abstract Table for tables that need exports.
     """
 
     export = models.BooleanField(null=True, default=False)
@@ -125,17 +127,18 @@ class FlagExport(DatesTable):
     final_at = models.DateTimeField(blank=True, null=True, verbose_name=_("final at"))
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         abstract = True
 
 
 class CreateTable(DatesTable):
-    """
-    Table Abstraite de base pour les tables
+    """Table Abstraite de base pour les tables.
+
     FR : Table Abstraite de Base Flags
-    EN : Flags Abstract Table Flags
+    EN : Flags Abstract Table Flags.
     """
+
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -147,17 +150,18 @@ class CreateTable(DatesTable):
     )
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         abstract = True
 
 
 class DbTableAuthorisation(models.Model):
-    """
-    Table pour savoir si un utlisateur peux visualiser ou modifier un champ
+    """Table pour savoir si un utlisateur peux visualiser ou modifier un champ.
+
     FR : Table pour les Flags d'authorisation
-    EN : Flags Table authorisation
+    EN : Flags Table authorisation.
     """
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,

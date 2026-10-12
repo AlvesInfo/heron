@@ -63,14 +63,12 @@ import uuid
 from celery import shared_task
 from apps.core.models import SSEProgress
 
+
 @shared_task(name="envoi_emails")
 def envoi_emails_task(job_id, user_id, invoices):
     # Créer l'entrée de progression
     progress = SSEProgress.objects.create(
-        job_id=job_id,
-        user_id=user_id,
-        task_type='email_sending',
-        total_items=len(invoices)
+        job_id=job_id, user_id=user_id, task_type="email_sending", total_items=len(invoices)
     )
 
     # Marquer comme démarré
@@ -82,15 +80,12 @@ def envoi_emails_task(job_id, user_id, invoices):
             send_email(invoice)
             # Mettre à jour avec message personnalisé
             progress.update_progress(
-                processed=1,
-                message=f"Email {idx}/{len(invoices)} envoyé : {invoice.reference}"
+                processed=1, message=f"Email {idx}/{len(invoices)} envoyé : {invoice.reference}"
             )
         except Exception as e:
             # En cas d'erreur
             progress.update_progress(
-                processed=1,
-                failed=1,
-                message=f"Erreur email {invoice.reference}: {str(e)}"
+                processed=1, failed=1, message=f"Erreur email {invoice.reference}: {str(e)}"
             )
 
     # Marquer comme terminé
@@ -105,8 +100,9 @@ def envoi_emails_task(job_id, user_id, invoices):
 import uuid
 from django.http import JsonResponse
 
+
 def send_invoices_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         # Générer un job_id unique
         job_id = str(uuid.uuid4())
 
@@ -117,9 +113,9 @@ def send_invoices_view(request):
         envoi_emails_task.delay(job_id, request.user.id, invoices)
 
         # Retourner le job_id
-        return JsonResponse({'success': True, 'job_id': job_id})
+        return JsonResponse({"success": True, "job_id": job_id})
 
-    return render(request, 'invoices/send_invoices.html')
+    return render(request, "invoices/send_invoices.html")
 ```
 
 ### 3. Dans votre template

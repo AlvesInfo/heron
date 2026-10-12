@@ -1,19 +1,18 @@
-"""
-Forms des dictionnaires Axe Pro/Regroupement de facturation
-"""
+"""Forms des dictionnaires Axe Pro/Regroupement de facturation."""
+
 from django import forms
 
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.centers_purchasing.models import ApplicableProVat
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
 class ApplicableProVatForm(forms.ModelForm):
-    """Formulaires de la liste des dictionnaires Axe Pro/Regroupement de facturation"""
+    """Formulaires de la liste des dictionnaires Axe Pro/Regroupement de facturation."""
 
     use_required_attribute = False
 
     class Meta:
-        """class Meta du form django"""
+        """class Meta du form django."""
 
         model = ApplicableProVat
         fields = [
@@ -29,13 +28,13 @@ class ApplicableProVatForm(forms.ModelForm):
 
 
 class ApplicableProVatDeleteForm(forms.ModelForm):
-    """Formulaires de la liste des dictionnaires Axe Pro/Regroupement de facturation"""
+    """Formulaires de la liste des dictionnaires Axe Pro/Regroupement de facturation."""
 
     # Le champ id (AutoField) n\'est pas généré par le ModelForm : déclaré pour valider l\'existence
     id = forms.ModelChoiceField(queryset=ApplicableProVat.objects.all())
 
     class Meta:
-        """class Meta du form django"""
+        """class Meta du form django."""
 
         model = ApplicableProVat
         fields = [

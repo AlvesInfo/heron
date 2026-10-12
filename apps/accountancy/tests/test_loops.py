@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des boucles d'import supervisor (apps/accountancy/loops)
+"""FR : Tests des boucles d'import supervisor (apps/accountancy/loops)
+
+
 EN : Tests for supervisor import loops
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import logging
 import shutil
 from pathlib import Path
@@ -80,12 +82,15 @@ def test_get_processing_files_deplace_les_fichiers_connus(sage_dirs):
 
     files = imports_loop.get_processing_files()
 
-    assert sorted(file.name for file in files) == ["ZBIAXES_journalier.heron", "ZBIVAT_journalier.heron"]
+    assert sorted(file.name for file in files) == [
+        "ZBIAXES_journalier.heron",
+        "ZBIVAT_journalier.heron",
+    ]
     assert all(file.parent == sage_dirs.processing and file.is_file() for file in files)
     assert [path.name for path in sage_dirs.archive.iterdir()] == ["autre.txt"]
 
 
-@pytest.mark.usefixtures('sage_dirs')
+@pytest.mark.usefixtures("sage_dirs")
 def test_get_processing_files_archive_vide():
     """Sans fichier dans l'archive : liste vide"""
     assert imports_loop.get_processing_files() == []
@@ -96,8 +101,8 @@ def test_get_processing_files_archive_vide():
 
 @pytest.fixture
 def fake_processing(monkeypatch, make_trace):
-    """
-    Remplace processing_dict par des doublures (mêmes clés, même ordre) qui enregistrent
+    """Remplace processing_dict par des doublures (mêmes clés, même ordre) qui enregistrent
+
     l'ordre des appels, et neutralise les extractions finales.
     """
     calls = {"files": [], "cct": 0, "plan": 0}
@@ -118,7 +123,11 @@ def fake_processing(monkeypatch, make_trace):
         calls["plan"] += 1
 
     with patched_attrs(
-        monkeypatch, imports_loop, processing_dict=fake_dict, update_cct_sage=_cct, update_code_plan=_plan
+        monkeypatch,
+        imports_loop,
+        processing_dict=fake_dict,
+        update_cct_sage=_cct,
+        update_code_plan=_plan,
     ):
         yield calls, fake_dict
 
@@ -126,18 +135,27 @@ def fake_processing(monkeypatch, make_trace):
 def test_process_traite_dans_l_ordre_et_sauvegarde(sage_dirs, fake_processing):
     """Les fichiers sont traités dans l'ordre de processing_dict puis déplacés en backup"""
     calls, _ = fake_processing
-    _drop_in_archive(sage_dirs, "ZBIVAT_journalier.heron", "ZBICCE_journalier.heron", "ZBIACCOUNT_journalier.heron")
+    _drop_in_archive(
+        sage_dirs,
+        "ZBIVAT_journalier.heron",
+        "ZBICCE_journalier.heron",
+        "ZBIACCOUNT_journalier.heron",
+    )
 
     imports_loop.process()
 
-    assert calls["files"] == ["ZBIACCOUNT_journalier.heron", "ZBICCE_journalier.heron", "ZBIVAT_journalier.heron"]
+    assert calls["files"] == [
+        "ZBIACCOUNT_journalier.heron",
+        "ZBICCE_journalier.heron",
+        "ZBIVAT_journalier.heron",
+    ]
     assert sorted(path.name for path in sage_dirs.backup.iterdir()) == sorted(calls["files"])
     assert list(sage_dirs.processing.iterdir()) == []
     assert Trace.objects.filter(errors=False).count() == 3
     assert (calls["cct"], calls["plan"]) == (1, 1)
 
 
-@pytest.mark.usefixtures('sage_dirs')
+@pytest.mark.usefixtures("sage_dirs")
 def test_process_sans_fichier(fake_processing):
     """Sans fichier, seules les extractions finales tournent"""
     calls, _ = fake_processing
@@ -183,7 +201,7 @@ def test_process_exception_generale_sans_trace(sage_dirs, fake_processing, caplo
     assert Trace.objects.count() == 1
 
 
-@pytest.mark.usefixtures('fake_processing')
+@pytest.mark.usefixtures("fake_processing")
 def test_process_exception_apres_trace_marque_la_trace_en_erreur(sage_dirs, caplog):
     """Si l'erreur survient après l'import (déplacement en backup impossible), la trace est marquée"""
     _drop_in_archive(sage_dirs, "ZBIAXES_journalier.heron")
@@ -199,7 +217,7 @@ def test_process_exception_apres_trace_marque_la_trace_en_erreur(sage_dirs, capl
     assert (sage_dirs.processing / "ZBIAXES_journalier.heron").is_file()
 
 
-@pytest.mark.usefixtures('sage_dirs', 'fake_processing')
+@pytest.mark.usefixtures("sage_dirs", "fake_processing")
 def test_process_erreurs_des_extractions_finales(monkeypatch, caplog):
     """Les erreurs de update_cct_sage et update_code_plan sont journalisées sans interrompre"""
 
@@ -209,8 +227,11 @@ def test_process_erreurs_des_extractions_finales(monkeypatch, caplog):
     def _plan_boom():
         raise RuntimeError("plan cassé")
 
-    with patched_attrs(monkeypatch, imports_loop, update_cct_sage=_cct_boom, update_code_plan=_plan_boom), caplog.at_level(
-        logging.ERROR, logger="imports"
+    with (
+        patched_attrs(
+            monkeypatch, imports_loop, update_cct_sage=_cct_boom, update_code_plan=_plan_boom
+        ),
+        caplog.at_level(logging.ERROR, logger="imports"),
     ):
         imports_loop.process()
 
@@ -220,7 +241,7 @@ def test_process_erreurs_des_extractions_finales(monkeypatch, caplog):
     assert "plan cassé" in caplog.text
 
 
-@pytest.mark.usefixtures('sage_dirs')
+@pytest.mark.usefixtures("sage_dirs")
 def test_process_avec_les_vraies_extractions(make_section, make_account):
     """Sans fichier, process() exécute réellement update_cct_sage et update_code_plan"""
     make_section("CCT", "AF0001")

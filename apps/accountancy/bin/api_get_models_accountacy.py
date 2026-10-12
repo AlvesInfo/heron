@@ -1,6 +1,6 @@
-"""
-FR : Module API d'appelle des dropdown, pour remplissage à l'appel
-EN : API module for calling dropdowns, for filling on call
+"""FR : Module API d'appelle des dropdown, pour remplissage à l'appel.
+
+EN : API module for calling dropdowns, for filling on call.
 
 Commentaire:
 
@@ -10,20 +10,19 @@ created by: Paulo ALVES
 modified at: 2023-08-20
 modified by: Paulo ALVES
 """
-from typing import AnyStr
 
-from django.db.models import CharField, Value, F
+from django.db.models import CharField, F, QuerySet, Value
 from django.db.models.functions import Concat
 
 from apps.accountancy.models import VatSage
 
 
-def get_vat_alls() -> VatSage.objects:
+def get_vat_alls() -> QuerySet:
+    """Recherche par API des VatSage.
+
+    :return: queryset of dict.
     """
-    Recherche par API des VatSage
-    :return: queryset of dict
-    """
-    queryset = VatSage.objects.annotate(
+    return VatSage.objects.annotate(
         str_search=Concat(
             "vat",
             Value("|"),
@@ -39,14 +38,12 @@ def get_vat_alls() -> VatSage.objects:
         ),
     ).values("pk", "model")
 
-    return queryset
 
+def get_vat(str_query: str) -> QuerySet:
+    """Recherche par API des VatSage.
 
-def get_vat(str_query: AnyStr) -> VatSage.objects:
-    """
-    Recherche par API des VatSage
     :param str_query: Texte à rechercher pour l'api dropdown
-    :return: queryset of dict
+    :return: queryset of dict.
     """
     queryset = get_vat_alls()
 

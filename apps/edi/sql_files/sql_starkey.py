@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql de post-traitement après import des fichiers Starkey
-EN : Post-processing sql module after importing supplier invoice files
+"""FR : Module des requêtes sql de post-traitement après import des fichiers Starkey.
+
+EN : Post-processing sql module after importing supplier invoice files.
 
 Commentaire:
 
@@ -10,23 +10,24 @@ created by: Paulo ALVES
 modified at: 2022-11-27
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 post_starkey_dict = {
     "sql_update": sql.SQL(
         """
         update "edi_ediimport"
-        set 
+        set
             "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
             "purchase_invoice" = true,
             "sale_invoice" = true,
             "origin" = 1,
-            "import_uuid_identification" = case 
-                                            when "import_uuid_identification" isnull 
-                                            then gen_random_uuid() 
+            "import_uuid_identification" = case
+                                            when "import_uuid_identification" isnull
+                                            then gen_random_uuid()
                                             else "import_uuid_identification"
-                                           end 
+                                           end
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """
@@ -34,25 +35,25 @@ post_starkey_dict = {
     "sql_update_units": sql.SQL(
         """
         update "edi_ediimport"
-        set 
-            "qty" = case 
+        set
+            "qty" = case
                         when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
                         when "net_amount" > 0 then abs("qty")::numeric
-                        else "qty" 
+                        else "qty"
                     end,
             "gross_unit_price" = abs("gross_unit_price"),
             "net_unit_price" = abs("net_unit_price"),
-            "gross_amount" = case 
+            "gross_amount" = case
                                 when "net_amount" = 0 then 0
-                                when "net_amount" < 0 
+                                when "net_amount" < 0
                                     then (
-                                        abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
-                                        * 
+                                        abs("gross_unit_price"::numeric * "qty"::numeric)::numeric
+                                        *
                                         -1::numeric
                                     )
-                                when "net_amount" > 0 
+                                when "net_amount" > 0
                                     then (
-                                        abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
+                                        abs("gross_unit_price"::numeric * "qty"::numeric)::numeric
                                     )
                             end
         where "uuid_identification" = %(uuid_identification)s
@@ -166,7 +167,7 @@ post_starkey_dict = {
             "vat",
             "import_uuid_identification"
         )
-        select 
+        select
             "created_at",
             "modified_at",
             "delete",

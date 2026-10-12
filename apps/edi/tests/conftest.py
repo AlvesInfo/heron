@@ -1,15 +1,13 @@
-"""
-Fabriques propres aux tests de l'app edi
-"""
+"""Fabriques propres aux tests de l'app edi"""
+
 import csv
 import datetime
 import types
 import uuid
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
 
 import pytest
 from django.db import connection
@@ -39,8 +37,8 @@ def make_supplier_definition(db):
 
 @pytest.fixture
 def make_column_definitions(make_supplier_definition):
-    """
-    Fabrique des edi.ColumnDefinition d'un flux : `columns` est la liste ordonnée des
+    """Fabrique des edi.ColumnDefinition d'un flux : `columns` est la liste ordonnée des
+
     (attr_name, file_column), le rang étant la position dans la liste. Les définitions
     existantes du flux (instantané de production éventuellement chargé) sont remplacées pour la
     durée du test.
@@ -76,59 +74,137 @@ def schema_cache_cleared():
 
 # Répertoires de dépôt des fichiers fournisseurs (clés de processing_dict du pool / des loops)
 SUPPLIER_DIRECTORIES = [
-    "BBGR_BULK", "COSIUM", "COSIUM_ACHATS", "EDI", "EYE_CONFORT", "GENERIQUE", "GENERIQUE_INTERNAL",
-    "HANSATON", "HEARING", "INTERSON", "JOHNSON", "LMC", "NEWSON", "PHONAK", "PRODITION", "SIGNIA",
-    "STARKEY", "TECHNIDIS", "TRANSFERTS", "UNITRON", "WIDEX", "WSAU", "WIDEX_GA", "SAGE_YOOZ_REFAC0",
+    "BBGR_BULK",
+    "COSIUM",
+    "COSIUM_ACHATS",
+    "EDI",
+    "EYE_CONFORT",
+    "GENERIQUE",
+    "GENERIQUE_INTERNAL",
+    "HANSATON",
+    "HEARING",
+    "INTERSON",
+    "JOHNSON",
+    "LMC",
+    "NEWSON",
+    "PHONAK",
+    "PRODITION",
+    "SIGNIA",
+    "STARKEY",
+    "TECHNIDIS",
+    "TRANSFERTS",
+    "UNITRON",
+    "WIDEX",
+    "WSAU",
+    "WIDEX_GA",
+    "SAGE_YOOZ_REFAC0",
 ]
 
 # Tables B.I (FDW en production), créées en DDL dans la transaction de test
 BI_TABLES = {
     "heron_bi_factures_billstatement": {
-        "id": "integer", "boutique_bbgr": "text", "boutique_acuitis": "text", "nom_boutique": "text",
-        "ref_cde_acuitis": "text", "livraison": "text", "date_livraison": "date", "transaction": "text",
-        "date_transaction": "date", "type_transaction": "text", "article": "text",
-        "article_facturation": "text", "famille": "text", "qte_facturee": "numeric",
-        "prix_unitaire": "numeric", "montant_ht": "numeric", "code_tva": "numeric",
-        "montant_tva": "numeric", "montant_ttc": "numeric", "statistique": "text",
+        "id": "integer",
+        "boutique_bbgr": "text",
+        "boutique_acuitis": "text",
+        "nom_boutique": "text",
+        "ref_cde_acuitis": "text",
+        "livraison": "text",
+        "date_livraison": "date",
+        "transaction": "text",
+        "date_transaction": "date",
+        "type_transaction": "text",
+        "article": "text",
+        "article_facturation": "text",
+        "famille": "text",
+        "qte_facturee": "numeric",
+        "prix_unitaire": "numeric",
+        "montant_ht": "numeric",
+        "code_tva": "numeric",
+        "montant_tva": "numeric",
+        "montant_ttc": "numeric",
+        "statistique": "text",
     },
     "heron_bi_factures_monthlydelivery": {
-        "id": "integer", "type_article": "text", "boutique_bbgr": "text", "boutique_acuitis": "text",
-        "nom_boutique": "text", "customer_po_number": "text", "livraison": "text",
-        "date_livraison": "date", "no_facture_acuitis": "text", "date_mouvement": "date",
-        "qte_expediee": "numeric", "article": "text", "description": "text", "famille": "text",
-        "prix_unitaire": "numeric", "montant_ht": "numeric", "taux_tva": "numeric",
-        "montant_tva": "numeric", "montant_ttc": "numeric", "statistique": "text",
+        "id": "integer",
+        "type_article": "text",
+        "boutique_bbgr": "text",
+        "boutique_acuitis": "text",
+        "nom_boutique": "text",
+        "customer_po_number": "text",
+        "livraison": "text",
+        "date_livraison": "date",
+        "no_facture_acuitis": "text",
+        "date_mouvement": "date",
+        "qte_expediee": "numeric",
+        "article": "text",
+        "description": "text",
+        "famille": "text",
+        "prix_unitaire": "numeric",
+        "montant_ht": "numeric",
+        "taux_tva": "numeric",
+        "montant_tva": "numeric",
+        "montant_ttc": "numeric",
+        "statistique": "text",
     },
     "heron_bi_receptions_bbgr": {
-        "id": "integer", "entered_date": "date", "entered_valorise": "numeric",
-        "type_article": "text", "famille": "text",
+        "id": "integer",
+        "entered_date": "date",
+        "entered_valorise": "numeric",
+        "type_article": "text",
+        "famille": "text",
     },
     # Table de la base B.I (alias bi_bdd, miroir de default en test)
     "factures_monthlyretours": {"id": "integer", "validation": "boolean"},
 }
 
-BI_DEFAULTS = {
+BI_DEFAULTS: dict[str, dict] = {
     "heron_bi_factures_billstatement": {
-        "boutique_bbgr": "BB001", "boutique_acuitis": "AF0001", "nom_boutique": "Maison test",
-        "ref_cde_acuitis": "CDE1", "livraison": "BL1", "date_livraison": datetime.date(2026, 1, 10),
-        "transaction": "TR1", "date_transaction": datetime.date(2026, 1, 15), "type_transaction": "INV",
-        "article": "ART-1", "article_facturation": "Verre unifocal", "famille": "VERRES",
-        "qte_facturee": Decimal("1"), "prix_unitaire": Decimal("10"), "montant_ht": Decimal("10"),
-        "code_tva": Decimal("0.2"), "montant_tva": Decimal("2"), "montant_ttc": Decimal("12"),
+        "boutique_bbgr": "BB001",
+        "boutique_acuitis": "AF0001",
+        "nom_boutique": "Maison test",
+        "ref_cde_acuitis": "CDE1",
+        "livraison": "BL1",
+        "date_livraison": datetime.date(2026, 1, 10),
+        "transaction": "TR1",
+        "date_transaction": datetime.date(2026, 1, 15),
+        "type_transaction": "INV",
+        "article": "ART-1",
+        "article_facturation": "Verre unifocal",
+        "famille": "VERRES",
+        "qte_facturee": Decimal(1),
+        "prix_unitaire": Decimal(10),
+        "montant_ht": Decimal(10),
+        "code_tva": Decimal("0.2"),
+        "montant_tva": Decimal(2),
+        "montant_ttc": Decimal(12),
         "statistique": "VER",
     },
     "heron_bi_factures_monthlydelivery": {
-        "type_article": "MONTURE", "boutique_bbgr": "BB001", "boutique_acuitis": "AF0001",
-        "nom_boutique": "Maison test", "customer_po_number": "PO1", "livraison": "BL1",
-        "date_livraison": datetime.date(2026, 1, 10), "no_facture_acuitis": "FA1",
-        "date_mouvement": datetime.date(2026, 1, 15), "qte_expediee": Decimal("1"), "article": "ART-1",
-        "description": "Monture", "famille": "MONTURES", "prix_unitaire": Decimal("10"),
-        "montant_ht": Decimal("10"), "taux_tva": Decimal("0.2"), "montant_tva": Decimal("2"),
-        "montant_ttc": Decimal("12"), "statistique": "MON",
+        "type_article": "MONTURE",
+        "boutique_bbgr": "BB001",
+        "boutique_acuitis": "AF0001",
+        "nom_boutique": "Maison test",
+        "customer_po_number": "PO1",
+        "livraison": "BL1",
+        "date_livraison": datetime.date(2026, 1, 10),
+        "no_facture_acuitis": "FA1",
+        "date_mouvement": datetime.date(2026, 1, 15),
+        "qte_expediee": Decimal(1),
+        "article": "ART-1",
+        "description": "Monture",
+        "famille": "MONTURES",
+        "prix_unitaire": Decimal(10),
+        "montant_ht": Decimal(10),
+        "taux_tva": Decimal("0.2"),
+        "montant_tva": Decimal(2),
+        "montant_ttc": Decimal(12),
+        "statistique": "MON",
     },
     "heron_bi_receptions_bbgr": {
-        "entered_date": datetime.date(2026, 1, 15), "entered_valorise": Decimal("100"),
-        "type_article": "VERRE", "famille": "VERRES",
+        "entered_date": datetime.date(2026, 1, 15),
+        "entered_valorise": Decimal(100),
+        "type_article": "VERRE",
+        "famille": "VERRES",
     },
     "factures_monthlyretours": {"validation": True},
 }
@@ -136,8 +212,8 @@ BI_DEFAULTS = {
 
 @pytest.fixture
 def edi_dirs(tmp_path: Path, settings) -> types.SimpleNamespace:
-    """
-    Redirige les répertoires des fichiers fournisseurs (processing, backup, pré-traitement,
+    """Redirige les répertoires des fichiers fournisseurs (processing, backup, pré-traitement,
+
     Interson) vers tmp_path, avec un sous-répertoire par flux, pour ne jamais écrire dans files/.
     """
     dirs = types.SimpleNamespace(
@@ -162,8 +238,8 @@ def edi_dirs(tmp_path: Path, settings) -> types.SimpleNamespace:
 
 @pytest.fixture
 def bi_tables(db) -> Callable[..., int]:  # pylint: disable=W0613
-    """
-    Crée les tables B.I BBGR (statment, monthly/retours, réceptions) et la table de validation
+    """Crée les tables B.I BBGR (statment, monthly/retours, réceptions) et la table de validation
+
     des retours de la base B.I, puis renvoie une fonction d'insertion :
     `insert_bi("heron_bi_factures_billstatement", id=5, montant_ht=12)` -> id inséré.
     """
@@ -172,7 +248,7 @@ def bi_tables(db) -> Callable[..., int]:  # pylint: disable=W0613
             ddl = ", ".join(f'"{name}" {kind}' for name, kind in columns.items())
             cursor.execute(f'create table if not exists "{table}" ({ddl})')
 
-    counters = {table: 0 for table in BI_TABLES}
+    counters = dict.fromkeys(BI_TABLES, 0)
 
     def _insert(table: str, **values: Any) -> int:
         counters[table] += 1
@@ -254,8 +330,8 @@ def _positional_line(positions: dict[str, int], width: int, values: dict[str, An
 
 @pytest.fixture
 def supplier_csv(tmp_path: Path) -> Callable[..., Path]:
-    """
-    Écrit un fichier fournisseur csv à partir des edi.ColumnDefinition du flux (instantané ou
+    """Écrit un fichier fournisseur csv à partir des edi.ColumnDefinition du flux (instantané ou
+
     fabriques) : chaque ligne est un dict attr_name -> valeur, placée dans la colonne
     `file_column` (index numérique) ; les colonnes non renseignées sont vides.
     `supplier_csv("Widex", [{"invoice_number": "F1", ...}], first_line=1, delimiter=";")`
@@ -281,7 +357,11 @@ def supplier_csv(tmp_path: Path) -> Callable[..., Path]:
         }
         width = max(positions.values(), default=0) + 1
         path = (directory or tmp_path) / (name or f"{flow_name.lower()}_{next_code('F')}.csv")
-        header = [_positional_line(positions, width, {attr: attr for attr in positions})] if headers else []
+        header = (
+            [_positional_line(positions, width, {attr: attr for attr in positions})]
+            if headers
+            else []
+        )
 
         with path.open("w", encoding=encoding, newline="") as file:
             writer = csv.writer(file, delimiter=delimiter, quotechar='"', quoting=csv.QUOTE_MINIMAL)

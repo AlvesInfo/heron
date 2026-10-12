@@ -1,4 +1,4 @@
-"""Module d'export de la liste des articles excel
+"""Module d'export de la liste des articles excel.
 
 Commentaire:
 
@@ -10,19 +10,19 @@ modified by: Paulo ALVES
 """
 
 import io
-
-from psycopg2 import sql
+from collections.abc import Iterator
 
 from django.db import connection
-from apps.book.models import Society
-from apps.parameters.models import Category
+from psycopg2 import sql
+
 from apps.articles.excel_outputs.output_excel_articles_columns import columns_list_articles
+from apps.book.models import Society
 from apps.core.excel_outputs.generic_list_export import excel_list_export
+from apps.parameters.models import Category
 
 
-def get_clean_rows(third_party_num: str, category: str) -> iter:
-    """Retourne les lignes à écrire"""
-
+def get_clean_rows(third_party_num: str, category: str) -> Iterator:
+    """Retourne les lignes à écrire."""
     sql_query = sql.SQL(
         """
         select
@@ -82,14 +82,14 @@ def get_clean_rows(third_party_num: str, category: str) -> iter:
 def excel_liste_articles(
     file_io: io.BytesIO, file_name: str, third_party_num: str, category: str
 ) -> dict:
-    """Fonction de génération du fichier de la liste des articles excel"""
+    """Fonction de génération du fichier de la liste des articles excel."""
     categorie_name = Category.objects.get(slug_name=category)
     titre_list = file_name.split("_")
     titre = (
-            " ".join(titre_list[:-4])
-            + f" DU FOURNISSEUR : {Society.objects.get(third_party_num=third_party_num)!s}"
-            f" - Catégorie : {categorie_name.name}"
-        )
+        " ".join(titre_list[:-4])
+        + f" DU FOURNISSEUR : {Society.objects.get(third_party_num=third_party_num)!s}"
+        f" - Catégorie : {categorie_name.name}"
+    )
     columns = columns_list_articles
 
     return excel_list_export(

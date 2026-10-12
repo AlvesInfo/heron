@@ -1,10 +1,12 @@
-"""
-Tests des pré-traitements de fichiers fournisseurs (apps/edi/bin/edi_pre_processing_pool.py),
+"""Tests des pré-traitements de fichiers fournisseurs (apps/edi/bin/edi_pre_processing_pool.py),
+
+
 sur de vrais fichiers temporaires.
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import csv
 from pathlib import Path
 
@@ -33,7 +35,7 @@ def random_names(monkeypatch):
 # BBGR BULK ========================================================================================
 
 
-@pytest.mark.usefixtures('random_names')
+@pytest.mark.usefixtures("random_names")
 def test_bulk_translate_file(edi_dirs, tmp_path):
     """Les lignes G21 sont préfixées par la dernière entête E20 ; les lignes vides sont ignorées"""
     (edi_dirs.pre_processing / "existant.csv").write_text("occupé", encoding="utf8")
@@ -57,7 +59,7 @@ def test_bulk_translate_file(edi_dirs, tmp_path):
 # INTERSON =========================================================================================
 
 
-@pytest.mark.usefixtures('random_names')
+@pytest.mark.usefixtures("random_names")
 def test_interson_translate_file(edi_dirs, tmp_path):
     """Les lignes tabulées sont converties en ; (les ; parasites supprimés), les autres recopiées"""
     (edi_dirs.interson / "existant.csv").write_text("occupé", encoding="utf8")
@@ -74,14 +76,32 @@ def test_interson_translate_file(edi_dirs, tmp_path):
 # TRANSFERTS COSIUM ================================================================================
 
 
-def transfert_line(date: str, qty: str, sender: str = "AF0001", receiver: str = "AF0002") -> list[str]:
+def transfert_line(
+    date: str, qty: str, sender: str = "AF0001", receiver: str = "AF0002"
+) -> list[str]:
     """Ligne du fichier des transferts Cosium : 10 colonnes, envoyeur, receveur, qté, 4 colonnes"""
-    return (
-        [date, "F-TS", "2026-01-15", "380", "EUR", "PROD1", "Monture", "MONTURES", "OPT", "SN1", sender, receiver, qty, "12.5", "commentaire\r\nmultiligne", "RET1", "2026-01-10"]
-    )
+    return [
+        date,
+        "F-TS",
+        "2026-01-15",
+        "380",
+        "EUR",
+        "PROD1",
+        "Monture",
+        "MONTURES",
+        "OPT",
+        "SN1",
+        sender,
+        receiver,
+        qty,
+        "12.5",
+        "commentaire\r\nmultiligne",
+        "RET1",
+        "2026-01-10",
+    ]
 
 
-@pytest.mark.usefixtures('random_names')
+@pytest.mark.usefixtures("random_names")
 def test_transferts_cosium_file(edi_dirs, tmp_path):
     """Chaque transfert devient deux lignes (envoyeur en négatif, receveur en positif)"""
     (edi_dirs.pre_processing / "existant.csv").write_text("occupé", encoding="utf8")
@@ -92,7 +112,25 @@ def test_transferts_cosium_file(edi_dirs, tmp_path):
         writer.writerow(["titre"])
         writer.writerow(["sous-titre"])
         writer.writerow(
-            ["date", "n°", "date_fac", "type", "devise", "code_prod.", "libellé", "famille", "type_famille", "num._série", "envoyeur", "receveur", "qté", "prix_achat", "comm.", "rétrocession", "date_facture"]
+            [
+                "date",
+                "n°",
+                "date_fac",
+                "type",
+                "devise",
+                "code_prod.",
+                "libellé",
+                "famille",
+                "type_famille",
+                "num._série",
+                "envoyeur",
+                "receveur",
+                "qté",
+                "prix_achat",
+                "comm.",
+                "rétrocession",
+                "date_facture",
+            ]
         )
         writer.writerow(transfert_line("12/01/2026", "3"))
         writer.writerow(transfert_line("2026-01-20", "0"))
@@ -103,9 +141,35 @@ def test_transferts_cosium_file(edi_dirs, tmp_path):
 
     rows = read_csv(result)
     assert result == source
-    assert rows[0][:6] == ["third_party_num", "invoice_number", "invoice_date", "invoice_type", "devise", "vat_rate"]
-    assert rows[0][6:16] == ["date", "n°", "date_fac", "type", "devise", "code_prod.", "libellé", "famille", "type_famille", "num._série"]
-    assert rows[0][16:] == ["code_fournisseur", "code_maison", "qté", "prix_achat", "comm.", "rétrocession", "date_facture"]
+    assert rows[0][:6] == [
+        "third_party_num",
+        "invoice_number",
+        "invoice_date",
+        "invoice_type",
+        "devise",
+        "vat_rate",
+    ]
+    assert rows[0][6:16] == [
+        "date",
+        "n°",
+        "date_fac",
+        "type",
+        "devise",
+        "code_prod.",
+        "libellé",
+        "famille",
+        "type_famille",
+        "num._série",
+    ]
+    assert rows[0][16:] == [
+        "code_fournisseur",
+        "code_maison",
+        "qté",
+        "prix_achat",
+        "comm.",
+        "rétrocession",
+        "date_facture",
+    ]
     # qté nulle ignorée, ligne vide = fin de fichier : un seul transfert, deux lignes
     assert len(rows) == 3
     sender, receiver = rows[1], rows[2]
@@ -115,7 +179,7 @@ def test_transferts_cosium_file(edi_dirs, tmp_path):
     assert receiver[20] == "commentaire multiligne"
 
 
-@pytest.mark.usefixtures('edi_dirs', 'random_names')
+@pytest.mark.usefixtures("edi_dirs", "random_names")
 def test_transferts_cosium_file_sans_ligne_vide(tmp_path):
     """Fichier sans ligne vide finale : toutes les lignes sont traitées"""
     source = tmp_path / "transferts.csv"
@@ -229,27 +293,86 @@ def sage_sections(make_section):
         getattr(get_sage_elements, name).cache_clear()
 
 
-@pytest.mark.usefixtures('random_names')
+@pytest.mark.usefixtures("random_names")
 def test_z_bu_refac_file(edi_dirs, tmp_path, sage_sections):
     """Les axes sont remplacés par leurs uuid, la tva normalisée sur 3 caractères, l'unité agrégée"""
     (edi_dirs.pre_processing / "existant.csv").write_text("occupé", encoding="utf8")
     source = tmp_path / "refac.csv"
-    header = ["tiers", "bl", "n_pièce", "date_compta", "compte", "pys", "col", "cct", "prj", "bu", "rfa", "sens", "montant", "tva", "libelle", "unity", "extra"]
+    header = [
+        "tiers",
+        "bl",
+        "n_pièce",
+        "date_compta",
+        "compte",
+        "pys",
+        "col",
+        "cct",
+        "prj",
+        "bu",
+        "rfa",
+        "sens",
+        "montant",
+        "tva",
+        "libelle",
+        "unity",
+        "extra",
+    ]
 
     with source.open("w", encoding="utf-8-sig", newline="") as file:
         writer = csv.writer(file, delimiter=";", quotechar='"')
         writer.writerow(header)
-        writer.writerow(["ZREFAC0", "BL1", "P1", "2026-01-15", "604000", "FR", "OPT", "AF0001", "NAF", "REFAC0", "NAF", " 1 ", "100", "2", "Refac", "U", "x"])
-        writer.writerow(["ZREFAC0", "BL2", "P2", "2026-01-15", "604000", "FR", "OPT", "AF0001", "NAF", "REFAC0", "NAF", "-1", "50", "7", "Refac 2"])
+        writer.writerow(
+            [
+                "ZREFAC0",
+                "BL1",
+                "P1",
+                "2026-01-15",
+                "604000",
+                "FR",
+                "OPT",
+                "AF0001",
+                "NAF",
+                "REFAC0",
+                "NAF",
+                " 1 ",
+                "100",
+                "2",
+                "Refac",
+                "U",
+                "x",
+            ]
+        )
+        writer.writerow(
+            [
+                "ZREFAC0",
+                "BL2",
+                "P2",
+                "2026-01-15",
+                "604000",
+                "FR",
+                "OPT",
+                "AF0001",
+                "NAF",
+                "REFAC0",
+                "NAF",
+                "-1",
+                "50",
+                "7",
+                "Refac 2",
+            ]
+        )
 
     new_file = module.z_bu_refac_file(source)
 
     assert new_file == edi_dirs.pre_processing / "libre.csv"
     assert not source.exists()
     rows = read_csv(new_file)
-    assert rows[0] == header[:16] + ["vat_regime"]
+    assert rows[0] == [*header[:16], "vat_regime"]
     first, second = rows[1], rows[2]
-    assert first[5:7] == [str(sage_sections["pys"].uuid_identification), str(sage_sections["pro"].uuid_identification)]
+    assert first[5:7] == [
+        str(sage_sections["pys"].uuid_identification),
+        str(sage_sections["pro"].uuid_identification),
+    ]
     assert first[8:11] == [
         str(sage_sections["prj"].uuid_identification),
         str(sage_sections["bu"].uuid_identification),

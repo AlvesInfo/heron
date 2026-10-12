@@ -1,6 +1,6 @@
-"""
-FR: Module de contrôles avant le lancement des refacturations
-EN: Checks module before launching re-invoicing
+"""FR: Module de contrôles avant le lancement des refacturations.
+
+EN: Checks module before launching re-invoicing.
 
 Commentaire:
 
@@ -13,70 +13,62 @@ modified by: Paulo ALVES
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from django.db.models import Q
-from django.db import close_old_connections
-from django.urls import reverse
 from asgiref.sync import sync_to_async
+from django.db import close_old_connections
+from django.db.models import Q
+from django.urls import reverse
 
-from heron.loggers import LOGGER_INVOICES
-from apps.core.functions.functions_setups import connection
-from apps.invoices.sql_files.sql_controls import (
-    SQL_ARTICLES_NEWS,
-    SQL_ARTCILES_EDI_CONTROL,
-    SQL_TIERS_CONTROL,
-    SQL_GROUPING_CONTROL,
-    SQL_ACCOUNTS_EDI_IMPORT_CONTROL,
-    SQL_ACCOUNTS_ARTICLES,
-    SQL_VAT_CONTROL,
-    SQL_VAT_REGIME_CONTROL,
-    SQL_INTEGRATIONS_CONTROLS,
-    SQL_CCT_CONTROL,
-    SQL_CATEGORY_CONTROL,
-    SQL_SUB_CATEGORY_CONTROL,
-    SQL_CENTER_CONTROL,
-    SQL_SIGNBOARD_CONTROL,
-    SQL_SALES_AXE_BU,
-    SQL_INTEGRATIONS,
-    SQL_FAMILLES,
-    SQL_FRANCHISEUR,
-    SQL_CLIENT_NEWS,
-    SQL_ABONNEMENTS,
-    SQL_RFA,
-    SQL_CCT_M,
-    SQL_SUPPLIERS_M,
-    SQL_CA_COSIUM,
-)
+from apps.articles.models import Article
 from apps.centers_purchasing.sql_files.sql_elements import (
     articles_acuitis_without_accounts,
 )
+from apps.core.functions.functions_setups import connection
 from apps.edi.bin.reset_import import reset_all_imports
-from apps.articles.models import Article
-from apps.invoices.models import SaleInvoice
 from apps.edi.models import EdiImport, EdiImportControl, EdiValidation
+from apps.invoices.models import SaleInvoice
+from apps.invoices.sql_files.sql_controls import (
+    SQL_ABONNEMENTS,
+    SQL_ACCOUNTS_ARTICLES,
+    SQL_ACCOUNTS_EDI_IMPORT_CONTROL,
+    SQL_ARTCILES_EDI_CONTROL,
+    SQL_ARTICLES_NEWS,
+    SQL_CA_COSIUM,
+    SQL_CATEGORY_CONTROL,
+    SQL_CCT_CONTROL,
+    SQL_CCT_M,
+    SQL_CENTER_CONTROL,
+    SQL_CLIENT_NEWS,
+    SQL_FAMILLES,
+    SQL_FRANCHISEUR,
+    SQL_GROUPING_CONTROL,
+    SQL_INTEGRATIONS,
+    SQL_INTEGRATIONS_CONTROLS,
+    SQL_RFA,
+    SQL_SALES_AXE_BU,
+    SQL_SIGNBOARD_CONTROL,
+    SQL_SUB_CATEGORY_CONTROL,
+    SQL_SUPPLIERS_M,
+    SQL_TIERS_CONTROL,
+    SQL_VAT_CONTROL,
+    SQL_VAT_REGIME_CONTROL,
+)
+from heron.loggers import LOGGER_INVOICES
 
 
 def control_articles_axes():
-    """
-    Controle que tous les axes (BU, PRJ, PRO, PYS, RFA) soient saisis dans edi_ediimport
-    """
-
+    """Controle que tous les axes (BU, PRJ, PRO, PYS, RFA) soient saisis dans edi_ediimport."""
     with connection.cursor() as cursor:
         cursor.execute(SQL_ARTCILES_EDI_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
 
         if missing_list:
-            return (
-                "Vous avez des manquants sur les axes, dans les imports ou les saisies"
-            )
+            return "Vous avez des manquants sur les axes, dans les imports ou les saisies"
 
     return ""
 
 
 def control_tiers():
-    """
-    Controle que tous les tiers X3 dans edi_ediimport
-    """
-
+    """Controle que tous les tiers X3 dans edi_ediimport."""
     with connection.cursor() as cursor:
         cursor.execute(SQL_TIERS_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
@@ -88,12 +80,11 @@ def control_tiers():
 
 
 def control_groupings():
-    """
-    Controle que tous les ensembles ("AXE PRO", "REGROUPEMENT DE FACTURATION")
-    soient décrits dans le Dictionnaire Axe Pro/Regroupement de facturation.
-    Url: /centers_purchasing/axe_grouping_list/
-    """
+    """Controle que tous les ensembles ("AXE PRO", "REGROUPEMENT DE FACTURATION").
 
+    soient décrits dans le Dictionnaire Axe Pro/Regroupement de facturation.
+    Url: /centers_purchasing/axe_grouping_list/.
+    """
     with connection.cursor() as cursor:
         cursor.execute(SQL_GROUPING_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
@@ -105,12 +96,11 @@ def control_groupings():
 
 
 def control_accounts():
-    """
-    Controle que tous les ensembles ("Centrale fille", "Grande Catégorie", "AXE PRO", "TVA")
-    soient décrits dans le Dictionnaire des Comptes debit crédit.
-    Url: /centers_purchasing/account_axe_list/
-    """
+    """Controle que tous les ensembles ("Centrale fille", "Grande Catégorie", "AXE PRO", "TVA").
 
+    soient décrits dans le Dictionnaire des Comptes debit crédit.
+    Url: /centers_purchasing/account_axe_list/.
+    """
     with connection.cursor() as cursor:
         cursor.execute(SQL_ACCOUNTS_EDI_IMPORT_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
@@ -125,10 +115,7 @@ def control_accounts():
 
 
 def control_accounts_articles():
-    """
-    Controle que tous les articles aient un compte achat et vente.
-    """
-
+    """Controle que tous les articles aient un compte achat et vente."""
     with connection.cursor() as cursor:
         cursor.execute(SQL_ACCOUNTS_ARTICLES)
         missing_list = [missings[0] for missings in cursor.fetchall()]
@@ -143,10 +130,7 @@ def control_accounts_articles():
 
 
 def control_vat():
-    """
-    Controle que tous les TVA soient saisis dans edi_ediimport
-    """
-
+    """Controle que tous les TVA soient saisis dans edi_ediimport."""
     with connection.cursor() as cursor:
         cursor.execute(SQL_VAT_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
@@ -158,10 +142,7 @@ def control_vat():
 
 
 def control_vat_regime():
-    """
-    Controle que tous les régimes de TVA soient saisis dans edi_ediimport
-    """
-
+    """Controle que tous les régimes de TVA soient saisis dans edi_ediimport."""
     with connection.cursor() as cursor:
         cursor.execute(SQL_VAT_REGIME_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
@@ -173,10 +154,7 @@ def control_vat_regime():
 
 
 def control_cct():
-    """
-    Controle que tous les CCT X3 soient saisis dans edi_ediimport
-    """
-
+    """Controle que tous les CCT X3 soient saisis dans edi_ediimport."""
     with connection.cursor() as cursor:
         cursor.execute(SQL_CCT_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
@@ -188,10 +166,7 @@ def control_cct():
 
 
 def control_categories():
-    """
-    Controle que toutes les Grandes Catégories soient saisies dans edi_ediimport
-    """
-
+    """Controle que toutes les Grandes Catégories soient saisies dans edi_ediimport."""
     with connection.cursor() as cursor:
         cursor.execute(SQL_CATEGORY_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
@@ -206,27 +181,21 @@ def control_categories():
 
 
 def control_sub_categories():
-    """
-    Controle que toutes les Rubriques Presta soient saisies dans edi_ediimport
-    """
-
+    """Controle que toutes les Rubriques Presta soient saisies dans edi_ediimport."""
     with connection.cursor() as cursor:
         cursor.execute(SQL_SUB_CATEGORY_CONTROL)
         missing_list = [missings[0] for missings in cursor.fetchall()]
 
         if missing_list:
             return (
-                "Vous avez des manquants sur les Rubriques Presta, "
-                "dans les imports ou les saisies"
+                "Vous avez des manquants sur les Rubriques Presta, dans les imports ou les saisies"
             )
 
     return ""
 
 
 def control_axe_bu_od_ana():
-    """
-    Controle qu'il y ait les axes BU pour les clients/maisons, qui sont en OD_ANA.
-    """
+    """Controle qu'il y ait les axes BU pour les clients/maisons, qui sont en OD_ANA."""
     with connection.cursor() as cursor:
         cursor.execute(SQL_SALES_AXE_BU)
         missing_list = [missings[0] for missings in cursor.fetchall()]
@@ -238,10 +207,10 @@ def control_axe_bu_od_ana():
 
 
 def control_alls_missings():
-    """
-    Contrôle de tous les manquants dans edi_ediimport - Version parallèle
+    """Contrôle de tous les manquants dans edi_ediimport - Version parallèle.
+
     Exécute toutes les requêtes en parallèle en utilisant le pool Django existant
-    Maintient l'ordre dans control_dict
+    Maintient l'ordre dans control_dict.
     """
     # Définir toutes les requêtes dans l'ordre avec leur clé et message
     queries = [
@@ -443,29 +412,27 @@ def control_alls_missings():
     ]
 
     def execute_query(index, key, sql, message):
-        """Execute une requête et retourne l'index,
-        la clé et le message si des résultats existent
-        """
-        from django.db import connection
+        """Execute une requête et retourne l'index,.
 
+        la clé et le message si des résultats existent.
+        """
         try:
             with connection.cursor() as cursor:
-
                 if index == 12:
                     sql_delete_control_orphan = """
                         delete from edi_ediimportcontrol edc
                         where exists (
                             select 1
                             from (
-                                select 
+                                select
                                     ec.uuid_identification
                                 from edi_ediimportcontrol ec
-                                left join edi_ediimport ee 
+                                left join edi_ediimport ee
                                 on ec.uuid_identification = ee.uuid_control
                                 where ee.uuid_control isnull
                                 and not exists (
                                     select 1
-                                    from invoices_invoicecommondetails ic 
+                                    from invoices_invoicecommondetails ic
                                     where ic.uuid_control = ec.uuid_identification
                                 )
                             ) req
@@ -476,7 +443,6 @@ def control_alls_missings():
 
                 cursor.execute(sql)
                 missing_list = [missings[0] for missings in cursor.fetchall()]
-                # print(sql, " : ", missing_list)
                 return index, key, message if missing_list else ""
         finally:
             # Fermer la connexion pour éviter l'épuisement du pool
@@ -491,7 +457,7 @@ def control_alls_missings():
         }
 
         # Collecter les résultats en préservant l'ordre
-        results = [None] * len(queries)
+        results: list = [None] * len(queries)
         for future in as_completed(futures):
             index, key, message = future.result()
             results[index] = (key, message)
@@ -501,16 +467,16 @@ def control_alls_missings():
 
 
 def control_insertion():
-    """
-    Contrôle que la facturation soit finalizée, pour les factures envoyées par mail
-    :return: True si non finalisé, false si finalisé
+    """Contrôle que la facturation soit finalizée, pour les factures envoyées par mail.
+
+    :return: True si non finalisé, false si finalisé.
 
     """
     sql_control = """
-    select 
+    select
         1
     from "invoices_saleinvoice" "sa"
-    where  
+    where
         "sa"."send_email" = true
         and "sa"."final" = false
     limit 1
@@ -531,24 +497,20 @@ def control_insertion():
 
 
 def control_emails():
+    """Contrôle qu'il y ait des factures à envoyer par mail.
+
+    :return: True s'il en reste, false sinon.
     """
-    Contrôle qu'il y ait des factures à envoyer par mail
-    :return: True s'il en reste, false sinon
-    """
-    emails_to_send = SaleInvoice.objects.filter(
+    return SaleInvoice.objects.filter(
         final=False,
         printed=True,
         type_x3__in=(1, 2),
         send_email=False,
     )
 
-    return emails_to_send
-
 
 def control_validations():
-    """
-    Contrôle que toutes les validations sont faites
-    """
+    """Contrôle que toutes les validations sont faites."""
     controls_list = []
     imports_validation = EdiImportControl.objects.filter(
         Q(valid=False) | Q(valid__isnull=True)
@@ -558,9 +520,7 @@ def control_validations():
         controls_list.append("Vous avez des imports non validés")
 
     edi_validations = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
-        .order_by("-id")
-        .first()
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
     )
 
     # Mise à jour du contrôle des nouveaux articles
@@ -603,19 +563,19 @@ def control_validations():
 
     for key, value in edi_validations.__dict__.items():
         if key in validations and not value:
-            controls_list.append(validations.get(key))
+            controls_list.append(validations[key])
 
-    LOGGER_INVOICES.info(f"controls_list : {controls_list!r}")
+    LOGGER_INVOICES.info("controls_list : %r", controls_list)
     return controls_list
 
 
 def articles_are_valid():
-    """Retourne si tous les articles sont valides"""
+    """Retourne si tous les articles sont valides."""
     return not Article.objects.filter(new_article=True).exists()
 
 
 def control_all():
-    """Contrôle des validations"""
+    """Contrôle des validations."""
 
 
 # ==================== VERSION ASYNC ====================

@@ -1,4 +1,4 @@
-"""Module pour la définition des colonnes excel pour le module centers_clients
+"""Module pour la définition des colonnes excel pour le module centers_clients.
 
 Commentaire:
 
@@ -19,15 +19,11 @@ columns_list_maisons = [
         "entete": "CCT X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -35,13 +31,11 @@ columns_list_maisons = [
         "entete": "Actif X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center"},
+            "align": "center",
         },
         "width": 10,
     },
@@ -49,15 +43,11 @@ columns_list_maisons = [
         "entete": "Centrale Fille",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -65,15 +55,11 @@ columns_list_maisons = [
         "entete": "Enseigne",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -81,37 +67,33 @@ columns_list_maisons = [
         "entete": "Intitulé",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
-        "f_ligne": {**f_ligne, **{}},
+        "f_ligne": {
+            **f_ligne,
+        },
         "width": 15,
     },
     {
         "entete": "Intitulé court",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
-        "f_ligne": {**f_ligne, **{}},
+        "f_ligne": {
+            **f_ligne,
+        },
         "width": 15,
     },
     {
         "entete": "Catégorie Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#FFE699",
-            },
+            "bg_color": "#FFE699",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -119,15 +101,11 @@ columns_list_maisons = [
         "entete": "Code maison",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#FFE699",
-            },
+            "bg_color": "#FFE699",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -135,15 +113,11 @@ columns_list_maisons = [
         "entete": "Code cosium",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#FFE699",
-            },
+            "bg_color": "#FFE699",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -151,15 +125,11 @@ columns_list_maisons = [
         "entete": "Référence\nCosium",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#FFE699",
-            },
+            "bg_color": "#FFE699",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -167,15 +137,11 @@ columns_list_maisons = [
         "entete": "Code BBGR",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#FFE699",
-            },
+            "bg_color": "#FFE699",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -183,16 +149,12 @@ columns_list_maisons = [
         "entete": "Date d'ouveture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#FFE699",
-            },
+            "bg_color": "#FFE699",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yy",
-            },
+            "align": "center",
+            "num_format": "dd/mm/yy",
         },
         "width": 11,
     },
@@ -200,16 +162,12 @@ columns_list_maisons = [
         "entete": "Date de fermeture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#FFE699",
-            },
+            "bg_color": "#FFE699",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yy",
-            },
+            "align": "center",
+            "num_format": "dd/mm/yy",
         },
         "width": 11,
     },
@@ -217,16 +175,12 @@ columns_list_maisons = [
         "entete": "Date de signature contrat",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#FFE699",
-            },
+            "bg_color": "#FFE699",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yy",
-            },
+            "align": "center",
+            "num_format": "dd/mm/yy",
         },
         "width": 11,
     },
@@ -234,16 +188,12 @@ columns_list_maisons = [
         "entete": "Date de signature de fin de contrat",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#FFE699",
-            },
+            "bg_color": "#FFE699",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yy",
-            },
+            "align": "center",
+            "num_format": "dd/mm/yy",
         },
         "width": 11,
     },
@@ -251,16 +201,12 @@ columns_list_maisons = [
         "entete": "Date de renouvellement contrat",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#FFE699",
-            },
+            "bg_color": "#FFE699",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yy",
-            },
+            "align": "center",
+            "num_format": "dd/mm/yy",
         },
         "width": 11,
     },
@@ -268,15 +214,11 @@ columns_list_maisons = [
         "entete": "Montant de droit d'entrée",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 15,
     },
@@ -284,15 +226,11 @@ columns_list_maisons = [
         "entete": "montant de droit de renouvellement",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 15,
     },
@@ -300,15 +238,11 @@ columns_list_maisons = [
         "entete": "Catégorie de prix",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -316,26 +250,22 @@ columns_list_maisons = [
         "entete": "Coéficient de vente générique",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
-        "f_ligne": {**f_ligne, **{}},
+        "f_ligne": {
+            **f_ligne,
+        },
         "width": 12,
     },
     {
         "entete": "Compte X3 par défaut au crédit",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -343,15 +273,11 @@ columns_list_maisons = [
         "entete": "Compte X3 par défaut au débit",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -359,15 +285,11 @@ columns_list_maisons = [
         "entete": "Compte X3 par défaut sur provision",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -375,15 +297,11 @@ columns_list_maisons = [
         "entete": "Compte X3 par défaut sur extourne",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -391,13 +309,11 @@ columns_list_maisons = [
         "entete": "Code budgétaire",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center"},
+            "align": "center",
         },
         "width": 15,
     },
@@ -405,15 +321,11 @@ columns_list_maisons = [
         "entete": "TVA X3 par défaut",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -421,15 +333,11 @@ columns_list_maisons = [
         "entete": "Code plan sage",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -437,48 +345,44 @@ columns_list_maisons = [
         "entete": "Fréquence des rfa",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
-        "f_ligne": {**f_ligne, **{}},
+        "f_ligne": {
+            **f_ligne,
+        },
         "width": 12,
     },
     {
         "entete": "Taux de remboursement rfa",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
-        "f_ligne": {**f_ligne, **{}},
+        "f_ligne": {
+            **f_ligne,
+        },
         "width": 15.3,
     },
     {
         "entete": "Nom pour l'identifiant Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C9C9C9",
-            },
+            "bg_color": "#C9C9C9",
         },
-        "f_ligne": {**f_ligne, **{}},
+        "f_ligne": {
+            **f_ligne,
+        },
         "width": 12,
     },
     {
         "entete": "Monaie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -486,15 +390,11 @@ columns_list_maisons = [
         "entete": "Langue",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -502,15 +402,11 @@ columns_list_maisons = [
         "entete": "Tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -518,13 +414,10 @@ columns_list_maisons = [
         "entete": "Intitulé Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 25,
     },
@@ -532,13 +425,10 @@ columns_list_maisons = [
         "entete": "Immeuble Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 30,
     },
@@ -546,13 +436,10 @@ columns_list_maisons = [
         "entete": "Adresse Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 30,
     },
@@ -560,15 +447,11 @@ columns_list_maisons = [
         "entete": "Code Postal Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -576,15 +459,11 @@ columns_list_maisons = [
         "entete": "Ville Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 20,
     },
@@ -592,15 +471,11 @@ columns_list_maisons = [
         "entete": "Pays Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -608,15 +483,11 @@ columns_list_maisons = [
         "entete": "Téléphone Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -624,15 +495,11 @@ columns_list_maisons = [
         "entete": "Mobile Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -640,13 +507,10 @@ columns_list_maisons = [
         "entete": "e-mail Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 20,
     },
@@ -654,13 +518,10 @@ columns_list_maisons = [
         "entete": "e-mail 01 Tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 25,
     },
@@ -668,13 +529,10 @@ columns_list_maisons = [
         "entete": "e-mail 02 Tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 25,
     },
@@ -682,13 +540,10 @@ columns_list_maisons = [
         "entete": "e-mail 03 Tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 25,
     },
@@ -696,13 +551,10 @@ columns_list_maisons = [
         "entete": "e-mail 04 Tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 25,
     },
@@ -710,13 +562,10 @@ columns_list_maisons = [
         "entete": "e-mail 05 Tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#C6E0B4",
-            },
+            "bg_color": "#C6E0B4",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 25,
     },
@@ -724,13 +573,10 @@ columns_list_maisons = [
         "entete": "Immeuble Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 30,
     },
@@ -738,13 +584,10 @@ columns_list_maisons = [
         "entete": "Adresse Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 30,
     },
@@ -752,15 +595,11 @@ columns_list_maisons = [
         "entete": "Code Postal Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -768,15 +607,11 @@ columns_list_maisons = [
         "entete": "Ville Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 20,
     },
@@ -784,15 +619,11 @@ columns_list_maisons = [
         "entete": "Pays Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -800,15 +631,11 @@ columns_list_maisons = [
         "entete": "Téléphone Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -816,15 +643,11 @@ columns_list_maisons = [
         "entete": "Mobile Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -832,13 +655,10 @@ columns_list_maisons = [
         "entete": "e-mail Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 32,
     },
@@ -846,13 +666,11 @@ columns_list_maisons = [
         "entete": "Type de Vente",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center"},
+            "align": "center",
         },
         "width": 12,
     },
@@ -860,13 +678,11 @@ columns_list_maisons = [
         "entete": "Axe BU",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center"},
+            "align": "center",
         },
         "width": 12,
     },
@@ -874,13 +690,12 @@ columns_list_maisons = [
         "entete": "N° SIRET",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"num_format": "@", "align": "right"},
+            "num_format": "@",
+            "align": "right",
         },
         "width": 15,
     },
@@ -888,13 +703,12 @@ columns_list_maisons = [
         "entete": "N° Siren",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"num_format": "@", "align": "right"},
+            "num_format": "@",
+            "align": "right",
         },
         "width": 14,
     },
@@ -902,13 +716,12 @@ columns_list_maisons = [
         "entete": "N° Siret",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"num_format": "@", "align": "right"},
+            "num_format": "@",
+            "align": "right",
         },
         "width": 16,
     },
@@ -916,13 +729,11 @@ columns_list_maisons = [
         "entete": "N° TVA Intra.",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center"},
+            "align": "center",
         },
         "width": 18,
     },

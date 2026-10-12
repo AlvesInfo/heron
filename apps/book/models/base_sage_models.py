@@ -1,8 +1,8 @@
-"""
-FR : Module du modèle de répertoire, des fournisseurs et clients. Les modèles peuvent être liés
+"""FR : Module du modèle de répertoire, des fournisseurs et clients. Les modèles peuvent être liés.
+
      aux modèles Sage de l'application Accountancy, et mis à jours depuis Sage X3
 EN : Directory model module, suppliers and customers. Models can be linked
-     to the Sage models of the Accountancy application, and updated from Sage X3
+     to the Sage models of the Accountancy application, and updated from Sage X3.
 
 Commentaire:
 
@@ -12,32 +12,33 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 import uuid
 
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from heron.models import FlagsTable
 from apps.accountancy.models import CategorySage, PaymentCondition, SectionSage
+from apps.book.models.supplier_identifiers_models import StatFamillyAxes
 from apps.countries.models import Country
 from apps.parameters.models import Category, Nature
-from apps.book.models.supplier_identifiers_models import StatFamillyAxes
+from heron.models import FlagsTable
 
 # Validation xml tva intra : https://ec.europa.eu/taxation_customs/vies/faq.html#item_18
 #                            https://ec.europa.eu/taxation_customs/vies/technicalInformation.html
 
 
 class Society(FlagsTable):
-    """
-    Répertoire des sociétés Fournisseurs / Clients,
+    """Répertoire des sociétés Fournisseurs / Clients,.
+
     correspondant à la table BPARTNER, BPSUPPLIER et BPCUSTOMER des tiers Sage X3
     FR : Table des sociétés
-    EN : Societies table
+    EN : Societies table.
     """
 
     class Frequence(models.IntegerChoices):
-        """Frequence choices"""
+        """Frequence choices."""
 
         AUCUNE = 0, _("---------")
         MENSUEL = 1, _("Mensuel")
@@ -46,7 +47,7 @@ class Society(FlagsTable):
         ANNUEL = 4, _("Annuel")
 
     class Remise(models.IntegerChoices):
-        """Remise choices"""
+        """Remise choices."""
 
         AUCUNE = 0, _("---------")
         TOTAL = 1, _("Fournisseur Total")
@@ -277,16 +278,16 @@ class Society(FlagsTable):
     )
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.third_party_num} - {self.name}"
 
     @staticmethod
     def get_absolute_url():
-        """Retourne l'url en cas de success create, update ou delete"""
+        """Retourne l'url en cas de success create, update ou delete."""
         return reverse("book:societies_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["third_party_num"]
         indexes = [
@@ -308,10 +309,10 @@ class Society(FlagsTable):
 
 
 class Address(FlagsTable):
-    """
-    Adresses liées aux sociétés, table BPADDRESS de Sage X3
+    """Adresses liées aux sociétés, table BPADDRESS de Sage X3.
+
     FR : Table des adresses
-    EN : Addresses table
+    EN : Addresses table.
     """
 
     society = models.ForeignKey(
@@ -389,9 +390,9 @@ class Address(FlagsTable):
     )  # MOB
 
     def save(self, *args, **kwargs):
-        """
-        FR : Avant la sauvegarde on clean les données
-        EN : Before the backup we clean the data
+        """FR : Avant la sauvegarde on clean les données.
+
+        EN : Before the backup we clean the data.
         """
         # Avant la sauvegarde, on vérifie si dans l'instance à sauvegarder le champ default_adress
         # est à True et si c'est le cas alors on update d'abord les autres à False pour la même
@@ -405,21 +406,21 @@ class Address(FlagsTable):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.society} - {self.address_code}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["country"]
         unique_together = (("society", "address_code"),)
 
 
 class Contact(FlagsTable):
-    """
-    Contact des Sociétés, tables CONTACT et CONTACTCRM de Sage X3
+    """Contact des Sociétés, tables CONTACT et CONTACTCRM de Sage X3.
+
     FR : Table des Contacts
-    EN : Table of Contacts
+    EN : Table of Contacts.
     """
 
     society = models.ForeignKey(
@@ -492,21 +493,21 @@ class Contact(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return " - ".join(part for part in (self.first_name, self.last_name) if part)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["last_name", "first_name"]
         unique_together = (("society", "code"),)
 
 
 class SocietyBank(FlagsTable):
-    """
-    Banques des Sociétés
+    """Banques des Sociétés.
+
     FR : Table des Banques
-    EN : Table of Banks
+    EN : Table of Banks.
     """
 
     society = models.ForeignKey(
@@ -539,40 +540,40 @@ class SocietyBank(FlagsTable):
     is_default = models.BooleanField(null=True, default=False)  # BIDNUMFLG
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.society} - {self.account_number}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["society", "-is_default", "account_number"]
         unique_together = (("society", "account_number"),)
 
 
 class BprBookSage:
-    """
-    Table des tiers Sage X3
+    """Table des tiers Sage X3.
+
     pour imports, cela sera importé directement dans l'applicaton BOOK
     ici on ne fait que commenter la structure et préciser la méthode d'import
     FR : Tiers au sens de Sage X3
-    EN : Third party as defined by Sage X3
+    EN : Third party as defined by Sage X3.
     """
 
     model = Society
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIBPR_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "third_party_num": 0,
@@ -601,45 +602,45 @@ class BprBookSage:
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"third_party_num"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
 
 class BpsBookSage:
-    """
-    Table des tiers Fournisseurs Sage X3
+    """Table des tiers Fournisseurs Sage X3.
+
     pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
     ici on ne fait que commenter la structure et préciser la méthode d'import
     FR : Tiers au sens de Sage X3
-    EN : Third party as defined by Sage X3
+    EN : Third party as defined by Sage X3.
     """
 
     model = Society
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIBPS_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "third_party_num": 0,
@@ -659,45 +660,45 @@ class BpsBookSage:
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"third_party_num"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
 
 class BpcBookSage:
-    """
-    Table des tiers Clients Sage X3
+    """Table des tiers Clients Sage X3.
+
     pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
     ici on ne fait que commenter la structure et préciser la méthode d'import
     FR : Tiers au sens de Sage X3
-    EN : Third party as defined by Sage X3
+    EN : Third party as defined by Sage X3.
     """
 
     model = Society
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIBPC_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "third_party_num": 0,
@@ -717,45 +718,45 @@ class BpcBookSage:
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"third_party_num"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
 
 class BookAdressesSage:
-    """
-    Table des adresses des tiers Sage X3
+    """Table des adresses des tiers Sage X3.
+
     pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
     ici on ne fait que commenter la structure et préciser la méthode d'import
     FR : Adresses des Tiers au sens de Sage X3
-    EN : Adresses Third party as defined by Sage X3
+    EN : Adresses Third party as defined by Sage X3.
     """
 
     model = Address
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIADDR_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "society": 0,
@@ -784,45 +785,45 @@ class BookAdressesSage:
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"society", "address_code"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
 
 class CodeContactsSage:
-    """
-    Table des Codes Contacts des tiers Sage X3
+    """Table des Codes Contacts des tiers Sage X3.
+
     pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
     ici on ne fait que commenter la structure et préciser la méthode d'import
     FR : Code Contacts des Tiers au sens de Sage X3
-    EN : Contacts Code Third party as defined by Sage X3
+    EN : Contacts Code Third party as defined by Sage X3.
     """
 
     model = Contact
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBICONTACT_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "society": 0,
@@ -833,45 +834,45 @@ class CodeContactsSage:
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"society", "code"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
 
 class BookContactsSage:
-    """
-    Table des Contacts des tiers Sage X3
+    """Table des Contacts des tiers Sage X3.
+
     pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
     ici on ne fait que commenter la structure et préciser la méthode d'import
     FR : Contacts des Tiers au sens de Sage X3
-    EN : Contacts Third party as defined by Sage X3
+    EN : Contacts Third party as defined by Sage X3.
     """
 
     model = Contact
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBICONTCRM_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "society": 0,
@@ -895,45 +896,45 @@ class BookContactsSage:
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"society", "code"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
 
 class BookBanksSage:
-    """
-    Table des Banques des tiers Sage X3
+    """Table des Banques des tiers Sage X3.
+
     pour cette table et imports, cela sera importé directement dans l'applicaton BOOK
     ici on ne fait que commenter la structure et préciser la méthode d'import
     FR : Banques des Tiers au sens de Sage X3
-    EN : Banks Third party as defined by Sage X3
+    EN : Banks Third party as defined by Sage X3.
     """
 
     model = SocietyBank
 
     @staticmethod
     def file_import_sage():
-        """
-        FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3
-        EN : Returns the name of the file in the  directory of the Sage X3 server
+        """FR : Retourne le nom du fichier dans le répertoire du serveur Sage X3.
+
+        EN : Returns the name of the file in the  directory of the Sage X3 server.
         """
         return "ZBIBANK_journalier.heron"
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "society": 0,
@@ -953,16 +954,16 @@ class BookBanksSage:
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"society", "account_number"}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"

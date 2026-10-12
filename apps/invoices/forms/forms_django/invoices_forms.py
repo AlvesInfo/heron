@@ -1,5 +1,4 @@
-"""
-Formulaires django pour les factures
+"""Formulaires django pour les factures.
 
 Commentaire:
 
@@ -9,16 +8,18 @@ created by: Paulo ALVES
 modified at: 2023-07-07
 modified by: Paulo ALVES
 """
+
 from django import forms
 
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.invoices.models import InvoiceCommonDetails
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
 class InvoiceSearchForm(forms.ModelForm):
-    """Pour le Filtre de recherche des factures"""
+    """Pour le Filtre de recherche des factures."""
 
     def __init__(self, *args, **kwargs):
+        """Ajoute les champs de recherche de factures."""
         super().__init__(*args, **kwargs)
 
         invoice_number__icontains = forms.CharField(
@@ -33,7 +34,7 @@ class InvoiceSearchForm(forms.ModelForm):
         self.fields["cct"].required = False
 
     class Meta:
-        """class Meta django"""
+        """class Meta django."""
 
         model = InvoiceCommonDetails
         fields = ("third_party_num", "invoice_year", "cct")

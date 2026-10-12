@@ -1,6 +1,6 @@
-"""
-FR : Module de traduction des fichiers (lettre en uuid)
-EN : File translation module (letter to uuid)
+"""FR : Module de traduction des fichiers (lettre en uuid).
+
+EN : File translation module (letter to uuid).
 
 Commentaire:
 
@@ -10,91 +10,92 @@ created by: Paulo ALVES
 modified at: 2023-05-13
 modified by: Paulo ALVES
 """
-import io
-import csv
-from pathlib import Path
-from functools import lru_cache
-from typing import AnyStr
 
+import csv
+import io
+from functools import lru_cache
+from pathlib import Path
+
+from apps.accountancy.models import AccountSage, SectionSage
 from apps.core.functions import functions_setups  # noqa: F401  amorçage Django hors serveur
 from apps.data_flux.exceptions import DuplicatesError, ModelFieldError
 from apps.data_flux.utilities import excel_file_to_csv_string_io
 from apps.parameters.models import Category, SubCategory
-from apps.accountancy.models import SectionSage, AccountSage
 
 
 @lru_cache(maxsize=256)
-def get_big_category(big_category: AnyStr) -> AnyStr:
-    """
-    Retourne le str de l'identifiant pour la grande catégorie
+def get_big_category(big_category: str) -> str:
+    """Retourne le str de l'identifiant pour la grande catégorie.
+
     :param big_category: big_category à rechercher
-    :return: le str de l'identifiant
+    :return: le str de l'identifiant.
     """
     try:
         category = Category.objects.get(name=big_category).uuid_identification
-    except Category.DoesNotExist:
-        raise ModelFieldError(f"La Catégorie : {big_category!r}, n'existe pas")
+    except Category.DoesNotExist as error:
+        raise ModelFieldError(f"La Catégorie : {big_category!r}, n'existe pas") from error
 
     return category
 
 
 @lru_cache(maxsize=256)
-def get_sub_category(sub_category: AnyStr) -> AnyStr:
-    """
-    Retourne le str de l'identifiant pour la rubrique presta
+def get_sub_category(sub_category: str) -> str:
+    """Retourne le str de l'identifiant pour la rubrique presta.
+
     :param sub_category: sub_category à rechercher
-    :return: le str de l'identifiant
+    :return: le str de l'identifiant.
     """
     try:
         if sub_category == "":
             return ""
 
         rubrique = SubCategory.objects.get(name=sub_category).uuid_identification
-    except SubCategory.DoesNotExist:
-        raise ModelFieldError(f"La rubrique presta : {sub_category!r}, n'existe pas")
+    except SubCategory.DoesNotExist as error:
+        raise ModelFieldError(f"La rubrique presta : {sub_category!r}, n'existe pas") from error
 
     return rubrique
 
 
 @lru_cache(maxsize=256)
-def get_axe_pro(axe_pro: AnyStr) -> AnyStr:
-    """
-    Retourne le str de l'identifiant pour l'axe pro
+def get_axe_pro(axe_pro: str) -> str:
+    """Retourne le str de l'identifiant pour l'axe pro.
+
     :param axe_pro: axe_pro à rechercher
-    :return: le str de l'identifiant
+    :return: le str de l'identifiant.
     """
     try:
         pro = SectionSage.objects.get(section=axe_pro, axe="PRO").uuid_identification
-    except SectionSage.DoesNotExist:
-        raise ModelFieldError(f"L'axe pro : {axe_pro!r}, n'existe pas")
+    except SectionSage.DoesNotExist as error:
+        raise ModelFieldError(f"L'axe pro : {axe_pro!r}, n'existe pas") from error
 
     return pro
 
 
 @lru_cache(maxsize=256)
-def get_account(code_plan: AnyStr, account: AnyStr) -> AnyStr:
-    """
-    Retourne le str de l'identifiant pour l'axe pro
+def get_account(code_plan: str, account: str) -> str:
+    """Retourne le str de l'identifiant pour l'axe pro.
+
     :param code_plan: code plan sage à rechercher
     :param account: compte à rechercher
-    :return: le str de l'identifiant
+    :return: le str de l'identifiant.
     """
     try:
         compte = AccountSage.objects.get(
             code_plan_sage=code_plan, account=account
         ).uuid_identification
-    except AccountSage.DoesNotExist:
-        raise ModelFieldError(f"Le compte : {code_plan!r} - {account!r}, n'existe pas")
+    except AccountSage.DoesNotExist as error:
+        raise ModelFieldError(f"Le compte : {code_plan!r} - {account!r}, n'existe pas") from error
 
     return compte
 
 
 def translate_accounts_axe_pro_category(file: Path):
-    """Traduction du fichier excel des comptes par centrale / catégorie / rubrique / axe pro / tva
+    """Traduction du fichier excel des comptes par centrale / catégorie / rubrique / axe pro / tva.
+
     (format de l'export de l'écran : 14 colonnes, entêtes en ligne 4, données à partir de la
     ligne 5) en csv de 7 colonnes portant les identifiants attendus par l'import
     :param file: fichier excel
-    :return: Path du fichier csv
+    :return: Path du fichier csv.
     """
     new_csv_file = file.parents[0] / f"{file.stem}.csv"
     csv_io = io.StringIO()

@@ -1,4 +1,5 @@
 """Tests des formulaires et du filtre de recherche des factures"""
+
 import pytest
 
 from apps.invoices.filters import InvoiceFilter
@@ -37,7 +38,9 @@ def test_delete_forms_exigent_un_id_existant(make_entete_details, make_axes_deta
 def test_axes_details_form(make_section, make_entete_details):
     section = make_section("PRO", "AUD")
     entete = make_entete_details("Audio")
-    form = AxesDetailsForm({"axe_pro": section.uuid_identification, "column_name": entete.column_name})
+    form = AxesDetailsForm(
+        {"axe_pro": section.uuid_identification, "column_name": entete.column_name}
+    )
 
     assert form.is_valid(), form.errors
     assert form.cleaned_data["axe_pro"] == section
@@ -51,7 +54,14 @@ def test_invoice_search_form_et_filter(make_invoice_common_details, make_cct):
     assert form.is_valid()
     assert form.fields["invoice_number__icontains"].required is False
 
-    filtered = InvoiceFilter({"invoice_number__icontains": "FAC"}, queryset=InvoiceFilter.Meta.model.objects.all())
+    filtered = InvoiceFilter(
+        {"invoice_number__icontains": "FAC"}, queryset=InvoiceFilter.Meta.model.objects.all()
+    )
 
     assert [row.invoice_number for row in filtered.qs] == ["FAC-10"]
-    assert InvoiceFilter({"third_party_num": "FOUR002"}, queryset=InvoiceFilter.Meta.model.objects.all()).qs.count() == 1
+    assert (
+        InvoiceFilter(
+            {"third_party_num": "FOUR002"}, queryset=InvoiceFilter.Meta.model.objects.all()
+        ).qs.count()
+        == 1
+    )

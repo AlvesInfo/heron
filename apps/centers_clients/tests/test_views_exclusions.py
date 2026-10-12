@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,R0913
-"""
-FR : Tests des vues d'exclusions Tiers X3/Maison et Tiers X3/Pays
+"""FR : Tests des vues d'exclusions Tiers X3/Maison et Tiers X3/Pays
+
+
 EN : Tests for supplier/shop and supplier/country exclusion views
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import logging
 
 import pytest
@@ -13,7 +15,10 @@ from django.contrib.messages import get_messages
 from django.urls import reverse
 
 from apps.centers_clients.models import MaisonSupllierExclusion, SupllierCountryExclusion
-from apps.centers_clients.views import exclusions_tiers_clients_views, exclusions_tiers_pays_clients_views
+from apps.centers_clients.views import (
+    exclusions_tiers_clients_views,
+    exclusions_tiers_pays_clients_views,
+)
 from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL
 from apps.core.models import ChangesTrace
 from conftest import patched_attrs
@@ -47,16 +52,27 @@ def test_exclusion_create(logged_client, make_society, make_maison):
 
     response = logged_client.get(url)
     assert response.status_code == 200
-    assert response.context["titre_table"] == "Création d'un nouveau couple d'exclusion Tiers X3/Client"
+    assert (
+        response.context["titre_table"]
+        == "Création d'un nouveau couple d'exclusion Tiers X3/Client"
+    )
     assert response.context["chevron_retour"] == reverse("centers_clients:exclusions_list")
 
-    response = logged_client.post(url, data={"third_party_num": "FOUR001", "cct_uuid_identification": str(maison.uuid_identification)})
+    response = logged_client.post(
+        url,
+        data={
+            "third_party_num": "FOUR001",
+            "cct_uuid_identification": str(maison.uuid_identification),
+        },
+    )
 
     exclusion = MaisonSupllierExclusion.objects.get()
     assert response.status_code == 302
     assert response.url == reverse("centers_clients:exclusions_list")
     assert exclusion.created_by == logged_client.user
-    assert _messages(response) == [f"Le couple d'exclusion, {exclusion.third_party_num} - {maison} a été créé avec success"]
+    assert _messages(response) == [
+        f"Le couple d'exclusion, {exclusion.third_party_num} - {maison} a été créé avec success"
+    ]
     assert ChangesTrace.objects.filter(model_name="maisonsupllierexclusion").count() == 1
 
 
@@ -79,7 +95,11 @@ def test_exclusion_update(logged_client, make_exclusion, make_maison):
     assert response.context["titre_table"] == "Mise à jour du couple d'exclusion Tiers X3/Client"
 
     response = logged_client.post(
-        url, data={"third_party_num": exclusion.third_party_num.third_party_num, "cct_uuid_identification": str(other.uuid_identification)}
+        url,
+        data={
+            "third_party_num": exclusion.third_party_num.third_party_num,
+            "cct_uuid_identification": str(other.uuid_identification),
+        },
     )
 
     exclusion.refresh_from_db()
@@ -93,15 +113,20 @@ def test_exclusion_delete(ajax_client, make_exclusion):
     """Suppression ajax : trace puis suppression définitive"""
     exclusion = make_exclusion()
 
-    response = ajax_client.post(reverse("centers_clients:exclusion_delete"), data={"pk": exclusion.pk})
+    response = ajax_client.post(
+        reverse("centers_clients:exclusion_delete"), data={"pk": exclusion.pk}
+    )
 
     assert response.json() == {"success": "success"}
     assert not MaisonSupllierExclusion.objects.exists()
-    assert ChangesTrace.objects.filter(model_name="maisonsupllierexclusion", action_type=0).count() == 1
+    assert (
+        ChangesTrace.objects.filter(model_name="maisonsupllierexclusion", action_type=0).count()
+        == 1
+    )
 
 
 def test_exclusion_delete_pk_inconnu(ajax_client, caplog):
-    """pk inconnu : ko et erreur journalisée"""
+    """Pk inconnu : ko et erreur journalisée"""
     with caplog.at_level(logging.ERROR, logger="error_views"):
         response = ajax_client.post(reverse("centers_clients:exclusion_delete"), data={"pk": 999})
 
@@ -115,7 +140,11 @@ def test_exclusion_delete_mauvaise_requete(ajax_client, logged_client, make_excl
     exclusion = make_exclusion()
     url = reverse("centers_clients:exclusion_delete")
 
-    response = ajax_client.get(url) if method == "get_ajax" else logged_client.post(url, data={"pk": exclusion.pk})
+    response = (
+        ajax_client.get(url)
+        if method == "get_ajax"
+        else logged_client.post(url, data={"pk": exclusion.pk})
+    )
 
     assert response.status_code == 302
     assert response.url == reverse("home")
@@ -139,7 +168,10 @@ def test_exclusion_export_en_erreur(logged_client, monkeypatch, caplog):
     def _boom(*_args, **_kwargs):
         raise RuntimeError("xlsx")
 
-    with patched_attrs(monkeypatch, exclusions_tiers_clients_views, response_file=_boom), caplog.at_level(logging.ERROR, logger="error_views"):
+    with (
+        patched_attrs(monkeypatch, exclusions_tiers_clients_views, response_file=_boom),
+        caplog.at_level(logging.ERROR, logger="error_views"),
+    ):
         response = logged_client.get(reverse("centers_clients:exclusion_export_list"))
 
     assert response.status_code == 302
@@ -169,7 +201,10 @@ def test_exclusion_pays_create(logged_client, make_society, make_country):
 
     response = logged_client.get(url)
     assert response.status_code == 200
-    assert response.context["titre_table"] == "Création d'un nouveau couple d'exclusion Tiers X3/Pays Clients"
+    assert (
+        response.context["titre_table"]
+        == "Création d'un nouveau couple d'exclusion Tiers X3/Pays Clients"
+    )
 
     response = logged_client.post(url, data={"third_party_num": "FOUR001", "pays": "BE"})
 
@@ -177,7 +212,9 @@ def test_exclusion_pays_create(logged_client, make_society, make_country):
     assert response.status_code == 302
     assert response.url == reverse("centers_clients:exclusions_country_list")
     assert exclusion.created_by == logged_client.user
-    assert _messages(response) == [f"Le couple d'exclusion, {exclusion.third_party_num} - {exclusion.pays} a été créé avec success"]
+    assert _messages(response) == [
+        f"Le couple d'exclusion, {exclusion.third_party_num} - {exclusion.pays} a été créé avec success"
+    ]
 
 
 def test_exclusion_pays_create_invalide(logged_client):
@@ -196,9 +233,13 @@ def test_exclusion_pays_update(logged_client, make_country_exclusion, make_count
 
     response = logged_client.get(url)
     assert response.status_code == 200
-    assert response.context["titre_table"] == "Mise à jour du couple d'exclusion Tiers X3/Pays Clients"
+    assert (
+        response.context["titre_table"] == "Mise à jour du couple d'exclusion Tiers X3/Pays Clients"
+    )
 
-    response = logged_client.post(url, data={"third_party_num": exclusion.third_party_num.third_party_num, "pays": "BE"})
+    response = logged_client.post(
+        url, data={"third_party_num": exclusion.third_party_num.third_party_num, "pays": "BE"}
+    )
 
     exclusion.refresh_from_db()
     assert response.status_code == 302
@@ -246,7 +287,10 @@ def test_exclusion_pays_export_en_erreur(logged_client, monkeypatch, caplog):
     def _boom(*_args, **_kwargs):
         raise RuntimeError("xlsx")
 
-    with patched_attrs(monkeypatch, exclusions_tiers_pays_clients_views, response_file=_boom), caplog.at_level(logging.ERROR, logger="error_views"):
+    with (
+        patched_attrs(monkeypatch, exclusions_tiers_pays_clients_views, response_file=_boom),
+        caplog.at_level(logging.ERROR, logger="error_views"),
+    ):
         response = logged_client.get(reverse("centers_clients:exclusion_country_export_list"))
 
     assert response.status_code == 302

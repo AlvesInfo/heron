@@ -1,4 +1,4 @@
-"""Module d'imports de fixtures en base au premier démarrage de l'application
+"""Module d'imports de fixtures en base au premier démarrage de l'application.
 
 Commentaire:
 
@@ -8,18 +8,20 @@ created by: Paulo ALVES
 modified at: 2022-03-03
 modified by: Paulo ALVES
 """
-from pathlib import Path
+
 import csv
+from pathlib import Path
+
 from django.db.utils import IntegrityError
 
+from apps.centers_purchasing.models import ChildCenterPurchase, PrincipalCenterPurchase, Signboard
 from apps.core.functions.functions_setups import settings
-from apps.centers_purchasing.models import PrincipalCenterPurchase, ChildCenterPurchase, Signboard
 from apps.parameters.models import SalePriceCategory
 from heron.loggers import LOGGER_IMPORT
 
 
 def fixtures():
-    """Fonction d'ajout de fixtures pour la table Nature"""
+    """Fonction d'ajout de fixtures pour la table Nature."""
     file_mere = Path(settings.APPS_DIR) / "centers_purchasing/data_fixtures/centrale_mere.csv"
     file_childs = Path(settings.APPS_DIR) / "centers_purchasing/data_fixtures/centrales_filles.csv"
     file_enseigne = Path(settings.APPS_DIR) / "centers_purchasing/data_fixtures/enseignes.csv"
@@ -34,9 +36,11 @@ def fixtures():
 
         for row in csv_rows:
             try:
-                PrincipalCenterPurchase.objects.update_or_create(**dict(zip(list_keys, row)))
-            except IntegrityError as error:
-                LOGGER_IMPORT.exception(error)
+                PrincipalCenterPurchase.objects.update_or_create(
+                    **dict(zip(list_keys, row, strict=False))
+                )
+            except IntegrityError:
+                LOGGER_IMPORT.exception("Erreur d'intégrité à l'insertion des fixtures")
 
     with file_childs.open(encoding="utf8") as csv_file:
         csv_rows = csv.reader(csv_file, delimiter=";", quotechar='"')
@@ -51,8 +55,8 @@ def fixtures():
                     name=name,
                     generic_coefficient=generic_coefficient,
                 )
-            except IntegrityError as error:
-                LOGGER_IMPORT.exception(error)
+            except IntegrityError:
+                LOGGER_IMPORT.exception("Erreur d'intégrité à l'insertion des fixtures")
 
     with file_enseigne.open(encoding="utf8") as csv_file:
         csv_rows = csv.reader(csv_file, delimiter=";", quotechar='"')
@@ -69,8 +73,8 @@ def fixtures():
                     name=name,
                     generic_coefficient=generic_coefficient,
                 )
-            except IntegrityError as error:
-                LOGGER_IMPORT.exception(error)
+            except IntegrityError:
+                LOGGER_IMPORT.exception("Erreur d'intégrité à l'insertion des fixtures")
 
 
 if __name__ == "__main__":

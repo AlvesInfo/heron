@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des pré/post-traitements des imports Sage de book (bin/book_pre_processing.py,
+"""FR : Tests des pré/post-traitements des imports Sage de book (bin/book_pre_processing.py,
+
+
      bin/book_post_processing.py) et du script de migration GA0000 -> LAB0001
 EN : Tests for book Sage imports pre/post processing and the GA0000 -> LAB0001 migration script
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import csv
 import logging
 
@@ -47,7 +49,12 @@ def test_bp_book_pre_processing(societies, make_payment_condition, tmp_path):
 
     with csv_file(
         tmp_path / "ZBIBPS_journalier.heron",
-        [["FOUR001", "30J", "FRA", "FOU"], ["CLI001", "INCONNU", "FRA", "CLI"], [], ["ABSENT", "30J", "FRA", "X"]],
+        [
+            ["FOUR001", "30J", "FRA", "FOU"],
+            ["CLI001", "INCONNU", "FRA", "CLI"],
+            [],
+            ["ABSENT", "30J", "FRA", "X"],
+        ],
         quoting=csv.QUOTE_MINIMAL,
     ) as file:
         bp_book_pre_processing(tmp_path, file)
@@ -62,21 +69,26 @@ def test_bp_book_pre_processing(societies, make_payment_condition, tmp_path):
 
 def test_bp_book_pre_processing_sans_condition_comptant(societies, tmp_path):
     """Sans condition COMPTANT ni code connu, la colonne reste vide"""
-    with csv_file(tmp_path / "ZBIBPC_journalier.heron", [["CLI001", "INCONNU", "FRA", "CLI"]]) as file:
+    with csv_file(
+        tmp_path / "ZBIBPC_journalier.heron", [["CLI001", "INCONNU", "FRA", "CLI"]]
+    ) as file:
         bp_book_pre_processing(tmp_path, file)
         rows = _read_rows(file)
 
     assert rows[0][:4] == ["CLI001", "", "FRA", "CLI"]
 
 
-def test_bp_book_pre_processing_evite_les_collisions_de_nom_temporaire(societies, tmp_path, monkeypatch):
+def test_bp_book_pre_processing_evite_les_collisions_de_nom_temporaire(
+    societies, tmp_path, monkeypatch
+):
     """Si le nom aléatoire existe déjà, un autre nom est tiré"""
     (tmp_path / "occupe.csv").write_text("déjà là", encoding="utf8")
     names = iter(["occupe", "libre"])
 
-    with patched_attrs(monkeypatch, book_pre_processing, get_random_name=lambda: next(names)), csv_file(
-        tmp_path / "ZBIBPS_journalier.heron", [["FOUR001", "30J", "FRA", "FOU"]]
-    ) as file:
+    with (
+        patched_attrs(monkeypatch, book_pre_processing, get_random_name=lambda: next(names)),
+        csv_file(tmp_path / "ZBIBPS_journalier.heron", [["FOUR001", "30J", "FRA", "FOU"]]) as file,
+    ):
         bp_book_pre_processing(tmp_path, file)
         rows = _read_rows(file)
 
@@ -105,9 +117,10 @@ def test_society_book_pre_processing_collision_de_nom(societies, tmp_path, monke
     (tmp_path / "occupe.csv").write_text("déjà là", encoding="utf8")
     names = iter(["occupe", "libre"])
 
-    with patched_attrs(monkeypatch, book_pre_processing, get_random_name=lambda: next(names)), csv_file(
-        tmp_path / "ZBIADDR_journalier.heron", [["FOUR001", "2", "1"]]
-    ) as file:
+    with (
+        patched_attrs(monkeypatch, book_pre_processing, get_random_name=lambda: next(names)),
+        csv_file(tmp_path / "ZBIADDR_journalier.heron", [["FOUR001", "2", "1"]]) as file,
+    ):
         society_book_pre_processing(tmp_path, file)
         rows = _read_rows(file)
 
@@ -118,7 +131,13 @@ def test_bank_book_pre_processing_dedoublonne(societies, tmp_path):
     """Une banque par couple tiers / compte, tiers inconnus et lignes vides ignorés"""
     with csv_file(
         tmp_path / "ZBIBANK_journalier.heron",
-        [["FOUR001", "FR01", "a"], ["FOUR001", "FR01", "b"], [], ["ABSENT", "FR01", "c"], ["FOUR001", "FR02", "d"]],
+        [
+            ["FOUR001", "FR01", "a"],
+            ["FOUR001", "FR01", "b"],
+            [],
+            ["ABSENT", "FR01", "c"],
+            ["FOUR001", "FR02", "d"],
+        ],
         quoting=csv.QUOTE_MINIMAL,
     ) as file:
         bank_book_pre_processing(tmp_path, file)
@@ -131,9 +150,10 @@ def test_bank_book_pre_processing_collision_de_nom(societies, tmp_path, monkeypa
     (tmp_path / "occupe.csv").write_text("déjà là", encoding="utf8")
     names = iter(["occupe", "libre"])
 
-    with patched_attrs(monkeypatch, book_pre_processing, get_random_name=lambda: next(names)), csv_file(
-        tmp_path / "ZBIBANK_journalier.heron", [["FOUR001", "FR01", "a"]]
-    ) as file:
+    with (
+        patched_attrs(monkeypatch, book_pre_processing, get_random_name=lambda: next(names)),
+        csv_file(tmp_path / "ZBIBANK_journalier.heron", [["FOUR001", "FR01", "a"]]) as file,
+    ):
         bank_book_pre_processing(tmp_path, file)
         rows = _read_rows(file)
 
@@ -145,8 +165,16 @@ def test_bank_book_pre_processing_collision_de_nom(societies, tmp_path, monkeypa
 
 def test_bpr_book_post_processing(make_society):
     """Drapeaux null remis aux défauts du modèle, nom et nom court complétés"""
-    make_society("TIERS01", name=None, short_name=None, integrable=None, chargeable=None, od_ana=None)
-    make_society("TIERS02", name="Un nom de tiers de plus de vingt caractères", short_name="", integrable=False, od_ana=True)
+    make_society(
+        "TIERS01", name=None, short_name=None, integrable=None, chargeable=None, od_ana=None
+    )
+    make_society(
+        "TIERS02",
+        name="Un nom de tiers de plus de vingt caractères",
+        short_name="",
+        integrable=False,
+        od_ana=True,
+    )
 
     bpr_book_post_processing()
 
@@ -172,7 +200,14 @@ def test_bpr_book_post_processing_sans_defaut_de_modele(monkeypatch):
 def test_adress_sage_post_processing(make_society, make_address, make_country):
     """Les 'None' textuels sont annulés et l'adresse 1 de Sage est recopiée sur le tiers"""
     france = make_country("FR")
-    society = make_society("TIERS01", adresse="None", code_postal="NONE", ville="Vieille ville", pays=None, email="none")
+    society = make_society(
+        "TIERS01",
+        adresse="None",
+        code_postal="NONE",
+        ville="Vieille ville",
+        pays=None,
+        email="none",
+    )
     make_address(
         society,
         "1",
@@ -202,7 +237,11 @@ def test_adress_sage_post_processing(make_society, make_address, make_country):
     assert society.immeuble == "Immeuble A"
     assert society.adresse == "12 rue de la Paix"
     assert (society.code_postal, society.ville, society.pays) == ("75001", "Paris", france)
-    assert (society.email_01, society.phone_number_01, society.mobile_number) == ("contact@acuitis.com", None, "0601020304")
+    assert (society.email_01, society.phone_number_01, society.mobile_number) == (
+        "contact@acuitis.com",
+        None,
+        "0601020304",
+    )
     assert society.email is None
     assert (other.adresse, other.ville) == (None, "Lyon")
 

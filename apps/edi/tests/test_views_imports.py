@@ -1,9 +1,9 @@
-"""
-Tests des vues d'import des factures EDI et de la jauge de test (apps/edi/views)
+"""Tests des vues d'import des factures EDI et de la jauge de test (apps/edi/views)
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import types
 
 import pytest
@@ -51,7 +51,7 @@ def thread_recorder(monkeypatch):
         yield started
 
 
-@pytest.mark.usefixtures('checks')
+@pytest.mark.usefixtures("checks")
 def test_import_edi_invoices_get(logged_client):
     response = logged_client.get(reverse("edi:import_edi_invoices"))
 
@@ -96,15 +96,21 @@ def test_import_edi_invoices_facturation_non_finalisee(logged_client, checks):
         ("edi", "edi_import", 2, "Import des factures EDI", "celery_import_launch"),
     ],
 )
-@pytest.mark.usefixtures('checks')
-def test_import_edi_invoices_post_lance_le_thread(logged_client, thread_recorder, post_key, task_type, total, title, target_name):
+@pytest.mark.usefixtures("checks")
+def test_import_edi_invoices_post_lance_le_thread(
+    logged_client, thread_recorder, post_key, task_type, total, title, target_name
+):
     """Chaque bouton crée la jauge adaptée et lance l'import dans un thread démon"""
     response = logged_client.post(reverse("edi:import_edi_invoices"), {post_key: "1"})
 
     payload = response.json()
     assert payload["success"] is True
     progress = SSEProgress.objects.get(job_id=payload["job_id"])
-    assert (progress.task_type, progress.total_items, progress.custom_title) == (task_type, total, title)
+    assert (progress.task_type, progress.total_items, progress.custom_title) == (
+        task_type,
+        total,
+        title,
+    )
     assert progress.status == "in_progress"
     assert progress.user == logged_client.user
     target, args, daemon = thread_recorder[0]
@@ -122,7 +128,10 @@ def test_import_edi_invoices_post_sans_fichiers(logged_client, checks, thread_re
 
     response = logged_client.post(reverse("edi:import_edi_invoices"), {"edi": "1"})
 
-    assert response.json() == {"success": False, "error": "Il n'y a aucuns fichiers EDI à traiter !"}
+    assert response.json() == {
+        "success": False,
+        "error": "Il n'y a aucuns fichiers EDI à traiter !",
+    }
     assert thread_recorder == []
     assert SSEProgress.objects.count() == 0
 
@@ -137,7 +146,11 @@ def test_import_jauge_get(logged_client):
 def test_import_jauge_post_lance_la_tache(logged_client, monkeypatch):
     delayed = []
 
-    with patched_attrs(monkeypatch, views_jauges.task_test_import_jauge, delay=lambda job_id, user_id: delayed.append((job_id, user_id))):
+    with patched_attrs(
+        monkeypatch,
+        views_jauges.task_test_import_jauge,
+        delay=lambda job_id, user_id: delayed.append((job_id, user_id)),
+    ):
         response = logged_client.post(reverse("edi:import_jauge"))
 
     payload = response.json()

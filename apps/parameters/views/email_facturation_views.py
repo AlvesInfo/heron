@@ -1,20 +1,18 @@
-"""
-Views des Emails d'envoi
-"""
-from django.urls import reverse
+"""Views des Emails d'envoi."""
+
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.urls import reverse
+from django.views.generic import CreateView, ListView, UpdateView
 
 from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.parameters.models import Email
 from apps.parameters.forms import EmailForm
-
+from apps.parameters.models import Email
 
 # ECRANS DES EMAILS ================================================================================
 
 
 class EmailList(ListView):
-    """View de la liste des Emails"""
+    """View de la liste des Emails."""
 
     model = Email
     context_object_name = "emails"
@@ -23,7 +21,7 @@ class EmailList(ListView):
 
 
 class EmailCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Emails"""
+    """CreateView de création des Emails."""
 
     model = Email
     form_class = EmailForm
@@ -32,6 +30,7 @@ class EmailCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     error_message = "L'email %(description)s n'a pu être créé, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
+        """Ajoute au contexte le titre, le mode création et le lien de retour."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("parameters:emails_list")
@@ -40,14 +39,14 @@ class EmailCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        """On surcharge la méthode form_valid"""
+        """On surcharge la méthode form_valid."""
         self.request.session["level"] = 20
 
         return super().form_valid(form)
 
 
 class EmailUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des Emails"""
+    """UpdateView pour modification des Emails."""
 
     model = Email
     context_object_name = "email"
@@ -57,7 +56,7 @@ class EmailUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     error_message = "L'email %(description)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("parameters:emails_list")
         context["titre_table"] = f"Mise à jour de l'email : {context.get('object').name}"
@@ -65,7 +64,7 @@ class EmailUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        """On surcharge la méthode form_valid"""
+        """On surcharge la méthode form_valid."""
         self.request.session["level"] = 20
 
         return super().form_valid(form)

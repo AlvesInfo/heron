@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests des modèles de l'app centers_clients
+"""FR : Tests des modèles de l'app centers_clients
+
+
 EN : Tests for centers_clients models
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import datetime
 from decimal import Decimal
 
@@ -82,7 +84,7 @@ def test_maison_creation_et_str(make_maison):
     assert maison.code_maison == "AF0001"
     assert maison.rfa_frequence == Maison.Frequence.MENSUEL
     assert maison.rfa_remise == Maison.Remise.TOTAL
-    assert maison.generic_coefficient == Decimal("1")
+    assert maison.generic_coefficient == Decimal(1)
     assert maison.integrable is True
     assert maison.chargeable is True
     assert maison.od_ana is False
@@ -106,10 +108,34 @@ def test_maison_choices():
 @pytest.mark.parametrize(
     ("fields", "expected"),
     [
-        ({"intitule": "Acuitis", "immeuble": "Bât. A", "adresse": "1 rue X", "code_postal": "75001", "ville": "Paris"}, "Acuitis, Bât. A, 1 rue X - 75001 Paris"),
-        ({"intitule": "Acuitis", "immeuble": None, "adresse": "1 rue X", "code_postal": "75001", "ville": "Paris"}, "Acuitis, 1 rue X - 75001 Paris"),
-        ({"intitule": "Acuitis", "immeuble": "", "adresse": "", "code_postal": "", "ville": ""}, "Acuitis"),
-        ({"intitule": "", "immeuble": "", "adresse": "", "code_postal": "75001", "ville": ""}, " - 75001"),
+        (
+            {
+                "intitule": "Acuitis",
+                "immeuble": "Bât. A",
+                "adresse": "1 rue X",
+                "code_postal": "75001",
+                "ville": "Paris",
+            },
+            "Acuitis, Bât. A, 1 rue X - 75001 Paris",
+        ),
+        (
+            {
+                "intitule": "Acuitis",
+                "immeuble": None,
+                "adresse": "1 rue X",
+                "code_postal": "75001",
+                "ville": "Paris",
+            },
+            "Acuitis, 1 rue X - 75001 Paris",
+        ),
+        (
+            {"intitule": "Acuitis", "immeuble": "", "adresse": "", "code_postal": "", "ville": ""},
+            "Acuitis",
+        ),
+        (
+            {"intitule": "", "immeuble": "", "adresse": "", "code_postal": "75001", "ville": ""},
+            " - 75001",
+        ),
     ],
 )
 def test_maison_get_address(fields, expected):
@@ -122,7 +148,7 @@ def test_maison_get_absolute_url():
     assert Maison.get_absolute_url() == reverse("centers_clients:maisons_list")
 
 
-@pytest.mark.usefixtures('make_cct')
+@pytest.mark.usefixtures("make_cct")
 def test_maison_cct_one_to_one(make_maison):
     """Un cct ne peut porter qu'une maison et un cct utilisé est protégé"""
     maison = make_maison("AF0001")
@@ -239,8 +265,8 @@ def test_clean_sans_fk_renseignees():
 
 
 def test_full_clean_maison_valide(make_maison, make_account):
-    """
-    Une maison complète passe full_clean (validation modèle + champs).
+    """Une maison complète passe full_clean (validation modèle + champs).
+
     `acquitted` (FlagsTable, null=True sans blank=True) est exclu comme le fait tout ModelForm.
     """
     maison = make_maison(
@@ -302,7 +328,10 @@ def test_maison_supllier_exclusion(make_exclusion):
     """__str__, url de succès, unicité du couple et cascade sur la maison"""
     exclusion = make_exclusion()
 
-    assert str(exclusion) == f"{exclusion.third_party_num} - {exclusion.cct_uuid_identification.cct.cct}"
+    assert (
+        str(exclusion)
+        == f"{exclusion.third_party_num} - {exclusion.cct_uuid_identification.cct.cct}"
+    )
     assert MaisonSupllierExclusion.get_success_url() == reverse("home")
 
     with transaction.atomic(), pytest.raises(IntegrityError):
@@ -323,7 +352,9 @@ def test_supllier_country_exclusion(make_country_exclusion, make_country):
     assert SupllierCountryExclusion.get_success_url() == reverse("home")
 
     with transaction.atomic(), pytest.raises(IntegrityError):
-        SupllierCountryExclusion.objects.create(third_party_num=exclusion.third_party_num, pays=exclusion.pays)
+        SupllierCountryExclusion.objects.create(
+            third_party_num=exclusion.third_party_num, pays=exclusion.pays
+        )
 
 
 def test_maison_supplier_identifier(make_supplier_identifier):
@@ -342,7 +373,14 @@ def test_maison_supplier_identifier(make_supplier_identifier):
 def test_maison_subcription_metadonnees():
     """Colonnes d'import, clés d'unicité et urls de retour"""
     assert list(MaisonSubcription.get_columns_import()) == [
-        "maison", "article", "qty", "unit_weight", "net_unit_price", "function", "for_signboard", "vat",
+        "maison",
+        "article",
+        "qty",
+        "unit_weight",
+        "net_unit_price",
+        "function",
+        "for_signboard",
+        "vat",
     ]
     assert list(MaisonSubcription.get_columns_import().values()) == list(range(8))
     assert MaisonSubcription.get_uniques() == {"maison", "article", "function", "for_signboard"}
@@ -354,7 +392,7 @@ def test_maison_subcription_defauts_et_unicite(make_subscription, make_vat):
     """Défauts (qty 1, enseigne ACF, tva nulle) et unicité maison/fonction/article/enseigne"""
     subscription = make_subscription(vat=make_vat("001"))
 
-    assert subscription.qty == Decimal("1")
+    assert subscription.qty == Decimal(1)
     assert subscription.for_signboard.code == "ACF"
     assert subscription.vat.vat == "001"
 
@@ -381,4 +419,6 @@ def test_maison_subcription_cascade_et_protect(make_subscription):
 
 def test_module_expose_les_modeles():
     """Le module models expose bien tous les modèles de l'app"""
-    assert {m.__name__ for m in (cc_models.Maison, cc_models.Contact, cc_models.MaisonBi)} <= set(dir(cc_models))
+    assert {m.__name__ for m in (cc_models.Maison, cc_models.Contact, cc_models.MaisonBi)} <= set(
+        dir(cc_models)
+    )

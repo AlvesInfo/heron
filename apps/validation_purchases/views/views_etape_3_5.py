@@ -1,25 +1,27 @@
+"""Vues de l'étape 3.5 de la validation des achats : abonnements."""
+
 import pendulum
 from django.contrib import messages
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from apps.edi.models import EdiValidation
 from apps.validation_purchases.excel_outputs.excel_subscriptions import (
     excel_subscriptions,
 )
-from apps.edi.models import EdiValidation
 from apps.validation_purchases.forms import SubscriptionsValidationForm
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 3.5 - Contrôle des Abonnements
 
 
 def subscriptions_purchases(request):
-    """View de l'étape 3.5 des écrans de contrôles"""
+    """View de l'étape 3.5 des écrans de contrôles."""
     context = {
         "titre_table": "3.5 - Contrôle des Abonnements",
         "subscriptions_validation": EdiValidation.objects.filter(
@@ -31,13 +33,15 @@ def subscriptions_purchases(request):
 
 
 def subscriptions_purchases_export(request):
-    """Export Excel du Contrôle des Abonnements
+    """Export Excel du Contrôle des Abonnements.
+
     :param request: Request Django
-    :return: response_file"""
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()
-            file_name = "CONTROLE_ABONNEMENTS_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+            file_name = f"CONTROLE_ABONNEMENTS_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
 
             return response_file(
                 excel_subscriptions,
@@ -52,8 +56,7 @@ def subscriptions_purchases_export(request):
 
 
 def subscriptions_validation(request):
-    """Validation de l'écran de Contrôle des Abonnements"""
-
+    """Validation de l'écran de Contrôle des Abonnements."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -87,14 +90,10 @@ def subscriptions_validation(request):
                 message = "Le contrôle des abonnements est maintenant invalidé"
 
         except Exception:
-            LOGGER_VIEWS.exception(
-                f"Views : subscriptions_validation error : {form.cleaned_data!r}"
-            )
+            LOGGER_VIEWS.exception("Views : subscriptions_validation error : %r", form.cleaned_data)
 
     else:
-        LOGGER_VIEWS.error(
-            f"Views : subscriptions_validation error, form invalid : {form.errors!r}"
-        )
+        LOGGER_VIEWS.error("Views : subscriptions_validation error, form invalid : %r", form.errors)
 
     messages.add_message(request, level, message)
 

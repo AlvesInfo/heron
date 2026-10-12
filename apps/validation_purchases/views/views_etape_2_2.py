@@ -1,36 +1,36 @@
+"""Vues de l'étape 2.2 de la validation des achats : factures sans CCT."""
+
 import pendulum
 from django.db.models import Count
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from heron.loggers import LOGGER_VIEWS
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.core.bin.encoders import set_base_64_str
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.edi.bin.cct_update import update_cct_edi_import
 from apps.edi.models import EdiImport
 from apps.validation_purchases.excel_outputs.excel_integration_invoices_without_cct import (
     excel_integration_without_cct,
 )
 from apps.validation_purchases.forms import ChangeCttForm
-
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 2.2 - FACTURES SANS CCT
 
 
 def without_cct_purchases(request):
-    """View de l'étape 2.2 des écrans de contrôles
+    """View de l'étape 2.2 des écrans de contrôles.
+
     Visualisation des factures sans CCT
     :param request: Request Django
-    :return: view
+    :return: view.
     """
     # on met à jour les cct au cas où l'on est rempli des cct dans un autre écran
     update_cct_edi_import()
 
     context = {
         "titre_table": "2.2 - Listing Factures sans CCT - Achats",
-        "invoices_without_cct": EdiImport.objects.filter(
-            cct_uuid_identification__isnull=True
-        )
+        "invoices_without_cct": EdiImport.objects.filter(cct_uuid_identification__isnull=True)
         .exclude(delete=True)
         .values(
             "uuid_identification",
@@ -59,10 +59,11 @@ def without_cct_purchases(request):
 
 
 def without_cct_purchases_export(request):
-    """Export Excel de
-    :param request: Request Django
-    :return: response_file"""
+    """Export Excel de.
 
+    :param request: Request Django
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()

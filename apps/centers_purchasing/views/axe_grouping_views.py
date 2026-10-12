@@ -1,6 +1,6 @@
-"""
-FR : Module Dictionnaire Axe Pro/Regroupement de facturation
-EN : Ax Pro Dictionary/Billing Consolidation Module
+"""FR : Module Dictionnaire Axe Pro/Regroupement de facturation.
+
+EN : Ax Pro Dictionary/Billing Consolidation Module.
 
 Commentaire:
 
@@ -10,31 +10,32 @@ created by: Paulo ALVES
 modified at: 2023-01-21
 modified by: Paulo ALVES
 """
+
 import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.centers_purchasing.excel_outputs.output_excel_axe_grouping_list import (
     excel_liste_axe_grouping,
 )
-from apps.centers_purchasing.models import AxeProGroupingGoods
 from apps.centers_purchasing.forms import (
-    AxeProGroupingGoodsForm,
     AxeProGroupingGoodsDeleteForm,
+    AxeProGroupingGoodsForm,
 )
+from apps.centers_purchasing.models import AxeProGroupingGoods
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from heron.loggers import LOGGER_VIEWS
 
 # Module Dictionnaire Axe Pro/Regroupement de facturation
 
 
 class AxeGroupingList(ListView):
-    """View de la liste du Dictionnaire Axe Pro/Regroupement de facturation"""
+    """View de la liste du Dictionnaire Axe Pro/Regroupement de facturation."""
 
     model = AxeProGroupingGoods
     context_object_name = "axes_groupings"
@@ -43,7 +44,7 @@ class AxeGroupingList(ListView):
 
 
 class AxeGroupingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création du Dictionnaire Axe Pro/Regroupement de facturation"""
+    """CreateView de création du Dictionnaire Axe Pro/Regroupement de facturation."""
 
     model = AxeProGroupingGoods
     form_class = AxeProGroupingGoodsForm
@@ -55,7 +56,7 @@ class AxeGroupingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:axe_grouping_list")
         context["titre_table"] = "Création d'un nouveau regroupement de facturation"
@@ -66,7 +67,7 @@ class AxeGroupingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return reverse("centers_purchasing:axe_grouping_list")
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -74,7 +75,7 @@ class AxeGroupingCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 
 class AxeGroupingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView d'update du Dictionnaire Axe Pro/Regroupement de facturation"""
+    """UpdateView d'update du Dictionnaire Axe Pro/Regroupement de facturation."""
 
     model = AxeProGroupingGoods
     form_class = AxeProGroupingGoodsForm
@@ -88,7 +89,7 @@ class AxeGroupingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:axe_grouping_list")
         context["titre_table"] = "Mise à jour d'un regroupement de facturation"
@@ -98,8 +99,8 @@ class AxeGroupingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_purchasing:axe_grouping_list")
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -107,8 +108,7 @@ class AxeGroupingUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 def axe_grouping_delete(request):
-    """Vue ajax de suppresion d'une ligne de la table"""
-
+    """Vue ajax de suppresion d'une ligne de la table."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -126,18 +126,17 @@ def axe_grouping_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"axe_grouping_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("axe_grouping_delete, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def axe_grouping_export_list(_):
-    """
-    Export Excel de la liste du Dictionnaire Axe Pro/Regroupement de facturation
-    :return: response_file
+    """Export Excel de la liste du Dictionnaire Axe Pro/Regroupement de facturation.
+
+    :return: response_file.
     """
     try:
-
         today = pendulum.now()
         file_name = (
             f"LISTING_DES_AXE_PRO_VS_REGROUPEMENTS_DE_FACTURATION_"

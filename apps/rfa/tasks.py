@@ -1,6 +1,6 @@
-"""
-FR : Module de génération des RFA sous task Celery
-EN : RFA generation module under Celery task
+"""FR : Module de génération des RFA sous task Celery.
+
+EN : RFA generation module under Celery task.
 
 Commentaire:
 
@@ -11,27 +11,23 @@ modified at: 2024-09-09
 modified by: Paulo ALVES
 """
 
-from typing import AnyStr
 import time
 
 from celery import shared_task
 from django.utils import timezone
 
-from heron.loggers import LOGGER_EDI
 from apps.core.bin.clean_celery import clean_memory
 from apps.data_flux.trace import get_trace
-from apps.users.models import User
 from apps.rfa.bin.rfa_insertions import RfaPeriodError
 from apps.rfa.imports.import_rfa_pool import generate_rfa
+from apps.users.models import User
+from heron.loggers import LOGGER_EDI
 
 
 @shared_task(name="rfa_generation_launch_task")
 @clean_memory
-def launch_rfa_generation(user_pk: int, supplier_origin: AnyStr, period_rfa: AnyStr):
-    """
-    Génération des RFA mensuelles
-    """
-
+def launch_rfa_generation(user_pk: int, supplier_origin: str, period_rfa: str):
+    """Génération des RFA mensuelles."""
     start_initial = time.time()
 
     error = False
@@ -58,25 +54,22 @@ def launch_rfa_generation(user_pk: int, supplier_origin: AnyStr, period_rfa: Any
         error = True
         to_print += f"Erreur : {except_error}\n"
         trace.comment = str(except_error)
-        LOGGER_EDI.error(f"RFA {supplier_origin} : {except_error}")
+        LOGGER_EDI.exception("RFA %s", supplier_origin)
 
     except TypeError as except_error:
         error = True
         to_print += f"TypeError : {except_error}\n"
-        LOGGER_EDI.exception(f"TypeError : {except_error!r}")
+        LOGGER_EDI.exception("TypeError")
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(
-            f"Exception Générale RFA: {supplier_origin}\n{except_error!r}"
-        )
+        LOGGER_EDI.exception("Exception Générale RFA: %s", supplier_origin)
 
     finally:
         if error:
             trace.errors = True
             trace.comment = (
-                trace.comment
-                + "\n. Error: Une erreur c'est produite veuillez consulter les logs"
+                trace.comment + "\n. Error: Une erreur c'est produite veuillez consulter les logs"
             )
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
@@ -85,20 +78,17 @@ def launch_rfa_generation(user_pk: int, supplier_origin: AnyStr, period_rfa: Any
         trace.save()
 
     LOGGER_EDI.warning(
-        to_print
-        + f"Validation RFA : {supplier_origin} in : {time.time() - start_initial} s"
-        + "\n\n======================================================================="
-        "======================================================================="
+        "%sValidation RFA : %s in : %s s\n\n%s",
+        to_print,
+        supplier_origin,
+        time.time() - start_initial,
+        "=" * 142,
     )
     sep = ":" if trace.comment else ""
 
     if not error and "Erreur" not in to_print:
-        return {
-            "Génération des RFA": f"RFA intégrées avec sucess, en {trace.time_to_process} s"
-        }
+        return {"Génération des RFA": f"RFA intégrées avec sucess, en {trace.time_to_process} s"}
 
     return {
-        "Génération des RFA": (
-            f"Erreur - {to_print.replace('Erreur', '')} {sep} {trace.comment!r}"
-        )
+        "Génération des RFA": (f"Erreur - {to_print.replace('Erreur', '')} {sep} {trace.comment!r}")
     }

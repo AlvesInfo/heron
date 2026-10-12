@@ -1,13 +1,14 @@
 """Tests des exports 5.3 CA Cosium / Ventes Héron (par cct et par familles)"""
+
 import io
 import logging
 from decimal import Decimal
 
 import pytest
 
+from apps.core.excel_outputs import generic_list_export
 from apps.validation_purchases.excel_outputs import excel_ca_cct, excel_familly_ca_cct
 from apps.validation_purchases.tests.helpers_excel_2 import MONTH_M, MONTH_M1
-from apps.core.excel_outputs import generic_list_export
 from conftest import patched_attrs
 
 pytestmark = pytest.mark.django_db
@@ -20,16 +21,30 @@ def ca_data(make_maison, make_ca_client, make_sale_invoice, make_sale_invoice_de
     lyon = make_maison("AF0002", intitule_court="LYON")
     opt = make_section("PRO", "OPT", name="Optique")
     aud = make_section("PRO", "AUD", name="Audio")
-    make_sale_invoice_detail(make_sale_invoice(cct=paris.cct, invoice_amount_without_tax=Decimal("100")), axe_pro="OPT", net_amount=Decimal("100"))
-    make_sale_invoice_detail(make_sale_invoice(cct=paris.cct, invoice_month=MONTH_M1, invoice_amount_without_tax=Decimal("40")), axe_pro="AUD", net_amount=Decimal("40"))
-    make_sale_invoice_detail(make_sale_invoice(cct=lyon.cct, invoice_amount_without_tax=Decimal("10")), axe_pro="OPT", net_amount=Decimal("10"))
-    make_ca_client(maison=paris, axe_pro=opt, ca_ht_eur=Decimal("50"))
-    make_ca_client(maison=paris, axe_pro=aud, date_ca=MONTH_M1, ca_ht_eur=Decimal("20"))
-    make_ca_client(maison=lyon, axe_pro=opt, ca_ht_eur=Decimal("5"))
+    make_sale_invoice_detail(
+        make_sale_invoice(cct=paris.cct, invoice_amount_without_tax=Decimal(100)),
+        axe_pro="OPT",
+        net_amount=Decimal(100),
+    )
+    make_sale_invoice_detail(
+        make_sale_invoice(
+            cct=paris.cct, invoice_month=MONTH_M1, invoice_amount_without_tax=Decimal(40)
+        ),
+        axe_pro="AUD",
+        net_amount=Decimal(40),
+    )
+    make_sale_invoice_detail(
+        make_sale_invoice(cct=lyon.cct, invoice_amount_without_tax=Decimal(10)),
+        axe_pro="OPT",
+        net_amount=Decimal(10),
+    )
+    make_ca_client(maison=paris, axe_pro=opt, ca_ht_eur=Decimal(50))
+    make_ca_client(maison=paris, axe_pro=aud, date_ca=MONTH_M1, ca_ht_eur=Decimal(20))
+    make_ca_client(maison=lyon, axe_pro=opt, ca_ht_eur=Decimal(5))
     return paris, lyon
 
 
-@pytest.mark.usefixtures('ca_data')
+@pytest.mark.usefixtures("ca_data")
 def test_excel_ca_cct(excel_io):
     file_io = io.BytesIO()
 
@@ -60,7 +75,11 @@ def test_excel_ca_cct_erreur(monkeypatch, caplog):
     def boom(*args, **kwargs):
         raise ValueError("boom")
 
-    with patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom), patched_attrs(monkeypatch, excel_ca_cct, titre_page_writer=boom), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom),
+        patched_attrs(monkeypatch, excel_ca_cct, titre_page_writer=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         result = excel_ca_cct.excel_ca_cct(io.BytesIO(), "ca_cct.xlsx")
 
     assert result == {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
@@ -87,7 +106,11 @@ def test_excel_familly_ca_cct_erreur(monkeypatch, caplog):
     def boom(*args, **kwargs):
         raise ValueError("boom")
 
-    with patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom), patched_attrs(monkeypatch, excel_familly_ca_cct, titre_page_writer=boom), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom),
+        patched_attrs(monkeypatch, excel_familly_ca_cct, titre_page_writer=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         result = excel_familly_ca_cct.excel_familly_ca_cct(io.BytesIO(), "familles.xlsx", "AF0001")
 
     assert result == {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}

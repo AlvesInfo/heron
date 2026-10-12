@@ -1,15 +1,14 @@
-"""
-Forms des axes Rfa à positionner
-"""
+"""Forms des axes Rfa à positionner."""
+
 from django import forms
 
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.accountancy.models import SectionSage
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.rfa.bin.rfa_controls import get_axe_rfa_period
 
 
 class AxeRfaForm(forms.Form):
-    """Choix de la section de l'axe RFA (période) pour la génération des RFA"""
+    """Choix de la section de l'axe RFA (période) pour la génération des RFA."""
 
     section = forms.ChoiceField(
         choices=(),
@@ -19,6 +18,7 @@ class AxeRfaForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        """Alimente les sections de l'axe RFA."""
         super().__init__(*args, **kwargs)
         self.fields["section"].choices = [
             (row.section, row.section)

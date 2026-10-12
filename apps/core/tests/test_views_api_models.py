@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des vues API des dropdowns semantic (apps/core/views/views.py), consommatrices de
+"""FR : Tests des vues API des dropdowns semantic (apps/core/views/views.py), consommatrices de
+
+
      l'API TVA et comptes de apps.accountancy
 EN : Tests for semantic dropdown API views, consumers of accountancy VAT/accounts API
 
@@ -12,6 +13,7 @@ racine) ; reverse() n'est appelé qu'à l'intérieur des tests, jamais à la col
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import logging
 
 import pytest
@@ -51,7 +53,10 @@ def test_routes():
 def test_model_dict_branche_l_api_accountancy():
     """Les clés vats / vats_alls / accounts pointent sur les fonctions d'accountancy et core"""
     assert core_views.MODEL_DICT["vats"] is get_vat
-    assert core_views.MODEL_DICT["vats_alls"].__module__ == "apps.accountancy.bin.api_get_models_accountacy"
+    assert (
+        core_views.MODEL_DICT["vats_alls"].__module__
+        == "apps.accountancy.bin.api_get_models_accountacy"
+    )
     assert core_views.MODEL_DICT["accounts"].__module__ == "apps.core.bin.api_get_models"
 
 
@@ -112,7 +117,9 @@ def test_vats_sans_resultat(ajax_client, make_vat):
     assert _payload(ajax_client.get(_url("vats", "zzz"))) == {"success": []}
 
 
-@pytest.mark.parametrize(("query", "expected_pks"), [("FR'A", ["001", "002"]), ("100%", []), ("1|F", ["001"])])
+@pytest.mark.parametrize(
+    ("query", "expected_pks"), [("FR'A", ["001", "002"]), ("100%", []), ("1|F", ["001"])]
+)
 def test_vats_nettoyage_de_la_requete(ajax_client, make_vat, query, expected_pks):
     """Les apostrophes sont retirées, le % est échappé (donc littéral), le texte passé en minuscule"""
     make_vat("001", "FRA")
@@ -131,7 +138,9 @@ def test_vats_alls_renvoie_toutes_les_taxes(ajax_client, make_vat, caplog):
     with caplog.at_level(logging.ERROR, logger="error_views"):
         payload = _payload(ajax_client.get(_url("vats_alls", "zzz")))
 
-    assert payload == {"success": [{"pk": "001", "model": "001 - FRA"}, {"pk": "011", "model": "011 - INT"}]}
+    assert payload == {
+        "success": [{"pk": "001", "model": "001 - FRA"}, {"pk": "011", "model": "011 - INT"}]
+    }
     assert caplog.text == ""
 
 
@@ -144,7 +153,9 @@ def test_alls_avec_tiers_passe_le_tiers_seul(ajax_client, make_vat, monkeypatch)
         received.append(third_party_num)
         return core_views.MODEL_DICT["vats_alls"]()
 
-    with patched_attrs(monkeypatch, core_views, MODEL_DICT={**core_views.MODEL_DICT, "vats_tiers_alls": _alls}):
+    with patched_attrs(
+        monkeypatch, core_views, MODEL_DICT={**core_views.MODEL_DICT, "vats_tiers_alls": _alls}
+    ):
         payload = _payload(ajax_client.get(_url("vats_tiers_alls", "zzz", "BBGR001")))
 
     assert received == ["BBGR001"]
@@ -158,7 +169,9 @@ def test_accounts_renvoie_les_comptes_sage(ajax_client, make_account):
 
     payload = _payload(ajax_client.get(_url("accounts", "411")))
 
-    assert payload == {"success": [{"pk": str(account.uuid_identification), "model": "411000 - FRA"}]}
+    assert payload == {
+        "success": [{"pk": str(account.uuid_identification), "model": "411000 - FRA"}]
+    }
 
 
 def test_modele_inconnu(ajax_client, caplog):
@@ -184,7 +197,9 @@ def test_third_party_num_succes(ajax_client, make_vat, monkeypatch):
         return get_vat(str_query)
 
     with patched_attrs(
-        monkeypatch, core_views, MODEL_DICT={**core_views.MODEL_DICT, "vats_tiers": _vats_for_third_party}
+        monkeypatch,
+        core_views,
+        MODEL_DICT={**core_views.MODEL_DICT, "vats_tiers": _vats_for_third_party},
     ):
         payload = _payload(ajax_client.get(_url("vats_tiers", "FR'A", "BBGR001")))
 

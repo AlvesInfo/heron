@@ -1,6 +1,6 @@
-"""
-FR : Module des formulaires de validation des imports Sage X3
-EN : Sage X3 import validation forms module
+"""FR : Module des formulaires de validation des imports Sage X3.
+
+EN : Sage X3 import validation forms module.
 
 Commentaire:
 
@@ -10,19 +10,20 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 from django import forms
 
-from apps.core.validations.forms_base import SageNullBooleanField
 from apps.book.models import (
-    Society,
     Address,
     Contact,
+    Society,
     SocietyBank,
 )
+from apps.core.validations.forms_base import SageNullBooleanField
 
 
 class BprBookSageForm(forms.ModelForm):
-    """Validation de l'import ZBIBPR des Tiers Génériques Sage X3"""
+    """Validation de l'import ZBIBPR des Tiers Génériques Sage X3."""
 
     is_client = SageNullBooleanField()
     is_agent = SageNullBooleanField()
@@ -34,7 +35,7 @@ class BprBookSageForm(forms.ModelForm):
     is_contractor = SageNullBooleanField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = Society
         fields = [
@@ -72,10 +73,10 @@ class BprBookSageForm(forms.ModelForm):
 
 
 class BpsBookSageForm(forms.ModelForm):
-    """Validation de l'import ZBIBPS des Tiers Fournisseurs Sage X3"""
+    """Validation de l'import ZBIBPS des Tiers Fournisseurs Sage X3."""
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = Society
         fields = [
@@ -87,10 +88,10 @@ class BpsBookSageForm(forms.ModelForm):
 
 
 class BpcBookSageForm(forms.ModelForm):
-    """Validation de l'import ZBIBPC des Tiers Clients Sage X3"""
+    """Validation de l'import ZBIBPC des Tiers Clients Sage X3."""
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = Society
         fields = [
@@ -102,12 +103,12 @@ class BpcBookSageForm(forms.ModelForm):
 
 
 class BookAdressesSageForm(forms.ModelForm):
-    """Validation de l'import ZBIADDR des Adresses des Tiers Sage X3"""
+    """Validation de l'import ZBIADDR des Adresses des Tiers Sage X3."""
 
     default_adress = SageNullBooleanField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = Address
         fields = [
@@ -138,10 +139,10 @@ class BookAdressesSageForm(forms.ModelForm):
 
 
 class CodeContactsSageForm(forms.ModelForm):
-    """Validation de l'import ZBICONTACT des Codes Contacts des Tiers Sage X3"""
+    """Validation de l'import ZBICONTACT des Codes Contacts des Tiers Sage X3."""
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = Contact
         fields = [
@@ -153,10 +154,10 @@ class CodeContactsSageForm(forms.ModelForm):
 
 
 class BookContactsSageForm(forms.ModelForm):
-    """Validation de l'import ZBICONTCRM des Contacts des Tiers Sage X3"""
+    """Validation de l'import ZBICONTCRM des Contacts des Tiers Sage X3."""
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = Contact
         fields = [
@@ -180,12 +181,12 @@ class BookContactsSageForm(forms.ModelForm):
 
 
 class BookBanksSageForm(forms.ModelForm):
-    """Validation de l'import ZBIBANK des Banques des Tiers Sage X3"""
+    """Validation de l'import ZBIBANK des Banques des Tiers Sage X3."""
 
     is_default = SageNullBooleanField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = SocietyBank
         fields = [

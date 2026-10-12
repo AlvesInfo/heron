@@ -1,33 +1,31 @@
-"""
-Views des Abonnements
-"""
+"""Views des Abonnements."""
+
 import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.bin.change_traces import trace_mark_delete
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.centers_clients.excel_outputs.excel_maisons_excel_subscriptions import (
     excel_liste_subscriptions,
 )
-from apps.centers_clients.models import MaisonSubcription
 from apps.centers_clients.forms import (
-    MaisonSubcriptionForm,
     DeleteMaisonSubcriptionForm,
+    MaisonSubcriptionForm,
 )
 from apps.centers_clients.imports.import_subcriptions import import_abonnements_par_maisons
+from apps.centers_clients.models import MaisonSubcription
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from heron.loggers import LOGGER_VIEWS
 
 
 # ECRANS DES ABONNEMENTS ===========================================================================
 class MaisonSubcriptionList(ListView):
-    """View de la liste des Abonnements"""
+    """View de la liste des Abonnements."""
 
     model = MaisonSubcription
     queryset = MaisonSubcription.objects.all().values(
@@ -48,7 +46,7 @@ class MaisonSubcriptionList(ListView):
 
 
 class MaisonSubcriptionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Abonnements"""
+    """CreateView de création des Abonnements."""
 
     model = MaisonSubcription
     form_class = MaisonSubcriptionForm
@@ -59,7 +57,7 @@ class MaisonSubcriptionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView)
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("centers_clients:subscriptions_list")
@@ -67,7 +65,7 @@ class MaisonSubcriptionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView)
         return context
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -75,7 +73,7 @@ class MaisonSubcriptionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView)
 
 
 class MaisonSubcriptionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des Abonnements"""
+    """UpdateView pour modification des Abonnements."""
 
     model = MaisonSubcription
     form_class = MaisonSubcriptionForm
@@ -87,14 +85,13 @@ class MaisonSubcriptionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView)
 
     def get_context_data(self, **kwargs):
         """Insert the form into the context dict."""
-
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Mise à jour d'un Abonnement"
         context["chevron_retour"] = reverse("centers_clients:subscriptions_list")
         return context
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -102,13 +99,12 @@ class MaisonSubcriptionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView)
 
 
 def subscriptions_export_list(_):
-    """
-    Export Excel de la liste des Abonnements
+    """Export Excel de la liste des Abonnements.
+
     :param _: Request Django
-    :return: response_file
+    :return: response_file.
     """
     try:
-
         today = pendulum.now()
         file_name = f"LISTING_DES_ABONNEMENTS_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 
@@ -122,11 +118,11 @@ def subscriptions_export_list(_):
 
 @transaction.atomic
 def subscription_delete(request):
-    """Suppression des fonctions
-    :param request: Request Django
-    :return: view
-    """
+    """Suppression des fonctions.
 
+    :param request: Request Django
+    :return: view.
+    """
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -144,13 +140,13 @@ def subscription_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"subscription_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("subscription_delete, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def insert_or_update_subscriptions(request):
-    """Import de tous les articles qui n'ont pas de comptes comptables X3"""
+    """Import de tous les articles qui n'ont pas de comptes comptables X3."""
     messages_errors = ""
     messages_ok = ""
 

@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de la boucle d'import supervisor des tiers Sage (apps/book/loops/imports_loop.py)
+"""FR : Tests de la boucle d'import supervisor des tiers Sage (apps/book/loops/imports_loop.py)
+
+
 EN : Tests for book supervisor import loop
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import logging
 import shutil
 
@@ -16,9 +18,9 @@ from apps.book.loops import imports_loop
 from apps.book.models import (
     BookAdressesSage,
     BookBanksSage,
+    BookContactsSage,
     BpcBookSage,
     BprBookSage,
-    BookContactsSage,
     BpsBookSage,
     CodeContactsSage,
 )
@@ -77,8 +79,8 @@ def test_get_processing_files_archive_vide():
 
 @pytest.fixture
 def fake_processing(monkeypatch, make_trace):
-    """
-    Remplace processing_dict par des doublures (mêmes clés, même ordre) qui enregistrent
+    """Remplace processing_dict par des doublures (mêmes clés, même ordre) qui enregistrent
+
     l'ordre des appels, et neutralise les traitements finaux (emails, fichiers excel).
     """
     calls = {"files": [], "emails": 0, "excel": 0}
@@ -111,11 +113,17 @@ def fake_processing(monkeypatch, make_trace):
 def test_process_traite_dans_l_ordre_et_sauvegarde(sage_dirs, fake_processing):
     """Les fichiers sont traités dans l'ordre de processing_dict puis déplacés en backup"""
     calls, _ = fake_processing
-    _drop_in_archive(sage_dirs, "ZBIBANK_journalier.heron", "ZBIADDR_journalier.heron", "ZBIBPR_journalier.heron")
+    _drop_in_archive(
+        sage_dirs, "ZBIBANK_journalier.heron", "ZBIADDR_journalier.heron", "ZBIBPR_journalier.heron"
+    )
 
     imports_loop.process()
 
-    assert calls["files"] == ["ZBIBPR_journalier.heron", "ZBIADDR_journalier.heron", "ZBIBANK_journalier.heron"]
+    assert calls["files"] == [
+        "ZBIBPR_journalier.heron",
+        "ZBIADDR_journalier.heron",
+        "ZBIBANK_journalier.heron",
+    ]
     assert sorted(path.name for path in sage_dirs.backup.iterdir()) == sorted(calls["files"])
     assert list(sage_dirs.processing.iterdir()) == []
     assert Trace.objects.filter(errors=False).count() == 3
@@ -190,7 +198,10 @@ def test_process_erreur_des_fichiers_excel(monkeypatch, caplog):
     def _boom():
         raise RuntimeError("excel cassé")
 
-    with patched_attrs(monkeypatch, imports_loop, writre_book_files=_boom), caplog.at_level(logging.ERROR, logger="imports"):
+    with (
+        patched_attrs(monkeypatch, imports_loop, writre_book_files=_boom),
+        caplog.at_level(logging.ERROR, logger="imports"),
+    ):
         imports_loop.process()
 
     assert "writre_book_files()" in caplog.text

@@ -1,6 +1,6 @@
-"""
-FR : Module de génération des factures de Formations en pdf
-EN : Module for generating invoices Formations in pdf
+"""FR : Module de génération des factures de Formations en pdf.
+
+EN : Module for generating invoices Formations in pdf.
 
 Commentaire:
 
@@ -10,12 +10,13 @@ created by: Paulo ALVES
 modified at: 2023-04-16
 modified by: Paulo ALVES
 """
-from uuid import UUID
-from pathlib import Path
 
-from django.template.loader import render_to_string
+from pathlib import Path
+from uuid import UUID
+
 from django.conf import settings
 from django.db import connection
+from django.template.loader import render_to_string
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
@@ -24,22 +25,20 @@ from apps.invoices.sql_files.sql_formation import SQL_FORMATION
 
 
 def invoice_formation_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
-    """
-    Generation de la facture de formation
+    """Generation de la facture de formation.
+
     :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
-    :return: None
+    :return: None.
     """
-
     with connection.cursor() as cursor:
         # On fait un filter et non pas un get, pour pouvoir utiliser les éléments
         # tels que "general_footer_invoices.htmml" et "general_style_invoices"
         invoices = SaleInvoice.objects.filter(uuid_identification=uuid_invoice)
 
-        # print(cursor.mogrify(SQL_HEADER, {"uuid_invoice": uuid_invoice}).decode())
         cursor.execute(SQL_FORMATION, {"uuid_invoice": uuid_invoice})
         columns_header = [col[0] for col in cursor.description]
-        formation = [dict(zip(columns_header, row)) for row in cursor.fetchall()]
+        formation = [dict(zip(columns_header, row, strict=False)) for row in cursor.fetchall()]
 
         # LANCEMENT
         context = {

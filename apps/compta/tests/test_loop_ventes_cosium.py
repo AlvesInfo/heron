@@ -1,4 +1,5 @@
 """Tests de la boucle d'import journalier des ventes Cosium"""
+
 import importlib
 import platform
 import sys
@@ -52,9 +53,11 @@ def test_process_debut_de_mois_lance_la_mise_a_jour(calls, monkeypatch):
 
 @pytest.mark.parametrize("exception", [TypeError("type"), RuntimeError("boom")])
 def test_process_erreurs(monkeypatch, exception, caplog):
-    with raising_once(exception) as boom, patched_attrs(
-        monkeypatch, loop_ventes_cosium, insert_ventes_cosium=boom
-    ), caplog.at_level("ERROR", logger="import"):
+    with (
+        raising_once(exception) as boom,
+        patched_attrs(monkeypatch, loop_ventes_cosium, insert_ventes_cosium=boom),
+        caplog.at_level("ERROR", logger="import"),
+    ):
         loop_ventes_cosium.process()
 
     trace = Trace.objects.get()

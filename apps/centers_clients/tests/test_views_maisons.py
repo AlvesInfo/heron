@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,R0913
-"""
-FR : Tests des vues des maisons (apps/centers_clients/views/maisons_views.py)
+"""FR : Tests des vues des maisons (apps/centers_clients/views/maisons_views.py)
+
+
 EN : Tests for shops views
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import json
 import logging
 import pickle
@@ -17,8 +19,8 @@ from django.db import IntegrityError, transaction
 from django.test import RequestFactory
 from django.urls import reverse
 
-from apps.centers_clients.views import maisons_views
 from apps.centers_clients.models import Maison
+from apps.centers_clients.views import maisons_views
 from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL
 from apps.core.models import ChangesTrace, PicklerFiles
 from conftest import patched_attrs
@@ -45,7 +47,9 @@ def test_liste_des_maisons(logged_client, make_maison):
     assert response.status_code == 200
     maisons = list(response.context["maisons"])
     assert [row["cct"] for row in maisons] == ["AF0001", "AF0002"]
-    assert {"third_party_num", "pays__country_name", "type_x3__name", "cct__active"} <= set(maisons[0])
+    assert {"third_party_num", "pays__country_name", "type_x3__name", "cct__active"} <= set(
+        maisons[0]
+    )
     assert response.context["titre_table"] == "Clients"
     assert response.context["nb_paging"] == 25
 
@@ -68,7 +72,10 @@ def test_export_liste_des_maisons_en_erreur(logged_client, monkeypatch, caplog):
     def _boom(*_args, **_kwargs):
         raise RuntimeError("xlsx cassé")
 
-    with patched_attrs(monkeypatch, maisons_views, response_file=_boom), caplog.at_level(logging.ERROR, logger="error_views"):
+    with (
+        patched_attrs(monkeypatch, maisons_views, response_file=_boom),
+        caplog.at_level(logging.ERROR, logger="error_views"),
+    ):
         response = logged_client.get(reverse("centers_clients:maisons_export_list"))
 
     assert response.status_code == 302
@@ -107,7 +114,9 @@ def test_import_bi_get(logged_client):
 def test_import_bi_post_invalide(logged_client, caplog):
     """Un formulaire invalide est journalisé et réaffiché"""
     with caplog.at_level(logging.ERROR, logger="error_views"):
-        response = logged_client.post(reverse("centers_clients:import_bi"), data={"maison_bi": "ZZ"})
+        response = logged_client.post(
+            reverse("centers_clients:import_bi"), data={"maison_bi": "ZZ"}
+        )
 
     assert response.status_code == 200
     assert "erreur form" in caplog.text
@@ -121,7 +130,11 @@ def test_import_bi_post_cct_deja_utilise(logged_client, make_maison, make_maison
 
     response = logged_client.post(
         reverse("centers_clients:import_bi"),
-        data={"maison_bi": "M001", "cct": "AF0001", "tiers": maison.third_party_num.third_party_num},
+        data={
+            "maison_bi": "M001",
+            "cct": "AF0001",
+            "tiers": maison.third_party_num.third_party_num,
+        },
     )
 
     assert response.status_code == 200
@@ -136,15 +149,18 @@ def test_import_bi_post_valide(logged_client, picklers_dir, make_maison_bi, make
     make_society("CLI001")
 
     response = logged_client.post(
-        reverse("centers_clients:import_bi"), data={"maison_bi": "M001", "cct": "AF0001", "tiers": "CLI001"}
+        reverse("centers_clients:import_bi"),
+        data={"maison_bi": "M001", "cct": "AF0001", "tiers": "CLI001"},
     )
 
     pickler = PicklerFiles.objects.get()
     assert response.status_code == 302
-    assert response.url == reverse("centers_clients:maisons_create", kwargs={"initials": str(pickler.uuid_identification)})
+    assert response.url == reverse(
+        "centers_clients:maisons_create", kwargs={"initials": str(pickler.uuid_identification)}
+    )
     assert (picklers_dir / "import_bi.pick").is_file()
 
-    with open(pickler.pickle_file.path, "rb") as file:
+    with Path(pickler.pickle_file.path).open("rb") as file:
         initials = pickle.load(file)
 
     assert initials["intitule"] == "Maison BI"
@@ -158,7 +174,9 @@ def test_import_bi_post_valide(logged_client, picklers_dir, make_maison_bi, make
 
 def test_creation_get_sans_initials(logged_client):
     """L'étoile en paramètre = création vierge"""
-    response = logged_client.get(reverse("centers_clients:maisons_create", kwargs={"initials": "*"}))
+    response = logged_client.get(
+        reverse("centers_clients:maisons_create", kwargs={"initials": "*"})
+    )
 
     assert response.status_code == 200
     assert response.context["create"] is True
@@ -167,11 +185,14 @@ def test_creation_get_sans_initials(logged_client):
     assert response.context["form"].initial == {}
 
 
-@pytest.mark.usefixtures('picklers_dir')
+@pytest.mark.usefixtures("picklers_dir")
 def test_creation_get_initials_inconnu(logged_client):
     """Un uuid de pickler inconnu renvoie 404"""
     response = logged_client.get(
-        reverse("centers_clients:maisons_create", kwargs={"initials": "6fa459ea-ee8a-3ca4-894e-db77e160355e"})
+        reverse(
+            "centers_clients:maisons_create",
+            kwargs={"initials": "6fa459ea-ee8a-3ca4-894e-db77e160355e"},
+        )
     )
 
     assert response.status_code == 404
@@ -184,7 +205,8 @@ def pickled_import(logged_client, picklers_dir, make_maison_bi, make_cct, make_s
     make_cct("AF0001")
     make_society("CLI001")
     logged_client.post(
-        reverse("centers_clients:import_bi"), data={"maison_bi": "M001", "cct": "AF0001", "tiers": "CLI001"}
+        reverse("centers_clients:import_bi"),
+        data={"maison_bi": "M001", "cct": "AF0001", "tiers": "CLI001"},
     )
     return PicklerFiles.objects.get()
 
@@ -192,7 +214,10 @@ def pickled_import(logged_client, picklers_dir, make_maison_bi, make_cct, make_s
 def test_creation_get_depuis_import_bi(logged_client, pickled_import):
     """Le formulaire est pré-rempli avec les données picklées"""
     response = logged_client.get(
-        reverse("centers_clients:maisons_create", kwargs={"initials": str(pickled_import.uuid_identification)})
+        reverse(
+            "centers_clients:maisons_create",
+            kwargs={"initials": str(pickled_import.uuid_identification)},
+        )
     )
 
     assert response.status_code == 200
@@ -221,7 +246,9 @@ def test_creation_post_avec_reference_cosium(logged_client, maison_post_data, mo
     """Une référence Cosium déclenche la mise à jour des identifiants fournisseur Cosium"""
     received = []
 
-    with patched_attrs(monkeypatch, maisons_views, update_supplier_cct_reference_cosium=received.append):
+    with patched_attrs(
+        monkeypatch, maisons_views, update_supplier_cct_reference_cosium=received.append
+    ):
         response = logged_client.post(
             reverse("centers_clients:maisons_create", kwargs={"initials": "*"}),
             data={**maison_post_data, "reference_cosium": "COS-1"},
@@ -232,12 +259,17 @@ def test_creation_post_avec_reference_cosium(logged_client, maison_post_data, mo
     assert Maison.objects.get().reference_cosium == "COS-1"
 
 
-def test_creation_post_depuis_import_bi_nettoie_les_pickles(logged_client, pickled_import, picklers_dir, maison_post_data):
+def test_creation_post_depuis_import_bi_nettoie_les_pickles(
+    logged_client, pickled_import, picklers_dir, maison_post_data
+):
     """À la création, les fichiers pickle et l'enregistrement PicklerFiles sont supprimés"""
     pickle_path = Path(pickled_import.pickle_file.path)
 
     response = logged_client.post(
-        reverse("centers_clients:maisons_create", kwargs={"initials": str(pickled_import.uuid_identification)}),
+        reverse(
+            "centers_clients:maisons_create",
+            kwargs={"initials": str(pickled_import.uuid_identification)},
+        ),
         data=maison_post_data,
     )
 
@@ -283,7 +315,9 @@ def test_modification_get(logged_client, make_maison, make_address):
     address = make_address(maison.third_party_num, "1", email_01="paris@heron.local")
     make_address(maison.third_party_num, "2")
 
-    response = logged_client.get(reverse("centers_clients:maisons_update", kwargs={"pk": maison.pk}))
+    response = logged_client.get(
+        reverse("centers_clients:maisons_update", kwargs={"pk": maison.pk})
+    )
 
     assert response.status_code == 200
     assert response.context["titre_table"] == "Mise à jour du Client : AF0001 - Paris"
@@ -316,21 +350,29 @@ def test_modification_post_od_ana(logged_client, make_maison, maison_post_data, 
     axe_bu = make_section("BU", "BU01")
     url = reverse("centers_clients:maisons_update", kwargs={"pk": maison.pk})
 
-    logged_client.post(url, data={**maison_post_data, "type_x3": "2", "axe_bu": str(axe_bu.uuid_identification)})
+    logged_client.post(
+        url, data={**maison_post_data, "type_x3": "2", "axe_bu": str(axe_bu.uuid_identification)}
+    )
     maison.refresh_from_db()
     assert maison.axe_bu == axe_bu
 
-    logged_client.post(url, data={**maison_post_data, "type_x3": "0", "axe_bu": str(axe_bu.uuid_identification)})
+    logged_client.post(
+        url, data={**maison_post_data, "type_x3": "0", "axe_bu": str(axe_bu.uuid_identification)}
+    )
     maison.refresh_from_db()
     assert maison.axe_bu is None
 
 
-def test_modification_post_reference_cosium(logged_client, make_maison, maison_post_data, monkeypatch):
+def test_modification_post_reference_cosium(
+    logged_client, make_maison, maison_post_data, monkeypatch
+):
     """La référence Cosium déclenche la mise à jour des identifiants fournisseur"""
     maison = make_maison("AF0001")
     received = []
 
-    with patched_attrs(monkeypatch, maisons_views, update_supplier_cct_reference_cosium=received.append):
+    with patched_attrs(
+        monkeypatch, maisons_views, update_supplier_cct_reference_cosium=received.append
+    ):
         logged_client.post(
             reverse("centers_clients:maisons_update", kwargs={"pk": maison.pk}),
             data={**maison_post_data, "reference_cosium": "COS-9"},
@@ -339,7 +381,9 @@ def test_modification_post_reference_cosium(logged_client, make_maison, maison_p
     assert received == ["COS-9"]
 
 
-def test_modification_post_sans_centrale_acf(logged_client, make_maison, maison_post_data, monkeypatch):
+def test_modification_post_sans_centrale_acf(
+    logged_client, make_maison, maison_post_data, monkeypatch
+):
     """Sans centrale ACF en base, la centrale existante de la maison est conservée"""
     from apps.centers_purchasing.models import ChildCenterPurchase  # pylint: disable=C0415
 
@@ -356,7 +400,10 @@ def test_modification_post_sans_centrale_acf(logged_client, make_maison, maison_
         objects = Objects
 
     with patched_attrs(monkeypatch, maisons_views, ChildCenterPurchase=_NoCenter):
-        response = logged_client.post(reverse("centers_clients:maisons_update", kwargs={"pk": maison.pk}), data=maison_post_data)
+        response = logged_client.post(
+            reverse("centers_clients:maisons_update", kwargs={"pk": maison.pk}),
+            data=maison_post_data,
+        )
 
     maison.refresh_from_db()
     assert response.status_code == 302
@@ -368,7 +415,8 @@ def test_modification_post_invalide(logged_client, make_maison, maison_post_data
     maison = make_maison("AF0001")
 
     response = logged_client.post(
-        reverse("centers_clients:maisons_update", kwargs={"pk": maison.pk}), data={**maison_post_data, "adresse": ""}
+        reverse("centers_clients:maisons_update", kwargs={"pk": maison.pk}),
+        data={**maison_post_data, "adresse": ""},
     )
 
     assert response.status_code == 200
@@ -408,7 +456,10 @@ def test_emails_rest_api_query_erreur(make_user, monkeypatch, caplog):
     class _Broken:
         objects = None
 
-    with patched_attrs(monkeypatch, maisons_views, Maison=_Broken), caplog.at_level(logging.ERROR, logger="error_views"):
+    with (
+        patched_attrs(monkeypatch, maisons_views, Maison=_Broken),
+        caplog.at_level(logging.ERROR, logger="error_views"),
+    ):
         response = _ajax_get(make_user())
 
     assert json.loads(response.content) == {"success": "ko", "message": ""}

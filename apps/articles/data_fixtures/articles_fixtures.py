@@ -1,5 +1,4 @@
-"""
-FR : fixtures pour les statistiques et axes pro des articles
+"""FR : fixtures pour les statistiques et axes pro des articles.
 
 Commentaire:
 
@@ -9,12 +8,13 @@ created by: Paulo ALVES
 modified at: 2022-05-10
 modified by: Paulo ALVES
 """
+
+import csv
 import os
 import platform
 import sys
-import csv
-from pathlib import Path
 from functools import lru_cache
+from pathlib import Path
 from uuid import UUID
 
 import django
@@ -30,22 +30,24 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 django.setup()
 
 from apps.accountancy.models import SectionSage
-from apps.book.models import Society
 from apps.articles.models import Article, ArticleUpdate
+from apps.book.models import Society
 
 
 @lru_cache(maxsize=256)
 def get_axe_pro(axe_pro_copie_de_acuitis):
+    """Section de l'axe PRO correspondant au libellé de la base Acuitis."""
     return SectionSage.objects.get(section=axe_pro_copie_de_acuitis, axe="PRO")
 
 
 @lru_cache(maxsize=256)
 def get_society(supplier):
+    """Tiers correspondant au numéro de fournisseur."""
     return Society.objects.get(third_party_num=supplier)
 
 
 def import_articles():
-    """Import des articles de la base 'Copie de Acuitis.accdb'"""
+    """Import des articles de la base 'Copie de Acuitis.accdb'."""
     articles_files = Path(BASE_DIR) / "apps/articles/data_fixtures/r_articles_axe_pro.txt"
 
     with articles_files.open("r", encoding="utf8") as file:
@@ -86,6 +88,7 @@ def import_articles():
 
 
 def article_from_article_update():
+    """Reporte les articles de la table de mise à jour dans la table des articles."""
     for article in ArticleUpdate.objects.all():
         try:
             objet, created = Article.objects.update_or_create(
@@ -99,7 +102,7 @@ def article_from_article_update():
             pass
 
 
-l = [
+l = [  # noqa: E741 (nom historique remplacé par les tests)
     {
         "active": "fasle",
         "delete": "fasle",
@@ -527,11 +530,16 @@ l = [
     },
 ]
 from django import forms
+
 from heron.loggers import LOGGER_IMPORT
 
 
 class ArtForm(forms.ModelForm):
+    """Formulaire de contrôle des articles chargés en fixtures."""
+
     class Meta:
+        """Métadonnées Django : modèle et champs du formulaire."""
+
         model = Article
         fields = [
             "active",
@@ -562,12 +570,13 @@ class ArtForm(forms.ModelForm):
 
 
 def main():
+    """Valide et enregistre la liste d'articles de test."""
     for art_dict in l:
         f = ArtForm(art_dict)
         if f.is_valid():
             f.save()
         else:
-            LOGGER_IMPORT.info("%s %s %s", art_dict.get('reference'), ' : ', f.errors)
+            LOGGER_IMPORT.info("%s %s %s", art_dict.get("reference"), " : ", f.errors)
 
 
 if __name__ == "__main__":

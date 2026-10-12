@@ -1,27 +1,25 @@
-"""
-Views des exclusions des rfa pour les enseignes
-"""
+"""Views des exclusions des rfa pour les enseignes."""
+
 import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.bin.change_traces import trace_mark_delete
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.rfa.models import SignboardExclusion
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.rfa.excel_outputs.rfa_signboards_exclusion import excel_list_rfa_signboards_exclusion
-from apps.rfa.forms import SignboardExclusionForm, DeleteSignboardExclusionForm
+from apps.rfa.forms import DeleteSignboardExclusionForm, SignboardExclusionForm
+from apps.rfa.models import SignboardExclusion
+from heron.loggers import LOGGER_EXPORT_EXCEL, LOGGER_VIEWS
 
 
 # ECRANS DES ENSEIGNES ============================================================================
 class SignboardExclusionList(ListView):
-    """View de la liste des Exclusions RFA des Enseignes"""
+    """View de la liste des Exclusions RFA des Enseignes."""
 
     model = SignboardExclusion
     context_object_name = "rfa_parameters"
@@ -30,7 +28,7 @@ class SignboardExclusionList(ListView):
 
 
 class SignboardExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des exclusions rfa des Enseignes"""
+    """CreateView de création des exclusions rfa des Enseignes."""
 
     model = SignboardExclusion
     form_class = SignboardExclusionForm
@@ -41,7 +39,7 @@ class SignboardExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("rfa:signboards_exclusion_list")
@@ -53,7 +51,7 @@ class SignboardExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
         return reverse("rfa:signboards_exclusion_list")
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -61,7 +59,7 @@ class SignboardExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView
 
 
 class SignboardExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView des exclusions rfa des Enseignes"""
+    """UpdateView des exclusions rfa des Enseignes."""
 
     model = SignboardExclusion
     form_class = SignboardExclusionForm
@@ -73,7 +71,6 @@ class SignboardExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView
 
     def get_context_data(self, **kwargs):
         """Insert the form into the context dict."""
-
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Mise à jour Exclusion Enseigne"
         context["chevron_retour"] = reverse("rfa:signboards_exclusion_list")
@@ -83,8 +80,8 @@ class SignboardExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         """Return the URL to redirect to after processing a valid form."""
         return reverse("rfa:signboards_exclusion_list")
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -93,11 +90,11 @@ class SignboardExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView
 
 @transaction.atomic
 def signboard_exclusion_delete(request):
-    """Suppression des exclusions d'Enseignes pour les RFA
-    :param request: Request Django
-    :return: view
-    """
+    """Suppression des exclusions d'Enseignes pour les RFA.
 
+    :param request: Request Django
+    :return: view.
+    """
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -115,19 +112,18 @@ def signboard_exclusion_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_signboard_exclusion, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("delete_signboard_exclusion, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def signboard_exclusion_export_list(_):
-    """
-    Export Excel de la liste des Exclusions RFA des Enseignes
+    """Export Excel de la liste des Exclusions RFA des Enseignes.
+
     :param _: Request Django
-    :return: response_file
+    :return: response_file.
     """
     try:
-
         today = pendulum.now()
         file_name = (
             "LISTING_DES_EXCLUSIONS_RFA_ENSEIGNES_"

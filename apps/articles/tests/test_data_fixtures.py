@@ -1,14 +1,15 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des scripts de fixtures des articles (data_fixtures/articles_fixtures.py)
+"""FR : Tests des scripts de fixtures des articles (data_fixtures/articles_fixtures.py)
+
+
 EN : Tests for articles fixtures scripts
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
-from decimal import Decimal
 
 import logging
+from decimal import Decimal
 
 import pytest
 
@@ -49,7 +50,8 @@ def test_import_articles(tmp_path, monkeypatch, make_section, make_society, make
     data_dir = tmp_path / "apps" / "articles" / "data_fixtures"
     data_dir.mkdir(parents=True)
     (data_dir / "r_articles_axe_pro.txt").write_text(
-        'FOUR001;REF-1;Monture;Monture Héron;FAM;OPT;10.5\nFOUR001;REF-2;;;FAM;OPT;0\n', encoding="utf8"
+        "FOUR001;REF-1;Monture;Monture Héron;FAM;OPT;10.5\nFOUR001;REF-2;;;FAM;OPT;0\n",
+        encoding="utf8",
     )
 
     with patched_attrs(monkeypatch, articles_fixtures, BASE_DIR=str(tmp_path)):
@@ -86,8 +88,16 @@ def test_main_formulaire_valide(monkeypatch, make_society, make_unit, make_big_c
     category = make_big_category("Marchandises")
 
     with patched_attrs(
-        monkeypatch, articles_fixtures,
-        l=[{"reference": "PLV-TEST", "third_party_num": "FOUR001", "libelle": "PLV", "big_category": str(category.uuid_identification)}],
+        monkeypatch,
+        articles_fixtures,
+        l=[
+            {
+                "reference": "PLV-TEST",
+                "third_party_num": "FOUR001",
+                "libelle": "PLV",
+                "big_category": str(category.uuid_identification),
+            }
+        ],
     ):
         articles_fixtures.main()
 

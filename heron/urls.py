@@ -1,17 +1,17 @@
-"""heron URL Configuration
-"""
-from django.contrib import admin
-from django.urls import path, include
+"""heron URL Configuration."""
+
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
 from django.contrib.auth.views import (
-    PasswordResetView,
-    PasswordResetDoneView,
-    PasswordResetConfirmView,
     PasswordResetCompleteView,
+    PasswordResetConfirmView,
+    PasswordResetDoneView,
+    PasswordResetView,
 )
-from heron.views import home, reactivate, logout_email
+from django.urls import include, path
 
+from heron.views import home, logout_email, reactivate
 
 urlpatterns = [
     path("back-heron-plateforme/", admin.site.urls),
@@ -153,7 +153,8 @@ urlpatterns = [
             ),
         ),
     ],
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
+]
 
 
 if settings.DEBUG:

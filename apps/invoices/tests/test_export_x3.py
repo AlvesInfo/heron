@@ -1,5 +1,6 @@
 # pylint: disable=E0401,W0621,W0611,R0913
 """Tests des exports X3 (fichiers texte Sage) : fonctions de base, exports par type, dispatch"""
+
 import datetime
 import logging
 from decimal import Decimal
@@ -69,9 +70,16 @@ def test_get_file_numerote_les_fichiers(x3_env):
     assert (x3_env / "AC00_001.txt").read_text() == "ok"
 
 
-@pytest.mark.usefixtures('x3_env')
+@pytest.mark.usefixtures("x3_env")
 def test_get_rows_sql_reel():
-    rows = list(base.get_rows(connection, __import__("heron.settings", fromlist=["x"]).APPS_DIR, "AC00", "sql_export_x3_sale_invoices"))
+    rows = list(
+        base.get_rows(
+            connection,
+            __import__("heron.settings", fromlist=["x"]).APPS_DIR,
+            "AC00",
+            "sql_export_x3_sale_invoices",
+        )
+    )
 
     assert rows == []
 
@@ -81,10 +89,22 @@ def test_write_bicpar_sql_reel(x3_env, make_sale_invoice, make_sale_detail_exter
     """Deux factures AC00 : lignes T/D/A, compte sans axe (pas de A), écart TTC -> ligne 445710"""
     make_account("FRA", "707000", nb_axes=6, call_code="")
     make_account("FRA", "708000", nb_axes=0)
-    first = make_sale_invoice(cct="AF0001", fcy="AC00", code_plan_sage="FRA", code_signboard="ACF", invoice_amount_with_tax=Decimal("120"))
-    make_sale_detail_external(first, net_amount=Decimal("100"), account="707000")
-    second = make_sale_invoice(cct="AF0002", fcy="AC00", code_plan_sage="FRA", invoice_type_name="Avoir", invoice_amount_with_tax=Decimal("121"))
-    make_sale_detail_external(second, net_amount=Decimal("100"), account="708000")
+    first = make_sale_invoice(
+        cct="AF0001",
+        fcy="AC00",
+        code_plan_sage="FRA",
+        code_signboard="ACF",
+        invoice_amount_with_tax=Decimal(120),
+    )
+    make_sale_detail_external(first, net_amount=Decimal(100), account="707000")
+    second = make_sale_invoice(
+        cct="AF0002",
+        fcy="AC00",
+        code_plan_sage="FRA",
+        invoice_type_name="Avoir",
+        invoice_amount_with_tax=Decimal(121),
+    )
+    make_sale_detail_external(second, net_amount=Decimal(100), account="708000")
     make_sale_invoice(cct="AF0003", fcy="GA00")  # autre site : ignoré
     make_sale_invoice(cct="AF0004", fcy="AC00", export=True)  # déjà exporté
 
@@ -94,7 +114,9 @@ def test_write_bicpar_sql_reel(x3_env, make_sale_invoice, make_sale_detail_exter
     kinds = [line[0] for line in lines]
     assert kinds.count("T") == 2
     assert "A" in kinds  # analytique sur le compte à 6 axes
-    assert any(line.startswith("D;") and "445710" in line for line in lines)  # écart de TVA de l'avoir
+    assert any(
+        line.startswith("D;") and "445710" in line for line in lines
+    )  # écart de TVA de l'avoir
     assert any("707000" in line and "100" in line for line in lines if line.startswith("D;"))
     assert all(";" in line for line in lines)
 
@@ -105,14 +127,25 @@ def test_write_bicpar_sans_lignes(x3_env):
 
 
 # EXPORT RÉEL DES ACHATS ===========================================================================
-def test_write_bispar_et_bispard_sql_reel(x3_env, make_invoice, make_purchase_detail, make_account, make_cct):
+def test_write_bispar_et_bispard_sql_reel(
+    x3_env, make_invoice, make_purchase_detail, make_account, make_cct
+):
     make_account("FRA", "607000", nb_axes=6, call_code="401")
     make_account("FRA", "608000", nb_axes=0)
     cct = make_cct("AF0001")
-    first = make_invoice(fcy="AC00", code_plan_sage="FRA", code_signboard="ACF", mode_reglement="VIR", date_echeance=datetime.date(2026, 2, 28), integration_month=datetime.date(2026, 2, 1))
+    first = make_invoice(
+        fcy="AC00",
+        code_plan_sage="FRA",
+        code_signboard="ACF",
+        mode_reglement="VIR",
+        date_echeance=datetime.date(2026, 2, 28),
+        integration_month=datetime.date(2026, 2, 1),
+    )
     make_purchase_detail(first, cct, account="607000")
     make_purchase_detail(first, cct, account="607000", vat="002")
-    second = make_invoice(third_party_num="FOUR002", fcy="AC00", code_plan_sage="FRA", invoice_type_name="Avoir")
+    second = make_invoice(
+        third_party_num="FOUR002", fcy="AC00", code_plan_sage="FRA", invoice_type_name="Avoir"
+    )
     make_purchase_detail(second, cct, account="608000")
     make_invoice(fcy="AC00", export=True)
 
@@ -132,8 +165,16 @@ def test_write_bispar_et_bispard_sql_reel(x3_env, make_invoice, make_purchase_de
 
 
 # EXPORTS DES CENTRALES / OD ANA : SQL exécutées (sans données) ===================================
-@pytest.mark.parametrize(("function", "fcy"), [(sdoa.write_bispar_sdoa, "SD00"), (gdaud.write_bispar_gdaud, "GA00"), (do_.write_bispar_do, "DO00"), (odana.write_odana, "AC00")])
-@pytest.mark.usefixtures('x3_env')
+@pytest.mark.parametrize(
+    ("function", "fcy"),
+    [
+        (sdoa.write_bispar_sdoa, "SD00"),
+        (gdaud.write_bispar_gdaud, "GA00"),
+        (do_.write_bispar_do, "DO00"),
+        (odana.write_odana, "AC00"),
+    ],
+)
+@pytest.mark.usefixtures("x3_env")
 def test_exports_centrales_sql_sans_lignes(function, fcy):
     assert function(fcy) is None
 
@@ -142,8 +183,11 @@ def test_exports_centrales_sql_sans_lignes(function, fcy):
 def rows_for(kind: str, invoices, with_a=True):
     """Lignes de requête simulées pour chaque type d'export (tailles des tranches T/D/A/E)"""
     sizes = {
-        "sale": (16, 14, 16, 0), "purchase": (17, 13, 16, 7), "purchase_d": (18, 13, 16, 7),
-        "sdoa": (17, 13, 16, 7), "odana": (11, 16, 16, 0),
+        "sale": (16, 14, 16, 0),
+        "purchase": (17, 13, 16, 7),
+        "purchase_d": (18, 13, 16, 7),
+        "sdoa": (17, 13, 16, 7),
+        "odana": (11, 16, 16, 0),
     }[kind]
     rows = []
 
@@ -164,7 +208,11 @@ def fake_rows(monkeypatch, module, rows):
 
 def test_write_bicpar_boucles(x3_env, monkeypatch):
     """Deux D par facture (A répétés), changement de facture et découpage à nb_fac"""
-    fake_rows(monkeypatch, sale, rows_for("sale", [("F1", ["d1", "d1", "d2"]), ("F2", ["d1"]), ("F3", ["d1"])], with_a=True))
+    fake_rows(
+        monkeypatch,
+        sale,
+        rows_for("sale", [("F1", ["d1", "d1", "d2"]), ("F2", ["d1"]), ("F3", ["d1"])], with_a=True),
+    )
 
     sale.write_bicpar("AC00", nb_fac=1)
 
@@ -180,12 +228,22 @@ def test_write_bicpar_boucles(x3_env, monkeypatch):
     assert [line[0] for line in read_lines(x3_env / "sans_a.txt")] == ["T", "D"]
 
 
-@pytest.mark.parametrize(("module", "function", "kind"), [
-    (purchase, purchase.write_bispar, "purchase"), (purchase, purchase.write_bispard, "purchase_d"),
-    (sdoa, sdoa.write_bispar_sdoa, "sdoa"), (gdaud, gdaud.write_bispar_gdaud, "sdoa"), (do_, do_.write_bispar_do, "sdoa"),
-])
+@pytest.mark.parametrize(
+    ("module", "function", "kind"),
+    [
+        (purchase, purchase.write_bispar, "purchase"),
+        (purchase, purchase.write_bispard, "purchase_d"),
+        (sdoa, sdoa.write_bispar_sdoa, "sdoa"),
+        (gdaud, gdaud.write_bispar_gdaud, "sdoa"),
+        (do_, do_.write_bispar_do, "sdoa"),
+    ],
+)
 def test_write_achats_boucles(x3_env, monkeypatch, module, function, kind):
-    fake_rows(monkeypatch, module, rows_for(kind, [("F1", ["d1", "d1", "d2"]), ("F2", ["d1"]), ("F3", ["d1"])]))
+    fake_rows(
+        monkeypatch,
+        module,
+        rows_for(kind, [("F1", ["d1", "d1", "d2"]), ("F2", ["d1"]), ("F3", ["d1"])]),
+    )
 
     function("AC00", nb_fac=1)
 
@@ -203,7 +261,11 @@ def test_write_achats_boucles(x3_env, monkeypatch, module, function, kind):
 
 
 def test_write_odana_boucles(x3_env, monkeypatch):
-    fake_rows(monkeypatch, odana, rows_for("odana", [("F1", ["d1", "d1", "d2"]), ("F2", ["d1"]), ("F3", ["d1"])]))
+    fake_rows(
+        monkeypatch,
+        odana,
+        rows_for("odana", [("F1", ["d1", "d1", "d2"]), ("F2", ["d1"]), ("F3", ["d1"])]),
+    )
 
     odana.write_odana("AC00", nb_fac=1)
 
@@ -222,15 +284,35 @@ def test_write_odana_boucles(x3_env, monkeypatch):
 # DISPATCH =========================================================================================
 def test_export_files_x3(monkeypatch, caplog):
     calls = []
-    for name in ("write_odana", "write_bicpar", "write_bispard", "write_bispar_gdaud", "write_bispar_sdoa", "write_bispar_do"):
-        monkeypatch.setattr(export_x3, name, lambda centrale, file_name, nb_fac, name=name: calls.append((name, centrale, file_name, nb_fac)))
+    for name in (
+        "write_odana",
+        "write_bicpar",
+        "write_bispard",
+        "write_bispar_gdaud",
+        "write_bispar_sdoa",
+        "write_bispar_do",
+    ):
+        monkeypatch.setattr(
+            export_x3,
+            name,
+            lambda centrale, file_name, nb_fac, name=name: calls.append(
+                (name, centrale, file_name, nb_fac)
+            ),
+        )
 
     for export_type in ("odana", "sale", "purchase", "gdaud", "sdoa", "do"):
         trace, to_print = export_x3.export_files_x3(export_type, "AC00", "f.txt", 10)
         assert trace.errors is False
         assert to_print == ""
 
-    assert [call[0] for call in calls] == ["write_odana", "write_bicpar", "write_bispard", "write_bispar_gdaud", "write_bispar_sdoa", "write_bispar_do"]
+    assert [call[0] for call in calls] == [
+        "write_odana",
+        "write_bicpar",
+        "write_bispard",
+        "write_bispar_gdaud",
+        "write_bispar_sdoa",
+        "write_bispar_do",
+    ]
     assert trace.time_to_process >= 0
 
     with caplog.at_level(logging.ERROR, logger="export_x3"):

@@ -14,7 +14,7 @@
 progress.update_progress(
     processed=1,
     failed=1,  # Compteur d'erreurs
-    message="Erreur sur l'item X"
+    message="Erreur sur l'item X",
 )
 ```
 
@@ -38,10 +38,10 @@ Nouveaux champs dans le modèle `SSEProgress`:
 progress = SSEProgress.objects.create(
     job_id=job_id,
     user_id=user_id,
-    task_type='import',
+    task_type="import",
     total_items=100,
-    custom_title='Import de fichiers EDI',
-    completion_message='Import terminé : 98 fichiers importés avec succès!'
+    custom_title="Import de fichiers EDI",
+    completion_message="Import terminé : 98 fichiers importés avec succès!",
 )
 ```
 
@@ -100,10 +100,10 @@ def import_fichiers(job_id, user_id, fichiers):
     progress = SSEProgress.objects.create(
         job_id=job_id,
         user_id=user_id,
-        task_type='file_import',
+        task_type="file_import",
         total_items=len(fichiers),
-        custom_title='Import de fichiers EDI',
-        completion_message='Import terminé !'  # Message personnalisé (optionnel)
+        custom_title="Import de fichiers EDI",
+        completion_message="Import terminé !",  # Message personnalisé (optionnel)
     )
 
     progress.mark_as_started()
@@ -111,16 +111,13 @@ def import_fichiers(job_id, user_id, fichiers):
     for idx, fichier in enumerate(fichiers, 1):
         try:
             importer_fichier(fichier)
-            progress.update_progress(
-                processed=1,
-                message=f"Fichier {idx}/{len(fichiers)} importé"
-            )
+            progress.update_progress(processed=1, message=f"Fichier {idx}/{len(fichiers)} importé")
         except Exception as e:
             # En cas d'erreur sur un fichier
             progress.update_progress(
                 processed=1,
                 failed=1,  # ← Compteur d'erreurs
-                message=f"Erreur fichier {idx}: {str(e)}"
+                message=f"Erreur fichier {idx}: {str(e)}",
             )
 
     progress.mark_as_completed()

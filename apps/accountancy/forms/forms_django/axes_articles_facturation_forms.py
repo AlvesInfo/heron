@@ -1,6 +1,6 @@
-"""
-FR : Module des formulaires de validation des imports Sage X3
-EN : Sage X3 import validation forms module
+"""FR : Module des formulaires de validation des imports Sage X3.
+
+EN : Sage X3 import validation forms module.
 
 Commentaire:
 

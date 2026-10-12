@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql, pour les factures de ventes Marchandises
-EN : Module of sql queries, for sales Marchandises invoices
+"""FR : Module des requêtes sql, pour les factures de ventes Marchandises.
+
+EN : Module of sql queries, for sales Marchandises invoices.
 
 Commentaire:
 
@@ -10,40 +10,41 @@ created by: Paulo ALVES
 modified at: 2023-03-11
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 SQL_HEADER = sql.SQL(
     """
-    select 
-        "base", 
+    select
+        "base",
         "grouping_goods",
         sum("net_amount_00") as "net_amount_00",
         sum("net_amount_01") as "net_amount_01",
         sum("net_amount_02") as "net_amount_02",
         sum("net_amount") as "net_amount"
     from (
-        select 
+        select
             "ranking",
-            "base", 
-            "grouping_goods", 
+            "base",
+            "grouping_goods",
             case when "vat" not in ('001', '002') then "net_amount" else 0 end as "net_amount_00",
             case when "vat" = '002' then "net_amount" else 0 end as "net_amount_01",
             case when "vat" = '001' then "net_amount" else 0 end as "net_amount_02",
             "net_amount"
-        from "invoices_saleinvoicedetail" "is2" 
+        from "invoices_saleinvoicedetail" "is2"
         where "uuid_invoice" = %(uuid_invoice)s
     ) "head"
-    group by 
+    group by
         "ranking",
-        "base", 
-        "grouping_goods" 
+        "base",
+        "grouping_goods"
     order by "ranking"
     """
 )
 
 SQL_RESUME_HEADER = sql.SQL(
     """
-    select 
+    select
         sum("net_amount_00") as "net_amount_00",
         sum("vat_amount_00") as "vat_amount_00",
         sum("ttc_amount_00") as "ttc_amount_00",
@@ -57,13 +58,13 @@ SQL_RESUME_HEADER = sql.SQL(
         sum("vat_amount") as "vat_amount",
         sum("amount_with_vat") as "amount_with_vat"
     from (
-        select 
+        select
             case when "vat" not in ('001', '002') then "net_amount" else 0 end as "net_amount_00",
             case when "vat" not in ('001', '002') then "vat_amount" else 0 end as "vat_amount_00",
-            case 
-                when "vat" not in ('001', '002') 
-                then "amount_with_vat" 
-                else 0 
+            case
+                when "vat" not in ('001', '002')
+                then "amount_with_vat"
+                else 0
             end as "ttc_amount_00",
             case when "vat" = '002' then "net_amount" else 0 end as "net_amount_01",
             case when "vat" = '002' then "vat_amount" else 0 end as "vat_amount_01",
@@ -73,8 +74,8 @@ SQL_RESUME_HEADER = sql.SQL(
             case when "vat" = '001' then "amount_with_vat" else 0 end as "ttc_amount_02",
             "net_amount",
             "vat_amount",
-            "amount_with_vat" 
-        from "invoices_saleinvoicedetail" 
+            "amount_with_vat"
+        from "invoices_saleinvoicedetail"
         where "uuid_invoice" = %(uuid_invoice)s
     ) "head"
     """
@@ -82,8 +83,8 @@ SQL_RESUME_HEADER = sql.SQL(
 
 SQL_RESUME_SUPPLIER = sql.SQL(
     """
-    select 
-        case 
+    select
+        case
             when coalesce("bs"."invoice_entete", '') = ''
             then "bs"."name"
             else coalesce("bs"."invoice_entete", '')
@@ -93,9 +94,9 @@ SQL_RESUME_SUPPLIER = sql.SQL(
         sum("sd"."amount_with_vat") as "amount_with_vat"
     from "invoices_saleinvoicedetail" "sd"
     join "invoices_invoicecommondetails" as "ii"
-    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification" 
+    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification"
     join "book_society" "bs"
-    on "bs"."third_party_num" = "ii"."third_party_num" 
+    on "bs"."third_party_num" = "ii"."third_party_num"
     where "uuid_invoice" = %(uuid_invoice)s
     group by "bs"."name", coalesce("bs"."invoice_entete", '')
     order by "bs"."name"
@@ -105,88 +106,88 @@ SQL_RESUME_SUPPLIER = sql.SQL(
 SQL_DETAILS = sql.SQL(
     """
     with details as (
-        select 
-            case 
+        select
+            case
                 when coalesce("bs"."invoice_entete", '') = ''
                 then "bs"."name"
                 else coalesce("bs"."invoice_entete", '')
             end as "supplier_name",
             "ii"."invoice_number",
             "ii"."invoice_date",
-            case 
-                when "ed"."column_name" = 'MONTURES OPTIQUES' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'MONTURES OPTIQUES'
+                then "sd"."net_amount"
+                else 0
             end as "MO",
-            case 
-                when "ed"."column_name" = 'MONTURES SOLAIRES' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'MONTURES SOLAIRES'
+                then "sd"."net_amount"
+                else 0
             end as "MS",
-            case 
-                when "ed"."column_name" = 'VERRES' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'VERRES'
+                then "sd"."net_amount"
+                else 0
             end as "VE",
-            case 
-                when "ed"."column_name" = 'CONTACTO - SOLUTIONS' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'CONTACTO - SOLUTIONS'
+                then "sd"."net_amount"
+                else 0
             end as "COT",
-            case 
-                when "ed"."column_name" = 'AIDES AUDITIVES' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'AIDES AUDITIVES'
+                then "sd"."net_amount"
+                else 0
             end as "AU",
-            case 
-                when "ed"."column_name" = 'PILES' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'PILES'
+                then "sd"."net_amount"
+                else 0
             end as "PI",
-            case 
-                when "ed"."column_name" = 'ACCESSOIRES AUDIO' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'ACCESSOIRES AUDIO'
+                then "sd"."net_amount"
+                else 0
             end as "AC",
-            case 
-                when "ed"."column_name" = 'ACCESSOIRES OPTIQUE' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'ACCESSOIRES OPTIQUE'
+                then "sd"."net_amount"
+                else 0
             end as "AO",
-            case 
-                when "ed"."column_name" = 'CONSOMMABLES' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'CONSOMMABLES'
+                then "sd"."net_amount"
+                else 0
             end as "CO",
-            case 
-                when "ed"."column_name" = 'PORT ET EMBALLAGE' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'PORT ET EMBALLAGE'
+                then "sd"."net_amount"
+                else 0
             end as "PO",
-            case 
-                when "ed"."column_name" = 'DIVERS' 
-                then "sd"."net_amount" 
-                else 0 
+            case
+                when "ed"."column_name" = 'DIVERS'
+                then "sd"."net_amount"
+                else 0
             end as "DI",
             "sd"."net_amount",
             "sd"."amount_with_vat"
         from "invoices_saleinvoicedetail" "sd"
         join "invoices_invoicecommondetails" as "ii"
-        on "ii"."import_uuid_identification" = "sd"."import_uuid_identification" 
+        on "ii"."import_uuid_identification" = "sd"."import_uuid_identification"
         join "book_society" "bs"
-        on "bs"."third_party_num" = "ii"."third_party_num" 
+        on "bs"."third_party_num" = "ii"."third_party_num"
         join (
-            select 
-                "ass"."section" as "axe_pro", 
+            select
+                "ass"."section" as "axe_pro",
                 "ad"."column_name"
             from "accountancy_sectionsage" "ass"
             join "invoices_axesdetails" "ad"
-            on "ad"."axe_pro" = "ass"."uuid_identification" 
+            on "ad"."axe_pro" = "ass"."uuid_identification"
         ) "ed"
         on "ed"."axe_pro" = "sd"."axe_pro"
         where "uuid_invoice" = %(uuid_invoice)s
     )
-    select 
+    select
         "supplier_name",
         "invoice_number",
         "invoice_date",
@@ -215,8 +216,8 @@ SQL_DETAILS = sql.SQL(
 
 SQL_SUB_DETAILS = sql.SQL(
     """
-    select 
-        case 
+    select
+        case
             when coalesce("bs"."invoice_entete", '') = ''
             then "bs"."name"
             else coalesce("bs"."invoice_entete", '')
@@ -225,7 +226,7 @@ SQL_SUB_DETAILS = sql.SQL(
         "ii"."invoice_date",
         "ii"."delivery_number",
         "ii"."delivery_date",
-        case 
+        case
             when "sd"."grouping_goods" = 'MONTURES SOLAIRES' then 'MONT. SOL.'
             when "sd"."grouping_goods" = 'MONTURES OPTIQUES' then 'MONT. OPT.'
             else "sd"."grouping_goods"
@@ -235,12 +236,12 @@ SQL_SUB_DETAILS = sql.SQL(
         "sd"."net_unit_price",
         "sd"."net_amount",
         "ii"."client_name",
-        "ii"."serial_number" 
+        "ii"."serial_number"
     from "invoices_saleinvoicedetail" "sd"
     join "invoices_invoicecommondetails" as "ii"
-    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification" 
+    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification"
     join "book_society" "bs"
-    on "bs"."third_party_num" = "ii"."third_party_num" 
+    on "bs"."third_party_num" = "ii"."third_party_num"
     where "uuid_invoice" = %(uuid_invoice)s
     order by "bs"."name",
              "ii"."invoice_number",
@@ -250,14 +251,3 @@ SQL_SUB_DETAILS = sql.SQL(
              "ii"."id"
     """
 )
-
-
-
-
-
-
-
-
-
-
-

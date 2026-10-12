@@ -1,6 +1,6 @@
-"""
-FR: Module d'import des factures founisseurs EDI
-EN: Import module for EDI incoives suppliers
+"""FR: Module d'import des factures founisseurs EDI.
+
+EN: Import module for EDI incoives suppliers.
 
 Commentaire:
 
@@ -15,26 +15,19 @@ from pathlib import Path
 
 from django.utils import timezone
 
-from heron.loggers import LOGGER_EDI
-from apps.edi.exceptions import EdiException
-from apps.edi.bin.make_insertion_suppliers_invoices import (
-    get_ident,
-    get_supplier,
-    make_insert_edi_files,
-)
-from apps.edi.bin.edi_pre_processing_pool import (
-    bulk_translate_file,
-    interson_translate_file,
-    transferts_cosium_file,
-    johnson_file,
-    wsau_file,
-    z_bu_refac_file,
-)
+from apps.data_flux.trace import get_trace
+from apps.edi.bin.bbgr_002_statment import insert_bbgr_stament_file
+from apps.edi.bin.bbgr_003_monthly import insert_bbgr_monthly_file
+from apps.edi.bin.bbgr_004_retours import insert_bbgr_retours_file
+from apps.edi.bin.bbgr_005_receptions import insert_bbgr_receptions_file
 from apps.edi.bin.edi_post_processing_pool import (
+    bbgr_monthly_post_insert,
+    bbgr_reception_post_insert,
+    bbgr_retours_post_insert,
+    bbgr_statment_post_insert,
     bulk_post_insert,
-    cosium_post_insert,
     cosium_achats_post_insert,
-    tansferts_cosium_post_insert,
+    cosium_post_insert,
     edi_post_insert,
     eye_confort_post_insert,
     generique_post_insert,
@@ -48,29 +41,34 @@ from apps.edi.bin.edi_post_processing_pool import (
     prodition_post_insert,
     signia_post_insert,
     starkey_post_insert,
+    tansferts_cosium_post_insert,
     technidis_post_insert,
     unitron_post_insert,
     widex_post_insert,
     widexga_post_insert,
     z_bu_refac_post_insert,
 )
-from apps.edi.models import EdiImport
-from apps.edi.forms.forms_djantic.forms_invoices import get_schema
-from apps.data_flux.trace import get_trace
-from apps.edi.bin.edi_post_processing_pool import (
-    bbgr_statment_post_insert,
-    bbgr_monthly_post_insert,
-    bbgr_retours_post_insert,
-    bbgr_reception_post_insert,
+from apps.edi.bin.edi_pre_processing_pool import (
+    bulk_translate_file,
+    interson_translate_file,
+    johnson_file,
+    transferts_cosium_file,
+    wsau_file,
+    z_bu_refac_file,
 )
-from apps.edi.bin.bbgr_002_statment import insert_bbgr_stament_file
-from apps.edi.bin.bbgr_003_monthly import insert_bbgr_monthly_file
-from apps.edi.bin.bbgr_004_retours import insert_bbgr_retours_file
-from apps.edi.bin.bbgr_005_receptions import insert_bbgr_receptions_file
+from apps.edi.bin.make_insertion_suppliers_invoices import (
+    get_ident,
+    get_supplier,
+    make_insert_edi_files,
+)
+from apps.edi.exceptions import EdiException
+from apps.edi.forms.forms_djantic.forms_invoices import get_schema
+from apps.edi.models import EdiImport
+from heron.loggers import LOGGER_EDI
 
 
 def bbgr_bulk(file_path: Path):
-    """Import du fichier des factures BBGR bulk"""
+    """Import du fichier des factures BBGR bulk."""
     model = EdiImport
     validator = get_schema("BbgrBulkSchema")
     file_name = file_path.name
@@ -101,9 +99,7 @@ def bbgr_bulk(file_path: Path):
 
 
 def bbgr_statment():
-    """
-    Insertion depuis B.I des factures BBGR Statment
-    """
+    """Insertion depuis B.I des factures BBGR Statment."""
     trace_name = "Import BBGR Statment"
     application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "BbgrStatment"
@@ -119,15 +115,13 @@ def bbgr_statment():
 
     try:
         insert_bbgr_stament_file(uuid_identification=trace.uuid_identification)
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception("Exception Générale")
 
     if error:
         trace.errors = True
-        trace.comment = (
-            trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-        )
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = f"Import : {flow_name}\n"
     bbgr_statment_post_insert(trace.uuid_identification)
@@ -136,9 +130,7 @@ def bbgr_statment():
 
 
 def bbgr_monthly():
-    """
-    Insertion depuis B.I des factures BBGR Monthly
-    """
+    """Insertion depuis B.I des factures BBGR Monthly."""
     trace_name = "Import BBGR Monthly"
     application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "BbgrMonthly"
@@ -157,15 +149,13 @@ def bbgr_monthly():
 
     try:
         insert_bbgr_monthly_file(uuid_identification=trace.uuid_identification)
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception("Exception Générale")
 
     if error:
         trace.errors = True
-        trace.comment = (
-            trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-        )
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = f"Import : {flow_name}\n"
     bbgr_monthly_post_insert(trace.uuid_identification)
@@ -174,9 +164,7 @@ def bbgr_monthly():
 
 
 def bbgr_retours():
-    """
-    Insertion depuis B.I des factures Monthly Retours
-    """
+    """Insertion depuis B.I des factures Monthly Retours."""
     trace_name = "Import BBGR Retours"
     application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "BbgrRetours"
@@ -195,15 +183,13 @@ def bbgr_retours():
 
     try:
         insert_bbgr_retours_file(uuid_identification=trace.uuid_identification)
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception("Exception Générale")
 
     if error:
         trace.errors = True
-        trace.comment = (
-            trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-        )
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = f"Import : {flow_name}\n"
     bbgr_retours_post_insert(trace.uuid_identification)
@@ -212,9 +198,7 @@ def bbgr_retours():
 
 
 def bbgr_receptions():
-    """
-    Insertion depuis B.I des factures BBGR Monthly
-    """
+    """Insertion depuis B.I des factures BBGR Monthly."""
     trace_name = "Import BBGR Receptions"
     application_name = "edi_imports_suppliers_invoices_pool"
     flow_name = "BbgrReceptions"
@@ -230,15 +214,13 @@ def bbgr_receptions():
 
     try:
         insert_bbgr_receptions_file(uuid_identification=trace.uuid_identification)
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EDI.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EDI.exception("Exception Générale")
 
     if error:
         trace.errors = True
-        trace.comment = (
-            trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-        )
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
 
     to_print = f"Import : {flow_name}\n"
     bbgr_reception_post_insert(trace.uuid_identification)
@@ -247,7 +229,7 @@ def bbgr_receptions():
 
 
 def cosium(file_path: Path):
-    """Import du fichier des factures Cosium"""
+    """Import du fichier des factures Cosium."""
     model = EdiImport
     validator = get_schema("CosiumSchema")
     file_name = file_path.name
@@ -275,7 +257,7 @@ def cosium(file_path: Path):
 
 
 def cosium_achats(file_path: Path):
-    """Import du fichier des factures Cosium"""
+    """Import du fichier des factures Cosium."""
     model = EdiImport
     validator = get_schema("CosiumSchema")
     file_name = file_path.name
@@ -303,7 +285,7 @@ def cosium_achats(file_path: Path):
 
 
 def transfert_cosium(file_path: Path):
-    """Import du fichier des factures Cosium"""
+    """Import du fichier des factures Cosium."""
     model = EdiImport
     validator = get_schema("CosiumTransfertSchema")
     file_name = file_path.name
@@ -343,7 +325,7 @@ def transfert_cosium(file_path: Path):
 
 
 def edi(file_path: Path):
-    """Import du fichier des factures EDI au format opto33"""
+    """Import du fichier des factures EDI au format opto33."""
     model = EdiImport
     validator = get_schema("EdiSchema")
     file_name = file_path.name
@@ -371,7 +353,7 @@ def edi(file_path: Path):
 
 
 def eye_confort(file_path: Path):
-    """Import du fichier des factures EyeConfort"""
+    """Import du fichier des factures EyeConfort."""
     model = EdiImport
     validator = get_schema("EyeConfortSchema")
     file_name = file_path.name
@@ -400,7 +382,7 @@ def eye_confort(file_path: Path):
 
 
 def generique(file_path: Path):
-    """Import du fichier des factures au format du cahier des charges Génerique"""
+    """Import du fichier des factures au format du cahier des charges Génerique."""
     model = EdiImport
     validator = get_schema("GeneriqueSchema")
     file_name = file_path.name
@@ -428,7 +410,7 @@ def generique(file_path: Path):
 
 
 def generique_internal(file_path: Path):
-    """Import du fichier des factures au format du cahier des charges Génerique"""
+    """Import du fichier des factures au format du cahier des charges Génerique."""
     model = EdiImport
     validator = get_schema("GeneriqueSchema")
     file_name = file_path.name
@@ -457,7 +439,7 @@ def generique_internal(file_path: Path):
 
 
 def hearing(file_path: Path):
-    """Import du fichier des factures Hearing"""
+    """Import du fichier des factures Hearing."""
     model = EdiImport
     validator = get_schema("HearingSchema")
     file_name = file_path.name
@@ -486,7 +468,7 @@ def hearing(file_path: Path):
 
 
 def interson(file_path: Path):
-    """Import du fichier des factures Interson"""
+    """Import du fichier des factures Interson."""
     model = EdiImport
     validator = get_schema("IntersonSchema")
     file_name = file_path.name
@@ -516,7 +498,7 @@ def interson(file_path: Path):
 
 
 def johnson(file_path: Path):
-    """Import du fichier des factures Johnson"""
+    """Import du fichier des factures Johnson."""
     model = EdiImport
     validator = get_schema("JohnsonSchema")
     file_name = file_path.name
@@ -545,19 +527,18 @@ def johnson(file_path: Path):
             model, flow_name, new_file, trace, validator, params_dict_loader
         )
         johnson_post_insert(trace.uuid_identification)
-    except OSError as error:
+    except OSError:
         trace.errors = True
         trace.comment = (
-            "Une erreur de traduction du fichier excel c'est produite, "
-            "veuillez consulter les logs"
+            "Une erreur de traduction du fichier excel c'est produite, veuillez consulter les logs"
         )
         trace.save()
-        LOGGER_EDI.exception(f"johnson_file : {error!r}")
-    except Exception as error:
+        LOGGER_EDI.exception("johnson_file")
+    except Exception:
         trace.errors = True
         trace.comment = "Une erreur c'est produite veuillez consulter les logs"
         trace.save()
-        LOGGER_EDI.exception(f"johnson_file : {error!r}")
+        LOGGER_EDI.exception("johnson_file")
     finally:
         # Seul le csv produit par la traduction est supprimé : en cas d'échec de la traduction,
         # le fichier d'origine reste en place pour être déplacé en backup par la tâche
@@ -568,7 +549,7 @@ def johnson(file_path: Path):
 
 
 def lmc(file_path: Path):
-    """Import du fichier des factures Lmc"""
+    """Import du fichier des factures Lmc."""
     model = EdiImport
     validator = get_schema("LmcSchema")
     file_name = file_path.name
@@ -597,7 +578,7 @@ def lmc(file_path: Path):
 
 
 def newson(file_path: Path):
-    """Import du fichier des factures Newson"""
+    """Import du fichier des factures Newson."""
     model = EdiImport
     validator = get_schema("NewsonSchema")
     file_name = file_path.name
@@ -626,7 +607,7 @@ def newson(file_path: Path):
 
 
 def phonak(file_path: Path):
-    """Import du fichier des factures Phonak"""
+    """Import du fichier des factures Phonak."""
     model = EdiImport
     validator = get_schema("PhonakSchema")
     file_name = file_path.name
@@ -656,7 +637,8 @@ def phonak(file_path: Path):
 
 def hansaton(file_path: Path):
     """Import du fichier des factures Hansaton.
-    Reprise de la fonction de Phonack, car faisant partie du même groupe
+
+    Reprise de la fonction de Phonack, car faisant partie du même groupe.
     """
     model = EdiImport
     validator = get_schema("HansatonSchema")
@@ -686,7 +668,7 @@ def hansaton(file_path: Path):
 
 
 def prodition(file_path: Path):
-    """Import du fichier des factures Prodition"""
+    """Import du fichier des factures Prodition."""
     model = EdiImport
     validator = get_schema("ProditionSchema")
     file_name = file_path.name
@@ -715,7 +697,7 @@ def prodition(file_path: Path):
 
 
 def signia(file_path: Path):
-    """Import du fichier des factures Signia"""
+    """Import du fichier des factures Signia."""
     model = EdiImport
     validator = get_schema("SigniaSchema")
     file_name = file_path.name
@@ -744,7 +726,7 @@ def signia(file_path: Path):
 
 
 def starkey(file_path: Path):
-    """Import du fichier des factures Starkey"""
+    """Import du fichier des factures Starkey."""
     model = EdiImport
     validator = get_schema("StarkeySchema")
     file_name = file_path.name
@@ -773,7 +755,7 @@ def starkey(file_path: Path):
 
 
 def technidis(file_path: Path):
-    """Import du fichier des factures Technidis"""
+    """Import du fichier des factures Technidis."""
     model = EdiImport
     validator = get_schema("TechnidisSchema")
     file_name = file_path.name
@@ -802,7 +784,7 @@ def technidis(file_path: Path):
 
 
 def unitron(file_path: Path):
-    """Import du fichier des factures Unitron"""
+    """Import du fichier des factures Unitron."""
     model = EdiImport
     validator = get_schema("UnitronSchema")
     file_name = file_path.name
@@ -831,7 +813,7 @@ def unitron(file_path: Path):
 
 
 def widex(file_path: Path):
-    """Import du fichier des factures Widex"""
+    """Import du fichier des factures Widex."""
     model = EdiImport
     validator = get_schema("WidexSchema")
     file_name = file_path.name
@@ -860,7 +842,7 @@ def widex(file_path: Path):
 
 
 def wsau(file_path: Path):
-    """Import du fichier des factures Widex/Signia/Biotone"""
+    """Import du fichier des factures Widex/Signia/Biotone."""
     model = EdiImport
     validator = get_schema("WsauSchema")
     file_name = file_path.name
@@ -874,7 +856,6 @@ def wsau(file_path: Path):
         "add_fields_dict": {
             "flow_name": flow_name,
             "supplier": get_supplier(flow_name),
-            # "supplier_ident": get_ident(flow_name),
             "uuid_identification": trace.uuid_identification,
             "created_at": timezone.now(),
             "modified_at": timezone.now(),
@@ -889,25 +870,23 @@ def wsau(file_path: Path):
         )
         widex_post_insert(trace.uuid_identification)
 
-    except AttributeError as error:
+    except AttributeError:
         trace.errors = True
         trace.comment = "error"
         trace.save()
-        LOGGER_EDI.exception(
-            f"{file_path.name!r} : la colonne deux du fichier, a un manque, error : \n{error!r}"
-        )
+        LOGGER_EDI.exception("%r : la colonne deux du fichier, a un manque, error", file_path.name)
 
-    except Exception as error:
+    except Exception:
         trace.errors = True
         trace.comment = "Une erreur c'est produite veuillez consulter les logs"
         trace.save()
-        LOGGER_EDI.exception(f"wsau_file : {error!r}")
+        LOGGER_EDI.exception("wsau_file")
 
     return trace, to_print
 
 
 def widex_ga(file_path: Path):
-    """Import du fichier des factures Widex Grand Audition"""
+    """Import du fichier des factures Widex Grand Audition."""
     model = EdiImport
     validator = get_schema("WidexGaSchema")
     file_name = file_path.name
@@ -936,7 +915,7 @@ def widex_ga(file_path: Path):
 
 
 def z_bu_refac(file_path: Path):
-    """Import du fichier de la requête sql pour les BU Refac0 extrait de sage"""
+    """Import du fichier de la requête sql pour les BU Refac0 extrait de sage."""
     model = EdiImport
     validator = get_schema("ZBuRefacSageSchema")
     file_name = file_path.name
@@ -966,5 +945,5 @@ def z_bu_refac(file_path: Path):
     return trace, to_print
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     wsau(Path("/Users/paulo/Downloads/ACUITIS_DETAIL_202511.csv"))

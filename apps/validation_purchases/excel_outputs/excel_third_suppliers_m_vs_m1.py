@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour les factures du tiers pas mois
+"""Module d'export du fichier excel pour les factures du tiers pas mois.
 
 Commentaire:
 
@@ -8,34 +8,30 @@ created by: Paulo ALVES
 modified at: 2022-05-12
 modified by: Paulo ALVES
 """
+
 import io
-from typing import AnyStr
 from pathlib import Path
 
-from django.db import connection
 from django.conf import settings
+from django.db import connection
+
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
 from apps.core.excel_outputs.generic_list_export import excel_list_export
 
-
 COLUMNS = [
     {
         "entete": "CCT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-                "bold": True,
-            },
+            "align": "left",
+            "bold": True,
         },
         "width": 10,
     },
@@ -43,16 +39,12 @@ COLUMNS = [
         "entete": "Client",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "bold": True,
-            },
+            "align": "center",
+            "bold": True,
         },
         "width": 20,
     },
@@ -60,15 +52,11 @@ COLUMNS = [
         "entete": "Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 40,
     },
@@ -76,13 +64,10 @@ COLUMNS = [
         "entete": "N° Facture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 15,
     },
@@ -90,17 +75,13 @@ COLUMNS = [
         "entete": "Date\nfacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yy",
-                "bold": True,
-            },
+            "align": "center",
+            "num_format": "dd/mm/yy",
+            "bold": True,
         },
         "width": 10,
     },
@@ -108,17 +89,13 @@ COLUMNS = [
         "entete": "Mois\nFacture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yy",
-                "bold": True,
-            },
+            "align": "center",
+            "num_format": "dd/mm/yy",
+            "bold": True,
         },
         "width": 10,
     },
@@ -126,15 +103,11 @@ COLUMNS = [
         "entete": "Montant TTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -142,15 +115,11 @@ COLUMNS = [
         "entete": "Montant HT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -158,40 +127,35 @@ COLUMNS = [
         "entete": "Commentaire",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 50,
     },
 ]
 
 
-def get_rows(file_path: Path, parmas_dict: dict = None):
-    """Renvoie les résultats de la requête nécessaire à l'export excel
+def get_rows(file_path: Path, parmas_dict: dict | None = None):
+    """Renvoie les résultats de la requête nécessaire à l'export excel.
+
     :param file_path: file pathlib.PATH
     :param parmas_dict: paramètre de la requête
-    :return: resultats de la requête
+    :return: resultats de la requête.
     """
     parmas_dict = parmas_dict or {}
 
     with file_path.open("r") as sql_file, connection.cursor() as cursor:
         query = sql_file.read()
-        # print(cursor.mogrify(query, parmas_dict).decode())
-        # LOGGER_EXPORT_EXCEL.exception(f"{cursor.mogrify(query).decode()!r}")
-        # print(query)
         cursor.execute(query, parmas_dict)
         return cursor.fetchall()
 
 
 def excel_third_suppliers_m_vs_m1(
-    file_io: io.BytesIO, file_name: AnyStr, client: AnyStr, third_party_num: AnyStr
+    file_io: io.BytesIO, file_name: str, client: str, third_party_num: str
 ) -> dict:
-    """Fonction de génération du fichier de Contrôle Details Fournisseurs M vs M-1"""
+    """Fonction de génération du fichier de Contrôle Details Fournisseurs M vs M-1."""
     file_path = Path(
         f"{settings.APPS_DIR!s}/validation_purchases/sql_files/sql_third_suppliers_m_vs_m1.sql"
     )

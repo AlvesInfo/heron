@@ -1,27 +1,26 @@
-"""
-Forms des dictionnaires des Comptes debit crédit pour la facturation
-"""
+"""Forms des dictionnaires des Comptes debit crédit pour la facturation."""
+
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models import Value, CharField
-from django.db.models.functions import Coalesce, Cast
+from django.db.models import CharField, Value
+from django.db.models.functions import Cast, Coalesce
 
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.centers_purchasing.models import AccountsAxeProCategory
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
 class AccountsAxeProCategoryForm(forms.ModelForm):
-    """Formulaires de la liste des dictionnaires des Comptes debit crédit pour la facturation"""
+    """Formulaires de la liste des dictionnaires des Comptes debit crédit pour la facturation."""
 
     use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
         self.fields["sub_category"].required = False
 
     def clean(self):
-        """Netoyage de la clefs multiple à cause de sub_category qui peut être null"""
+        """Netoyage de la clefs multiple à cause de sub_category qui peut être null."""
         cleaned_data = super().clean()
         child_center = cleaned_data.get("child_center", "")
         big_category = cleaned_data.get("big_category", "")
@@ -50,7 +49,7 @@ class AccountsAxeProCategoryForm(forms.ModelForm):
             raise ValidationError("Un élément identique existe déjà!")
 
     class Meta:
-        """class Meta du form django"""
+        """class Meta du form django."""
 
         model = AccountsAxeProCategory
         fields = [
@@ -74,13 +73,13 @@ class AccountsAxeProCategoryForm(forms.ModelForm):
 
 
 class AccountsAxeProCategoryDeleteForm(forms.ModelForm):
-    """Formulaires de la liste des dictionnaires des Comptes debit crédit pour la facturation"""
+    """Formulaires de la liste des dictionnaires des Comptes debit crédit pour la facturation."""
 
     # Le champ id (AutoField) n\'est pas généré par le ModelForm : déclaré pour valider l\'existence
     id = forms.ModelChoiceField(queryset=AccountsAxeProCategory.objects.all())
 
     class Meta:
-        """class Meta du form django"""
+        """class Meta du form django."""
 
         model = AccountsAxeProCategory
         fields = [

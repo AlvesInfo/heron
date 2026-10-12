@@ -1,6 +1,6 @@
-"""
-FR : Module de validation par djantic des factures founisseurs
-EN : Sage X3 import validation forms module for suppliers invoices
+"""FR : Module de validation par djantic des factures founisseurs.
+
+EN : Sage X3 import validation forms module for suppliers invoices.
 
 Commentaire:
 
@@ -15,59 +15,62 @@ created by: Paulo ALVES
 modified at: 2026-10-10
 modified by: Paulo ALVES
 """
+
 import datetime
 import functools
 import uuid
+from collections.abc import Iterable
 from decimal import Decimal
-from typing import Any, Dict, Iterable, NamedTuple, Tuple, Type
+from typing import Any, NamedTuple
 
 from django.core.exceptions import ImproperlyConfigured
 from djantic import ModelSchema
 from pydantic import BaseModel, validator
 
 from apps.core.validations.pydantic_validators_base import (
-    ValidateFieldsBase,
     TvaEyeConfor,
     TvaGenerique,
     TvaInterson,
-    TvaWidex,
     TvaNewson,
+    TvaWidex,
+    ValidateFieldsBase,
 )
-from apps.edi.models import EdiImport, ColumnDefinition
+from apps.edi.models import ColumnDefinition, EdiImport
 from apps.edi.parameters.invoices_imports import get_columns
 
-DEFAULT_DATE = datetime.datetime(1900, 1, 1)
+# Date sentinelle « sans date » des flux Sage : naïve à dessein (écrite telle quelle dans les colonnes date)
+DEFAULT_DATE = datetime.datetime(1900, 1, 1)  # noqa: DTZ001
 
 # Colonnes ajoutées par le loader (params_dict_loader["add_fields_dict"]) à chaque flux
 BASE_COLUMNS = ["uuid_identification", "flow_name", "created_at", "modified_at"]
-SUPPLIER_COLUMNS = BASE_COLUMNS[:2] + ["supplier"] + BASE_COLUMNS[2:]
-SUPPLIER_IDENT_COLUMNS = BASE_COLUMNS[:2] + ["supplier", "supplier_ident"] + BASE_COLUMNS[2:]
+SUPPLIER_COLUMNS = [*BASE_COLUMNS[:2], "supplier", *BASE_COLUMNS[2:]]
+SUPPLIER_IDENT_COLUMNS = [*BASE_COLUMNS[:2], "supplier", "supplier_ident", *BASE_COLUMNS[2:]]
 
 SUPPLIER_FIELDS = {"uuid_identification": uuid.UUID, "supplier": str}
 SUPPLIER_IDENT_FIELDS = {**SUPPLIER_FIELDS, "supplier_ident": str}
 
 
 class SchemaDefinition(NamedTuple):
-    """Description déclarative d'un schéma djantic de flux fournisseur"""
+    """Description déclarative d'un schéma djantic de flux fournisseur."""
 
     flow_name: str
-    fields: Dict[str, Any]
+    fields: dict[str, Any]
     extra_columns: Iterable[str]
-    mixins: Tuple[Type[BaseModel], ...] = ()
-    defaults: Dict[str, Any] = {}
-    default_date_fields: Tuple[str, ...] = ()
+    mixins: tuple[type[BaseModel], ...] = ()
+    defaults: dict[str, Any] = {}
+    default_date_fields: tuple[str, ...] = ()
     doc: str = ""
 
 
 def default_date(value):
-    """Valeur par défaut des dates vides ou "None" issues des fichiers"""
+    """Valeur par défaut des dates vides ou "None" issues des fichiers."""
     if not value or value == "None":
         return DEFAULT_DATE
 
     return value
 
 
-SCHEMA_DEFINITIONS: Dict[str, SchemaDefinition] = {
+SCHEMA_DEFINITIONS: dict[str, SchemaDefinition] = {
     "BbgrBulkSchema": SchemaDefinition(
         "BbgrBulk", SUPPLIER_IDENT_FIELDS, SUPPLIER_IDENT_COLUMNS, (TvaWidex,), doc="BbgrBulk"
     ),
@@ -204,12 +207,12 @@ SCHEMA_DEFINITIONS: Dict[str, SchemaDefinition] = {
 }
 
 
-def build_schema(name: str, definition: SchemaDefinition) -> Type[ModelSchema]:
-    """
-    Construit le schéma djantic d'un flux, les colonnes du fichier étant lues en base.
+def build_schema(name: str, definition: SchemaDefinition) -> type[ModelSchema]:
+    """Construit le schéma djantic d'un flux, les colonnes du fichier étant lues en base.
+
     :param name: nom de la classe à construire
     :param definition: description du schéma
-    :return: classe djantic
+    :return: classe djantic.
     """
     columns = list(get_columns(ColumnDefinition, definition.flow_name))
 
@@ -242,12 +245,12 @@ def build_schema(name: str, definition: SchemaDefinition) -> Type[ModelSchema]:
     return type(name, (ModelSchema, ValidateFieldsBase, *definition.mixins), namespace)
 
 
-@functools.lru_cache(maxsize=None)
-def get_schema(name: str) -> Type[ModelSchema]:
-    """
-    Renvoie le schéma djantic demandé, construit au premier appel puis conservé en cache.
+@functools.cache
+def get_schema(name: str) -> type[ModelSchema]:
+    """Renvoie le schéma djantic demandé, construit au premier appel puis conservé en cache.
+
     :param name: nom du schéma, ex. "WidexSchema"
-    :return: classe djantic
+    :return: classe djantic.
     """
     try:
         definition = SCHEMA_DEFINITIONS[name]

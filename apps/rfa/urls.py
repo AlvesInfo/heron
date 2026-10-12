@@ -1,44 +1,46 @@
+"""Routes URL de l'application rfa."""
+
 from django.urls import path
 
 from apps.rfa.views import (
-    # Catégories
-    SignboardExclusionList,
-    SignboardExclusionCreate,
-    SignboardExclusionUpdate,
-    signboard_exclusion_delete,
-    signboard_exclusion_export_list,
+    ClientExclusionCreate,
     # MaisonExclusion
     ClientExclusionList,
-    ClientExclusionCreate,
     ClientExclusionUpdate,
-    client_exclusion_delete,
-    client_exclusion_export_list,
+    ClientSupplierExclusionCreate,
     # ClientSupplierExclusion
     ClientSupplierExclusionList,
-    ClientSupplierExclusionCreate,
     ClientSupplierExclusionUpdate,
-    client_supplier_exclusion_delete,
-    client_supplier_exclusion_export_list,
-    # RateSupplier
-    SupplierRateList,
-    SupplierRateCreate,
-    SupplierRateUpdate,
-    supplier_rate_delete,
-    supplier_rate_export_list,
-    # # SectionRfa
-    SectionRfaList,
-    SectionRfaCreate,
-    SectionRfaUpdate,
-    section_rfa_delete,
-    section_rfa_export_list,
+    SectionProExclusionCreate,
     # SectionProExclusion
     SectionProExclusionList,
-    SectionProExclusionCreate,
     SectionProExclusionUpdate,
-    section_pro_exlusion_delete,
-    section_pro_exclusions_export_list,
+    SectionRfaCreate,
+    # # SectionRfa
+    SectionRfaList,
+    SectionRfaUpdate,
+    SignboardExclusionCreate,
+    # Catégories
+    SignboardExclusionList,
+    SignboardExclusionUpdate,
+    SupplierRateCreate,
+    # RateSupplier
+    SupplierRateList,
+    SupplierRateUpdate,
+    client_exclusion_delete,
+    client_exclusion_export_list,
+    client_supplier_exclusion_delete,
+    client_supplier_exclusion_export_list,
     # RFA GENERATION
     rfa_generation,
+    section_pro_exclusions_export_list,
+    section_pro_exlusion_delete,
+    section_rfa_delete,
+    section_rfa_export_list,
+    signboard_exclusion_delete,
+    signboard_exclusion_export_list,
+    supplier_rate_delete,
+    supplier_rate_export_list,
 )
 
 app_name = "apps.rfa"

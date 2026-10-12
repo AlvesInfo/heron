@@ -1,4 +1,4 @@
-"""Module des Exception du module edi
+"""Module des Exception du module edi.
 
 Commentaire:
 
@@ -11,4 +11,4 @@ modified by: Paulo ALVES
 
 
 class EdiException(Exception):
-    """Récupération des erreurs EDI"""
+    """Récupération des erreurs EDI."""

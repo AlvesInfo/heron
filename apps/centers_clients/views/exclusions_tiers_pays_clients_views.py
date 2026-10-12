@@ -1,5 +1,4 @@
-"""
-Views des Pays Maisons à écarter par founisseurs
+"""Views des Pays Maisons à écarter par founisseurs.
 
 Commentaire:
 
@@ -9,29 +8,30 @@ created by: Paulo ALVES
 modified at: 2023-01-20
 modified by: Paulo ALVES
 """
+
 import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.centers_clients.excel_outputs.excel_exclusions_tiers_pays_clients_list import (
     excel_liste_exclusion_pays,
 )
-from apps.centers_clients.models import SupllierCountryExclusion
 from apps.centers_clients.forms import (
-    SupllierCountryExclusionForm,
     SupllierCountryExclusionDeleteForm,
+    SupllierCountryExclusionForm,
 )
+from apps.centers_clients.models import SupllierCountryExclusion
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from heron.loggers import LOGGER_VIEWS
 
 
 class CountryMaisonSupllierExclusionList(ListView):
-    """View de la liste des Tiers X3/Pays Clients"""
+    """View de la liste des Tiers X3/Pays Clients."""
 
     model = SupllierCountryExclusion
     context_object_name = "exclusions"
@@ -40,7 +40,7 @@ class CountryMaisonSupllierExclusionList(ListView):
 
 
 class CountryMaisonSupllierExclusionCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des couples Tiers X3/Pays Clients à exlucre de la facturation"""
+    """CreateView de création des couples Tiers X3/Pays Clients à exlucre de la facturation."""
 
     model = SupllierCountryExclusion
     form_class = SupllierCountryExclusionForm
@@ -54,7 +54,7 @@ class CountryMaisonSupllierExclusionCreate(ChangeTraceMixin, SuccessMessageMixin
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_clients:exclusions_country_list")
         context["titre_table"] = "Création d'un nouveau couple d'exclusion Tiers X3/Pays Clients"
@@ -65,7 +65,7 @@ class CountryMaisonSupllierExclusionCreate(ChangeTraceMixin, SuccessMessageMixin
         return reverse("centers_clients:exclusions_country_list")
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -73,7 +73,7 @@ class CountryMaisonSupllierExclusionCreate(ChangeTraceMixin, SuccessMessageMixin
 
 
 class CountryMaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView de création des couples Tiers X3/Pays Clients à exlucre de la facturation"""
+    """UpdateView de création des couples Tiers X3/Pays Clients à exlucre de la facturation."""
 
     model = SupllierCountryExclusion
     form_class = SupllierCountryExclusionForm
@@ -87,7 +87,7 @@ class CountryMaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin
     )
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_clients:exclusions_country_list")
         context["titre_table"] = "Mise à jour du couple d'exclusion Tiers X3/Pays Clients"
@@ -97,8 +97,8 @@ class CountryMaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin
         """Return the URL to redirect to after processing a valid form."""
         return reverse("centers_clients:exclusions_country_list")
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -106,7 +106,7 @@ class CountryMaisonSupllierExclusionUpdate(ChangeTraceMixin, SuccessMessageMixin
 
 
 def exclusion_country_delete(request):
-
+    """Supprime une exclusion fournisseur / pays (requête ajax POST)."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -124,18 +124,17 @@ def exclusion_country_delete(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"exclusion_country_delete, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("exclusion_country_delete, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def exclusion_country_export_list(_):
-    """
-    Export Excel de la liste des couples Tiers X3/Pays Clients à exlucre de la facturation
-    :return: response_file
+    """Export Excel de la liste des couples Tiers X3/Pays Clients à exlucre de la facturation.
+
+    :return: response_file.
     """
     try:
-
         today = pendulum.now()
         file_name = (
             f"LISTING_DES_EXCLUSIONS_TIERS_PAYS_CLIENTS_"

@@ -1,6 +1,6 @@
-"""
-FR : Module des modèles pour création d'od depuis un fichier csv
-EN : Model module for creating od from a csv file
+"""FR : Module des modèles pour création d'od depuis un fichier csv.
+
+EN : Model module for creating od from a csv file.
 
 Commentaire:
 
@@ -17,8 +17,8 @@ from heron.models import DatesTable
 
 
 class ModelOd(DatesTable):
-    """
-    Table des od à passer
+    """Table des od à passer.
+
     FR :
     EN :
     """
@@ -51,9 +51,9 @@ class ModelOd(DatesTable):
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "date_od": "date_od",
@@ -77,30 +77,29 @@ class ModelOd(DatesTable):
             "axe_rfa": "axe_rfa",
             "montant_ht": "montant_ht",
             "vat": "vat",
-            # "taux_tva": "taux_tva",
             "montant_tva": "montant_tva",
             "montant_ttc": "montant_ttc",
         }
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {}
 
     @property
     def get_import(self):
-        """
-        FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv
-        EN : Returns the method to call to import from a csv file type
+        """FR : Retourne la methode à appeler pour importer à partir d'un fichier de type csv.
+
+        EN : Returns the method to call to import from a csv file type.
         """
         return "methode d'import à retourner"
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.libelle_od} - {self.journal}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""

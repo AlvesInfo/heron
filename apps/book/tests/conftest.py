@@ -1,6 +1,7 @@
 # pylint: disable=W0621,E0401,R0913
-"""
-FR : conftest de l'app book - fabriques propres au répertoire des tiers et fichiers Sage
+"""FR : conftest de l'app book - fabriques propres au répertoire des tiers et fichiers Sage
+
+
 EN : book app conftest - directory factories and Sage files
 
 Commentaire:
@@ -14,10 +15,10 @@ conditions de paiement.
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
+from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
-from collections.abc import Iterable
 from uuid import uuid4
 
 import pytest
@@ -26,7 +27,6 @@ from apps.accountancy.models import PaymentCondition
 from apps.book.imports import imports_sage
 from apps.book.models import Contact, SocietyBank, StatFamillyAxes
 
-
 # ==================================================================================================
 # FICHIERS SAGE ET IMPORTS
 # ==================================================================================================
@@ -34,8 +34,8 @@ from apps.book.models import Contact, SocietyBank, StatFamillyAxes
 
 @pytest.fixture
 def book_dirs(sage_dirs, monkeypatch: pytest.MonkeyPatch):
-    """
-    Répertoires Sage temporaires (conftest racine) et répertoire de processing du module
+    """Répertoires Sage temporaires (conftest racine) et répertoire de processing du module
+
     d'import de book (constante lue à l'import) redirigé vers le même répertoire temporaire.
     """
     monkeypatch.setattr(imports_sage, "proccessing_dir", sage_dirs.processing)
@@ -44,8 +44,8 @@ def book_dirs(sage_dirs, monkeypatch: pytest.MonkeyPatch):
 
 @pytest.fixture
 def sage_file(book_dirs, make_csv: Callable[..., Path]) -> Callable[..., Path]:
-    """
-    Fabrique de fichiers d'extraction Sage X3 (csv ; quoté, CRLF) nommés comme le modèle
+    """Fabrique de fichiers d'extraction Sage X3 (csv ; quoté, CRLF) nommés comme le modèle
+
     les attend (model.file_import_sage()), déposés par défaut dans le répertoire de processing.
     """
 
@@ -65,13 +65,15 @@ def sage_file(book_dirs, make_csv: Callable[..., Path]) -> Callable[..., Path]:
 
 @pytest.fixture
 def fake_make_insert(monkeypatch: pytest.MonkeyPatch, book_dirs) -> list[dict[str, Any]]:
-    """
-    Remplace data_flux.make_insert dans le module d'import de book par un enregistreur d'appels.
+    """Remplace data_flux.make_insert dans le module d'import de book par un enregistreur d'appels.
+
     Retourne la liste des appels (dict des arguments).
     """
     calls: list[dict[str, Any]] = []
 
-    def _recorder(model, flow_name, source, trace, validator, params_dict_loader, extend_model=None, **kwargs):
+    def _recorder(
+        model, flow_name, source, trace, validator, params_dict_loader, extend_model=None, **kwargs
+    ):
         calls.append(
             {
                 "model": model,

@@ -1,6 +1,7 @@
 # pylint: disable=W0621,E0401,R0913,W0611,C0415
-"""
-FR : conftest de l'app centers_clients - fabriques des maisons et de leurs dépendances
+"""FR : conftest de l'app centers_clients - fabriques des maisons et de leurs dépendances
+
+
 EN : centers_clients app conftest - factories for shops and their dependencies
 
 Commentaire:
@@ -12,13 +13,14 @@ ici ne restent que les fabriques propres à l'app.
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import datetime
 import itertools
 import types
+from collections.abc import Callable
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
 
 import pytest
 
@@ -44,7 +46,7 @@ def _next(prefix: str) -> str:
 
 
 # ==================================================================================================
-# RÉFÉRENTIELS (countries, book, centers_purchasing, parameters, articles)
+# RÉFÉRENTIELS : countries, book, centers_purchasing, parameters, articles
 # ==================================================================================================
 
 
@@ -105,7 +107,9 @@ def make_document_subscription(db) -> Callable[..., DocumentsSubscription]:
 def make_exclusion(make_maison, make_society) -> Callable[..., MaisonSupllierExclusion]:
     """Fabrique de couples d'exclusion Tiers X3 / Maison"""
 
-    def _factory(maison: Maison | None = None, society: Society | None = None) -> MaisonSupllierExclusion:
+    def _factory(
+        maison: Maison | None = None, society: Society | None = None
+    ) -> MaisonSupllierExclusion:
         return MaisonSupllierExclusion.objects.create(
             third_party_num=society or make_society("FOUR001", is_client=False),
             cct_uuid_identification=maison or make_maison(),
@@ -118,7 +122,9 @@ def make_exclusion(make_maison, make_society) -> Callable[..., MaisonSupllierExc
 def make_country_exclusion(make_society, make_country) -> Callable[..., SupllierCountryExclusion]:
     """Fabrique de couples d'exclusion Tiers X3 / Pays"""
 
-    def _factory(society: Society | None = None, country: Country | None = None) -> SupllierCountryExclusion:
+    def _factory(
+        society: Society | None = None, country: Country | None = None
+    ) -> SupllierCountryExclusion:
         return SupllierCountryExclusion.objects.create(
             third_party_num=society or make_society("FOUR001", is_client=False),
             pays=country or make_country("FR"),
@@ -131,7 +137,9 @@ def make_country_exclusion(make_society, make_country) -> Callable[..., Supllier
 def make_supplier_identifier(make_maison, make_society) -> Callable[..., MaisonSupplierIdentifier]:
     """Fabrique d'identifiants Maison chez un fournisseur EDI"""
 
-    def _factory(maison=None, society=None, identifiant: str = "ID-001") -> MaisonSupplierIdentifier:
+    def _factory(
+        maison=None, society=None, identifiant: str = "ID-001"
+    ) -> MaisonSupplierIdentifier:
         return MaisonSupplierIdentifier.objects.create(
             third_party_num=society or make_society("FOUR001", is_client=False),
             maison=maison or make_maison(),
@@ -147,11 +155,13 @@ def make_subscription(
 ) -> Callable[..., MaisonSubcription]:
     """Fabrique d'abonnements par maison"""
 
-    def _factory(maison: Maison | None = None, article: Article | None = None, **kwargs: Any) -> MaisonSubcription:
+    def _factory(
+        maison: Maison | None = None, article: Article | None = None, **kwargs: Any
+    ) -> MaisonSubcription:
         defaults = {
-            "qty": Decimal("1"),
+            "qty": Decimal(1),
             "unit_weight": make_unit(),
-            "net_unit_price": Decimal("100"),
+            "net_unit_price": Decimal(100),
             "function": make_invoice_function(),
             "for_signboard": make_signboard("ACF"),
         }
@@ -165,8 +175,18 @@ def make_subscription(
 
 @pytest.fixture
 def maison_post_data(
-    make_cct, make_society, make_child_center, make_signboard, make_client_familly, make_vat,
-    make_code_plan, make_country_currency, make_language, make_country, make_type_vente, make_account,
+    make_cct,
+    make_society,
+    make_child_center,
+    make_signboard,
+    make_client_familly,
+    make_vat,
+    make_code_plan,
+    make_country_currency,
+    make_language,
+    make_country,
+    make_type_vente,
+    make_account,
 ) -> dict[str, str]:
     """Données POST complètes et valides pour MaisonForm (référentiels créés à la volée)"""
     make_cct("AF0001", name="Paris")
@@ -220,8 +240,9 @@ def maison_post_data(
 @pytest.fixture
 def subscription_dirs(tmp_path: Path, settings) -> types.SimpleNamespace:
     """Redirige les répertoires d'import/backup des abonnements vers tmp_path"""
-
-    dirs = types.SimpleNamespace(processing=tmp_path / "abonnements", backup=tmp_path / "backup_abonnements")
+    dirs = types.SimpleNamespace(
+        processing=tmp_path / "abonnements", backup=tmp_path / "backup_abonnements"
+    )
 
     for directory in vars(dirs).values():
         directory.mkdir(parents=True, exist_ok=True)

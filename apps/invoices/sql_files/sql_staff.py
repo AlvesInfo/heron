@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql, pour les factures de ventes Prestation
-EN : Module of sql queries, for sales Prestation invoices
+"""FR : Module des requêtes sql, pour les factures de ventes Prestation.
+
+EN : Module of sql queries, for sales Prestation invoices.
 
 Commentaire:
 
@@ -10,18 +10,19 @@ created by: Paulo ALVES
 modified at: 2023-03-16
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 SQL_DETAILS = sql.SQL(
     """
-    select 
+    select
         (
-            "ii"."libelle" 
-            || 
-            '<br>' 
-            || 
+            "ii"."libelle"
+            ||
+            '<br>'
+            ||
             "ii"."command_reference"
-        ) as "personnel", 
+        ) as "personnel",
         "ii"."personnel_type",
         "ii"."qty",
         "sd"."net_unit_price",
@@ -31,16 +32,16 @@ SQL_DETAILS = sql.SQL(
         "sd"."amount_with_vat"
     from "invoices_saleinvoicedetail" "sd"
     join "invoices_invoicecommondetails" as "ii"
-    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification" 
+    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification"
     join "book_society" "bs"
-    on "bs"."third_party_num" = "ii"."third_party_num" 
+    on "bs"."third_party_num" = "ii"."third_party_num"
     where "uuid_invoice" = %(uuid_invoice)s
     """
 )
 
 SQL_RESUME = sql.SQL(
-    """    
-    select 
+    """
+    select
         sum("sd"."net_amount") as "net_amount",
         sum("sd"."vat_amount") as "vat_amount",
         sum("sd"."amount_with_vat") as "amount_with_vat"

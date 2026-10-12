@@ -82,7 +82,7 @@ if request.method == "POST" and not in_action:
             celery_import_launch(user_pk, job_id)  # ← Passer job_id
 
         # ← NOUVEAU: Retourner JSON avec job_id au lieu de recharger la page
-        return JsonResponse({'success': True, 'job_id': job_id})
+        return JsonResponse({"success": True, "job_id": job_id})
 ```
 
 #### Imports à ajouter en haut du fichier:
@@ -141,10 +141,10 @@ def celery_import_launch(user_pk: int, job_id: str):
         progress = SSEProgress.objects.create(
             job_id=job_id,
             user_id=user_pk,
-            task_type='edi_import',
+            task_type="edi_import",
             total_items=total_files,
-            custom_title='Import des factures EDI',
-            completion_message=f'Import terminé : {total_files} fichiers traités'
+            custom_title="Import des factures EDI",
+            completion_message=f"Import terminé : {total_files} fichiers traités",
         )
         progress.mark_as_started()
 
@@ -158,8 +158,8 @@ def celery_import_launch(user_pk: int, job_id: str):
                     kwargs={
                         "process_objects": row_args,
                         "user_pk": user_pk,
-                        "job_id": job_id  # ← NOUVEAU: Passer job_id à chaque tâche
-                    }
+                        "job_id": job_id,  # ← NOUVEAU: Passer job_id à chaque tâche
+                    },
                 )
             )
 
@@ -228,9 +228,9 @@ def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
         progress = SSEProgress.objects.create(
             job_id=job_id,
             user_id=user_pk,
-            task_type='bbgr_import',
+            task_type="bbgr_import",
             total_items=1,  # Une seule tâche pour BBGR
-            custom_title=f'Import BBGR {function_name}',
+            custom_title=f"Import BBGR {function_name}",
         )
         progress.mark_as_started()
 
@@ -247,8 +247,8 @@ def import_launch_bbgr(function_name: str, user_pk: int, job_id: str):
                     kwargs={
                         "function_name": function_name,
                         "user_pk": user_pk,
-                        "job_id": job_id  # ← NOUVEAU: Passer job_id
-                    }
+                        "job_id": job_id,  # ← NOUVEAU: Passer job_id
+                    },
                 )
             ]
         )().get(3600)
@@ -309,8 +309,7 @@ def suppliers_import(self, process_objects, user_pk, job_id=None):  # ← NOUVEA
             with transaction.atomic():
                 progress = SSEProgress.objects.select_for_update().get(job_id=job_id)
                 progress.update_progress(
-                    processed=1,
-                    message=f"Fichier {process_objects[2]} importé"
+                    processed=1, message=f"Fichier {process_objects[2]} importé"
                 )
 
         return {"status": "success", "file": process_objects[2]}
@@ -324,9 +323,7 @@ def suppliers_import(self, process_objects, user_pk, job_id=None):  # ← NOUVEA
             with transaction.atomic():
                 progress = SSEProgress.objects.select_for_update().get(job_id=job_id)
                 progress.update_progress(
-                    processed=1,
-                    failed=1,
-                    message=f"Erreur fichier {process_objects[2]}: {str(e)}"
+                    processed=1, failed=1, message=f"Erreur fichier {process_objects[2]}: {str(e)}"
                 )
 
         return {"status": "error", "file": process_objects[2], "error": str(e)}
@@ -502,6 +499,7 @@ Avec une tâche callback:
 @celery_app.task(name="import_complete_callback")
 def import_complete_callback(results, job_id):
     from apps.core.models import SSEProgress
+
     progress = SSEProgress.objects.get(job_id=job_id)
     progress.mark_as_completed()
     return results

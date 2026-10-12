@@ -1,6 +1,6 @@
-"""
-FR : Settings pour la création à la vollée des répertoires des factures founisseurs
-EN : Settings for on-the-fly creation of supplier invoice directories
+"""FR : Settings pour la création à la vollée des répertoires des factures founisseurs.
+
+EN : Settings for on-the-fly creation of supplier invoice directories.
 
 Commentaire:
 
@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2022-04-09
 modified by: Paulo ALVES
 """
+
 from heron.utils.directories import lazy_mkdir
 
 # ==================================================================================================
@@ -117,13 +118,19 @@ IMPORT_ACCOUNTS = lazy_mkdir("files/processing/suppliers_invoices_files/IMPORT_A
 BACKUP_SUPPLIERS_DIR = lazy_mkdir("files/backup/suppliers_invoices_files")
 
 # REPERTOIRE BACKUP DES IMPORTS DES ARTICLES SANS COMPTES
-BACKUP_WITHOUT_ACCOUNT_DIR = lazy_mkdir("files/backup/suppliers_invoices_files/ARTICLES_SANS_COMPTES")
+BACKUP_WITHOUT_ACCOUNT_DIR = lazy_mkdir(
+    "files/backup/suppliers_invoices_files/ARTICLES_SANS_COMPTES"
+)
 
 # REPERTOIRE BACKUP DES UPDATES DES COMPTES DES ARTICLES
-BACKUP_UPDATE_ARTICLES_ACCOUNTS_DIR = lazy_mkdir("files/backup/suppliers_invoices_files/UPDATE_ARTICLES_COMPTES")
+BACKUP_UPDATE_ARTICLES_ACCOUNTS_DIR = lazy_mkdir(
+    "files/backup/suppliers_invoices_files/UPDATE_ARTICLES_COMPTES"
+)
 
 # REPERTOIRE BACKUP DES IMPORTS DES ABONNEMENTS PAR MAISON
-BACKUP_CLIENS_SUBSCRIPTION_DIR = lazy_mkdir("files/backup/suppliers_invoices_files/ABONNEMENTS_PAR_MAISONS")
+BACKUP_CLIENS_SUBSCRIPTION_DIR = lazy_mkdir(
+    "files/backup/suppliers_invoices_files/ABONNEMENTS_PAR_MAISONS"
+)
 
 # REPERTOIRE BACKUP FICHIERS BBGR_BULK
 BACKUP_BBGR_BULK = lazy_mkdir("files/backup/suppliers_invoices_files/BBGR_BULK")

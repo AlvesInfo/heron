@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de la mise à jour des identifiants Cosium par cct (bin/gestion_cct.py)
+"""FR : Tests de la mise à jour des identifiants Cosium par cct (bin/gestion_cct.py)
+
+
 EN : Tests for Cosium cct identifiers update
 
 Commentaire:
@@ -11,6 +12,7 @@ puis ajoute à chaque cct de COSI001 la référence Cosium de sa maison si elle 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import pytest
 
 from apps.book.models import SupplierCct

@@ -1,7 +1,6 @@
-#
-"""
-FR : Module d'import des factures founisseurs EDI
-EN : Import module for EDI incoives suppliers
+"""FR : Module d'import des factures founisseurs EDI.
+
+EN : Import module for EDI incoives suppliers.
 
 Commentaire:
 
@@ -11,41 +10,42 @@ created by: Paulo ALVES
 modified at: 2023-01-01
 modified by: Paulo ALVES
 """
+
 import io
-from pathlib import Path
 from functools import lru_cache
+from pathlib import Path
+from typing import NoReturn
 
 import redis
-from django.utils import timezone
 from django.db.utils import IntegrityError
+from django.utils import timezone
 from psycopg2 import sql
 
-from heron.loggers import LOGGER_EDI
-from apps.core.functions.functions_setups import settings, connection
-from apps.edi.models import SupplierDefinition, ColumnDefinition
-from apps.edi.parameters.invoices_imports import get_columns, get_first_line, get_loader_params_dict
-from apps.data_flux.validation import Validation, PydanticValidation, PydanticTrace
-from apps.data_flux.loader import (
-    GetAddDictError,
-    IterFileToInsertError,
-    ExcelToCsvError,
-    FileToCsvError,
-    FileLoader,
-    Opto33Loader,
-)
+from apps.core.functions.functions_setups import connection, settings
 from apps.data_flux.exceptions import (
-    ValidationError,
     OptoDateError,
-    OptoLinesError,
-    OptoQualifierError,
     OptoIdError,
+    OptoLinesError,
     OptoNumberError,
     OptoParserError,
-    PathTypeError,
+    OptoQualifierError,
     PathFileError,
+    PathTypeError,
+    ValidationError,
 )
-from apps.data_flux.postgres_save import PostgresKeyError, PostgresTypeError, PostgresDjangoUpsert
-
+from apps.data_flux.loader import (
+    ExcelToCsvError,
+    FileLoader,
+    FileToCsvError,
+    GetAddDictError,
+    IterFileToInsertError,
+    Opto33Loader,
+)
+from apps.data_flux.postgres_save import PostgresDjangoUpsert, PostgresKeyError, PostgresTypeError
+from apps.data_flux.validation import PydanticTrace, PydanticValidation, Validation
+from apps.edi.models import ColumnDefinition, SupplierDefinition
+from apps.edi.parameters.invoices_imports import get_columns, get_first_line, get_loader_params_dict
+from heron.loggers import LOGGER_EDI
 
 try:
     cache = redis.StrictRedis(
@@ -61,16 +61,16 @@ proccessing_dir = Path(settings.PROCESSING_SUPPLIERS_DIR)
 
 @lru_cache(maxsize=256)
 def get_suppliers(flow_name: str):
-    """
-    :param flow_name: Champ flow_name dans la table SupplierDefinition
+    """:param flow_name: Champ flow_name dans la table SupplierDefinition
+
     :return: Retourne le supplier et l'indentifier du fournisseur dans la table SupplierDefinition
     """
     with connection.cursor() as cursor:
         sql_supplier = sql.SQL(
             """
-        select  
-            "supplier", "supplier_ident" 
-        from edi_supplierdefinition es 
+        select
+            "supplier", "supplier_ident"
+        from edi_supplierdefinition es
         where "flow_name" = %(flow_name)s
         """
         )
@@ -82,8 +82,8 @@ def get_suppliers(flow_name: str):
 
 @lru_cache(maxsize=256)
 def get_supplier_name(flow_name: str):
-    """
-    :param flow_name: Champ flow_name dans la table SupplierDefinition
+    """:param flow_name: Champ flow_name dans la table SupplierDefinition
+
     :return: Retourne le supplier du fournisseur dans la table SupplierDefinition
     """
     supplier, supplier_ident = get_suppliers(flow_name)
@@ -100,8 +100,8 @@ def get_supplier_name(flow_name: str):
 
 @lru_cache(maxsize=256)
 def get_supplier_ident(flow_name: str):
-    """
-    :param flow_name: Champ flow_name dans la table SupplierDefinition
+    """:param flow_name: Champ flow_name dans la table SupplierDefinition
+
     :return: Retourne le supplier_ident du fournisseur dans la table SupplierDefinition
     """
     supplier, supplier_ident = get_suppliers(flow_name)
@@ -117,8 +117,8 @@ def get_supplier_ident(flow_name: str):
 
 
 def get_cached(key: str):
-    """
-    Valeur du cache (redis renvoie des bytes, le dict de repli renvoie des str).
+    """Valeur du cache (redis renvoie des bytes, le dict de repli renvoie des str).
+
     Un redis injoignable n'empêche pas l'import : on retombe sur la base.
     """
     try:
@@ -134,13 +134,13 @@ def get_cached(key: str):
 
 @lru_cache(maxsize=256)
 def get_supplier(flow_name):
-    """Get supplier name in cache ou model SupplierDefinition"""
+    """Get supplier name in cache ou model SupplierDefinition."""
     return get_cached(f"{flow_name}_supplier") or get_supplier_name(flow_name)
 
 
 @lru_cache(maxsize=256)
 def get_ident(flow_name):
-    """Get supplier ident in cache ou model SupplierDefinition"""
+    """Get supplier ident in cache ou model SupplierDefinition."""
     return get_cached(f"{flow_name}_ident") or get_supplier_ident(flow_name)
 
 
@@ -169,9 +169,10 @@ LOGGED_EXCEPTIONS = (
 
 
 def _exception_label(except_error: Exception) -> str:
-    """Libellé journalisé d'une exception : celui de la première classe attendue qui lui
+    """Libellé journalisé d'une exception : celui de la première classe attendue qui lui.
+
     correspond, sinon "Exception Générale"
-    :param except_error: exception levée pendant l'import
+    :param except_error: exception levée pendant l'import.
     """
     return next(
         (label for klass, label in LOGGED_EXCEPTIONS if isinstance(except_error, klass)),
@@ -179,8 +180,23 @@ def _exception_label(except_error: Exception) -> str:
     )
 
 
+def _require_columns(columns_dict: dict) -> None:
+    """TypeError si le mapping colonnes EdiImport / fichier est absent de ColumnDefinition.
+
+    Sans ce mapping l'import ne peut pas se faire.
+    """
+    if not columns_dict:
+        raise TypeError("Vous n'avez pas de colonnes à récupérer")
+
+
+def _raise_file_errors(flow_name: str, source: Path) -> NoReturn:
+    """Signale un fichier dont des lignes sont en erreur de validation."""
+    raise ValidationError(f"Le fichier comporte des erreurs: {flow_name} - {str(source)!r}")
+
+
 def make_insert_edi_files(model, flow_name, source, trace, validator, params_dict_loader):
-    """Réalise la lecture, transformation du fichier, la validation et l'insertion en base
+    """Réalise la lecture, transformation du fichier, la validation et l'insertion en base.
+
     :param model:               model au sens Django
     :param flow_name:           flow_name
     :param source:              Fichier source
@@ -197,16 +213,12 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
         to_print += f"Import : {flow_name}\n"
         columns_dict = get_columns(ColumnDefinition, flow_name)
 
-        if not columns_dict:
-            # Si le mapping entre les colonnes de la table EdiImport et les colonnes du fichier,
-            # ne sont pas dans la table ColumnDefinition, alors l'import ne peut se faire.
-            raise TypeError("Vous n'avez pas de colonnes à récupérer")
-
+        _require_columns(columns_dict)
         flow_dict = get_loader_params_dict(SupplierDefinition, flow_name)
         params_dict_load = {
             **params_dict_loader,
             **flow_dict,
-            **{"trace": trace},
+            "trace": trace,
         }
         params_dict_validation = {
             "trace": trace,
@@ -216,19 +228,14 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
             "nb_errors_max": 50,
         }
 
-        LOADER = Opto33Loader if flow_name == "Edi" else FileLoader
+        loader_class = Opto33Loader if flow_name == "Edi" else FileLoader
 
-        with LOADER(
+        with loader_class(
             source=source,
             columns_dict=columns_dict,
             first_line=get_first_line(SupplierDefinition, flow_name),
             params_dict=params_dict_load,
         ) as file_load:
-
-            # POUR VISUALISER CE QU'IL Y A DANS LE FICHIER EN CAS D'ERREURS
-            # fil = [row for row in file_load.read_dict()]
-            # LOGGER_EDI.exception(f"{fil}")
-
             validation = Validation(
                 dict_flow=file_load.read_dict(),
                 model=model,
@@ -239,17 +246,15 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
 
             if error_lines:
                 to_print += f"\nLignes en erreur : {error_lines}\n"
-                raise ValidationError(
-                    f"Le fichier comporte des erreurs: {flow_name} - {str(source)!r}"
-                )
+                _raise_file_errors(flow_name, source)
 
             to_print += "\nPas d'erreurs\n"
 
             postgres_upsert = PostgresDjangoUpsert(
                 model=model,
-                fields_dict={key: False for key in validator.Config.include},
+                fields_dict=dict.fromkeys(validator.Config.include, False),
                 cnx=connection,
-                exclude_update_fields={},
+                exclude_update_fields=set(),
             )
             valide_file_io.seek(0)
             postgres_upsert.insertion(
@@ -262,7 +267,8 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
 
     except Exception as except_error:
         error = True
-        LOGGER_EDI.exception(f"{_exception_label(except_error)} : {except_error!r}")
+        label = _exception_label(except_error)
+        LOGGER_EDI.exception("%s", label)
 
     finally:
         if error or trace.errors:

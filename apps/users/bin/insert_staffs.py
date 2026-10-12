@@ -1,4 +1,4 @@
-"""Module l'intégration en masse d'utilisateurs Staff (Admin délégués)
+"""Module l'intégration en masse d'utilisateurs Staff (Admin délégués).
 
 Commentaire:
 
@@ -8,17 +8,18 @@ created by: Paulo ALVES
 modified at: 2026-10-12
 modified by: Paulo ALVES
 """
+
 from pathlib import Path
 
 from django.contrib.auth.models import Group
 from django.db import IntegrityError
 
-from apps.core.functions.functions_setups import settings
 from apps.core.functions.function_imports import (
     ExcelToCsvError,
     IterFileToInsert,
     IterFileToInsertError,
 )
+from apps.core.functions.functions_setups import settings
 from apps.users.forms.forms_serializers.serializer_for_insert_users import UsersSerializer
 from apps.users.models import AuthGroupAccessStaff, UploadUserFile, User
 
@@ -40,11 +41,11 @@ COLUMNS_ERROR = (
 
 
 class UserInsertError(Exception):
-    """Gestion d'exceptions"""
+    """Gestion d'exceptions."""
 
 
 def _serializer_errors(dict_user, serializer):
-    """Message html des erreurs de validation d'une ligne du fichier"""
+    """Message html des erreurs de validation d'une ligne du fichier."""
     erreur = f"erreur de création de l'utilisateur : {dict_user.get('email', 'inconnu')}</br>"
 
     for key, error in serializer.errors.items():
@@ -54,7 +55,7 @@ def _serializer_errors(dict_user, serializer):
 
 
 def _add_staff_groups(user):
-    """Rattachement du staff aux groupes autorisés pour les Admin délégués"""
+    """Rattachement du staff aux groupes autorisés pour les Admin délégués."""
     group_staff = AuthGroupAccessStaff.objects.values_list("group_id", flat=True)
 
     for group in Group.objects.filter(id__in=list(group_staff)):
@@ -62,10 +63,11 @@ def _add_staff_groups(user):
 
 
 def insert_staffs(csv_file: Path, code_child_center: str):
-    """Insertion des utilisateurs Staff depuis un fichier csv
+    """Insertion des utilisateurs Staff depuis un fichier csv.
+
     :param csv_file: fichier à intégrer
     :param code_child_center: centrale par défaut des utilisateurs créés (celle de l'importateur)
-    :return: (True, []) si tout est passé, sinon (None, liste des erreurs html)
+    :return: (True, []) si tout est passé, sinon (None, liste des erreurs html).
     """
     errors = []
 
@@ -115,7 +117,7 @@ def insert_staffs(csv_file: Path, code_child_center: str):
 
 
 def _file_message(file, bol, retour):
-    """Message html du résultat d'intégration d'un fichier"""
+    """Message html du résultat d'intégration d'un fichier."""
     if bol:
         return f"""
                 <li value="o" style="color: #00B050;font-weight: bold;">
@@ -140,7 +142,7 @@ def _file_message(file, bol, retour):
 
 
 def delete_upload_file(file):
-    """Suppression de l'enregistrement du fichier téléversé et du fichier physique"""
+    """Suppression de l'enregistrement du fichier téléversé et du fichier physique."""
     path = Path(settings.MEDIA_DIR) / str(file.file)
     file.delete()
 
@@ -149,9 +151,10 @@ def delete_upload_file(file):
 
 
 def set_insert_staffs(user):
-    """Insertion en base des utilisateurs Staff (Admin délégué) depuis les fichiers téléversés
+    """Insertion en base des utilisateurs Staff (Admin délégué) depuis les fichiers téléversés.
+
     :param user: utilisateur en cours (importateur)
-    :return: (None, messages html)
+    :return: (None, messages html).
     """
     html_messages = ""
 

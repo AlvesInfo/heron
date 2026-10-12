@@ -1,7 +1,7 @@
-"""
-Vérification de la présence des Abonnements pour une période donnée
+"""Vérification de la présence des Abonnements pour une période donnée.
+
 FR : Module de la vérification de la présence des Abonnements pour une période donnée
-EN : Module for checking the presence of Subscriptions for a given periode
+EN : Module for checking the presence of Subscriptions for a given periode.
 
 Commentaire:
 
@@ -11,10 +11,10 @@ created by: Paulo ALVES
 modified at: 2023-03-04
 modified by: Paulo ALVES
 """
+
 import os
 import platform
 import sys
-from typing import AnyStr
 
 import django
 
@@ -29,12 +29,13 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 
 django.setup()
 
-from psycopg2 import sql
 from django.db import connection
+from psycopg2 import sql
 
 
-def get_have_subscriptions(flow_name: AnyStr, dte_d: AnyStr, dte_f: AnyStr) -> bool:
-    """Vérifie s'il y a des abonnements existants pour la période
+def get_have_subscriptions(flow_name: str, dte_d: str, dte_f: str) -> bool:
+    """Vérifie s'il y a des abonnements existants pour la période.
+
     :param flow_name: flow_name à vérifier
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
@@ -47,9 +48,9 @@ def get_have_subscriptions(flow_name: AnyStr, dte_d: AnyStr, dte_f: AnyStr) -> b
                 SELECT 1 FROM edi_ediimport
                 WHERE flow_name = %(flow_name)s
                 AND invoice_date BETWEEN %(dte_d)s AND %(dte_f)s
-            ) 
+            )
             OR EXISTS (
-                SELECT 1 
+                SELECT 1
                 FROM invoices_invoicedetail sbi
                 JOIN invoices_invoice si ON si.uuid_identification = sbi.uuid_invoice
                 WHERE sbi.flow_name = %(flow_name)s
@@ -62,29 +63,29 @@ def get_have_subscriptions(flow_name: AnyStr, dte_d: AnyStr, dte_f: AnyStr) -> b
         return cursor.fetchone()[0]
 
 
-def get_missing_cosium_familly(dte_d: AnyStr, dte_f: AnyStr) -> AnyStr:
-    """Vérification qu'il ne manque pas de traductions pour les familles Cosium des Ventes Cosium,
+def get_missing_cosium_familly(dte_d: str, dte_f: str) -> str:
+    """Vérification qu'il ne manque pas de traductions pour les familles Cosium des Ventes Cosium,.
+
     dans la table des statistiques book_supplierfamilyaxes et la stat_name 'COSI001'
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
-    :return: texte du message en cas de manquants
+    :return: texte du message en cas de manquants.
     """
-
     with connection.cursor() as cursor:
         sql_subscriptions = sql.SQL(
             """
-            select 
+            select
                 famille_cosium
-            from compta_ventescosium cv 
+            from compta_ventescosium cv
             left join (
-                select 
+                select
                     regex_match, axe_pro
-                from book_supplierfamilyaxes 
+                from book_supplierfamilyaxes
                 where stat_name = 'COSI001'
-            ) bs 
+            ) bs
             on cv.famille_cosium = bs.regex_match
             where date_vente between %(dte_d)s and %(dte_f)s
-            group by 	
+            group by
                 famille_cosium,
                 rayon_cosium,
                 bs.axe_pro
@@ -95,29 +96,28 @@ def get_missing_cosium_familly(dte_d: AnyStr, dte_f: AnyStr) -> AnyStr:
         test_missing_cosium_familly = cursor.fetchall()
 
         if test_missing_cosium_familly:
-            text_error = (
+            return (
                 "Il manque des familles Cosium : \n    "
                 + ", ".join([famille[0] for famille in test_missing_cosium_familly])
                 + ",\nà compléter (menu) : Paramétrage - (TIERS) Familles/Axes"
             )
 
-            return text_error
-
     return ""
 
 
-def get_ca_exists(dte_d: AnyStr, dte_f: AnyStr) -> bool:
-    """Vérifie si le CA à été généré pour la période
+def get_ca_exists(dte_d: str, dte_f: str) -> bool:
+    """Vérifie si le CA à été généré pour la période.
+
     :param dte_d: Date de début de période au format texte isoformat
     :param dte_f: Date de fin de période au format texte isoformat
-    :return: bool
+    :return: bool.
     """
     with connection.cursor() as cursor:
         sql_ca_client = sql.SQL(
             """
-            select 
+            select
                 1 as exist
-            from compta_ventescosium cv 
+            from compta_ventescosium cv
             where cv.date_vente between %(dte_d)s and %(dte_f)s
             limit 1
             """

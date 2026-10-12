@@ -22,7 +22,8 @@ def test_trace_change_rien_modifie(request_with_user, make_edi_validation):
     validation = make_edi_validation(integration=False)
 
     result = trace_change(
-        request_with_user, EdiValidation,
+        request_with_user,
+        EdiValidation,
         {"uuid_identification": validation.uuid_identification},
         {"uuid_identification": validation.uuid_identification, "integration": False},
     )
@@ -35,7 +36,8 @@ def test_trace_change_modifie_et_trace(request_with_user, make_edi_validation):
     validation = make_edi_validation(integration=False)
 
     result = trace_change(
-        request_with_user, EdiValidation,
+        request_with_user,
+        EdiValidation,
         {"uuid_identification": validation.uuid_identification},
         {"uuid_identification": validation.uuid_identification, "integration": True},
     )
@@ -56,7 +58,9 @@ def test_trace_change_enregistrement_absent(request_with_user):
         trace_change(request_with_user, EdiValidation, {"id": -1}, {"integration": True})
 
 
-def test_trace_change_instance_de_cle_etrangere(request_with_user, make_edi_import, make_big_category):
+def test_trace_change_instance_de_cle_etrangere(
+    request_with_user, make_edi_import, make_big_category
+):
     """Une instance passée pour une FK est comparée à la valeur stockée (uuid), pas à l'objet"""
     category = make_big_category("Marchandises")
     line = make_edi_import(big_category=category)

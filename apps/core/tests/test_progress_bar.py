@@ -1,4 +1,5 @@
 """Tests de la mise à jour de progression SSE en transaction séparée (apps.core.utils.progress_bar)"""
+
 import logging
 import uuid
 
@@ -12,7 +13,9 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def progress(make_user):
-    return SSEProgress.objects.create(job_id=str(uuid.uuid4()), user=make_user(), task_type="test", total_items=2)
+    return SSEProgress.objects.create(
+        job_id=str(uuid.uuid4()), user=make_user(), task_type="test", total_items=2
+    )
 
 
 def test_update_progress(progress):

@@ -1,6 +1,6 @@
-"""
-FR : Module de validation par djantic des souscription des abonnements par maisons
-EN : Djantic validation module for subscription subscriptions by houses
+"""FR : Module de validation par djantic des souscription des abonnements par maisons.
+
+EN : Djantic validation module for subscription subscriptions by houses.
 
 Commentaire:
 
@@ -10,8 +10,8 @@ created by: Paulo ALVES
 modified at: 2024-03-31
 modified by: Paulo ALVES
 """
+
 import datetime
-from typing import Optional
 from uuid import UUID
 
 from django.utils import timezone
@@ -21,7 +21,7 @@ from apps.centers_clients.models import MaisonSubcription
 
 
 class MaisonSubcriptionSchema(ModelSchema):
-    """Schema Djantic pour validation du modèle MaisonSubcription"""
+    """Schema Djantic pour validation du modèle MaisonSubcription."""
 
     now = timezone.now()
     created_at: datetime.datetime = now
@@ -31,11 +31,10 @@ class MaisonSubcriptionSchema(ModelSchema):
     unit_weight: int
     function: str
     for_signboard: str
-    vat: Optional[str] = None
+    vat: str | None = None
 
     class Config:
+        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
+
         model = MaisonSubcription
-        include = list(model.get_columns_import()) + [
-            "created_at",
-            "modified_at",
-        ]
+        include = [*model.get_columns_import(), "created_at", "modified_at"]

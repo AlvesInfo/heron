@@ -1,28 +1,26 @@
-"""
-Module de setup
-"""
+"""Module de setup."""
 
 import os
-import sys
 import platform
+import sys
 
 import django
-
 from django.db import connection, connections, transaction
 from django.db.utils import IntegrityError
 
 
 # Configuration Django
 def setup_django():
-    BASE_DIR = r"C:\\SitesWeb\\heron"
+    """Initialise Django pour un script autonome selon le système d'exploitation."""
+    base_dir = r"C:\\SitesWeb\\heron"
 
     if platform.system() == "Darwin":
-        BASE_DIR = "/Users/paulo/SitesWeb/heron"
+        base_dir = "/Users/paulo/SitesWeb/heron"
     elif platform.system() == "Linux":
-        BASE_DIR = "/home/paulo/heron"
+        base_dir = "/home/paulo/heron"
 
-    sys.path.insert(0, BASE_DIR)
-    sys.path.append(BASE_DIR)
+    sys.path.insert(0, base_dir)
+    sys.path.append(base_dir)
 
     # Configurer Django
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
@@ -39,12 +37,18 @@ def setup_django():
 setup_django()
 
 from django.conf import settings
+
 from apps.users.models import User
 
-settings = settings
-connection = connection
-connections = connections
-transaction = transaction
-IntegrityError = IntegrityError
 CNX_STRING = settings.CNX_STRING
-User = User
+
+# Ré-exports : les scripts importent ces objets Django une fois le setup réalisé
+__all__ = [
+    "CNX_STRING",
+    "IntegrityError",
+    "User",
+    "connection",
+    "connections",
+    "settings",
+    "transaction",
+]

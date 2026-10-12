@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql de post-traitement après import des fichiers eye Confort
-EN : Post-processing sql module after importing supplier invoice files
+"""FR : Module des requêtes sql de post-traitement après import des fichiers eye Confort.
+
+EN : Post-processing sql module after importing supplier invoice files.
 
 Commentaire:
 
@@ -10,13 +10,14 @@ created by: Paulo ALVES
 modified at: 2022-11-27
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 post_eye_dict = {
     "sql_update": sql.SQL(
         """
         update "edi_ediimport"
-        set 
+        set
             "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
             "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
@@ -33,17 +34,17 @@ post_eye_dict = {
     "sql_update_units": sql.SQL(
         """
         update "edi_ediimport"
-        set 
-            "qty" = case 
+        set
+            "qty" = case
                         when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
                         when "net_amount" > 0 then abs("qty")::numeric
-                        else "qty" 
+                        else "qty"
                     end,
             "gross_unit_price" = abs("gross_unit_price"),
             "net_unit_price" = abs("net_unit_price"),
-            "gross_amount" = case 
+            "gross_amount" = case
                                 when "net_amount" = 0 then 0
-                                when "net_amount" < 0 
+                                when "net_amount" < 0
                                     then (abs("gross_amount")::numeric * -1::numeric)
                                 when "net_amount" > 0 then abs("gross_amount")::numeric
                             end

@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,R0913
-"""
-FR : Tests des vues des abonnements par maison et des familles clients
+"""FR : Tests des vues des abonnements par maison et des familles clients
+
+
 EN : Tests for subscriptions and client families views
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import logging
 from decimal import Decimal
 
@@ -43,7 +45,9 @@ def test_abonnements_liste(logged_client, make_subscription):
 
 
 @pytest.fixture
-def subscription_post_data(make_maison, make_article, make_unit, make_invoice_function, make_signboard, make_vat):
+def subscription_post_data(
+    make_maison, make_article, make_unit, make_invoice_function, make_signboard, make_vat
+):
     """Données POST valides d'un abonnement"""
     make_maison("AF0001")
     article = make_article("ABO-1")
@@ -78,13 +82,16 @@ def test_abonnement_create(logged_client, subscription_post_data):
     assert response.status_code == 302
     assert response.url == reverse("centers_clients:subscriptions_list")
     assert subscription.created_by == logged_client.user
-    assert subscription.qty == Decimal("2")
+    assert subscription.qty == Decimal(2)
     assert "a été créé avec success" in _messages(response)[0]
 
 
 def test_abonnement_create_invalide(logged_client, subscription_post_data):
     """Sans article : erreurs"""
-    response = logged_client.post(reverse("centers_clients:subscription_create"), data={**subscription_post_data, "article": ""})
+    response = logged_client.post(
+        reverse("centers_clients:subscription_create"),
+        data={**subscription_post_data, "article": ""},
+    )
 
     assert response.status_code == 200
     assert "article" in response.context["form"].errors
@@ -104,7 +111,7 @@ def test_abonnement_update(logged_client, make_subscription, subscription_post_d
 
     subscription.refresh_from_db()
     assert response.status_code == 302
-    assert subscription.qty == Decimal("5")
+    assert subscription.qty == Decimal(5)
     assert subscription.modified_by == logged_client.user
     assert ChangesTrace.objects.filter(model_name="maisonsubcription", action_type=2).count() == 1
 
@@ -139,7 +146,10 @@ def test_abonnements_export(logged_client, make_subscription, monkeypatch, caplo
     def _boom(*_args, **_kwargs):
         raise RuntimeError("xlsx")
 
-    with patched_attrs(monkeypatch, maisons_subscriptions, response_file=_boom), caplog.at_level(logging.ERROR, logger="error_views"):
+    with (
+        patched_attrs(monkeypatch, maisons_subscriptions, response_file=_boom),
+        caplog.at_level(logging.ERROR, logger="error_views"),
+    ):
         response = logged_client.get(reverse("centers_clients:subscriptions_export_list"))
 
     assert response.status_code == 302
@@ -157,7 +167,11 @@ def test_insert_or_update_subscriptions(logged_client, monkeypatch):
     assert response.context["messages_errors"] == ""
     assert response.context["messages_ok"] == ""
 
-    with patched_attrs(monkeypatch, maisons_subscriptions, import_abonnements_par_maisons=lambda: ("erreur X", "fichier OK")):
+    with patched_attrs(
+        monkeypatch,
+        maisons_subscriptions,
+        import_abonnements_par_maisons=lambda: ("erreur X", "fichier OK"),
+    ):
         response = logged_client.post(url)
 
     assert response.status_code == 200
@@ -202,7 +216,9 @@ def test_famille_create_invalide(logged_client, make_client_familly):
     """Nom en doublon (même en minuscules) : formulaire réaffiché, pas d'IntegrityError"""
     make_client_familly("franchise")
 
-    response = logged_client.post(reverse("centers_clients:client_familly_create"), data={"name": "franchise"})
+    response = logged_client.post(
+        reverse("centers_clients:client_familly_create"), data={"name": "franchise"}
+    )
 
     assert response.status_code == 200
     assert "name" in response.context["form"].errors
@@ -255,7 +271,10 @@ def test_famille_export(logged_client, make_client_familly, monkeypatch, caplog)
     def _boom(*_args, **_kwargs):
         raise RuntimeError("xlsx")
 
-    with patched_attrs(monkeypatch, clients_familly_views, response_file=_boom), caplog.at_level(logging.ERROR, logger="error_views"):
+    with (
+        patched_attrs(monkeypatch, clients_familly_views, response_file=_boom),
+        caplog.at_level(logging.ERROR, logger="error_views"),
+    ):
         response = logged_client.get(reverse("centers_clients:export_client_familly_list"))
 
     assert response.status_code == 302

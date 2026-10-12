@@ -1,6 +1,6 @@
-"""
-FR : Module d'export X3 des OD à passer sur le journal ODINV
-EN : X3 export module for ODs to be passed to the ODINV journal
+"""FR : Module d'export X3 des OD à passer sur le journal ODINV.
+
+EN : X3 export module for ODs to be passed to the ODINV journal.
 
 Commentaire:
 
@@ -10,27 +10,29 @@ created by: Paulo ALVES
 modified at: 2025-03-15
 modified by: Paulo ALVES
 """
+
 from operator import itemgetter
 from pathlib import Path
 
 from apps.core.functions.functions_setups import connection, settings
-from apps.invoices.bin.invoives_nums import get_gaspar_num
 from apps.invoices.bin.base_export_x3_functions import (
+    get_a,
+    get_d_od_ana,
+    get_file,
     get_rows,
     get_t,
-    get_d_od_ana,
-    get_a,
     split_line,
-    get_file,
 )
+from apps.invoices.bin.invoives_nums import get_gaspar_num
 
 
 def write_odinv(fcy, file_name=None, nb_fac=5000):
-    """Fonction iter les lignes à écrire
+    """Fonction iter les lignes à écrire.
+
     :param fcy: société pour laquelle le fichier est à générer
     :param file_name: nom du fichier à générer
     :param nb_fac: nombre de factures max par fichiers
-    :return: generateur des lignes de la requête
+    :return: generateur des lignes de la requête.
     """
     rows = get_rows(connection, settings.APPS_DIR, fcy, "sql_export_x3_od", app="od")
 
@@ -46,7 +48,7 @@ def write_odinv(fcy, file_name=None, nb_fac=5000):
     else:
         file = get_file(settings.EXPORT_DIR, fcy, get_gaspar_num)
 
-    invoice_number, *line_to_write, test_a = row
+    invoice_number, *line_to_write, _ = row
     invoice = invoice_number
     slicing_bispar = itemgetter(
         slice(0, 11, None),
@@ -71,7 +73,7 @@ def write_odinv(fcy, file_name=None, nb_fac=5000):
 
     for row in rows:
         a_line += 1
-        invoice_number, *line_to_write, test_a = row
+        invoice_number, *line_to_write, _ = row
         line_t, line_d, ind_a, line_a = split_line(line_to_write, slicing_bispar)
 
         if invoice != invoice_number:

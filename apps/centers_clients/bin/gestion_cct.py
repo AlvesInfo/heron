@@ -1,6 +1,6 @@
-"""
-FR : Module de gestion des Maisons
-EN : Operation Module for Maisons
+"""FR : Module de gestion des Maisons.
+
+EN : Operation Module for Maisons.
 
 Commentaire:
 
@@ -10,19 +10,21 @@ created by: Paulo ALVES
 modified at: 2023-03-17
 modified by: Paulo ALVES
 """
+
 from django.db import connection, transaction
 
 
 @transaction.atomic
 def update_supplier_cct_reference_cosium(reference_cosium):
-    """Fonction d'update des cct depuis book_supplier_cct,
+    """Fonction d'update des cct depuis book_supplier_cct,.
+
     au changement de reference Cosium dans les clients Maisons
     :param reference_cosium: reference Cosium
-    :return: view
+    :return: view.
     """
     sql_delete_reference_cosium = """
     update "book_suppliercct" "bs"
-    set "cct_identifier" = case 
+    set "cct_identifier" = case
                                 when "bs"."cct_identifier" ilike %(reference_cosium_ilike_pipe)s
                                 then REPLACE("bs"."cct_identifier", %(reference_cosium_pipe)s, '')
                                 when "bs"."cct_identifier" ilike %(reference_cosium_ilike)s
@@ -70,19 +72,6 @@ def update_supplier_cct_reference_cosium(reference_cosium):
     and "cosi"."cct_uuid_identification" = "bs"."cct_uuid_identification"
     """
     with connection.cursor() as cursor:
-        # print(
-        #     cursor.mogrify(
-        #         sql_delete_reference_cosium,
-        #         {
-        #             "reference_cosium_ilike_pipe": f"%{reference_cosium}|%",
-        #             "reference_cosium_pipe": f"{reference_cosium}|",
-        #             "reference_cosium_ilike": f"%{reference_cosium}%",
-        #             "reference_cosium": reference_cosium,
-        #             "cct": cct.uuid_identification,
-        #         },
-        #     ).decode()
-        # )
-        # print(cursor.mogrify(sql_reference_cosium).decode())
         cursor.execute(
             sql_delete_reference_cosium,
             {

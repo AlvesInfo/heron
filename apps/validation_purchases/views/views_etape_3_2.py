@@ -1,25 +1,27 @@
+"""Vues de l'étape 3.2 de la validation des achats : contrôle des CCT franchiseurs."""
+
 import pendulum
 from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.http import JsonResponse
 from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_change
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from apps.edi.models import EdiValidation
 from apps.validation_purchases.excel_outputs.excel_cct_franchiseurs import (
     excel_cct_franchiseurs,
 )
-from apps.edi.models import EdiValidation
 from apps.validation_purchases.forms import FranchiseursValidationForm
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 3.2 - CONTROLE CCT Franchiseurs
 
 
 def cct_franchiseurs_purchases(request):
-    """View de l'étape 3.2 des écrans de contrôles"""
+    """View de l'étape 3.2 des écrans de contrôles."""
     context = {
         "titre_table": "3.2 - Contrôle des CCT/franchiseurs (MARK, INFO, etc…)",
         "franchiseurs_validation": EdiValidation.objects.filter(
@@ -31,14 +33,16 @@ def cct_franchiseurs_purchases(request):
 
 
 def cct_franchiseurs_purchases_export(request):
-    """Export Excel du Contrôle des achats des CCT franchiseur (CAHA, MARK, INFO, etc…)
+    """Export Excel du Contrôle des achats des CCT franchiseur (CAHA, MARK, INFO, etc…).
+
     :param request: Request Django
-    :return: response_file"""
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()
             file_name = (
-                "CONTROLE_CCT_FFRANCHISEUR_" f"{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
+                f"CONTROLE_CCT_FFRANCHISEUR_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
 
             return response_file(
@@ -54,8 +58,7 @@ def cct_franchiseurs_purchases_export(request):
 
 
 def franchiseurs_validation(request):
-    """Validation de l'écran de Contrôle des achats des CCT franchiseur"""
-
+    """Validation de l'écran de Contrôle des achats des CCT franchiseur."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -88,12 +91,10 @@ def franchiseurs_validation(request):
                 message = "Le contrôle des CCT/franchiseurs est maintenant invalidé"
 
         except Exception:
-            LOGGER_VIEWS.exception(f"Views : franchiseurs_validation error : {form.cleaned_data!r}")
+            LOGGER_VIEWS.exception("Views : franchiseurs_validation error : %r", form.cleaned_data)
 
     else:
-        LOGGER_VIEWS.error(
-            f"Views : franchiseurs_validation error, form invalid : {form.errors!r}"
-        )
+        LOGGER_VIEWS.error("Views : franchiseurs_validation error, form invalid : %r", form.errors)
 
     messages.add_message(request, level, message)
 

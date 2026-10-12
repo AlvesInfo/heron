@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel Dictionnaire Axe Pro/Regroupement de facturation
+"""Module d'export du fichier excel Dictionnaire Axe Pro/Regroupement de facturation.
 
 Commentaire:
 
@@ -11,11 +11,11 @@ modified by: Paulo ALVES
 
 import io
 
+from apps.centers_purchasing.models import ApplicableProVat
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
-from apps.centers_purchasing.models import ApplicableProVat
 from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 columns = [
@@ -23,15 +23,11 @@ columns = [
         "entete": "Centrale Fille",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 35,
     },
@@ -39,15 +35,11 @@ columns = [
         "entete": "Axe Pro",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 35,
     },
@@ -55,15 +47,11 @@ columns = [
         "entete": "TVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -71,8 +59,7 @@ columns = [
 
 
 def get_clean_rows():
-    """Fonction qui renvoie les éléments pour le fichier Excel"""
-
+    """Fonction qui renvoie les éléments pour le fichier Excel."""
     return [
         (
             str(row.child_center),
@@ -84,14 +71,14 @@ def get_clean_rows():
 
 
 def excel_liste_axe_vat(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier Dictionnaire Centrale Filles/Axe Pro/TVA de facturation"""
+    """Fonction de génération du fichier Dictionnaire Centrale Filles/Axe Pro/TVA de facturation."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
 
     return excel_list_export(
         file_io,
         file_name,
-        sheet_name='AXE PRO VS TVA',
+        sheet_name="AXE PRO VS TVA",
         title=titre,
         columns=columns,
         rows=get_clean_rows(),

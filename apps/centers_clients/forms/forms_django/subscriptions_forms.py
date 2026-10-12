@@ -1,25 +1,23 @@
-"""
-Forms des Parameters
-"""
+"""Forms des Parameters."""
+
 from django import forms
 
-from apps.parameters.forms import NumberInput
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.articles.models import Article
 from apps.centers_clients.models import MaisonSubcription
+from apps.parameters.forms import NumberInput
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
 class MaisonSubcriptionForm(forms.ModelForm):
-    """Form pour les MaisonSubcription"""
+    """Form pour les MaisonSubcription."""
 
     use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
+        """Restreint les maisons et les articles d'abonnement proposés."""
         super().__init__(*args, **kwargs)
         self.fields["maison"].queryset = self.fields["maison"].queryset.select_related("cct")
-        self.fields["article"].queryset = Article.objects.select_related(
-            "third_party_num"
-        ).filter(
+        self.fields["article"].queryset = Article.objects.select_related("third_party_num").filter(
             big_category__slug_name__in={
                 "redevances",
                 "redevances-de-publicite",
@@ -30,7 +28,7 @@ class MaisonSubcriptionForm(forms.ModelForm):
         )
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = MaisonSubcription
         fields = (
@@ -58,12 +56,12 @@ class MaisonSubcriptionForm(forms.ModelForm):
 
 
 class DeleteMaisonSubcriptionForm(forms.ModelForm):
-    """Form pour la suppression des MaisonSubcription"""
+    """Form pour la suppression des MaisonSubcription."""
 
     id = forms.ModelChoiceField(queryset=MaisonSubcription.objects.all())
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = MaisonSubcription
         fields = ("id",)

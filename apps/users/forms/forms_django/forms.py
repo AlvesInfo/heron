@@ -1,19 +1,24 @@
-from django_clamd.validators import validate_file_infection
-from django.contrib.auth.models import Group
+"""Formulaires de connexion, d'inscription et de gestion des utilisateurs."""
+
 from django import forms
+from django.conf import settings
+from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.conf import settings
+from django_clamd.validators import validate_file_infection
 
-from apps.users.models import User, AuthGroupName, UploadUserFile, AuthGroupAccessStaff
+from apps.users.models import AuthGroupAccessStaff, AuthGroupName, UploadUserFile, User
 
 
 class UserLoginForm(forms.Form):
+    """Formulaire de connexion par e-mail et mot de passe."""
+
     email = forms.EmailField()
     mot_de_passe = forms.CharField(widget=forms.PasswordInput)
 
 
 class UserRegisterForm(forms.Form):
+    """Formulaire d'inscription d'un utilisateur avec choix des groupes."""
 
     first_name = forms.CharField(required=False, max_length=80)
     last_name = forms.CharField(required=False, max_length=80)
@@ -27,6 +32,7 @@ class UserRegisterForm(forms.Form):
     staff = forms.BooleanField(required=False)
 
     def __init__(self, user, *args, **kwargs):
+        """Construit la liste des groupes proposés selon l'utilisateur connecté."""
         super().__init__(*args, **kwargs)
         self.user = user
 
@@ -53,7 +59,8 @@ class UserRegisterForm(forms.Form):
         )
         self.fields["groups"] = groups
 
-    def clean(self, *args, **kwargs):
+    def clean(self):
+        """Contrôle la concordance des mots de passe et l'unicité de l'e-mail."""
         email = self.cleaned_data.get("email")
         password = self.cleaned_data.get("password")
         password_verif = self.cleaned_data.get("password_verif")
@@ -81,7 +88,10 @@ class UserRegisterForm(forms.Form):
 
 
 class UpdateProfilForm(forms.Form):
+    """Formulaire de mise à jour du profil de l'utilisateur connecté."""
+
     def __init__(self, user, *args, **kwargs):
+        """Pré-remplit les champs avec le profil de l'utilisateur connecté."""
         super().__init__(*args, **kwargs)
         self.user = user
         utilisateur = User.objects.get(pk=self.user.id)
@@ -101,7 +111,8 @@ class UpdateProfilForm(forms.Form):
     password = forms.CharField(required=False, widget=forms.PasswordInput)
     password_verif = forms.CharField(required=False, widget=forms.PasswordInput)
 
-    def clean(self, *args, **kwargs):
+    def clean(self):
+        """Contrôle la concordance des mots de passe s'ils sont renseignés."""
         password = self.cleaned_data.get("password")
 
         if password:
@@ -115,7 +126,10 @@ class UpdateProfilForm(forms.Form):
 
 
 class UpdateGroupesForm(forms.Form):
+    """Formulaire de mise à jour des groupes d'un utilisateur."""
+
     def __init__(self, user, user_to_form, *args, **kwargs):
+        """Construit le choix des groupes et pré-sélectionne ceux de l'utilisateur modifié."""
         super().__init__(*args, **kwargs)
 
         groups = forms.MultipleChoiceField(
@@ -129,6 +143,7 @@ class UpdateGroupesForm(forms.Form):
 
 
 class InsertStaffsForm(forms.Form):
+    """Formulaire de sélection du fichier d'insertion des salariés."""
 
     file_staffs = forms.FileField(
         required=False,
@@ -138,26 +153,30 @@ class InsertStaffsForm(forms.Form):
 
 
 class UploadStaffsForm(forms.ModelForm):
+    """Formulaire de téléversement du fichier des salariés."""
+
     if not settings.DEBUG:
         file = forms.FileField(validators=[validate_file_infection])
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
+
         model = UploadUserFile
         fields = ("file",)
 
 
 class GroupAccessStaffForm(forms.Form):
+    """Formulaire d'attribution des groupes d'accès aux salariés."""
+
     def __init__(self, *args, **kwargs):
+        """Construit le choix des groupes d'accès."""
         super().__init__(*args, **kwargs)
 
         group = forms.MultipleChoiceField(
             choices=[(row.id, row.name) for row in Group.objects.all()],
             widget=forms.SelectMultiple(attrs={"class": "ui fluid dropdown"}),
             label="",
-            initial=[
-                row for row in AuthGroupAccessStaff.objects.all().values_list("group_id", flat=True)
-            ],
+            initial=list(AuthGroupAccessStaff.objects.values_list("group_id", flat=True)),
             required=False,
         )
 
@@ -165,6 +184,8 @@ class GroupAccessStaffForm(forms.Form):
 
 
 class ChangeEmailForm(forms.Form):
+    """Formulaire de changement d'adresse e-mail."""
+
     last_email = forms.EmailField(label="Ancienne Email")
     email = forms.EmailField(label="Email")
     email_verif = forms.EmailField(label="Vérifaction Email")

@@ -1,6 +1,6 @@
-"""
-FR : Module d'envoi d'emails via l'API Gmail
-EN : Email sending module via Gmail API
+"""FR : Module d'envoi d'emails via l'API Gmail.
+
+EN : Email sending module via Gmail API.
 
 Commentaire:
 Ce module gère l'envoi d'emails via l'API Gmail avec gestion intelligente
@@ -9,53 +9,53 @@ des quotas et retry automatique en cas d'erreur.
 Pour 1000 emails: environ 2-3 minutes avec les paramètres optimisés
 
 created at: 2025-01-10
-created by: Paulo ALVES 
+created by: Paulo ALVES
 """
 
 import base64
 import time
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
-from pathlib import Path
-from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from pathlib import Path
 
-from googleapiclient.errors import HttpError
 from bs4 import BeautifulSoup
 from django.utils.functional import SimpleLazyObject
+from googleapiclient.errors import HttpError
 
+from apps.core.models import SSEProgress
 from heron.loggers import LOGGER_EMAIL
+
 from .auth import authenticator
 from .config import config
-from apps.core.models import SSEProgress
 
 
 @dataclass
 class EmailResult:
-    """Résultat de l'envoi d'un email"""
+    """Résultat de l'envoi d'un email."""
 
     success: bool
-    message_id: Optional[str] = None
-    error: Optional[str] = None
-    recipient: Optional[str] = None
+    message_id: str | None = None
+    error: str | None = None
+    recipient: str | None = None
 
 
 class RateLimiter:
-    """Gère le rate limiting pour respecter les quotas Gmail"""
+    """Gère le rate limiting pour respecter les quotas Gmail."""
 
     def __init__(self, max_per_second: int = 10):
-        """
-        Initialise le rate limiter
-        :param max_per_second: Nombre maximum d'emails par seconde
+        """Initialise le rate limiter.
+
+        :param max_per_second: Nombre maximum d'emails par seconde.
         """
         self.max_per_second = max_per_second
         self.min_interval = 1.0 / max_per_second  # Intervalle minimum entre envois
         self.last_send_time = 0.0
 
     def wait_if_needed(self):
-        """Attend si nécessaire pour respecter le rate limit"""
+        """Attend si nécessaire pour respecter le rate limit."""
         current_time = time.time()
         time_since_last_send = current_time - self.last_send_time
 
@@ -67,22 +67,22 @@ class RateLimiter:
 
 
 class GmailSender:
-    """Classe pour envoyer des emails via l'API Gmail"""
+    """Classe pour envoyer des emails via l'API Gmail."""
 
     def __init__(self):
-        """Initialise le sender"""
+        """Initialise le sender."""
         self.config = config
         self.service = None
         self.rate_limiter = RateLimiter(max_per_second=self.config.max_per_second)
         self._ensure_service()
 
     def _ensure_service(self):
-        """S'assure que le service Gmail est initialisé"""
+        """S'assure que le service Gmail est initialisé."""
         if self.service is None:
             self.service = authenticator.get_gmail_service()
 
     def _reset_service(self):
-        """Réinitialise le service Gmail (connexion SSL cassée, etc.)"""
+        """Réinitialise le service Gmail (connexion SSL cassée, etc.)."""
         LOGGER_EMAIL.warning("Réinitialisation du service Gmail API...")
         authenticator.service = None
         self.service = None
@@ -90,27 +90,32 @@ class GmailSender:
 
     def create_message(
         self,
-        to: List[str],
+        to: list[str],
         subject: str,
         body_text: str,
         body_html: str,
-        context: Dict,
-        attachments: Optional[List[Path]] = None,
+        context: dict,
+        attachments: list[Path] | None = None,
     ) -> dict:
-        """
-        Crée un message email au format attendu par l'API Gmail
+        """Crée un message email au format attendu par l'API Gmail.
+
         :param to: Liste des destinataires
         :param subject: Sujet de l'email
         :param body_text: Corps en texte brut
         :param body_html: Corps en HTML
         :param context: Contexte pour formater le message
         :param attachments: Liste des fichiers à attacher
-        :return: Message au format dict pour l'API Gmail
+        :return: Message au format dict pour l'API Gmail.
         """
         # Formate le sujet et le corps avec le contexte
         formatted_subject = subject.format(**context)
         formatted_html = body_html.format(**context)
-        formatted_text = BeautifulSoup(formatted_html, "lxml").get_text()
+        # Partie texte : celle fournie par l'appelant, sinon le texte extrait du html
+        formatted_text = (
+            body_text.format(**context)
+            if body_text
+            else BeautifulSoup(formatted_html, "lxml").get_text()
+        )
 
         # Crée le message MIME
         message = MIMEMultipart()
@@ -128,13 +133,11 @@ class GmailSender:
         if attachments:
             for file_path in attachments:
                 if not file_path.exists():
-                    LOGGER_EMAIL.warning(
-                        "Fichier non trouvé, ignoré: %s", file_path
-                    )
+                    LOGGER_EMAIL.warning("Fichier non trouvé, ignoré: %s", file_path)
                     continue
 
                 try:
-                    with open(file_path, "rb") as file:
+                    with Path(file_path).open("rb") as file:
                         part = MIMEBase("application", "octet-stream")
                         part.set_payload(file.read())
 
@@ -144,11 +147,9 @@ class GmailSender:
                         f"attachment; filename={file_path.name}",
                     )
                     message.attach(part)
-                except Exception as error:
-                    LOGGER_EMAIL.error(
-                        "Erreur lors de l'ajout de la pièce jointe %s: %s",
-                        file_path,
-                        error,
+                except Exception:
+                    LOGGER_EMAIL.exception(
+                        "Erreur lors de l'ajout de la pièce jointe %s", file_path
                     )
                     raise
 
@@ -158,24 +159,18 @@ class GmailSender:
         return {"raw": raw_message}
 
     def _retry_delay(self, attempt: int) -> float:
-        """Délai avant la tentative suivante : exponentiel, plafonné à max_retry_delay"""
-        retry_delay = self.config.retry_delay * (
-            self.config.retry_backoff ** attempt
-        )
+        """Délai avant la tentative suivante : exponentiel, plafonné à max_retry_delay."""
+        retry_delay = self.config.retry_delay * (self.config.retry_backoff**attempt)
         return min(retry_delay, self.config.max_retry_delay)
 
-    def _send_once(self, message: dict, to: List[str]) -> EmailResult:
-        """Une tentative d'envoi (après attente éventuelle du rate limiting)"""
+    def _send_once(self, message: dict, to: list[str]) -> EmailResult:
+        """Une tentative d'envoi (après attente éventuelle du rate limiting)."""
         # Attend si nécessaire pour le rate limiting
         self.rate_limiter.wait_if_needed()
 
         # Envoie le message
-        result = (
-            self.service.users()
-            .messages()
-            .send(userId="me", body=message)
-            .execute()
-        )
+        assert self.service is not None, "service Gmail non initialisé"  # noqa: S101 (rétrécissement de type pour mypy)
+        result = self.service.users().messages().send(userId="me", body=message).execute()
 
         message_id = result.get("id")
         LOGGER_EMAIL.info(
@@ -190,10 +185,12 @@ class GmailSender:
             recipient=", ".join(to),
         )
 
-    def _http_error_result(self, error: HttpError, attempt: int, to: List[str]) -> Optional[EmailResult]:
-        """
-        Erreur HTTP de l'API : attend et renvoie None si elle est récupérable (rate limit, erreur
-        temporaire), sinon renvoie le résultat d'échec définitif
+    def _http_error_result(
+        self, error: HttpError, attempt: int, to: list[str]
+    ) -> EmailResult | None:
+        """Erreur HTTP de l'API : attend et renvoie None si elle est récupérable (rate limit, erreur.
+
+        temporaire), sinon renvoie le résultat d'échec définitif.
         """
         error_code = error.resp.status
 
@@ -202,8 +199,7 @@ class GmailSender:
             retry_delay = self._retry_delay(attempt)
 
             LOGGER_EMAIL.warning(
-                "Erreur HTTP %s (tentative %d/%d), "
-                "nouvelle tentative dans %s secondes: %s",
+                "Erreur HTTP %s (tentative %d/%d), nouvelle tentative dans %s secondes: %s",
                 error_code,
                 attempt + 1,
                 self.config.max_retries,
@@ -215,9 +211,7 @@ class GmailSender:
             return None
 
         # Erreurs non récupérables
-        error_msg = (
-            f"Erreur HTTP non récupérable {error_code}: {error}"
-        )
+        error_msg = f"Erreur HTTP non récupérable {error_code}: {error}"
         LOGGER_EMAIL.error(error_msg)
         return EmailResult(
             success=False,
@@ -226,7 +220,7 @@ class GmailSender:
         )
 
     def _after_send_error(self, error: Exception, attempt: int) -> None:
-        """Erreur inattendue à l'envoi : journal, réinitialisation SSL, attente avant de retenter"""
+        """Erreur inattendue à l'envoi : journal, réinitialisation SSL, attente avant de retenter."""
         LOGGER_EMAIL.error(
             "Erreur lors de l'envoi (tentative %d/%d): %s",
             attempt + 1,
@@ -243,33 +237,31 @@ class GmailSender:
 
     def send_message(
         self,
-        to: List[str],
+        to: list[str],
         subject: str,
         body_text: str,
         body_html: str,
-        context: Dict,
-        attachments: Optional[List[Path]] = None,
+        context: dict,
+        attachments: list[Path] | None = None,
     ) -> EmailResult:
-        """
-        Envoie un email via l'API Gmail avec retry automatique
+        """Envoie un email via l'API Gmail avec retry automatique.
+
         :param to: Liste des destinataires
         :param subject: Sujet de l'email
         :param body_text: Corps en texte brut
         :param body_html: Corps en HTML
         :param context: Contexte pour formater le message
         :param attachments: Liste des fichiers à attacher
-        :return: EmailResult avec le statut de l'envoi
+        :return: EmailResult avec le statut de l'envoi.
         """
         self._ensure_service()
 
         # Crée le message
         try:
-            message = self.create_message(
-                to, subject, body_text, body_html, context, attachments
-            )
+            message = self.create_message(to, subject, body_text, body_html, context, attachments)
         except Exception as error:
             error_msg = f"Erreur lors de la création du message: {error}"
-            LOGGER_EMAIL.error(error_msg)
+            LOGGER_EMAIL.exception(error_msg)
             return EmailResult(
                 success=False,
                 error=error_msg,
@@ -289,7 +281,7 @@ class GmailSender:
                 if failure is not None:
                     return failure
 
-            except Exception as error:
+            except Exception as error:  # noqa: BLE001  (toute erreur d'envoi est réessayée)
                 last_error = error
                 self._after_send_error(error, attempt)
 
@@ -303,8 +295,10 @@ class GmailSender:
         )
 
     @staticmethod
-    def _report_mass_result(i: int, total: int, result: EmailResult, attachments_name: str, progress) -> None:
-        """Journalise le résultat d'un envoi en masse et met à jour la jauge éventuelle"""
+    def _report_mass_result(
+        i: int, total: int, result: EmailResult, attachments_name: str, progress
+    ) -> None:
+        """Journalise le résultat d'un envoi en masse et met à jour la jauge éventuelle."""
         if result.success:
             msg = f"[{i}/{total}] {attachments_name} envoyée avec succès"
             LOGGER_EMAIL.info(msg)
@@ -319,7 +313,7 @@ class GmailSender:
 
     @staticmethod
     def _log_mass_progress(i: int, total: int, start_time: float) -> None:
-        """Log de progression tous les 50 emails"""
+        """Log de progression tous les 50 emails."""
         if i % 50 == 0:
             elapsed = time.time() - start_time
             rate = i / elapsed
@@ -330,12 +324,12 @@ class GmailSender:
             )
             LOGGER_EMAIL.info(msg)
 
-    def _send_mass_item(self, i: int, email_data: Tuple) -> Tuple[EmailResult, Optional[str]]:
-        """
-        Envoie un email de la liste et renvoie un seul résultat pour lui
+    def _send_mass_item(self, i: int, email_data: tuple) -> tuple[EmailResult, str | None]:
+        """Envoie un email de la liste et renvoie un seul résultat pour lui.
+
         :param i: rang de l'email
         :param email_data: tuple (to, subject, text, html, context, attachments)
-        :return: (résultat, nom des pièces jointes) ; le nom est None si l'envoi n'a pas été tenté
+        :return: (résultat, nom des pièces jointes) ; le nom est None si l'envoi n'a pas été tenté.
         """
         try:
             to, subject, body_text, body_html, context, attachments = email_data
@@ -355,25 +349,23 @@ class GmailSender:
             )
 
         except Exception as error:
-            LOGGER_EMAIL.exception("Erreur lors de l'envoi de l'email %d: %s", i, error)
+            LOGGER_EMAIL.exception("Erreur lors de l'envoi de l'email %d", i)
             return EmailResult(success=False, error=str(error)), None
 
     def send_mass_mail(
-        self, email_list: List[Tuple], job_id: str = None
-    ) -> Tuple[int, int, List[EmailResult]]:
-        """
-        Envoie plusieurs emails en masse avec gestion intelligente des quotas
+        self, email_list: list[tuple], job_id: str | None = None
+    ) -> tuple[int, int, list[EmailResult]]:
+        """Envoie plusieurs emails en masse avec gestion intelligente des quotas.
+
         :param email_list: Liste de tuples (to, subject, text, html, context, attachments)
         :param job_id: identifiant du job
-        :return: Tuple (nb_success, nb_errors, results)
+        :return: Tuple (nb_success, nb_errors, results).
         """
         if not email_list:
             LOGGER_EMAIL.warning("Aucun email à envoyer")
             return 0, 0, []
 
-        LOGGER_EMAIL.info(
-            "Début de l'envoi de %d emails via l'API Gmail", len(email_list)
-        )
+        LOGGER_EMAIL.info("Début de l'envoi de %d emails via l'API Gmail", len(email_list))
 
         start_time = time.time()
         results = []

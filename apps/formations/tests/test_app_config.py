@@ -1,11 +1,13 @@
 # pylint: disable=E0401
-"""
-FR : Tests de la configuration de l'app formations (squelette sans modèle ni vue pour l'instant)
+"""FR : Tests de la configuration de l'app formations (squelette sans modèle ni vue pour l'instant)
+
+
 EN : Tests for formations app configuration (empty skeleton for now)
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import importlib
 
 import pytest
@@ -29,13 +31,26 @@ def test_app_config():
 @pytest.mark.parametrize(
     "module_name",
     [
-        "apps.formations.models", "apps.formations.views", "apps.formations.admin", "apps.formations.bin",
-        "apps.formations.data_fixtures", "apps.formations.essais", "apps.formations.excel_outputs",
-        "apps.formations.exports", "apps.formations.forms", "apps.formations.forms.forms_django",
-        "apps.formations.forms.forms_djantic", "apps.formations.forms.forms_pydantic",
-        "apps.formations.forms.forms_serializers", "apps.formations.imports", "apps.formations.loops",
-        "apps.formations.parameters", "apps.formations.tasks", "apps.formations.templates",
-        "apps.formations.templates.formations", "apps.formations.validations",
+        "apps.formations.models",
+        "apps.formations.views",
+        "apps.formations.admin",
+        "apps.formations.bin",
+        "apps.formations.data_fixtures",
+        "apps.formations.essais",
+        "apps.formations.excel_outputs",
+        "apps.formations.exports",
+        "apps.formations.forms",
+        "apps.formations.forms.forms_django",
+        "apps.formations.forms.forms_djantic",
+        "apps.formations.forms.forms_pydantic",
+        "apps.formations.forms.forms_serializers",
+        "apps.formations.imports",
+        "apps.formations.loops",
+        "apps.formations.parameters",
+        "apps.formations.tasks",
+        "apps.formations.templates",
+        "apps.formations.templates.formations",
+        "apps.formations.validations",
     ],
 )
 def test_packages_importables(module_name):

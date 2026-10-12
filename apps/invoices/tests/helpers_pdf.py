@@ -1,23 +1,24 @@
 # pylint: disable=E0401,W0621,C0415
-"""
-FR : Aides aux tests de génération PDF de l'app invoices (jeu de données facture + lignes,
+"""FR : Aides aux tests de génération PDF de l'app invoices (jeu de données facture + lignes,
+
+
      domaine statique local pour WeasyPrint, PDF minimal, lecture du nombre de pages)
 EN : Helpers for invoices PDF tests
 
 Importées explicitement par les modules de tests : `from apps.invoices.tests.helpers_pdf import *`
 """
+
 import datetime
 import shutil
+from collections.abc import Callable
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
 from uuid import uuid4
 
 import pytest
 from pdfrw import PdfReader
 from weasyprint import HTML
-
 
 STATIC_FILES = ["logo_heron_01.png", "ClanBook.otf", "ClanMedium.otf", "ClanThin.otf"]
 
@@ -50,8 +51,8 @@ def write_minimal_pdf(path, text: str = "test") -> Path:
 
 @pytest.fixture
 def pdf_domain(tmp_path, settings) -> str:
-    """
-    Domaine local (file://) servant les statiques aux templates WeasyPrint : pas d'accès réseau,
+    """Domaine local (file://) servant les statiques aux templates WeasyPrint : pas d'accès réseau,
+
     logos et polices résolus depuis une copie de files/static dans tmp_path.
     """
     static_dir = tmp_path / "www" / "static"
@@ -76,11 +77,14 @@ def sales_dir(invoices_dirs, settings):
 
 @pytest.fixture
 def make_sale_with_lines(
-    make_sale_invoice, make_invoice_common_details, make_society,
-    make_axes_details, make_child_center,
+    make_sale_invoice,
+    make_invoice_common_details,
+    make_society,
+    make_axes_details,
+    make_child_center,
 ) -> Callable[..., Any]:
-    """
-    Fabrique une facture de vente et ses lignes : chaque ligne crée un couple
+    """Fabrique une facture de vente et ses lignes : chaque ligne crée un couple
+
     SaleInvoiceDetail / InvoiceCommonDetails partageant import_uuid_identification.
     `lines` : liste de dicts, clés optionnelles : supplier (tiers), invoice_number (facture
     fournisseur), delivery_number, delivery_date, axe (code ENTETES), vat ("001"/"002"/"003"),
@@ -113,8 +117,10 @@ def make_sale_with_lines(
                 "delivery_date": line.get("delivery_date", datetime.date(2026, 1, 8)),
                 "reference_article": line.get("reference", "ART-1"),
                 "libelle": line.get("libelle", "Monture test"),
-                "supplier_initial_libelle": line.get("supplier_initial_libelle", "Libellé fournisseur"),
-                "qty": line.get("qty", Decimal("1")),
+                "supplier_initial_libelle": line.get(
+                    "supplier_initial_libelle", "Libellé fournisseur"
+                ),
+                "qty": line.get("qty", Decimal(1)),
                 "client_name": line.get("client_name"),
                 "serial_number": line.get("serial_number"),
                 "command_reference": line.get("command_reference", "CMD1"),
@@ -134,7 +140,9 @@ def make_sale_with_lines(
                 **common_kwargs,
             )
             vat = line.get("vat", "001")
-            vat_rate = line.get("vat_rate", {"001": Decimal("0.2"), "002": Decimal("0.055")}.get(vat, Decimal("0")))
+            vat_rate = line.get(
+                "vat_rate", {"001": Decimal("0.2"), "002": Decimal("0.055")}.get(vat, Decimal(0))
+            )
             net_amount = Decimal(str(line.get("net_amount", "100")))
             vat_amount = (net_amount * vat_rate).quantize(Decimal("0.01"))
             SaleInvoiceDetail.objects.create(
@@ -165,4 +173,3 @@ def make_sale_with_lines(
         return sale
 
     return _factory
-

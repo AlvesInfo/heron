@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql, pour les factures de ventes Prestation
-EN : Module of sql queries, for sales Prestation invoices
+"""FR : Module des requêtes sql, pour les factures de ventes Prestation.
+
+EN : Module of sql queries, for sales Prestation invoices.
 
 Commentaire:
 
@@ -10,12 +10,13 @@ created by: Paulo ALVES
 modified at: 2023-03-16
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 SQL_HEADER = sql.SQL(
     """
-    select 
-        case 
+    select
+        case
             when coalesce("bs"."invoice_entete", '') = ''
             then "bs"."name"
             else coalesce("bs"."invoice_entete", '')
@@ -29,16 +30,16 @@ SQL_HEADER = sql.SQL(
         "sd"."amount_with_vat"
     from "invoices_saleinvoicedetail" "sd"
     join "invoices_invoicecommondetails" as "ii"
-    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification" 
+    on "ii"."import_uuid_identification" = "sd"."import_uuid_identification"
     join "book_society" "bs"
-    on "bs"."third_party_num" = "ii"."third_party_num" 
+    on "bs"."third_party_num" = "ii"."third_party_num"
     where "uuid_invoice" = %(uuid_invoice)s
     """
 )
 
 SQL_RESUME_HEADER = sql.SQL(
-    """    
-    select 
+    """
+    select
         sum("mont_00") as "net_mont_00",
         sum("mont_05") as "net_mont_05",
         sum("mont_20") as "net_mont_20",
@@ -52,7 +53,7 @@ SQL_RESUME_HEADER = sql.SQL(
         sum("ttc_vat_20") as "ttc_vat_20",
         sum("amount_with_vat") as "amount_with_vat"
     from (
-        select 
+        select
             case when "sd"."vat_rate" = 0 then "sd"."net_amount" else 0 end as "mont_00",
             case when "sd"."vat_rate" = 0.055 then "sd"."net_amount" else 0 end as "mont_05",
             case when "sd"."vat_rate" = 0.2 then "sd"."net_amount" else 0 end as "mont_20",
@@ -67,11 +68,10 @@ SQL_RESUME_HEADER = sql.SQL(
             "sd"."amount_with_vat"
         from "invoices_saleinvoicedetail" "sd"
         join "invoices_invoicecommondetails" as "ii"
-        on "ii"."import_uuid_identification" = "sd"."import_uuid_identification" 
+        on "ii"."import_uuid_identification" = "sd"."import_uuid_identification"
         join "book_society" "bs"
-        on "bs"."third_party_num" = "ii"."third_party_num" 
+        on "bs"."third_party_num" = "ii"."third_party_num"
         where "uuid_invoice" = %(uuid_invoice)s
     ) "head"
     """
 )
-

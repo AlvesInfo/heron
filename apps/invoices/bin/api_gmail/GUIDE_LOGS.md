@@ -17,12 +17,12 @@ Chaque email envoyé crée une trace avec `get_trace()` exactement comme l'ancie
 ```python
 trace = get_trace(
     trace_name="Send invoices mail (Gmail API)",  # ou "...ERROR..." en cas d'erreur
-    file_name=str(file_path),                      # ex: "facture_CCT_2025-01.pdf"
+    file_name=str(file_path),  # ex: "facture_CCT_2025-01.pdf"
     application_name="invoices_send_by_email_gmail",
     flow_name="send_invoice_email_gmail",
     comment="Email envoyé avec succès à client@example.com (Message ID: 18d2abc...)",
 )
-trace.created_by = user                            # Utilisateur qui a lancé
+trace.created_by = user  # Utilisateur qui a lancé
 trace.time_to_process = 0.8  # Temps d'envoi en secondes
 trace.save()
 ```
@@ -40,23 +40,22 @@ Dans votre application Django, là où vous consultiez les traces avant :
 from apps.data_flux.models import Trace
 
 # Traces d'envoi Gmail
-traces_gmail = Trace.objects.filter(
-    application_name="invoices_send_by_email_gmail"
-).order_by('-created_at')
+traces_gmail = Trace.objects.filter(application_name="invoices_send_by_email_gmail").order_by(
+    "-created_at"
+)
 
 # Erreurs uniquement
 traces_erreurs = Trace.objects.filter(
-    application_name="invoices_send_by_email_gmail",
-    errors=True
-).order_by('-created_at')
+    application_name="invoices_send_by_email_gmail", errors=True
+).order_by("-created_at")
 
 # Traces du jour
 from django.utils import timezone
 from datetime import timedelta
+
 today = timezone.now().date()
 traces_today = Trace.objects.filter(
-    application_name="invoices_send_by_email_gmail",
-    created_at__date=today
+    application_name="invoices_send_by_email_gmail", created_at__date=today
 )
 
 # Stats
@@ -78,12 +77,12 @@ Comme l'ancien système, chaque email est loggué via les loggers Python.
 ```python
 # Exemple de configuration typique
 LOGGING = {
-    'handlers': {
-        'file_invoices': {
-            'filename': '/path/to/logs/invoices.log',  # ← Vérifiez ce chemin
+    "handlers": {
+        "file_invoices": {
+            "filename": "/path/to/logs/invoices.log",  # ← Vérifiez ce chemin
         },
-        'file_email': {
-            'filename': '/path/to/logs/email.log',     # ← Vérifiez ce chemin
+        "file_email": {
+            "filename": "/path/to/logs/email.log",  # ← Vérifiez ce chemin
         },
     },
 }
@@ -249,53 +248,53 @@ Dans `/Users/paulo/SitesWeb/heron/heron/settings.py` :
 
 ```python
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        'file_invoices': {
-            'level': 'INFO',  # ou 'DEBUG' pour encore plus de détails
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/path/to/logs/invoices.log',
-            'maxBytes': 1024 * 1024 * 50,  # 50MB
-            'backupCount': 5,
-            'formatter': 'verbose',
+    "handlers": {
+        "file_invoices": {
+            "level": "INFO",  # ou 'DEBUG' pour encore plus de détails
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "/path/to/logs/invoices.log",
+            "maxBytes": 1024 * 1024 * 50,  # 50MB
+            "backupCount": 5,
+            "formatter": "verbose",
         },
-        'file_email': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/path/to/logs/email.log',
-            'maxBytes': 1024 * 1024 * 50,
-            'backupCount': 5,
-            'formatter': 'verbose',
+        "file_email": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "/path/to/logs/email.log",
+            "maxBytes": 1024 * 1024 * 50,
+            "backupCount": 5,
+            "formatter": "verbose",
         },
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
     },
-    'loggers': {
-        'heron.loggers.LOGGER_INVOICES': {
-            'handlers': ['file_invoices', 'console'],
-            'level': 'INFO',
-            'propagate': False,
+    "loggers": {
+        "heron.loggers.LOGGER_INVOICES": {
+            "handlers": ["file_invoices", "console"],
+            "level": "INFO",
+            "propagate": False,
         },
-        'heron.loggers.LOGGER_EMAIL': {
-            'handlers': ['file_email', 'console'],
-            'level': 'INFO',
-            'propagate': False,
+        "heron.loggers.LOGGER_EMAIL": {
+            "handlers": ["file_email", "console"],
+            "level": "INFO",
+            "propagate": False,
         },
         # Logger Celery
-        'celery': {
-            'handlers': ['file_invoices', 'console'],
-            'level': 'INFO',
-            'propagate': False,
+        "celery": {
+            "handlers": ["file_invoices", "console"],
+            "level": "INFO",
+            "propagate": False,
         },
     },
 }
@@ -461,6 +460,7 @@ from apps.invoices.bin.api_gmail.models_progress import EmailSendProgress
 from django.utils import timezone
 from datetime import timedelta
 
+
 def email_sending_dashboard(request):
     """Dashboard des envois d'emails"""
     today = timezone.now().date()
@@ -468,25 +468,20 @@ def email_sending_dashboard(request):
 
     # Stats du jour
     traces_today = Trace.objects.filter(
-        application_name="invoices_send_by_email_gmail",
-        created_at__date=today
+        application_name="invoices_send_by_email_gmail", created_at__date=today
     )
 
     # Stats de la semaine
     traces_week = Trace.objects.filter(
-        application_name="invoices_send_by_email_gmail",
-        created_at__gte=week_ago
+        application_name="invoices_send_by_email_gmail", created_at__gte=week_ago
     )
 
     # Jobs en cours
-    active_jobs = EmailSendProgress.objects.filter(
-        status__in=["pending", "in_progress"]
-    )
+    active_jobs = EmailSendProgress.objects.filter(status__in=["pending", "in_progress"])
 
     # Jobs terminés aujourd'hui
     completed_jobs_today = EmailSendProgress.objects.filter(
-        status="completed",
-        completed_at__date=today
+        status="completed", completed_at__date=today
     )
 
     context = {

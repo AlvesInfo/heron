@@ -1,23 +1,22 @@
-"""
-Filtres pour des recherches dans les views
-"""
+"""Filtres pour des recherches dans les views."""
+
+import django_filters
 from django import forms
 from django.db.models import Exists, OuterRef
-import django_filters
 
 from apps.accountancy.models import SectionSage, VatSage
 from apps.articles.models import Article, ArticleAccount
 from apps.book.models import Society
 from apps.centers_purchasing.models import ChildCenterPurchase
-from apps.parameters.models import Category, SubCategory
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
+from apps.parameters.models import Category, SubCategory
 
 
 class ArticleFilter(django_filters.FilterSet):
-    """Filtre des articles"""
+    """Filtre des articles."""
 
     class Meta:
-        """class Meta django"""
+        """class Meta django."""
 
         model = Article
         fields = {
@@ -31,7 +30,7 @@ class ArticleFilter(django_filters.FilterSet):
 
 
 class ArticleAccountFilter(django_filters.FilterSet):
-    """Filtre des articles / comptes x3"""
+    """Filtre des articles / comptes x3."""
 
     child_center = django_filters.ModelChoiceFilter(
         field_name="child_center",
@@ -52,12 +51,8 @@ class ArticleAccountFilter(django_filters.FilterSet):
         to_field_name="third_party_num",
         widget=forms.Select(attrs=SELECT_FLUIDE_DICT),
     )
-    reference = django_filters.CharFilter(
-        field_name="article__reference", lookup_expr="icontains"
-    )
-    libelle = django_filters.CharFilter(
-        field_name="libelle_article", lookup_expr="icontains"
-    )
+    reference = django_filters.CharFilter(field_name="article__reference", lookup_expr="icontains")
+    libelle = django_filters.CharFilter(field_name="libelle_article", lookup_expr="icontains")
     axe_pro = django_filters.ModelChoiceFilter(
         field_name="article__axe_pro",
         queryset=SectionSage.objects.filter(axe="PRO"),
@@ -85,12 +80,10 @@ class ArticleAccountFilter(django_filters.FilterSet):
     purchase_account = django_filters.CharFilter(
         field_name="purchase_account", lookup_expr="icontains"
     )
-    sale_account = django_filters.CharFilter(
-        field_name="sale_account", lookup_expr="icontains"
-    )
+    sale_account = django_filters.CharFilter(field_name="sale_account", lookup_expr="icontains")
 
     class Meta:
-        """class Meta django"""
+        """class Meta django."""
 
         model = ArticleAccount
         fields = [

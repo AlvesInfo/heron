@@ -1,25 +1,27 @@
+"""Routes URL de l'application book."""
+
 from django.urls import path
 
 from apps.book.views import (
-    # Tiers
-    SocietiesList,
-    SocietiesInUseList,
-    SocietyUpdate,
-    supplier_cct_identifier,
-    change_supplier_cct_unit,
-    export_list_societies,
-    export_list_supplier_cct,
-    emails_errors_list,
-    excel_errors_emails_outputs,
-    # Statistiques
-    StatistiquesList,
-    StatistiqueCreate,
-    StatistiqueUpdate,
-    statistiques_export_list,
     # Familles/Axes
     FamillyAxeCreate,
     FamillyAxeUpdate,
+    SocietiesInUseList,
+    # Tiers
+    SocietiesList,
+    SocietyUpdate,
+    StatistiqueCreate,
+    # Statistiques
+    StatistiquesList,
+    StatistiqueUpdate,
+    change_supplier_cct_unit,
     delete_familly_axes,
+    emails_errors_list,
+    excel_errors_emails_outputs,
+    export_list_societies,
+    export_list_supplier_cct,
+    statistiques_export_list,
+    supplier_cct_identifier,
 )
 
 app_name = "apps.book"
@@ -67,9 +69,7 @@ urlpatterns = [
     ],
     # Statistiques
     *[
-        path(
-            "statistiques_list/", StatistiquesList.as_view(), name="statistiques_list"
-        ),
+        path("statistiques_list/", StatistiquesList.as_view(), name="statistiques_list"),
         path(
             "statistique_create/",
             StatistiqueCreate.as_view(),

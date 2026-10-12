@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql de post-traitement après génération des RFA
-EN : Post-processing sql module after generate RFA
+"""FR : Module des requêtes sql de post-traitement après génération des RFA.
+
+EN : Post-processing sql module after generate RFA.
 
 Commentaire:
 
@@ -24,34 +24,34 @@ rfa_dict = {
     ),
     "sql_total_amount_by_invoices": sql.SQL(
         """
-        update edi_ediimport ei 
+        update edi_ediimport ei
         set "invoice_amount_without_tax" = rec."invoice_amount_without_tax",
             "invoice_amount_tax" = rec."invoice_amount_tax",
             "invoice_amount_with_tax" = rec."invoice_amount_with_tax"
         from (
-            select 
-                "uuid_identification", 
-                "invoice_number", 
-                case 
-                    when "invoice_type" = '380' 
-                        then abs(sum("net_amount")) 
+            select
+                "uuid_identification",
+                "invoice_number",
+                case
+                    when "invoice_type" = '380'
+                        then abs(sum("net_amount"))
                         else -abs(sum("net_amount"))
-                end as "invoice_amount_without_tax", 
-                    case 
-                    when "invoice_type" = '380' 
-                        then abs(sum("vat_amount")) 
+                end as "invoice_amount_without_tax",
+                    case
+                    when "invoice_type" = '380'
+                        then abs(sum("vat_amount"))
                         else -abs(sum("vat_amount"))
                 end as "invoice_amount_tax",
-                    case 
-                    when "invoice_type" = '380' 
-                        then abs(sum("amount_with_vat")) 
+                    case
+                    when "invoice_type" = '380'
+                        then abs(sum("amount_with_vat"))
                         else -abs(sum("amount_with_vat"))
                 end as "invoice_amount_with_tax"
-            from "edi_ediimport" ee 
+            from "edi_ediimport" ee
             where "uuid_identification" = %(uuid_identification)s
             and ("valid" = false or "valid" isnull)
             group by "uuid_identification" , "invoice_number", "invoice_type"
-        ) rec 
+        ) rec
         where ei."uuid_identification" = rec."uuid_identification"
         and ei."invoice_number" = rec."invoice_number"
         """
@@ -61,20 +61,20 @@ rfa_dict = {
 SQL_RFA_INSERTION = sql.SQL(
     """
     with vat as (
-        select 
+        select
             "rate"
-        from "accountancy_vatratsage" "av" 
+        from "accountancy_vatratsage" "av"
         where "vat" = '002'
         and exists (
-            select 
-                1 
-            from "accountancy_vatratsage" "avv" 
-            group by "avv"."vat" 
-            having max("avv"."vat_start_date") = "av"."vat_start_date" 
+            select
+                1
+            from "accountancy_vatratsage" "avv"
+            group by "avv"."vat"
+            having max("avv"."vat_start_date") = "av"."vat_start_date"
                 and "avv"."vat" = "av"."vat"
         )
     )
-    insert into edi_ediimport 
+    insert into edi_ediimport
     (
         "uuid_identification",
         "third_party_num",
@@ -123,61 +123,61 @@ SQL_RFA_INSERTION = sql.SQL(
         "mm"."cct" as "code_maison",
         "mm"."intitule" as "maison",
         (
-            %(invoice_number)s 
-            || 
-            case when sum(-"ee"."net_amount") <= 0 
-                then '381' 
-                else '380' 
-            end 
+            %(invoice_number)s
+            ||
+            case when sum(-"ee"."net_amount") <= 0
+                then '381'
+                else '380'
+            end
         ) as "invoice_number",
         %(invoice_date)s as "invoice_date",
-        case 
-            when sum(-"ee"."net_amount") <= 0 
-            then '381' 
-            else '380' 
+        case
+            when sum(-"ee"."net_amount") <= 0
+            then '381'
+            else '380'
         end as "invoice_type",
         'EUR' as "devise",
         %(reference_article)s as "reference_article",
         %(libelle)s as "libelle",
         'AA' as "famille",
-        case 
+        case
             when sum(-"net_amount") <= 0
-            then -1 
+            then -1
             else  1
         end as "qty",
         round(
-            (sum("ee"."gross_amount"))::numeric, 
+            (sum("ee"."gross_amount"))::numeric,
             2
         )::numeric as "gross_unit_price",
         round(
-            (sum("ee"."net_amount") * "rs"."rfa_rate")::numeric, 
+            (sum("ee"."net_amount") * "rs"."rfa_rate")::numeric,
             2
         )::numeric as "net_unit_price",
         round(
-            (sum(-"ee"."gross_amount"))::numeric, 
+            (sum(-"ee"."gross_amount"))::numeric,
             2
         )::numeric as "gross_amount",
         round(
-            (sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric, 
+            (sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric,
             2
         )::numeric as "net_amount",
         (select "rate" from "vat") as "vat_rate",
         round(
-            ((select "rate" from "vat")::numeric/100) 
-            * 
-            round((sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric, 2)::numeric, 
+            ((select "rate" from "vat")::numeric/100)
+            *
+            round((sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric, 2)::numeric,
             2
         )::numeric as "vat_amount",
         round(
-            ((select "rate" from "vat")::numeric/100) 
-            * 
+            ((select "rate" from "vat")::numeric/100)
+            *
             round(
-                (sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric, 2)::numeric, 
+                (sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric, 2)::numeric,
                 2
-            )::numeric 
-            + 
+            )::numeric
+            +
             round(
-                (sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric, 
+                (sum(-"ee"."net_amount") * "rs"."rfa_rate")::numeric,
                 2
         )::numeric as "amount_with_vat",
         'AA' as "axe_pro_supplier",
@@ -188,17 +188,17 @@ SQL_RFA_INSERTION = sql.SQL(
         0 as "item_weight",
         12 as "origin"
 
-    from "edi_ediimport" "ee" 
+    from "edi_ediimport" "ee"
 
     join "centers_clients_maison" "mm"
     on "ee"."cct_uuid_identification" = "mm"."uuid_identification"
 
-    join "rfa_supplierrate" "rs" 
+    join "rfa_supplierrate" "rs"
     on "ee"."third_party_num" = "rs"."supplier"
-        
+
     where "ee"."third_party_num" = %(third_party_num)s
     and not exists (
-            select 
+            select
                 1
             from "rfa_clientexclusion" "rf"
             join "centers_clients_maison" "cen"
@@ -206,26 +206,26 @@ SQL_RFA_INSERTION = sql.SQL(
             where "ee"."cct_uuid_identification" = "cen"."uuid_identification"
     )
     and not exists (
-        select 
+        select
             1
         from "rfa_clientsupplierexclusion" "rcs"
         where "ee"."third_party_num" = "rcs"."supplier"
           and "ee"."cct_uuid_identification" = "rcs"."maison_uuid"
     )
     and not exists (
-        select 
+        select
             1
         from "rfa_sectionproexclusion" "pro"
         where "ee"."axe_pro" = "pro"."axe_pro"
     )
     and exists (
-        select 
+        select
             1
         from "rfa_sectionrfa" "rfa"
         where "ee"."axe_rfa"= "rfa"."axe_rfa"
     )
     and not exists (
-         select 
+         select
             1
         from "rfa_signboardexclusion" "ens"
         where "ee"."code_signboard" = "ens"."signboard"
@@ -239,7 +239,7 @@ SQL_RFA_INSERTION = sql.SQL(
 
 SQL_INSERTION_ICON = sql.SQL(
     """
-    insert into parameters_iconoriginchoice 
+    insert into parameters_iconoriginchoice
     (
         "origin",
         "icon",
@@ -249,6 +249,6 @@ SQL_INSERTION_ICON = sql.SQL(
         12 as "origin",
         'cut' as "icon",
         'RFA MENSUELLE' as "origin_name"
-    on conflict do nothing 
+    on conflict do nothing
     """
 )

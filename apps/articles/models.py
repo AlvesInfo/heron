@@ -1,6 +1,6 @@
-"""
-FR : Module des models des articles
-EN : Article models module
+"""FR : Module des models des articles.
+
+EN : Article models module.
 
 Commentaire:
 
@@ -10,23 +10,24 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 import uuid
 
 from django.db import models
 
-from heron.models import DatesTable, FlagsTable
-from apps.accountancy.models import TabDivSage, SectionSage, VatSage
-from apps.countries.models import Country
-from apps.parameters.models import SubFamilly, Category, SubCategory, SalePriceCategory, UnitChoices
+from apps.accountancy.models import SectionSage, TabDivSage, VatSage
 from apps.book.models import Society
 from apps.centers_purchasing.models import ChildCenterPurchase
+from apps.countries.models import Country
+from apps.parameters.models import Category, SalePriceCategory, SubCategory, SubFamilly, UnitChoices
+from heron.models import DatesTable, FlagsTable
 
 
 class Article(FlagsTable):
-    """
-    Table des Articles, catalogue de tous les fournisseurs
+    """Table des Articles, catalogue de tous les fournisseurs.
+
     FR : Articles
-    EN : Items
+    EN : Items.
     """
 
     third_party_num = models.ForeignKey(
@@ -177,42 +178,42 @@ class Article(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def save(self, *args, **kwargs):
-        """Surcharge de la méthode save pour les axes analytiques"""
+        """Surcharge de la méthode save pour les axes analytiques."""
         if not self.axe_bu:
             axe = SectionSage.objects.filter(axe="BU", section="CAHA").first()
-            self.axe_bu = None if not axe else axe
+            self.axe_bu = axe or None
 
         if not self.axe_prj:
             axe = SectionSage.objects.filter(axe="PRJ", section="NAF").first()
-            self.axe_prj = None if not axe else axe
+            self.axe_prj = axe or None
 
         if not self.axe_pys:
             axe = SectionSage.objects.filter(axe="PYS", section="FR").first()
-            self.axe_pys = None if not axe else axe
+            self.axe_pys = axe or None
 
         if not self.axe_rfa:
             axe = SectionSage.objects.filter(axe="RFA", section="NAF").first()
-            self.axe_rfa = None if not axe else axe
+            self.axe_rfa = axe or None
 
         super().save(*args, **kwargs)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.third_party_num} - {self.reference}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["third_party_num", "-created_at", "reference"]
         unique_together = (("third_party_num", "reference"),)
 
 
 class SellingPrice(FlagsTable):
-    """
-    Table des prix d'un article par catégorie de prix, par exemple pour une enseigne en particulier,
+    """Table des prix d'un article par catégorie de prix, par exemple pour une enseigne en particulier,.
+
     ou lorqu'on veut redéfinir un prix par devises et donc par pays
     FR : Prix de Vente
-    EN : Sale Price
+    EN : Sale Price.
     """
 
     sale_price_category = models.ForeignKey(
@@ -240,25 +241,21 @@ class SellingPrice(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.sale_price_category} - {self.article}"
 
-    # @staticmethod
-    # def get_absolute_url():
-    #     return reverse("book:societies_list")
-
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["sale_price_category", "article", "currency"]
         unique_together = (("sale_price_category", "article", "currency"),)
 
 
 class SalePriceHistory(DatesTable):
-    """
-    Table des prix de vente d'un article historisé
+    """Table des prix de vente d'un article historisé.
+
     FR : Prix de vente
-    EN : Sale Price
+    EN : Sale Price.
     """
 
     sale_price_category = models.ForeignKey(
@@ -284,18 +281,18 @@ class SalePriceHistory(DatesTable):
     end_date = models.DecimalField(max_digits=20, decimal_places=5)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.sale_price_category} - {self.article}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["sale_price_category", "article"]
         unique_together = (("sale_price_category", "article", "currency", "start_date"),)
 
 
 class ArticleAccount(DatesTable):
-    """Tables des comptes achat et vente par articles"""
+    """Tables des comptes achat et vente par articles."""
 
     child_center = models.ForeignKey(
         ChildCenterPurchase,
@@ -325,9 +322,9 @@ class ArticleAccount(DatesTable):
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "article": 0,
@@ -339,44 +336,44 @@ class ArticleAccount(DatesTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"child_center", "article", "vat"}
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["child_center", "vat"]
         unique_together = (("child_center", "article", "vat"),)
 
 
 class Subscription(FlagsTable):
-    """
-    Table des abonnements. Les abonnements vont servir à refacturer sur la période
+    """Table des abonnements. Les abonnements vont servir à refacturer sur la période.
+
     tous les articles abbonés
     FR : Abonnement
-    EN : Subscription
+    EN : Subscription.
     """
 
     name = models.CharField(unique=True, max_length=80)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class SubscriptionArticle(FlagsTable):
-    """
-    Table des articles pour un abbonement donné, avec une relation Many to Many
+    """Table des articles pour un abbonement donné, avec une relation Many to Many.
+
     FR : Article / Abonnement
-    EN : Item / Subscription
+    EN : Item / Subscription.
     """
 
     subscription = models.ForeignKey(
@@ -396,18 +393,18 @@ class SubscriptionArticle(FlagsTable):
     qty = models.DecimalField(decimal_places=5, default=1, max_digits=20, verbose_name="quantité")
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.subscription} - {self.selling_price}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["subscription", "selling_price"]
         unique_together = (("subscription", "selling_price"),)
 
 
 class ArticleUpdate(models.Model):
-    """Table des Articles, importés pour update de la table Article"""
+    """Table des Articles, importés pour update de la table Article."""
 
     date_facture = models.DateField(null=True, blank=True)
     supplier = models.ForeignKey(

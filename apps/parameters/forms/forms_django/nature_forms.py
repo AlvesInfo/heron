@@ -1,6 +1,6 @@
-"""
-FR : Module des formulaires pour l'objet Nature/Genre
-EN : Forms module for the Nature Gender object
+"""FR : Module des formulaires pour l'objet Nature/Genre.
+
+EN : Forms module for the Nature Gender object.
 
 Commentaire:
 
@@ -10,18 +10,19 @@ created by: Paulo ALVES
 modified at: 2023-03-13
 modified by: Paulo ALVES
 """
+
 from django import forms
 
 from apps.parameters.models import Nature
 
 
 class NatureForm(forms.ModelForm):
-    """Form pour les Natures/Genres"""
+    """Form pour les Natures/Genres."""
 
     use_required_attribute = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = Nature
         fields = (

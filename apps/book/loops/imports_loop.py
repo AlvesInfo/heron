@@ -1,6 +1,6 @@
-"""
-FR : Module d'import en boucle des modèles de Sage X3
-EN : Loop import module for Sage X3 models
+"""FR : Module d'import en boucle des modèles de Sage X3.
+
+EN : Loop import module for Sage X3 models.
 
 Commentaire:
 
@@ -10,22 +10,23 @@ created by: Paulo ALVES
 modified at: 2022-04-08
 modified by: Paulo ALVES
 """
+
 import shutil
 from pathlib import Path
 
-from heron.loggers import LOGGER_IMPORT
-from apps.core.functions.functions_setups import settings
+from apps.book.bin.checks import check_emails_notifications
+from apps.book.imports.excel_generations import writre_book_files
 from apps.book.imports.imports_sage import (
+    adress_sage,
+    bank_sage,
+    bpc_sage,
     bpr_sage,
     bps_sage,
-    bpc_sage,
-    adress_sage,
     code_contact_sage,
     contact_sage,
-    bank_sage,
 )
-from apps.book.imports.excel_generations import writre_book_files
-from apps.book.bin.checks import check_emails_notifications
+from apps.core.functions.functions_setups import settings
+from heron.loggers import LOGGER_IMPORT
 
 processing_dict = {
     "ZBIBPR_journalier.heron": bpr_sage,
@@ -36,12 +37,11 @@ processing_dict = {
     "ZBICONTCRM_journalier.heron": contact_sage,
     "ZBIBANK_journalier.heron": bank_sage,
 }
-traceback = ""
 
 
 def get_processing_files():
-    """Récupération des fichiers Sage à intégrer, depuis le serveur Sage X3"""
-    pre_file_list = list(processing_dict)
+    """Récupération des fichiers Sage à intégrer, depuis le serveur Sage X3."""
+    pre_file_list: list = list(processing_dict)
 
     for file in Path(settings.ACUITIS_ARCHIVE_EM_DIR).glob("*"):
         if file.name in processing_dict:
@@ -53,10 +53,7 @@ def get_processing_files():
 
 
 def process():
-    """
-    Intégration des fichiers en fonction des fichiers présents dans le répertoire de processing/sage
-    """
-    global traceback
+    """Intégration des fichiers en fonction des fichiers présents dans le répertoire de processing/sage."""
     processing_files = get_processing_files()
 
     for file in processing_files:
@@ -65,7 +62,7 @@ def process():
         traceback = ""
 
         try:
-            trace, _ = processing_dict.get(file.name)(file)
+            trace, _ = processing_dict[file.name](file)
             destination = Path(settings.BACKUP_SAGE_DIR) / file.name
             shutil.move(file.resolve(), destination.resolve())
 
@@ -96,8 +93,8 @@ def process():
         # On crée les fichiers des tiers fournisseurs, clients et tiers, car ils sont volumineux
         # Au download ils seront déjà prêts
         writre_book_files()
-    except Exception as except_error:
-        LOGGER_IMPORT.exception(f"Exception Générale: writre_book_files()\n{except_error!r}")
+    except Exception:
+        LOGGER_IMPORT.exception("Exception Générale: writre_book_files()")
 
 
 if __name__ == "__main__":

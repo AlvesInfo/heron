@@ -1,6 +1,6 @@
-"""
-FR : Module de génération des factures en pdf
-EN : Module for generating invoice headers in pdf
+"""FR : Module de génération des factures en pdf.
+
+EN : Module for generating invoice headers in pdf.
 
 Commentaire:
 
@@ -10,11 +10,12 @@ created by: Paulo ALVES
 modified at: 2023-04-13
 modified by: Paulo ALVES
 """
+
 import os
-import sys
 import platform
+import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import AnyStr
 
 import django
 
@@ -32,27 +33,27 @@ django.setup()
 
 from django.conf import settings
 from django.db import transaction
-from pdfrw import PdfReader, PdfWriter
 from django_celery_results.models import TaskResult
+from pdfrw import PdfReader, PdfWriter
 
-from heron.loggers import LOGGER_INVOICES
+from apps.centers_clients.models import Maison
 from apps.data_flux.trace import get_trace
-from apps.invoices.bin.pdf_sumary import summary_invoice_pdf
+from apps.invoices.bin.pdf_formation import invoice_formation_pdf
 from apps.invoices.bin.pdf_marchandises import invoice_marchandise_pdf
+from apps.invoices.bin.pdf_material import invoice_material_pdf
+from apps.invoices.bin.pdf_prestation import invoice_prestation_pdf
+from apps.invoices.bin.pdf_publicity import invoice_publicity_pdf
 from apps.invoices.bin.pdf_rfa import rfa_invoice_pdf
 from apps.invoices.bin.pdf_royalties import invoice_royalties_pdf
-from apps.invoices.bin.pdf_publicity import invoice_publicity_pdf
-from apps.invoices.bin.pdf_prestation import invoice_prestation_pdf
-from apps.invoices.bin.pdf_formation import invoice_formation_pdf
 from apps.invoices.bin.pdf_staff import invoice_staff_pdf
-from apps.invoices.bin.pdf_material import invoice_material_pdf
+from apps.invoices.bin.pdf_sumary import summary_invoice_pdf
 from apps.invoices.bin.pdf_various import invoice_various_pdf
 from apps.invoices.models import SaleInvoice
-from apps.centers_clients.models import Maison
+from heron.loggers import LOGGER_INVOICES
 
 
 def get_invoices_in_progress():
-    """Renvoi si un process d'intégration edi est en cours"""
+    """Renvoi si un process d'intégration edi est en cours."""
     in_action_insertion = TaskResult.objects.filter(
         status="STARTED", task_name="invoices_insertions_launch"
     ).exists()
@@ -67,9 +68,9 @@ def get_invoices_in_progress():
 
 
 @transaction.atomic
-def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
-    """
-    Génération des pdf de factures de ventes
+def invoices_pdf_generation(cct: Maison.cct, num_file: str):
+    """Génération des pdf de factures de ventes.
+
     :param cct: cct de la facture pdf à générer
     :param num_file: numero du fichier full
     :return:
@@ -85,7 +86,7 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
     to_print = ""
 
     try:
-        generation_pdf_dict = {
+        generation_pdf_dict: dict[str, Callable] = {
             "marchandises": invoice_marchandise_pdf,
             "rfa": rfa_invoice_pdf,
             "redevances": invoice_royalties_pdf,
@@ -154,9 +155,9 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
         trace.file_name = f"Generate pdf : {num_file}"
         to_print = f"have generate pdf : {num_file} - "
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_INVOICES.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_INVOICES.exception("Exception Générale")
 
     finally:
         if error:
@@ -179,7 +180,6 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: AnyStr):
 
 
 if __name__ == "__main__":
-    # invoices_pdf_generation("AF0564")
     invoices_pdf_generation("WSAUDIOLOG", "WSAUDIOLOG_000000033704_full.pdf")
     invoices_pdf_generation("UNIS208", "UNIS208_000000033904_full.pdf")
     invoices_pdf_generation("UNIS207", "UNIS207_000000033660_full.pdf")

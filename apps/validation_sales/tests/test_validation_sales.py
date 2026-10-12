@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'app validation_sales (écrans de contrôle des ventes et export des ventes
+"""FR : Tests de l'app validation_sales (écrans de contrôle des ventes et export des ventes
+
+
      Héron non finalisées)
 EN : Tests for validation_sales app
 
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import datetime
 import importlib
 import io
@@ -21,8 +23,10 @@ from openpyxl import load_workbook
 from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL
 from apps.validation_sales import urls as sales_urls
 from apps.validation_sales.apps import ValidationSalesConfig
-from apps.validation_sales.excel_outputs import columns_excel
-from apps.validation_sales.excel_outputs import output_excel_sales_not_final_optimized as optimized
+from apps.validation_sales.excel_outputs import (
+    columns_excel,
+    output_excel_sales_not_final_optimized as optimized,
+)
 from apps.validation_sales.views import views_etape_5_1
 
 pytestmark = pytest.mark.django_db
@@ -32,21 +36,39 @@ ROUTES = [pattern.name for pattern in sales_urls.urlpatterns]
 
 def _sheet_rows(file_io):
     file_io.seek(0)
-    return [tuple(row) for row in load_workbook(file_io, read_only=True).active.iter_rows(values_only=True)]
+    return [
+        tuple(row)
+        for row in load_workbook(file_io, read_only=True).active.iter_rows(values_only=True)
+    ]
 
 
 @pytest.fixture
-def not_final_data(make_maison, make_section, make_sale_invoice, make_sale_invoice_detail, make_invoice_common_details):
+def not_final_data(
+    make_maison,
+    make_section,
+    make_sale_invoice,
+    make_sale_invoice_detail,
+    make_invoice_common_details,
+):
     """Une vente non finalisée (une ligne) dont la maison a un axe BU, une vente finalisée ignorée"""
     make_maison("AF0001", axe_bu=make_section("BU", "CAHA"))
-    pending = make_sale_invoice("AF0001", "CLI001", final=False, invoice_sage_number="VTE-PENDING", code_center="ACF")
+    pending = make_sale_invoice(
+        "AF0001", "CLI001", final=False, invoice_sage_number="VTE-PENDING", code_center="ACF"
+    )
     make_sale_invoice("AF0001", "CLI001", final=True, invoice_sage_number="VTE-FINAL")
     import_uuid = uuid4()
     make_invoice_common_details(
-        "FOUR001", "FAC-77", import_uuid_identification=import_uuid, supplier="Fournisseur Un",
-        reference_article="ART-1", libelle="Monture", qty=Decimal("2"),
+        "FOUR001",
+        "FAC-77",
+        import_uuid_identification=import_uuid,
+        supplier="Fournisseur Un",
+        reference_article="ART-1",
+        libelle="Monture",
+        qty=Decimal(2),
     )
-    make_sale_invoice_detail(pending, import_uuid_identification=import_uuid, net_amount=Decimal("80"))
+    make_sale_invoice_detail(
+        pending, import_uuid_identification=import_uuid, net_amount=Decimal(80)
+    )
     return pending
 
 
@@ -89,7 +111,9 @@ def test_export_ventes_non_finalisees(not_final_data):
     assert line[33:36] == ("707000", "CAHA", "607000")
 
 
-def test_export_sans_axe_bu_ni_ligne(make_maison, make_sale_invoice, make_sale_invoice_detail, make_invoice_common_details):
+def test_export_sans_axe_bu_ni_ligne(
+    make_maison, make_sale_invoice, make_sale_invoice_detail, make_invoice_common_details
+):
     """Sans axe BU sur la maison : BU client et compte OD vides"""
     make_maison("AF0002")
     pending = make_sale_invoice("AF0002", "CLI001", final=False)
@@ -111,14 +135,15 @@ def test_fetch_rows_sans_vente():
 
 
 def test_vue_export(logged_client, monkeypatch, not_final_data):
-    """POST renvoie le fichier (cookie de fin de téléchargement), GET ou erreur affichent l'écran"""
+    """POST renvoie le fichier (marqueur de fin de téléchargement en session), GET ou erreur affichent l'écran"""
     url = reverse("validation_sales:invoices_sales_export_globals")
 
     response = logged_client.post(url, {"download_token": "abc123"})
     assert response.status_code == 200
     assert response["Content-Type"] == CONTENT_TYPE_EXCEL
     assert "VENTES_A_FINALISER_" in response["Content-Disposition"]
-    assert response.cookies["download_complete_abc123"].value == "true"
+    assert "download_complete_abc123" not in response.cookies
+    assert logged_client.session["download_complete_abc123"] is True
 
     page = logged_client.get(url)
     assert page.status_code == 200

@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests des modèles, de la trace, des exceptions, de la vue d'import et de la configuration
+"""FR : Tests des modèles, de la trace, des exceptions, de la vue d'import et de la configuration
+
+
      de l'app data_flux
 EN : Tests for data_flux models, trace, exceptions, import view and app configuration
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import importlib
 import uuid
 
@@ -30,13 +32,28 @@ def test_app_config():
 
     assert isinstance(config, CoreConfig)
     assert config.name == "apps.data_flux"
-    assert {model.__name__ for model in config.get_models()} == {"Trace", "Line", "Error", "UploadFiles", "Essais", "EssaisZ"}
+    assert {model.__name__ for model in config.get_models()} == {
+        "Trace",
+        "Line",
+        "Error",
+        "UploadFiles",
+        "Essais",
+        "EssaisZ",
+    }
     assert [pattern.name for pattern in data_flux_urls.urlpatterns] == ["processing_files"]
     assert data_flux_urls.app_name == "apps.data_flux"
     assert not any(model._meta.app_label == "data_flux" for model in admin.site._registry)
 
 
-@pytest.mark.parametrize("module_name", ["apps.data_flux.views", "apps.data_flux.templates", "apps.data_flux.templates.data_flux", "apps.data_flux.tests"])
+@pytest.mark.parametrize(
+    "module_name",
+    [
+        "apps.data_flux.views",
+        "apps.data_flux.templates",
+        "apps.data_flux.templates.data_flux",
+        "apps.data_flux.tests",
+    ],
+)
 def test_packages_importables(module_name):
     assert importlib.import_module(module_name) is not None
 
@@ -49,9 +66,19 @@ def test_hierarchie_des_exceptions():
     assert issubclass(exceptions.FluxtypeError, exceptions.ValidationFormError)
     assert all(
         issubclass(getattr(exceptions, name), exceptions.PostgresDjangoError)
-        for name in ("PostgresInsertMethodError", "PostgresCardinalityViolationError", "PostgresUniqueError", "PostgresKeyError", "PostgresTypeError", "PostgresPreparedError")
+        for name in (
+            "PostgresInsertMethodError",
+            "PostgresCardinalityViolationError",
+            "PostgresUniqueError",
+            "PostgresKeyError",
+            "PostgresTypeError",
+            "PostgresPreparedError",
+        )
     )
-    assert all(issubclass(getattr(exceptions, name), ValueError) for name in ("OptoDateError", "OptoLinesError", "OptoQualifierError"))
+    assert all(
+        issubclass(getattr(exceptions, name), ValueError)
+        for name in ("OptoDateError", "OptoLinesError", "OptoQualifierError")
+    )
 
 
 # MODÈLES ==========================================================================================
@@ -61,11 +88,20 @@ def test_get_trace_et_lignes(make_user):
     """get_trace crée la trace à zéro ; lignes et erreurs rattachées par uuid ; tri par date"""
     trace = get_trace("Import test", "fichier.heron", "tests", "flux", "commentaire")
     later = get_trace("Import suivant", "fichier2.heron", "tests", "flux", "")
-    line = Line.objects.create(trace=trace, insertion_type=Line.Insertiontype.ER, num_line=2, designation="ligne 2")
-    error = Error.objects.create(line=line, attr_name="code", message="invalide", data_expected="int", data_received="x")
+    line = Line.objects.create(
+        trace=trace, insertion_type=Line.Insertiontype.ER, num_line=2, designation="ligne 2"
+    )
+    error = Error.objects.create(
+        line=line, attr_name="code", message="invalide", data_expected="int", data_received="x"
+    )
 
     assert isinstance(trace.uuid_identification, uuid.UUID)
-    assert (trace.created_numbers_records, trace.updated_numbers_records, trace.errors_numbers_records, trace.unknown_numbers_records) == (0, 0, 0, 0)
+    assert (
+        trace.created_numbers_records,
+        trace.updated_numbers_records,
+        trace.errors_numbers_records,
+        trace.unknown_numbers_records,
+    ) == (0, 0, 0, 0)
     assert (trace.errors, trace.invoices, trace.time_to_process) == (False, False, 0)
     assert list(Trace.objects.all()) == [later, trace]
     assert line.get_insertion_type_display() == "Errors"
@@ -80,8 +116,18 @@ def test_get_trace_et_lignes(make_user):
 
 def test_upload_files_et_modeles_d_essai():
     """Fichiers téléversés triés par fichier ; modèles d'essai avec leurs contraintes"""
-    second = UploadFiles.objects.create(base_name_file="b.csv", id_sha512_file="sha-b", file="processing/files/b.csv", action="ACCOUNTS")
-    first = UploadFiles.objects.create(base_name_file="a.csv", id_sha512_file="sha-a", file="processing/files/a.csv", action="ACCOUNTS")
+    second = UploadFiles.objects.create(
+        base_name_file="b.csv",
+        id_sha512_file="sha-b",
+        file="processing/files/b.csv",
+        action="ACCOUNTS",
+    )
+    first = UploadFiles.objects.create(
+        base_name_file="a.csv",
+        id_sha512_file="sha-a",
+        file="processing/files/a.csv",
+        action="ACCOUNTS",
+    )
     essai = Essais.objects.create(col_texte="texte", col_int=1)
     essai_z = EssaisZ.objects.create(col_texte="texte", col_2="2", col_3="3", col_int=1)
 

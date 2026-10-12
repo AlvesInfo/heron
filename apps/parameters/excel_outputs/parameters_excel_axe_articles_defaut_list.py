@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour sortie la liste des axes et catégories par défaut
+"""Module d'export du fichier excel pour sortie la liste des axes et catégories par défaut.
 
 Commentaire:
 
@@ -15,23 +15,19 @@ from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
-from apps.parameters.models import DefaultAxeArticle
 from apps.core.excel_outputs.generic_list_export import excel_list_export
+from apps.parameters.models import DefaultAxeArticle
 
 columns_list = [
     {
         "entete": "Catégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 30,
     },
@@ -39,15 +35,11 @@ columns_list = [
         "entete": "Rubrique Presta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -55,15 +47,11 @@ columns_list = [
         "entete": "Axe BU",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -71,15 +59,11 @@ columns_list = [
         "entete": "Axe PRJ",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -87,15 +71,11 @@ columns_list = [
         "entete": "Axe PYS",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -103,15 +83,11 @@ columns_list = [
         "entete": "Axe RFA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -119,8 +95,7 @@ columns_list = [
 
 
 def get_row():
-    """Fonction qui renvoie les bonnes colonnes pour le fichier Excel"""
-
+    """Fonction qui renvoie les bonnes colonnes pour le fichier Excel."""
     yield from [
         (
             row.big_category.__str__().replace("None", ""),
@@ -135,7 +110,7 @@ def get_row():
 
 
 def excel_list_axe_article_defaut(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des axes et catégories par défaut"""
+    """Fonction de génération du fichier de liste des axes et catégories par défaut."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
 

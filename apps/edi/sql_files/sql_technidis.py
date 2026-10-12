@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql de post-traitement après import des fichiers Technidis
-EN : Post-processing sql module after importing supplier invoice files
+"""FR : Module des requêtes sql de post-traitement après import des fichiers Technidis.
+
+EN : Post-processing sql module after importing supplier invoice files.
 
 Commentaire:
 
@@ -10,17 +10,18 @@ created by: Paulo ALVES
 modified at: 2022-11-27
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 post_technidis_dict = {
     "sql_update": sql.SQL(
         """
         with "group_technidis" as (
-            select 
-                case when sum(net_amount) < 0 then '381' else '380' end as "invoice_type", 
-                "invoice_number", 
+            select
+                case when sum(net_amount) < 0 then '381' else '380' end as "invoice_type",
+                "invoice_number",
                 "uuid_identification"
-              from "edi_ediimport" 
+              from "edi_ediimport"
              where "uuid_identification" = %(uuid_identification)s
                and ("valid" = false or "valid" isnull)
              group by "invoice_number", "uuid_identification"
@@ -37,27 +38,27 @@ post_technidis_dict = {
     "sql_update_units": sql.SQL(
         """
         update "edi_ediimport"
-        set 
-            "qty" = case 
+        set
+            "qty" = case
                         when "net_amount" < 0 then (abs("qty")::numeric * -1::numeric)
                         when "net_amount" > 0 then abs("qty")::numeric
-                        else "qty" 
+                        else "qty"
                     end,
             "gross_unit_price" = abs("gross_unit_price"),
-            "gross_amount" = case 
+            "gross_amount" = case
                                 when "net_amount" = 0 then 0
-                                when "net_amount" < 0 
+                                when "net_amount" < 0
                                     then (
-                                        abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
-                                        * 
+                                        abs("gross_unit_price"::numeric * "qty"::numeric)::numeric
+                                        *
                                         -1::numeric
                                     )
-                                when "net_amount" > 0 
+                                when "net_amount" > 0
                                     then (
-                                        abs("gross_unit_price"::numeric * "qty"::numeric)::numeric 
+                                        abs("gross_unit_price"::numeric * "qty"::numeric)::numeric
                                     )
                             end,
-            "famille" =   case 
+            "famille" =   case
                                         when "famille" is null or "famille" = ''
                                         then split_part("reference_article", '-', 1)
                                         else "famille"
@@ -71,7 +72,7 @@ post_technidis_dict = {
     "sql_net_amount": sql.SQL(
         """
         update "edi_ediimport"
-        set "net_unit_price" = abs("net_amount"::numeric / "qty"::numeric)::numeric 
+        set "net_unit_price" = abs("net_amount"::numeric / "qty"::numeric)::numeric
         where "uuid_identification" = %(uuid_identification)s
         and ("valid" = false or "valid" isnull)
         """

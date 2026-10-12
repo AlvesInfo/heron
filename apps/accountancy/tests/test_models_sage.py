@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests des modèles Sage X3 (apps/accountancy/models/sage.py)
+"""FR : Tests des modèles Sage X3 (apps/accountancy/models/sage.py)
+
+
 EN : Tests for Sage X3 models
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import datetime
 import uuid
 from decimal import Decimal
@@ -56,8 +58,8 @@ IMPORT_METADATA = [
 
 @pytest.mark.parametrize(("model", "file_name", "uniques", "nb_columns"), IMPORT_METADATA)
 def test_metadonnees_import_des_modeles(model, file_name, uniques, nb_columns):
-    """
-    Pour chaque modèle importé depuis Sage : nom de fichier, positions de colonnes contiguës
+    """Pour chaque modèle importé depuis Sage : nom de fichier, positions de colonnes contiguës
+
     à partir de 0, clés d'unicité incluses dans les colonnes, et champs existants sur le modèle
     """
     columns = model.get_columns_import()
@@ -68,7 +70,7 @@ def test_metadonnees_import_des_modeles(model, file_name, uniques, nb_columns):
     assert model.get_uniques() == uniques
     assert uniques <= set(columns)
     assert set(columns) <= model_fields
-    assert model(**{}).get_import == "methode d'import à retourner"
+    assert model().get_import == "methode d'import à retourner"
 
 
 def test_accounting_type_sage_est_une_classe_vide():
@@ -116,7 +118,11 @@ def test_str_des_modeles(
 @pytest.mark.parametrize(
     ("factory_name", "first_kwargs", "duplicate_kwargs"),
     [
-        ("make_vat_regime", {"vat_regime": "FRA", "legislation": "FRA"}, {"vat_regime": "FRA", "legislation": "FRA"}),
+        (
+            "make_vat_regime",
+            {"vat_regime": "FRA", "legislation": "FRA"},
+            {"vat_regime": "FRA", "legislation": "FRA"},
+        ),
         ("make_tab_div", {"num_table": 6100, "code": "B01"}, {"num_table": 6100, "code": "B01"}),
         ("make_category", {"initial": "C", "code": "CLI"}, {"initial": "C", "code": "CLI"}),
         (
@@ -124,7 +130,11 @@ def test_str_des_modeles(
             {"currency_current": "EUR", "currency_change": "USD"},
             {"currency_current": "EUR", "currency_change": "USD"},
         ),
-        ("make_mode_reglement", {"uuid_identification": uuid.UUID(int=1)}, {"uuid_identification": uuid.UUID(int=1)}),
+        (
+            "make_mode_reglement",
+            {"uuid_identification": uuid.UUID(int=1)},
+            {"uuid_identification": uuid.UUID(int=1)},
+        ),
         ("make_payment_condition", {"auuid": "PTE-1"}, {"auuid": "PTE-1"}),
         ("make_vat_rat", {"auuid": uuid.UUID(int=2)}, {"auuid": uuid.UUID(int=2)}),
     ],
@@ -213,11 +223,11 @@ def test_valeurs_par_defaut(make_cct, make_payment_condition, make_tab_div, make
     assert cct.active is False
     assert cct.delete is False
     assert condition.default is None
-    assert tab_div.n_01 == Decimal("0")
+    assert tab_div.n_01 == Decimal(0)
     assert tab_div.a_01 is None
     assert tab_div.def_val is None
     assert currency.exchange_type == 1
-    assert currency.divider == Decimal("1")
+    assert currency.divider == Decimal(1)
 
 
 # TAB DIV ==========================================================================================

@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour les Catégories
+"""Module d'export du fichier excel pour les Catégories.
 
 Commentaire:
 
@@ -11,14 +11,13 @@ modified by: Paulo ALVES
 
 import io
 
-from apps.parameters.models import Category
-from apps.parameters.excel_outputs.output_excel_filles_columns import columns_list_categories
 from apps.core.excel_outputs.generic_list_export import excel_list_export
+from apps.parameters.excel_outputs.output_excel_filles_columns import columns_list_categories
+from apps.parameters.models import Category
 
 
 def get_row():
-    """Class qui renvoie les bonnes colonnes pour le fichier Excel"""
-
+    """Class qui renvoie les bonnes colonnes pour le fichier Excel."""
     yield from [
         (
             row.get("ranking"),
@@ -43,7 +42,7 @@ def get_row():
 
 
 def excel_liste_categories(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des Catégories"""
+    """Fonction de génération du fichier de liste des Catégories."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     columns = columns_list_categories
@@ -56,5 +55,8 @@ def excel_liste_categories(file_io: io.BytesIO, file_name: str) -> dict:
         columns=columns,
         rows=get_row(),
         header_row=4,
-        merged_headers=[(0, 2, 'Grande Catégorie', columns[0].get('f_entete')), (3, 5, 'Rubrique Prestation associée', columns[3].get('f_entete'))],
+        merged_headers=[
+            (0, 2, "Grande Catégorie", columns[0].get("f_entete")),
+            (3, 5, "Rubrique Prestation associée", columns[3].get("f_entete")),
+        ],
     )

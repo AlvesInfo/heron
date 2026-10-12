@@ -1,4 +1,4 @@
-"""Module pour la définition des colonnes excel pour le module Articles
+"""Module pour la définition des colonnes excel pour le module Articles.
 
 Commentaire:
 
@@ -19,15 +19,11 @@ columns_list_articles = [
         "entete": "Référence",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 30,
     },
@@ -35,13 +31,10 @@ columns_list_articles = [
         "entete": "Libellé",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 35,
     },
@@ -49,13 +42,10 @@ columns_list_articles = [
         "entete": "Libellé Heron",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 35,
     },
@@ -63,15 +53,11 @@ columns_list_articles = [
         "entete": "Marque",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 14,
     },
@@ -79,15 +65,11 @@ columns_list_articles = [
         "entete": "Fabricant",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 14,
     },
@@ -95,15 +77,11 @@ columns_list_articles = [
         "entete": "Catégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 22,
     },
@@ -111,15 +89,11 @@ columns_list_articles = [
         "entete": "Sous famille",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -127,15 +101,11 @@ columns_list_articles = [
         "entete": "Code budget",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -143,15 +113,11 @@ columns_list_articles = [
         "entete": "Famille du fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 14,
     },
@@ -159,15 +125,11 @@ columns_list_articles = [
         "entete": "Axe BU",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -175,15 +137,11 @@ columns_list_articles = [
         "entete": "Axe PRJ",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -191,15 +149,11 @@ columns_list_articles = [
         "entete": "Axe PRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -207,15 +161,11 @@ columns_list_articles = [
         "entete": "Axe PYS",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -223,15 +173,11 @@ columns_list_articles = [
         "entete": "Axe RFA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -239,15 +185,11 @@ columns_list_articles = [
         "entete": "Made IN",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -255,15 +197,11 @@ columns_list_articles = [
         "entete": "Code douanier",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -271,15 +209,11 @@ columns_list_articles = [
         "entete": "Nouvel article",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 7,
     },
@@ -287,13 +221,10 @@ columns_list_articles = [
         "entete": "Commentaire",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 50,
     },
@@ -304,13 +235,10 @@ columns_list_articles_news = [
         "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 22,
     },
@@ -318,15 +246,11 @@ columns_list_articles_news = [
         "entete": "Référence",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 30,
     },
@@ -334,13 +258,10 @@ columns_list_articles_news = [
         "entete": "Libellé",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 100,
     },
@@ -348,15 +269,11 @@ columns_list_articles_news = [
         "entete": "Axe BU",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -364,15 +281,11 @@ columns_list_articles_news = [
         "entete": "Axe PRJ",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -380,15 +293,11 @@ columns_list_articles_news = [
         "entete": "Axe PRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -396,15 +305,11 @@ columns_list_articles_news = [
         "entete": "Axe PYS",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -412,15 +317,11 @@ columns_list_articles_news = [
         "entete": "Axe RFA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -428,15 +329,11 @@ columns_list_articles_news = [
         "entete": "Catégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 17,
     },
@@ -444,15 +341,11 @@ columns_list_articles_news = [
         "entete": "Rubrique Presta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 17,
     },
@@ -460,15 +353,11 @@ columns_list_articles_news = [
         "entete": "Qté",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 11,
     },
@@ -476,15 +365,11 @@ columns_list_articles_news = [
         "entete": "Unité",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -492,15 +377,11 @@ columns_list_articles_news = [
         "entete": "Code douanier",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -508,15 +389,11 @@ columns_list_articles_news = [
         "entete": "Erreur\nRubrique\nPresta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },
@@ -527,13 +404,10 @@ columns_list_articles_without_account = [
         "entete": "ID",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 35,
     },
@@ -541,15 +415,11 @@ columns_list_articles_without_account = [
         "entete": "Centrale Fille",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },
@@ -557,13 +427,11 @@ columns_list_articles_without_account = [
         "entete": "Tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center"},
+            "align": "center",
         },
         "width": 10,
     },
@@ -571,13 +439,10 @@ columns_list_articles_without_account = [
         "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 22,
     },
@@ -585,13 +450,12 @@ columns_list_articles_without_account = [
         "entete": "Référence",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "left", "text_wrap": True},
+            "align": "left",
+            "text_wrap": True,
         },
         "width": 30,
     },
@@ -599,13 +463,12 @@ columns_list_articles_without_account = [
         "entete": "Libellé",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "left", "text_wrap": True},
+            "align": "left",
+            "text_wrap": True,
         },
         "width": 70,
     },
@@ -613,15 +476,11 @@ columns_list_articles_without_account = [
         "entete": "Axe PRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 9,
     },
@@ -629,15 +488,11 @@ columns_list_articles_without_account = [
         "entete": "Grande catégorie",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 16,
     },
@@ -645,15 +500,11 @@ columns_list_articles_without_account = [
         "entete": "Rubrique Presta",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -661,13 +512,12 @@ columns_list_articles_without_account = [
         "entete": "TVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center", "num_format": "@"},
+            "align": "center",
+            "num_format": "@",
         },
         "width": 6,
     },
@@ -675,13 +525,12 @@ columns_list_articles_without_account = [
         "entete": "régime TVA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center", "num_format": "@"},
+            "align": "center",
+            "num_format": "@",
         },
         "width": 7,
     },
@@ -689,15 +538,11 @@ columns_list_articles_without_account = [
         "entete": "Compte au Débit",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -705,13 +550,12 @@ columns_list_articles_without_account = [
         "entete": "Compte au Crédit",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center", "num_format": "@"},
+            "align": "center",
+            "num_format": "@",
         },
         "width": 12,
     },

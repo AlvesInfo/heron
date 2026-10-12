@@ -1,6 +1,6 @@
-"""
-FR: Module qui change les integration venues sans tiers identifés
-EN: Module that changes integrations without identified third parties
+"""FR: Module qui change les integration venues sans tiers identifés.
+
+EN: Module that changes integrations without identified third parties.
 
 Commentaire:
 
@@ -12,26 +12,24 @@ modified by: Paulo ALVES
 """
 
 from django.contrib import messages
-from django.http import JsonResponse
-
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-
 from django.db import transaction
-from django.db.models import Q, Count
-from django.shortcuts import render, redirect
+from django.db.models import Count, Q
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from apps.parameters.bin.core import get_in_progress
-from apps.core.bin.change_traces import trace_change
 from apps.book.models import Society
-from apps.parameters.models import Category
+from apps.core.bin.change_traces import trace_change
+from apps.core.functions.functions_http import is_ajax
 from apps.edi.models import EdiImport
+from apps.parameters.bin.core import get_in_progress
+from apps.parameters.models import Category
 from apps.validation_purchases.forms import UpdateThirdpartynumForm
+from heron.loggers import LOGGER_VIEWS
 
 
 def _edi_without_third_party_num():
-    """Intégrations sans tiers X3 identifié, regroupées par import"""
+    """Intégrations sans tiers X3 identifié, regroupées par import."""
     return (
         EdiImport.objects.filter(Q(third_party_num="") | Q(third_party_num__isnull=True))
         .values(
@@ -46,8 +44,7 @@ def _edi_without_third_party_num():
 
 
 def purchase_without_suppliers(request):
-    """Visualisation des intégrations sans Tiers Identifiés"""
-
+    """Visualisation des intégrations sans Tiers Identifiés."""
     context = {
         "titre_table": "Factures Intégrées sans Tiers X3",
         "elements_list": _edi_without_third_party_num(),
@@ -67,8 +64,7 @@ def purchase_without_suppliers(request):
 
 
 def _supplier_identifiers(society: Society, supplier_ident: str) -> str:
-    """Identifiants fournisseur du tiers (séparés par |), complétés sans doublon par supplier_ident.
-    """
+    """Identifiants fournisseur du tiers (séparés par |), complétés sans doublon par supplier_ident."""
     identifiers = [
         ident for ident in (society.centers_suppliers_indentifier or "").split("|") if ident
     ]
@@ -80,15 +76,15 @@ def _supplier_identifiers(society: Society, supplier_ident: str) -> str:
 
 
 def _set_third_party_num(request, data_dict: dict, data: dict) -> None:
-    """
-    Rattache le tiers X3 à l'intégration : identifiant fournisseur ajouté au tiers, puis tiers,
+    """Rattache le tiers X3 à l'intégration : identifiant fournisseur ajouté au tiers, puis tiers,.
+
     fournisseur et grande catégorie posés sur les lignes de l'import, dans une même transaction
     (si l'import ne peut pas être mis à jour, l'identifiant du tiers n'est pas modifié).
     'data` (réponse json) passe à "success" quand l'import est rattaché, puis à l'url de l'écran
     des intégrations s'il ne reste plus d'intégration sans tiers.
     :param request: Request Django
     :param data_dict: données validées du formulaire
-    :param data: dictionnaire de la réponse json, modifié en place
+    :param data: dictionnaire de la réponse json, modifié en place.
     """
     third_party_num = data_dict.pop("third_party_num")
     society = Society.objects.get(third_party_num=third_party_num)
@@ -137,7 +133,7 @@ def _set_third_party_num(request, data_dict: dict, data: dict) -> None:
 
 
 def _form_errors_text(form) -> str:
-    """Texte des erreurs du formulaire, champ par champ"""
+    """Texte des erreurs du formulaire, champ par champ."""
     errors_list = []
 
     for key, errors in form.errors.items():
@@ -148,8 +144,7 @@ def _form_errors_text(form) -> str:
 
 
 def purchase_without_suppliers_update(request):
-    """Fonction d'insertion d'un tiers dans une intégration sans tiers X3"""
-
+    """Fonction d'insertion d'un tiers dans une intégration sans tiers X3."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -161,17 +156,13 @@ def purchase_without_suppliers_update(request):
         try:
             _set_third_party_num(request, form.cleaned_data, data)
 
-        except Exception as error:
+        except Exception:
             messages.add_message(
                 request, 50, "Une erreur c'est produite veuillez consulter les logs"
             )
-            LOGGER_VIEWS.exception(
-                f"view : purchase_without_suppliers_update \n {error!r}"
-            )
+            LOGGER_VIEWS.exception("view : purchase_without_suppliers_update")
     else:
-        messages.add_message(
-            request, 50, f"Une erreur c'est produite : {_form_errors_text(form)}"
-        )
-        LOGGER_VIEWS.error(f"purchase_without_suppliers_update, form invalid : {form.errors!r}")
+        messages.add_message(request, 50, f"Une erreur c'est produite : {_form_errors_text(form)}")
+        LOGGER_VIEWS.error("purchase_without_suppliers_update, form invalid : %r", form.errors)
 
     return JsonResponse(data)

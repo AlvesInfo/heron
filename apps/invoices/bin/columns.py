@@ -1,6 +1,6 @@
-"""
-FR : Dictionnaires des colonnes d'insertion
-EN : Insert Column Dictionaries
+"""FR : Dictionnaires des colonnes d'insertion.
+
+EN : Insert Column Dictionaries.
 
 Commentaire:
 
@@ -42,7 +42,7 @@ COLS_PURCHASE_DICT = {
     "cpy": False,
     "fcy": False,
     "integration_month": False,
-    "code_plan_sage": False
+    "code_plan_sage": False,
 }
 
 COL_SALES_DICT = {

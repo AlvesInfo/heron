@@ -1,34 +1,35 @@
+"""Vues de l'étape 2.1.A de la validation des achats : détail des factures par fournisseur."""
+
 import pendulum
 from django.db import connection, transaction
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
 from apps.core.bin.change_traces import trace_mark_delete
 from apps.core.bin.encoders import get_base_64
+from apps.core.functions.functions_http import is_ajax
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.validation_purchases.excel_outputs import excel_supplier_purchases, excel_transfers_cosium
 from apps.edi.models import EdiImport
+from apps.validation_purchases.excel_outputs import excel_supplier_purchases, excel_transfers_cosium
 from apps.validation_purchases.forms import (
+    ChangeCttForm,
     DeleteInvoiceForm,
 )
-from apps.validation_purchases.forms import ChangeCttForm
-
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 2.1.A - LISTING FACTURES
 
 
 def integration_supplier_purchases(request, enc_param):
-    """View de l'étape 2.A des écrans de contrôles
+    """View de l'étape 2.A des écrans de contrôles.
+
     Visualisation des montants par Factures pour le fournisseur demandé
     :param request: Request Django
     :param enc_param: paramètres encodés en base 64
-    :return: view
+    :return: view.
     """
-    # print(get_base_64(enc_param))
     sql_context_file = "apps/validation_purchases/sql_files/sql_integration_supplier_purchases.sql"
     third_party_num, supplier, invoice_month, flow_name = get_base_64(enc_param)
 
@@ -65,11 +66,11 @@ def integration_supplier_purchases(request, enc_param):
 
 @transaction.atomic
 def delete_invoice_purchase(request):
-    """Suppression des factures non souhaitées
-    :param request: Request Django
-    :return: view
-    """
+    """Suppression des factures non souhaitées.
 
+    :param request: Request Django
+    :return: view.
+    """
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -91,21 +92,21 @@ def delete_invoice_purchase(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.error(f"delete_invoice_purchase, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("delete_invoice_purchase, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 def integration_supplier_purchases_export(request, flow_name, enc_param):
-    """Export Excel de la liste des montants par Factures pour le fournisseur demandé
+    """Export Excel de la liste des montants par Factures pour le fournisseur demandé.
+
     :param request: Request Django
     :param flow_name: flow_name de l'import edi
     :param enc_param: paramètres au format base64
-    :return: response_file
+    :return: response_file.
     """
     try:
         if request.method == "GET":
-            # print(get_base_64(enc_param))
             third_party_num, supplier, invoice_month, *_ = get_base_64(enc_param)
             today = pendulum.now()
             file_name = (

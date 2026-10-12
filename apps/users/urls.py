@@ -1,22 +1,24 @@
+"""Routes URL de l'application users."""
+
 from django.urls import path
 
 from apps.users.views import (
-    login_view,
-    logout_view,
-    register_view,
-    profil_view,
-    change_email_view,
-    update_user_groupes,
-    modification_groupes,
-    affichage_groupes,
     # change_user_password,
     InsertStaffs,
-    delete_staffs_upload_file,
-    staff_integrations,
-    groups_access_staff,
     InsertUsers,
-    users_integrations,
+    affichage_groupes,
+    change_email_view,
+    delete_staffs_upload_file,
     delete_users_upload_file,
+    groups_access_staff,
+    login_view,
+    logout_view,
+    modification_groupes,
+    profil_view,
+    register_view,
+    staff_integrations,
+    update_user_groupes,
+    users_integrations,
 )
 
 urlpatterns = [
@@ -28,7 +30,6 @@ urlpatterns = [
     path("update-user-groupes/", update_user_groupes, name="update_user_groupes"),
     path("modification-groupes/", modification_groupes, name="modification_groupes"),
     path("affichage-groupes/", affichage_groupes, name="affichage_groupes"),
-    # path("modification-paswword/", change_user_password, name="modification_paswword"),
     # Gestion des admin délégués
     path("staff-insertions/", InsertStaffs.as_view(), name="staff_insertions"),
     path(

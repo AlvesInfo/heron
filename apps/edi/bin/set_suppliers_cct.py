@@ -1,6 +1,6 @@
-"""
-FR : Module de génération identifiant des maisons pour les tiersx3 en cours d'utilisation
-EN : Generation module identifying houses for tiersx3 in use
+"""FR : Module de génération identifiant des maisons pour les tiersx3 en cours d'utilisation.
+
+EN : Generation module identifying houses for tiersx3 in use.
 
 Commentaire:
 
@@ -10,16 +10,18 @@ created by: Paulo ALVES
 modified at: 2022-12-28
 modified by: Paulo ALVES
 """
-from psycopg2 import sql
+
 from django.db import connection
+from psycopg2 import sql
 
 
-def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
-    """Ajoute dans la table d'identification des fournisseurs book_suppliercct
+def add_news_cct_sage(third_party_num: str | None = None, *, force_add=False) -> None:
+    """Ajoute dans la table d'identification des fournisseurs book_suppliercct.
+
     les nouveaux cct sage avec le paramétrage par défaut
     :param third_party_num: N° de tiers X3
     :param force_add: Ajout forcé du tiers même s'il ne fait pas partie des fournisseurs courants
-    :return: None
+    :return: None.
     """
     with connection.cursor() as cursor:
         condition = (
@@ -27,72 +29,73 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
             if third_party_num
             else 'and "third_party_num" is not null'
         )
+        # Le tiers forcé est passé en paramètre de requête (jamais interpolé dans le SQL)
         force_select = (
-            f"""
+            """
             union all
-            select '{third_party_num}'
+            select %(third_party_num)s
             """
             if third_party_num and force_add
             else ""
         )
         sql_to_create = sql.SQL(
-            f"""
+            """
             with "suppliers" as (
-                select 
+                select
                     "third_party_num"
                 from (
-                    select 
-                        "third_party_num" 
-                    from "edi_ediimport" "ee" 
-                    union all
-                    select 
+                    select
                         "third_party_num"
-                    from "invoices_invoice" sii 
+                    from "edi_ediimport" "ee"
+                    union all
+                    select
+                        "third_party_num"
+                    from "invoices_invoice" sii
                     {force_select}
-                ) "req" 
+                ) "req"
                 group by "third_party_num"
             ),
             "existing" as (
-                select 
-                    "ac"."cct", 
-                    "ac"."name", 
-                    "ac"."short_name", 
-                    "ac"."uuid_identification", 
-                    "bs"."cct_uuid_identification", 
-                    "bs"."third_party_num", 
+                select
+                    "ac"."cct",
+                    "ac"."name",
+                    "ac"."short_name",
+                    "ac"."uuid_identification",
+                    "bs"."cct_uuid_identification",
+                    "bs"."third_party_num",
                     "bs"."cct_identifier"
-                from "accountancy_cctsage" "ac" 
+                from "accountancy_cctsage" "ac"
                 join "book_suppliercct" "bs"
                 on "ac"."uuid_identification" = "bs"."cct_uuid_identification"
                 where "bs"."cct_uuid_identification" is not null
             ),
             "complete" as (
-                select 
-                    "cct", 
-                    "third_party_num", 
+                select
+                    "cct",
+                    "third_party_num",
                     "ac"."uuid_identification" as "cct_uuid_identification"
                 from "suppliers" "ss", "accountancy_cctsage" "ac"
                 union all
-                select 
+                select
                     "ccm"."cct",
-                    "third_party_num", 
+                    "third_party_num",
                     "aa"."uuid_identification" as "cct_uuid_identification"
-                from "centers_clients_maison" "ccm"  
+                from "centers_clients_maison" "ccm"
                 join "accountancy_cctsage" "aa"
-                on "ccm"."cct" = "aa"."cct"            
+                on "ccm"."cct" = "aa"."cct"
             ),
-            "alls" as (              
-                select 
-                    "cct", 
-                    "third_party_num", 
+            "alls" as (
+                select
+                    "cct",
+                    "third_party_num",
                     "cct_uuid_identification"
                 from "complete"
-                group by "cct", 
-                         "third_party_num", 
+                group by "cct",
+                         "third_party_num",
                          "cct_uuid_identification"
             ),
             "to_create" as (
-                select 
+                select
                     now() as "created_at",
                     now() as "modified_at",
                     "cct" || '|'as "cct_identifier",
@@ -102,9 +105,9 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
                     "cct"
                 from "alls" "aa", "auth_user" "au"
                 where not exists (
-                    select 1 
-                    from "existing" "ex" 
-                    where "ex"."cct" = "aa"."cct" 
+                    select 1
+                    from "existing" "ex"
+                    where "ex"."cct" = "aa"."cct"
                     and "ex"."third_party_num" = "aa"."third_party_num"
                 )
                 and "au"."username" = 'automate'
@@ -118,7 +121,7 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
                 "third_party_num",
                 "cct_uuid_identification"
             )
-            select 
+            select
                 "created_at",
                 "modified_at",
                 "cct_identifier",
@@ -127,38 +130,39 @@ def add_news_cct_sage(third_party_num: str = None, force_add=False) -> None:
                 "cct_uuid_identification"
             from "to_create" "tc"
             where exists (
-                    select 1 
-                    from "centers_clients_maison" "cc" 
+                    select 1
+                    from "centers_clients_maison" "cc"
                     where "cc"."cct" = "tc"."cct"
                     and "closing_date" isnull
                 )
               and not exists (
-                    select 1 
+                    select 1
                     from (
-                        select 
-                            "third_party_num", 
-                            unnest(string_to_array("cct_identifier", '|')) as "cct" 
+                        select
+                            "third_party_num",
+                            unnest(string_to_array("cct_identifier", '|')) as "cct"
                         from "book_suppliercct"
-                    ) "bs" where "bs"."cct" = "tc"."cct" 
+                    ) "bs" where "bs"."cct" = "tc"."cct"
                     and "bs"."third_party_num" = "tc"."third_party_num"
                 )
             {condition}
             """
-        )
+        ).format(force_select=sql.SQL(force_select), condition=sql.SQL(condition))
         # Le paramètre n'est lu que si la condition le référence (third_party_num renseigné)
         cursor.execute(sql_to_create, {"third_party_num": third_party_num})
 
 
 def update_edi_import_cct_uui_identification(
-    force_update: bool = False, third_party_num: str = None
+    *, force_update: bool = False, third_party_num: str | None = None
 ) -> None:
-    """Mise à jour du champ cct_uui_identifiaction de la table edi_import,
+    """Mise à jour du champ cct_uui_identifiaction de la table edi_import,.
+
     après mise à jour des suppliers_cct. Ou par appel de la fonction.
     force_update = False, on fait la mise à jour des lignes ou le cct_uuid_identification est null.
     force_update = True, on fait la mise à jour de toutes lignes.
     :param force_update: Booléen True ou False
     :param third_party_num: third_party_num qui change ce cct
-    :return: None
+    :return: None.
     """
     with connection.cursor() as cursor:
         sql_update = sql.SQL(
@@ -171,33 +175,33 @@ def update_edi_import_cct_uui_identification(
                from "edi_ediimport" ei
                left join (
                      select
-                            ee."id", 
-                            ee."third_party_num", 
-                            ee."supplier", 
-                            ee."code_fournisseur", 
-                            ee."maison", 
-                            ee."code_maison", 
-                            bs."cct_identifier", 
+                            ee."id",
+                            ee."third_party_num",
+                            ee."supplier",
+                            ee."code_fournisseur",
+                            ee."maison",
+                            ee."code_maison",
+                            bs."cct_identifier",
                             bs."cct_uuid_identification"
                  from "edi_ediimport" ee
                  left join (
                         select
-                           bsp."third_party_num", 
-                           ccm."uuid_identification" as "cct_uuid_identification", 
+                           bsp."third_party_num",
+                           ccm."uuid_identification" as "cct_uuid_identification",
                            unnest(
                                 string_to_array(
-                                    case 
-                                        when right("cct_identifier", 1) = '|' 
-                                        then left("cct_identifier", length("cct_identifier")-1) 
+                                    case
+                                        when right("cct_identifier", 1) = '|'
+                                        then left("cct_identifier", length("cct_identifier")-1)
                                         else "cct_identifier"
                                     end
-                                    , 
+                                    ,
                                     '|'
                                 )
                            ) as "cct_identifier"
                         from "book_suppliercct" bsp
-                        join "accountancy_cctsage" ac 
-                        on bsp."cct_uuid_identification" = ac."uuid_identification" 
+                        join "accountancy_cctsage" ac
+                        on bsp."cct_uuid_identification" = ac."uuid_identification"
                         join "centers_clients_maison" ccm
                         on ac."cct" = ccm."cct"
                      ) bs
@@ -216,27 +220,27 @@ def update_edi_import_cct_uui_identification(
         )
         sql_update_signboard = sql.SQL(
             """
-            update "edi_ediimport" "ee" 
+            update "edi_ediimport" "ee"
             set "code_signboard" = "req"."code_signboard"
             from (
-                select 
-                    "ee"."cct_uuid_identification",  
+                select
+                    "ee"."cct_uuid_identification",
                     "si"."code" as "code_signboard"
                 from (
                     select
                         "cct_uuid_identification"
-                    from "edi_ediimport" 
+                    from "edi_ediimport"
                     where "cct_uuid_identification" is not null
                     group by "cct_uuid_identification"
-                ) "ee" 
-                left join "centers_clients_maison" "mm" 
-                on "ee"."cct_uuid_identification" = "mm"."uuid_identification" 
-                left join "centers_purchasing_signboard" "si" 
+                ) "ee"
+                left join "centers_clients_maison" "mm"
+                on "ee"."cct_uuid_identification" = "mm"."uuid_identification"
+                left join "centers_purchasing_signboard" "si"
                 on "mm"."sign_board" = "si"."code"
-            ) "req" 
+            ) "req"
             where "ee"."cct_uuid_identification" = "req"."cct_uuid_identification"
             and (
-                "ee"."code_signboard" isnull 
+                "ee"."code_signboard" isnull
                 or
                 "ee"."code_signboard" != "req"."code_signboard"
             )
@@ -252,37 +256,35 @@ def update_edi_import_cct_uui_identification(
 
 
 def set_signboard() -> None:
-    """
-    Mise à jour en base des centrales filles et les enseignes
-    """
+    """Mise à jour en base des centrales filles et les enseignes."""
     with connection.cursor() as cursor:
         sql_set_signboard = """
-        update "edi_ediimport" "ee" 
+        update "edi_ediimport" "ee"
         set "code_center" = "req"."code_center",
             "code_signboard" = "req"."code_signboard"
         from (
-            select 
-                "ee"."cct_uuid_identification",  
+            select
+                "ee"."cct_uuid_identification",
                 "cc"."code" as "code_center",
                 "si"."code" as "code_signboard"
             from (
                 select
                     "cct_uuid_identification"
-                from "edi_ediimport" 
+                from "edi_ediimport"
                 where "cct_uuid_identification" is not null
                 group by "cct_uuid_identification"
-            ) "ee" 
-            left join "centers_clients_maison" "mm" 
-            on "ee"."cct_uuid_identification" = "mm"."uuid_identification" 
-            left join "centers_purchasing_childcenterpurchase" "cc" 
+            ) "ee"
+            left join "centers_clients_maison" "mm"
+            on "ee"."cct_uuid_identification" = "mm"."uuid_identification"
+            left join "centers_purchasing_childcenterpurchase" "cc"
             on "mm"."center_purchase" = "cc"."code"
-            left join "centers_purchasing_signboard" "si" 
+            left join "centers_purchasing_signboard" "si"
             on "mm"."sign_board" = "si"."code"
-        ) "req" 
+        ) "req"
         where "ee"."cct_uuid_identification" = "req"."cct_uuid_identification"
         and (
             "ee"."code_center" is distinct from "req"."code_center"
-            or 
+            or
             "ee"."code_signboard" is distinct from "req"."code_signboard"
         )
         """

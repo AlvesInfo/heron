@@ -1,6 +1,6 @@
-"""
-FR : Module d'export X3 des factures de vente
-EN : X3 export module for sales invoices
+"""FR : Module d'export X3 des factures de vente.
+
+EN : X3 export module for sales invoices.
 
 Commentaire:
 
@@ -10,27 +10,29 @@ created by: Paulo ALVES
 modified at: 2023-06-16
 modified by: Paulo ALVES
 """
+
 from operator import itemgetter
 from pathlib import Path
 
 from apps.core.functions.functions_setups import connections, settings
-from apps.invoices.bin.invoives_nums import get_bicpar_num
 from apps.invoices.bin.base_export_x3_functions import (
+    get_a,
+    get_d_invoices,
+    get_file,
     get_rows,
     get_t,
-    get_d_invoices,
-    get_a,
     split_line,
-    get_file,
 )
+from apps.invoices.bin.invoives_nums import get_bicpar_num
 
 
 def write_bicpar(fcy, file_name=None, nb_fac=5000):
-    """Fonction iter les lignes à écrire
+    """Fonction iter les lignes à écrire.
+
     :param fcy: société pour laquelle le fichier est à générer
     :param file_name: nom du fichier à générer
     :param nb_fac: nombre de factures max par fichiers
-    :return: generateur des lignes de la requête
+    :return: generateur des lignes de la requête.
     """
     connection = connections["heron"]
     rows = get_rows(connection, settings.APPS_DIR, fcy, "sql_export_x3_sale_invoices")

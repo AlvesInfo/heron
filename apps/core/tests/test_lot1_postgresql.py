@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des utilitaires postgresql de core (functions_postgresql.py) : exécution de requêtes
+"""FR : Tests des utilitaires postgresql de core (functions_postgresql.py) : exécution de requêtes
+
+
      sur une connexion Django ou psycopg2, lecture des requêtes depuis des fichiers sql
 EN : Tests for core postgresql helpers
 
@@ -12,6 +13,7 @@ courante (django.db.connection.settings_dict), jamais depuis CNX_STRING.
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import logging
 import types
 
@@ -54,8 +56,12 @@ def pg_cnx():
 def pays():
     """Table temporaire de pays dans la transaction de test, trois lignes"""
     with connection.cursor() as cursor:
-        cursor.execute("create temporary table tmp_pays (code varchar(2) primary key, nom varchar(30))")
-        cursor.execute("insert into tmp_pays values ('FR', 'France'), ('BE', 'Belgique'), ('IT', 'Italie')")
+        cursor.execute(
+            "create temporary table tmp_pays (code varchar(2) primary key, nom varchar(30))"
+        )
+        cursor.execute(
+            "insert into tmp_pays values ('FR', 'France'), ('BE', 'Belgique'), ('IT', 'Italie')"
+        )
 
 
 # QUERY EXECUTE / QUERY DICT =======================================================================
@@ -63,7 +69,9 @@ def pays():
 
 def test_query_execute_renvoie_le_nombre_de_lignes(pays):
     assert query_execute(connection, "update tmp_pays set nom = upper(nom)") == 3
-    assert query_execute(connection, "delete from tmp_pays where code = %(code)s", {"code": "IT"}) == 1
+    assert (
+        query_execute(connection, "delete from tmp_pays where code = %(code)s", {"code": "IT"}) == 1
+    )
     assert query_execute(connection, "delete from tmp_pays where code = 'ZZ'") == 0
 
 
@@ -82,9 +90,15 @@ def test_query_execute_erreur_psycopg2_journalisee(pg_cnx, caplog):
 
 def test_query_dict_renvoie_des_dictionnaires(pays):
     rows = query_dict(connection, "select code, nom from tmp_pays order by code")
-    filtered = query_dict(connection, "select nom from tmp_pays where code = %(code)s", {"code": "FR"})
+    filtered = query_dict(
+        connection, "select nom from tmp_pays where code = %(code)s", {"code": "FR"}
+    )
 
-    assert rows == [{"code": "BE", "nom": "Belgique"}, {"code": "FR", "nom": "France"}, {"code": "IT", "nom": "Italie"}]
+    assert rows == [
+        {"code": "BE", "nom": "Belgique"},
+        {"code": "FR", "nom": "France"},
+        {"code": "IT", "nom": "Italie"},
+    ]
     assert filtered == [{"nom": "France"}]
     assert query_dict(connection, "select nom from tmp_pays where code = 'ZZ'") == []
 
@@ -108,15 +122,21 @@ def test_query_dict_erreur_psycopg2_journalisee(pg_cnx, caplog):
 def sql_dir(tmp_path):
     """Répertoire de base avec deux fichiers sql (avec et sans paramètre)"""
     (tmp_path / "sql").mkdir()
-    (tmp_path / "sql" / "pays.sql").write_text("select code, nom from tmp_pays order by code", encoding="utf8")
-    (tmp_path / "sql" / "pays_code.sql").write_text("select code, nom from tmp_pays where code = %(code)s", encoding="utf8")
+    (tmp_path / "sql" / "pays.sql").write_text(
+        "select code, nom from tmp_pays order by code", encoding="utf8"
+    )
+    (tmp_path / "sql" / "pays_code.sql").write_text(
+        "select code, nom from tmp_pays where code = %(code)s", encoding="utf8"
+    )
     return tmp_path
 
 
 def test_query_file_dict_cursor_depuis_un_fichier(pays, sql_dir):
     with connection.cursor() as cursor:
         rows = query_file_dict_cursor(cursor, file_path="sql/pays.sql", base_dir=sql_dir)
-        one = query_file_dict_cursor(cursor, file_path="sql/pays_code.sql", base_dir=sql_dir, parmas_dict={"code": "BE"})
+        one = query_file_dict_cursor(
+            cursor, file_path="sql/pays_code.sql", base_dir=sql_dir, parmas_dict={"code": "BE"}
+        )
 
     assert [row["code"] for row in rows] == ["BE", "FR", "IT"]
     assert one == [{"code": "BE", "nom": "Belgique"}]
@@ -125,22 +145,31 @@ def test_query_file_dict_cursor_depuis_un_fichier(pays, sql_dir):
 def test_query_file_dict_cursor_depuis_un_texte(pays):
     """La requête en texte est prioritaire sur le fichier"""
     with connection.cursor() as cursor:
-        rows = query_file_dict_cursor(cursor, query_str="select count(*) as nb from tmp_pays", file_path="sql/absent.sql")
-        one = query_file_dict_cursor(cursor, "select nom from tmp_pays where code = %(code)s", parmas_dict={"code": "IT"})
+        rows = query_file_dict_cursor(
+            cursor, query_str="select count(*) as nb from tmp_pays", file_path="sql/absent.sql"
+        )
+        one = query_file_dict_cursor(
+            cursor, "select nom from tmp_pays where code = %(code)s", parmas_dict={"code": "IT"}
+        )
 
     assert rows == [{"nb": 3}]
     assert one == [{"nom": "Italie"}]
 
 
 def test_query_file_dict_cursor_fichier_absent(pays, sql_dir):
-    with connection.cursor() as cursor, pytest.raises(Exception, match="Le fichier 'absent.sql' n'existe pas"):
+    with (
+        connection.cursor() as cursor,
+        pytest.raises(Exception, match="Le fichier 'absent.sql' n'existe pas"),
+    ):
         query_file_dict_cursor(cursor, file_path="sql/absent.sql", base_dir=sql_dir)
 
 
 def test_query_file_yield_dict_cursor(pays, sql_dir):
     """Même résultat, sous forme de générateur"""
     with connection.cursor() as cursor:
-        generator = query_file_yield_dict_cursor(cursor, file_path="sql/pays_code.sql", base_dir=sql_dir, parmas_dict={"code": "FR"})
+        generator = query_file_yield_dict_cursor(
+            cursor, file_path="sql/pays_code.sql", base_dir=sql_dir, parmas_dict={"code": "FR"}
+        )
 
         assert isinstance(generator, types.GeneratorType)
         assert list(generator) == [{"code": "FR", "nom": "France"}]
@@ -150,7 +179,9 @@ def test_query_file_yield_dict_cursor(pays, sql_dir):
 def test_query_file_cursor_renvoie_des_tuples(pays, sql_dir):
     with connection.cursor() as cursor:
         rows = query_file_cursor(cursor, file_path="sql/pays.sql", base_dir=sql_dir)
-        one = query_file_cursor(cursor, "select nom from tmp_pays where code = %(code)s", parmas_dict={"code": "IT"})
+        one = query_file_cursor(
+            cursor, "select nom from tmp_pays where code = %(code)s", parmas_dict={"code": "IT"}
+        )
 
     assert rows == [("BE", "Belgique"), ("FR", "France"), ("IT", "Italie")]
     assert one == [("Italie",)]
@@ -161,4 +192,8 @@ def test_base_dir_par_defaut_est_la_racine_du_projet(pays):
     with connection.cursor() as cursor, pytest.raises(Exception, match="n'existe pas"):
         query_file_cursor(cursor, file_path="apps/core/tests/absent.sql")
 
-    assert functions_postgresql.settings.BASE_DIR.exists() if hasattr(functions_postgresql.settings.BASE_DIR, "exists") else True
+    assert (
+        functions_postgresql.settings.BASE_DIR.exists()
+        if hasattr(functions_postgresql.settings.BASE_DIR, "exists")
+        else True
+    )

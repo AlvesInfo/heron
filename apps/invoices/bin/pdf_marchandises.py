@@ -1,6 +1,6 @@
-"""
-FR : Module de génération des factures de marchandises en pdf
-EN : Module for generating invoices marchandises in pdf
+"""FR : Module de génération des factures de marchandises en pdf.
+
+EN : Module for generating invoices marchandises in pdf.
 
 Commentaire:
 
@@ -10,35 +10,35 @@ created by: Paulo ALVES
 modified at: 2023-04 -11
 modified by: Paulo ALVES
 """
+
+from collections.abc import Callable
 from pathlib import Path
 from uuid import UUID
-from typing import AnyStr
 
-from django.template.loader import render_to_string
 from django.conf import settings
 from django.db import connection
+from django.template.loader import render_to_string
+from pdfrw import PdfReader, PdfWriter
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
-from pdfrw import PdfReader, PdfWriter
 
-from apps.invoices.models import SaleInvoice, EnteteDetails
+from apps.invoices.models import EnteteDetails, SaleInvoice
 from apps.invoices.sql_files.sql_marchandises import (
+    SQL_DETAILS,
     SQL_HEADER,
     SQL_RESUME_HEADER,
     SQL_RESUME_SUPPLIER,
-    SQL_DETAILS,
     SQL_SUB_DETAILS,
 )
 
 
-def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> AnyStr:
-    """
-    Génération des entêtes de factures de marchandises
+def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
+    """Génération des entêtes de factures de marchandises.
+
     :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
-    :return: None
+    :return: None.
     """
-
     with connection.cursor() as cursor:
         # On fait un filter et non pas un get, pour pouvoir utiliser les éléments
         # tels que "general_footer_invoices.htmml" et "general_style_invoices"
@@ -47,12 +47,12 @@ def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> AnyStr
         # HEADER
         cursor.execute(SQL_HEADER, {"uuid_invoice": uuid_invoice})
         columns_header = [col[0] for col in cursor.description]
-        headers = [dict(zip(columns_header, row)) for row in cursor.fetchall()]
+        headers = [dict(zip(columns_header, row, strict=False)) for row in cursor.fetchall()]
 
         # RESUME HEADER
         cursor.execute(SQL_RESUME_HEADER, {"uuid_invoice": uuid_invoice})
         columns_resume = [col[0] for col in cursor.description]
-        resume = [dict(zip(columns_resume, row)) for row in cursor.fetchall()][0]
+        resume = dict(zip(columns_resume, cursor.fetchall()[0], strict=False))
 
         # LANCEMENT
         context = {
@@ -68,14 +68,13 @@ def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> AnyStr
         html.write_pdf(pdf_path, font_config=font_config)
 
 
-def marchandise_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> AnyStr:
-    """
-    Génération des récapitulatifs par fournisseurs
+def marchandise_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
+    """Génération des récapitulatifs par fournisseurs.
+
     :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
-    :return: None
+    :return: None.
     """
-
     with connection.cursor() as cursor:
         # On fait un filter et non pas un get, pour pouvoir utiliser les éléments
         # tels que "general_footer_invoices.htmml" et "general_style_invoices"
@@ -84,7 +83,7 @@ def marchandise_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> A
         # RESUME BY SUPPLIERS
         cursor.execute(SQL_RESUME_SUPPLIER, {"uuid_invoice": uuid_invoice})
         columns_uppliers = [col[0] for col in cursor.description]
-        suppliers = [dict(zip(columns_uppliers, row)) for row in cursor.fetchall()]
+        suppliers = [dict(zip(columns_uppliers, row, strict=False)) for row in cursor.fetchall()]
 
         context = {
             "invoices": invoices,
@@ -98,14 +97,13 @@ def marchandise_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> A
         html.write_pdf(pdf_path, font_config=font_config)
 
 
-def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> AnyStr:
-    """
-    Génération des pages Détails par fournisseurs
+def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
+    """Génération des pages Détails par fournisseurs.
+
     :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
-    :return: None
+    :return: None.
     """
-
     with connection.cursor() as cursor:
         # On fait un filter et non pas un get, pour pouvoir utiliser les éléments
         # tels que "general_footer_invoices.htmml" et "general_style_invoices"
@@ -114,7 +112,7 @@ def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> Any
         # DETAILS
         cursor.execute(SQL_DETAILS, {"uuid_invoice": uuid_invoice})
         columns_details = [col[0] for col in cursor.description]
-        suppliers = [dict(zip(columns_details, row)) for row in cursor.fetchall()]
+        suppliers = [dict(zip(columns_details, row, strict=False)) for row in cursor.fetchall()]
 
         context = {
             "invoices": invoices,
@@ -129,14 +127,13 @@ def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> Any
         html.write_pdf(pdf_path, font_config=font_config)
 
 
-def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> AnyStr:
-    """
-    Génération des pages de marchandises
+def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
+    """Génération des pages de marchandises.
+
     :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
-    :return: None
+    :return: None.
     """
-
     with connection.cursor() as cursor:
         # On fait un filter et non pas un get, pour pouvoir utiliser les éléments
         # tels que "general_footer_invoices.htmml" et "general_style_invoices"
@@ -145,7 +142,9 @@ def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) ->
         # DETAILS
         cursor.execute(SQL_SUB_DETAILS, {"uuid_invoice": uuid_invoice})
         columns_sub_details = [col[0] for col in cursor.description]
-        sub_details = [dict(zip(columns_sub_details, row)) for row in cursor.fetchall()]
+        sub_details = [
+            dict(zip(columns_sub_details, row, strict=False)) for row in cursor.fetchall()
+        ]
 
         context = {
             "invoices": invoices,
@@ -159,14 +158,14 @@ def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: AnyStr) ->
         html.write_pdf(pdf_path, font_config=font_config)
 
 
-def invoice_marchandise_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
-    """
-    Génération des pages de marchandises
+def invoice_marchandise_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
+    """Génération des pages de marchandises.
+
     :param uuid_invoice: uuid_identification de la facture
     :param pdf_path: Path du fichier pdf
-    :return: None
+    :return: None.
     """
-    marchandise_dict = {
+    marchandise_dict: dict[str, Callable] = {
         "header": marchandise_header_invoice_pdf,
         "suppliers": marchandise_suppliers_invoice_pdf,
         "details": marchandise_details_invoice_pdf,
@@ -175,7 +174,7 @@ def invoice_marchandise_pdf(uuid_invoice: UUID, pdf_path: AnyStr) -> None:
     files_list = []
 
     for name, generation in marchandise_dict.items():
-        pdf_path_name = Path(str(pdf_path)[:-4]+f"_{name}.pdf")
+        pdf_path_name = Path(str(pdf_path)[:-4] + f"_{name}.pdf")
         generation(uuid_invoice=uuid_invoice, pdf_path=pdf_path_name)
         files_list.append(pdf_path_name)
 

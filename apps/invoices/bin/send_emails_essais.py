@@ -1,6 +1,5 @@
-# ruff: noqa: E402
-"""
-FR : Module d'envoi des factures par email
+"""FR : Module d'envoi des factures par email.
+
 EN : Send invoices by email module
 Commentaire:
 
@@ -10,12 +9,12 @@ created by: Paulo ALVES
 modified at: 2023-06-13
 modified by: Paulo ALVES
 """
+
 import os
-import sys
 import platform
+import sys
 import time
 from pathlib import Path
-from typing import Dict
 
 import django
 
@@ -30,22 +29,22 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 
 django.setup()
 
-from django.conf import settings
 import pendulum
+from django.conf import settings
 from pydantic.error_wrappers import ValidationError
 
-from heron.loggers import LOGGER_EMAIL
-from apps.core.functions.functions_validations import CheckEmail
-from apps.core.exceptions import EmailException
-from apps.data_flux.trace import get_trace
 from apps.core.bin.emails import send_mass_mail
+from apps.core.exceptions import EmailException
+from apps.core.functions.functions_validations import CheckEmail
+from apps.data_flux.trace import get_trace
 from apps.invoices.models import SaleInvoice
+from heron.loggers import LOGGER_EMAIL
 
 
-def essais_send_by_email(context_dict: Dict):
-    """
-    Envoi d'une facture par mail
-    :param context_dict: dictionnaire des éléments pour l'envoi d'emails
+def essais_send_by_email(context_dict: dict):
+    """Envoi d'une facture par mail.
+
+    :param context_dict: dictionnaire des éléments pour l'envoi d'emails.
 
     CCT	    Période	    Synthèse	Factures	Service	    Centrale Fille
     {0}	    {1}	        {2}	        {3}	        {4}	        {5}
@@ -96,16 +95,12 @@ def essais_send_by_email(context_dict: Dict):
         None,
         "test1",
         "test1",
-        "aaa"
+        "aaa",
     ]
 
     context_email["cct"] = cct_name
     context_email["synthese"] = (
-        f"<p "
-        f'style="'
-        f"padding: 0;"
-        f"margin: 0 0 10px 0;"
-        f'font-size: 11pt;">{synthese}</p>'
+        f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">{synthese}</p>'
     )
     context_email["service"] = service
     context_email["centrale"] = center
@@ -125,11 +120,10 @@ def essais_send_by_email(context_dict: Dict):
             pass
 
     context_email["factures"] += (
-        f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">' f"{invoice}</p>"
+        f'<p style="padding: 0;margin: 0 0 10px 0;font-size: 11pt;">{invoice}</p>'
     )
 
     try:
-
         if mail_to_list:
             send_mass_mail(
                 [
@@ -154,13 +148,13 @@ def essais_send_by_email(context_dict: Dict):
             trace.file_name = f"Send email invoice : {file_path.name}"
             to_print = f"Error - Have Not send invoice email !: {file_path.name} - "
 
-    except EmailException as except_error:
+    except EmailException:
         error = True
-        LOGGER_EMAIL.exception(f"Exception EmailException : {str(mail_to_list)}{except_error!r}")
+        LOGGER_EMAIL.exception("Exception EmailException : %s", mail_to_list)
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_EMAIL.exception(f"Exception Générale : {except_error!r}")
+        LOGGER_EMAIL.exception("Exception Générale")
 
     finally:
         if error:

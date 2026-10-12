@@ -1,6 +1,6 @@
-"""
-FR : Module d'import des modèles de Sage X3
-EN : Import module for Sage X3 models
+"""FR : Module d'import des modèles de Sage X3.
+
+EN : Import module for Sage X3 models.
 
 Commentaire:
 
@@ -10,46 +10,47 @@ created by: Paulo ALVES
 modified at: 2022-05-10
 modified by: Paulo ALVES
 """
-from uuid import uuid4
+
 from pathlib import Path
+from uuid import uuid4
 
 from django.utils import timezone
 
-from apps.core.functions.functions_setups import settings
-from apps.data_flux.make_inserts import make_insert
-from apps.book.models import (
-    BprBookSage,
-    BpsBookSage,
-    BpcBookSage,
-    BookAdressesSage,
-    CodeContactsSage,
-    BookContactsSage,
-    BookBanksSage,
-)
-from apps.book.forms.forms_djantic.sage import (
-    BprBookSageSchema,
-    BpsBookSageSchema,
-    BpcBookSageSchema,
-    BookAdressesSageSchema,
-    CodeContactsSageSchema,
-    BookContactsSageSchema,
-    BookBanksSageSchema,
-)
+from apps.book.bin.book_post_processing import adress_sage_post_processing, bpr_book_post_processing
 from apps.book.bin.book_pre_processing import (
+    bank_book_pre_processing,
     bp_book_pre_processing,
     society_book_pre_processing,
-    bank_book_pre_processing,
 )
-from apps.book.bin.book_post_processing import bpr_book_post_processing, adress_sage_post_processing
+from apps.book.forms.forms_djantic.sage import (
+    BookAdressesSageSchema,
+    BookBanksSageSchema,
+    BookContactsSageSchema,
+    BpcBookSageSchema,
+    BprBookSageSchema,
+    BpsBookSageSchema,
+    CodeContactsSageSchema,
+)
+from apps.book.models import (
+    BookAdressesSage,
+    BookBanksSage,
+    BookContactsSage,
+    BpcBookSage,
+    BprBookSage,
+    BpsBookSage,
+    CodeContactsSage,
+)
+from apps.core.functions.functions_setups import settings
+from apps.data_flux.make_inserts import make_insert
 from apps.data_flux.trace import get_trace
 
 proccessing_dir = Path(settings.PROCESSING_SAGE_DIR)
 
 
 def bpr_sage(file_path: Path):
-    """
-    Import du fichier des Tiers généraux Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Tiers généraux Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     base_model = BprBookSage
     extend_model = base_model
@@ -69,16 +70,16 @@ def bpr_sage(file_path: Path):
         },
     }
     to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model
+        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model=extend_model
     )
     bpr_book_post_processing()
     return trace, to_print
 
 
 def bps_sage(file_path: Path):
-    """
-    Import du fichier des Tiers Fournisseurs Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Tiers Fournisseurs Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     base_model = BpsBookSage
     extend_model = base_model
@@ -99,16 +100,16 @@ def bps_sage(file_path: Path):
     }
     bp_book_pre_processing(proccessing_dir, file_path)
     to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model
+        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model=extend_model
     )
 
     return trace, to_print
 
 
 def bpc_sage(file_path: Path):
-    """
-    Import du fichier des Tiers Clients Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Tiers Clients Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     base_model = BpcBookSage
     extend_model = base_model
@@ -129,16 +130,16 @@ def bpc_sage(file_path: Path):
     }
     bp_book_pre_processing(proccessing_dir, file_path)
     to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model
+        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model=extend_model
     )
 
     return trace, to_print
 
 
 def adress_sage(file_path: Path):
-    """
-    Import du fichier des Adresses Tiers Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Adresses Tiers Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     base_model = BookAdressesSage
     extend_model = base_model
@@ -172,9 +173,9 @@ def adress_sage(file_path: Path):
 
 
 def code_contact_sage(file_path: Path):
-    """
-    Import du fichier des Codes Contacts Tiers Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Codes Contacts Tiers Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     base_model = CodeContactsSage
     extend_model = base_model
@@ -196,16 +197,16 @@ def code_contact_sage(file_path: Path):
     }
     society_book_pre_processing(proccessing_dir, file_path)
     to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model
+        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model=extend_model
     )
 
     return trace, to_print
 
 
 def contact_sage(file_path: Path):
-    """
-    Import du fichier des Contacts Tiers Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Contacts Tiers Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     base_model = BookContactsSage
     extend_model = base_model
@@ -227,16 +228,16 @@ def contact_sage(file_path: Path):
     }
     society_book_pre_processing(proccessing_dir, file_path)
     to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model
+        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model=extend_model
     )
 
     return trace, to_print
 
 
 def bank_sage(file_path: Path):
-    """
-    Import du fichier des Banques Tiers Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Banques Tiers Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     base_model = BookBanksSage
     extend_model = base_model
@@ -257,7 +258,7 @@ def bank_sage(file_path: Path):
     }
     bank_book_pre_processing(proccessing_dir, file_path)
     to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model
+        model, flow_name, file_path, trace, validator, params_dict_loader, extend_model=extend_model
     )
 
     return trace, to_print

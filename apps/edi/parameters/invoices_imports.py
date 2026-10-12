@@ -1,6 +1,6 @@
-"""
-FR : Module pour renvoie des colonnes des fichiers de factures fournisseurs à traiter
-EN : Module to return columns from supplier invoice files to be processed
+"""FR : Module pour renvoie des colonnes des fichiers de factures fournisseurs à traiter.
+
+EN : Module to return columns from supplier invoice files to be processed.
 
 Commentaire:
 
@@ -10,13 +10,13 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
-from typing import AnyStr, Dict
+
 from django.db import models
 
 
-def get_columns(model: models.Model, flow_name: AnyStr) -> Dict:
-    """
-    :param model:      Model au sens django
+def get_columns(model: models.Model, flow_name: str) -> dict:
+    """:param model:      Model au sens django
+
     :param flow_name:  Nom de la table
     :return: Le Dictionnaire de correspondance entre le modèle et l'entête du fichier
     """
@@ -30,22 +30,23 @@ def get_columns(model: models.Model, flow_name: AnyStr) -> Dict:
     }
 
 
-def get_first_line(model: models.Model, flow_name: AnyStr) -> int:
-    """
-    :param model:      Model SupplierDefinition django
+def get_first_line(model: models.Model, flow_name: str) -> int:
+    """:param model:      Model SupplierDefinition django
+
     :param flow_name:  Nom de la table
     :return: Retourne la première ligne du fichier
     """
     try:
         first_line_object = model.objects.get(flow_name=flow_name)
-        return first_line_object.first_line
     except model.DoesNotExist:
         return 1
+    else:
+        return first_line_object.first_line
 
 
-def get_loader_params_dict(model: models.Model, flow_name: AnyStr) -> int:
-    """
-    :param model:      Model SupplierDefinition django
+def get_loader_params_dict(model: models.Model, flow_name: str) -> dict:
+    """:param model:      Model SupplierDefinition django
+
     :param flow_name:  Nom de la table
     :return: Retourne le dictionnaire des paramètres pour le loader
     """
@@ -58,13 +59,12 @@ def get_loader_params_dict(model: models.Model, flow_name: AnyStr) -> int:
             "escapechar",
         ).get(flow_name=flow_name)
 
-        params_dict = {
+        return {
             "encoding": object_dict.get("encoding") or None,
             "delimiter": object_dict.get("delimiter") or ";",
             "lineterminator": object_dict.get("lineterminator") or "\n",
             "quotechar": object_dict.get("quotechar") or '"',
             "escapechar": object_dict.get("escapechar") or '"',
         }
-        return params_dict
     except model.DoesNotExist:
         return {}

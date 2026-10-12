@@ -1,15 +1,17 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des contrôles, de l'insertion, du post-traitement et de la génération des RFA
+"""FR : Tests des contrôles, de l'insertion, du post-traitement et de la génération des RFA
+
+
 EN : Tests for RFA controls, insertion, post processing and generation
 
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import datetime
 import logging
-from typing import ClassVar
 from decimal import Decimal
+from typing import ClassVar
 from uuid import uuid4
 
 import pytest
@@ -37,13 +39,18 @@ pytestmark = pytest.mark.django_db
 # CONTRÔLES ========================================================================================
 
 
-def test_controle_validation_fournisseurs(rfa_data, make_edi_import, make_supplier_rate, make_edi_import_control):
+def test_controle_validation_fournisseurs(
+    rfa_data, make_edi_import, make_supplier_rate, make_edi_import_control
+):
     """Message vide, au singulier ou au pluriel selon les fournisseurs à RFA non validés"""
     assert supplier_control_validation() == ""
 
     rfa_data["control"].valid = False
     rfa_data["control"].save()
-    assert supplier_control_validation() == "Les Factures du Fournisseur FOUR001 - FOURN UN, ne sont pas validées"
+    assert (
+        supplier_control_validation()
+        == "Les Factures du Fournisseur FOUR001 - FOURN UN, ne sont pas validées"
+    )
 
     make_supplier_rate("FOUR002", "0.1", name="Fournisseur Deux")
     make_edi_import("FOUR002", "ART-9", uuid_control=None)
@@ -60,12 +67,17 @@ def test_controle_cct(rfa_data, make_edi_import, make_supplier_rate):
     assert supplier_control_cct() == ""
 
     make_edi_import("FOUR001", "ART-3", cct_uuid_identification=None)
-    assert supplier_control_cct() == "Des CCT n'ont pas été renseignés dans les Factures du Fournisseur FOUR001 - FOURN UN"
+    assert (
+        supplier_control_cct()
+        == "Des CCT n'ont pas été renseignés dans les Factures du Fournisseur FOUR001 - FOURN UN"
+    )
 
     make_supplier_rate("FOUR002", "0.1", name="Fournisseur Deux")
     make_edi_import("FOUR002", "ART-9")
     message = supplier_control_cct()
-    assert message.startswith("Des CCT n'ont pas été renseignés dans les Factures des Fournisseurs ")
+    assert message.startswith(
+        "Des CCT n'ont pas été renseignés dans les Factures des Fournisseurs "
+    )
     assert "FOUR002 - Fournisseur Deux" in message
 
 
@@ -82,7 +94,11 @@ def test_rfa_a_generer(rfa_data):
     ["signboard", "client", "client_supplier", "section_pro", "section_rfa", "rate"],
 )
 def test_rfa_a_generer_exclusions(
-    rfa_data, exclusion, make_signboard_exclusion, make_client_exclusion, make_client_supplier_exclusion,
+    rfa_data,
+    exclusion,
+    make_signboard_exclusion,
+    make_client_exclusion,
+    make_client_supplier_exclusion,
     make_section_pro_exclusion,
 ):
     """Chaque exclusion (ou l'absence de section RFA / de taux) retire le fournisseur"""
@@ -165,10 +181,14 @@ def test_insertion_et_post_traitement(rfa_data):
     assert rfa.origin.origin_name == "RFA MENSUELLE"
     assert (rfa.code_maison, rfa.maison) == ("AF0001", "Maison AF0001")
     assert rfa.invoice_number == "FOUR001_01_2026_381"
-    assert (rfa.invoice_type, rfa.qty) == ("381", Decimal("-1"))
+    assert (rfa.invoice_type, rfa.qty) == ("381", Decimal(-1))
     assert rfa.invoice_date == datetime.date(2026, 1, 31)
-    assert (rfa.gross_amount, rfa.net_amount) == (Decimal("-165"), Decimal("-7.5"))
-    assert (rfa.vat_rate, rfa.vat_amount, rfa.amount_with_vat) == (Decimal("5.5"), Decimal("-0.41"), Decimal("-7.91"))
+    assert (rfa.gross_amount, rfa.net_amount) == (Decimal(-165), Decimal("-7.5"))
+    assert (rfa.vat_rate, rfa.vat_amount, rfa.amount_with_vat) == (
+        Decimal("5.5"),
+        Decimal("-0.41"),
+        Decimal("-7.91"),
+    )
     assert rfa.sale_invoice is True
     assert rfa.purchase_invoice is False
 
@@ -176,8 +196,14 @@ def test_insertion_et_post_traitement(rfa_data):
 
     rfa.refresh_from_db()
     assert rfa.vat_rate == Decimal("0.055")
-    assert (rfa.invoice_amount_without_tax, rfa.invoice_amount_tax, rfa.invoice_amount_with_tax) == (
-        Decimal("-7.5"), Decimal("-0.41"), Decimal("-7.91"),
+    assert (
+        rfa.invoice_amount_without_tax,
+        rfa.invoice_amount_tax,
+        rfa.invoice_amount_with_tax,
+    ) == (
+        Decimal("-7.5"),
+        Decimal("-0.41"),
+        Decimal("-7.91"),
     )
 
     # Les RFA déjà générées ne sont ni reproposées ni recomptées
@@ -187,12 +213,14 @@ def test_insertion_et_post_traitement(rfa_data):
 
 def test_insertion_facture_positive(rfa_data):
     """Des montants négatifs chez le fournisseur donnent une facture (380) de RFA"""
-    EdiImport.objects.filter(third_party_num="FOUR001").update(net_amount=Decimal("-100"), gross_amount=Decimal("-100"))
+    EdiImport.objects.filter(third_party_num="FOUR001").update(
+        net_amount=Decimal(-100), gross_amount=Decimal(-100)
+    )
 
     insert_rfa("FOUR001", RFA_PERIOD, uuid4())
 
     rfa = EdiImport.objects.get(flow_name="rfa_flow")
-    assert (rfa.invoice_type, rfa.qty, rfa.net_amount) == ("380", Decimal("1"), Decimal("10"))
+    assert (rfa.invoice_type, rfa.qty, rfa.net_amount) == ("380", Decimal(1), Decimal(10))
 
 
 def test_generate_rfa(rfa_data, make_trace):
@@ -271,7 +299,8 @@ def test_tache_generation_erreurs(rfa_data, make_user, monkeypatch, caplog, erro
     assert "Une erreur c'est produite" in result["Génération des RFA"]
     assert trace.errors is True
     assert "Une erreur c'est produite" in trace.comment
-    assert any(str(error) in record.getMessage() for record in caplog.records)
+    # l'exception est journalisée avec sa trace (exc_info), plus répétée dans le message
+    assert any(record.exc_info and record.exc_info[1] is error for record in caplog.records)
 
 
 def test_import_rfa_pool_module():
@@ -301,7 +330,11 @@ def fake_celery(monkeypatch):
     """Remplace group et signature de la boucle : enregistre les signatures et sert les résultats"""
     signatures = []
     monkeypatch.setattr(rfa_loop_pool, "group", _FakeGroup)
-    monkeypatch.setattr(rfa_loop_pool.celery_app, "signature", lambda name, kwargs: signatures.append((name, kwargs)) or (name, kwargs))
+    monkeypatch.setattr(
+        rfa_loop_pool.celery_app,
+        "signature",
+        lambda name, kwargs: signatures.append((name, kwargs)) or (name, kwargs),
+    )
 
     def _prepare(*results):
         _FakeGroup.results = list(results)
@@ -314,14 +347,24 @@ def test_lancement_generation(fake_celery, make_user):
     """Une tâche par fournisseur puis le nettoyage SQL ; l'action en cours est relâchée"""
     from apps.parameters.models import ActionInProgress  # pylint: disable=C0415
 
-    signatures = fake_celery([{"Génération des RFA": "RFA intégrées avec sucess, en 2 s"}], ["clean"])
+    signatures = fake_celery(
+        [{"Génération des RFA": "RFA intégrées avec sucess, en 2 s"}], ["clean"]
+    )
     user = make_user()
 
     erreur, info = rfa_generation_launch(user.pk, ["FOUR001", "FOUR002"], RFA_PERIOD)
 
     assert (erreur, info) == (False, "RFA intégrées avec sucess, en 2 s")
-    assert [name for name, _ in signatures] == ["rfa_generation_launch_task", "rfa_generation_launch_task", "sql_clean_general"]
-    assert signatures[0][1] == {"user_pk": user.pk, "supplier_origin": "FOUR001", "period_rfa": RFA_PERIOD}
+    assert [name for name, _ in signatures] == [
+        "rfa_generation_launch_task",
+        "rfa_generation_launch_task",
+        "sql_clean_general",
+    ]
+    assert signatures[0][1] == {
+        "user_pk": user.pk,
+        "supplier_origin": "FOUR001",
+        "period_rfa": RFA_PERIOD,
+    }
     assert ActionInProgress.objects.get(action="rfa_generation").in_progress is False
 
 
@@ -345,7 +388,10 @@ def test_lancement_generation_exception(monkeypatch, make_user, caplog):
     monkeypatch.setattr(rfa_loop_pool, "group", _raise)
 
     assert rfa_generation_launch(make_user().pk, ["FOUR001"], RFA_PERIOD) == (False, "")
-    assert any("broker injoignable" in record.getMessage() for record in caplog.records)
+    assert any(
+        record.exc_info is not None and "broker injoignable" in str(record.exc_info[1])
+        for record in caplog.records
+    )
 
 
 def test_lancement_generation_sans_action(monkeypatch, make_user):

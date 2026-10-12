@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel des taux de RFA par founisseurs
+"""Module d'export du fichier excel des taux de RFA par founisseurs.
 
 Commentaire:
 
@@ -15,24 +15,19 @@ from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
-from apps.rfa.models import SupplierRate
 from apps.core.excel_outputs.generic_list_export import excel_list_export
-
+from apps.rfa.models import SupplierRate
 
 columns_list = [
     {
         "entete": "Code Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#DCE7F5",
-            },
+            "bg_color": "#DCE7F5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 11,
     },
@@ -40,15 +35,11 @@ columns_list = [
         "entete": "Nom Tiers",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#DCE7F5",
-            },
+            "bg_color": "#DCE7F5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 25,
     },
@@ -56,16 +47,12 @@ columns_list = [
         "entete": "Taux RFA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#DCE7F5",
-            },
+            "bg_color": "#DCE7F5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "#,##0.00",
-            },
+            "align": "center",
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -73,8 +60,7 @@ columns_list = [
 
 
 def get_row():
-    """Class qui renvoie les bonnes colonnes pour le fichier Excel"""
-
+    """Class qui renvoie les bonnes colonnes pour le fichier Excel."""
     yield from [
         (
             row.get("supplier__third_party_num"),
@@ -93,7 +79,7 @@ def get_row():
 
 
 def excel_list_suppliers_rate(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des taux de RFA par founisseurs"""
+    """Fonction de génération du fichier de liste des taux de RFA par founisseurs."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     columns = columns_list

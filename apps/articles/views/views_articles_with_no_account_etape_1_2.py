@@ -1,29 +1,30 @@
-"""
-Views des Articles sans comptes comptables
-"""
+"""Views des Articles sans comptes comptables."""
+
 import pendulum
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render, redirect
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.core.functions.functions_http import get_pagination_buttons
 from apps.articles.excel_outputs.output_excel_articles_without_account_list import (
     excel_liste_articles_without_account,
 )
+from apps.articles.imports import articles_without_account
 from apps.centers_purchasing.bin.update_account_article import (
     set_update_articles_confict_account,
     update_axes_edi,
 )
 from apps.centers_purchasing.sql_files.sql_elements import articles_acuitis_without_accounts
+from apps.core.functions.functions_http import get_pagination_buttons
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.edi.models import EdiImport
+from heron.loggers import LOGGER_EXPORT_EXCEL
 
 
 # ECRANS DES ARTICLES SANS COMPTES COMPTABLES EN ACHATS ET VENTES ==================================
 def articles_without_account_list(request):
-    """Affichage de tous les articles qui n'ont pas de comptes comptables X3, présents
-    dans les imports
+    """Affichage de tous les articles qui n'ont pas de comptes comptables X3, présents.
+
+    dans les imports.
     """
     page = request.GET.get("page")
 
@@ -36,7 +37,6 @@ def articles_without_account_list(request):
 
     limit = 100
     articles_without_account_queryset = EdiImport.objects.raw(articles_acuitis_without_accounts)
-    # print(str(articles_without_account_queryset.query))
     paginator = Paginator(articles_without_account_queryset, limit)
 
     try:
@@ -56,17 +56,16 @@ def articles_without_account_list(request):
         "start_index": (articles.start_index() - 1) if articles.start_index() else 0,
         "end_index": articles.end_index(),
         "titre_table": "1.2 - Articles sans comptes",
-        # "url_validation": reverse("articles:articles_new_validation"),
         "url_redirect": reverse("articles:articles_without_account_list"),
     }
     return render(request, "articles/articles_without_account.html", context=context)
 
 
 def articles_without_account_export_list(_):
-    """
-    Export Excel de la liste des Sociétés
+    """Export Excel de la liste des Sociétés.
+
     :param _: Request Django
-    :return: response_file
+    :return: response_file.
     """
     try:
         today = pendulum.now()
@@ -83,17 +82,18 @@ def articles_without_account_export_list(_):
 
 
 def update_articles_without_account(request):
-    """Import de tous les articles qui n'ont pas de comptes comptables X3"""
-    from apps.articles.imports.articles_without_account import import_articles_without_account
+    """Import de tous les articles qui n'ont pas de comptes comptables X3."""
     messages_errors = ""
     messages_ok = ""
 
     if request.method == "POST":
         try:
-            messages_errors, messages_ok = import_articles_without_account()
+            messages_errors, messages_ok = (
+                articles_without_account.import_articles_without_account()
+            )
 
-        except Exception as error:
-            LOGGER_EXPORT_EXCEL.exception(f"view : update_articles_without_account\n\n{error!r}")
+        except Exception:
+            LOGGER_EXPORT_EXCEL.exception("view : update_articles_without_account")
 
     context = {
         "titre_table": "Import des articles sans comptes",

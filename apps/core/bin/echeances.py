@@ -1,5 +1,5 @@
-"""
-FR : Module de calcul des échéances et fonction des modes de règlements
+"""FR : Module de calcul des échéances et fonction des modes de règlements.
+
 EN : Module for calculating deadlines and function of payment methods
 Commentaire:
 
@@ -9,16 +9,15 @@ created by: Paulo ALVES
 modified at: 2023-06-21
 modified by: Paulo ALVES
 """
+
 import os
 import platform
 import sys
-from typing import Tuple
 from functools import lru_cache
 from uuid import UUID
-import datetime
 
-import pendulum
 import django
+import pendulum
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -35,9 +34,9 @@ from apps.accountancy.models import PaymentCondition
 
 
 @lru_cache(maxsize=256)
-def get_payment_method_elements(uuid_payment_method: UUID) -> Tuple:
-    """
-    Fonction qui renvoie les éléments de calculs des échéances en fonction du mode de règlement
+def get_payment_method_elements(uuid_payment_method: UUID) -> tuple:
+    """Fonction qui renvoie les éléments de calculs des échéances en fonction du mode de règlement.
+
     :param uuid_payment_method: auuid sage du Mode de règlement
     :return:
     """
@@ -56,9 +55,9 @@ def get_payment_method_elements(uuid_payment_method: UUID) -> Tuple:
     return end_month, offset_days, offset_month
 
 
-def get_due_date(invoice_date, uuid_payment_method: UUID) -> datetime.date.isoformat:
-    """
-    Renvoi la date d'échéance du paiement de la facture
+def get_due_date(invoice_date, uuid_payment_method: UUID) -> str:
+    """Renvoi la date d'échéance du paiement de la facture.
+
     :param invoice_date: date de la facture
     :param uuid_payment_method: auuid sage du Mode de règlement
     :return:

@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour le répertoire des sociétés
+"""Module d'export du fichier excel pour le répertoire des sociétés.
 
 Commentaire:
 
@@ -10,17 +10,21 @@ modified by: Paulo ALVES
 """
 
 import io
+from collections.abc import Iterator
 
 from django.db import connection
-from apps.book.models import Society
+from django.db.models import QuerySet
+from psycopg2 import sql
+
 from apps.book.excel_outputs.book_columns import SocietiesColumns
 from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 
 class GetRows:
-    """Class pour choix des méthodes get_clean rows en fonction du type des sociétés"""
+    """Class pour choix des méthodes get_clean rows en fonction du type des sociétés."""
 
-    def __init__(self, societies: Society.objects, society_type: str):
+    def __init__(self, societies: QuerySet, society_type: str):
+        """Prépare la requête des tiers selon le type (clients ou fournisseurs)."""
         self.societies = societies
 
         if society_type == "clients":
@@ -47,55 +51,61 @@ class GetRows:
                 case when is_physical_person = true then 'X' else '' end as is_physical_person
             """
 
-        self.query = f"""
+        self.query = sql.SQL(
+            """
         select
-            "third_party_num", 
-            bs."name", 
-            bs."short_name", 
-            "corporate_name", 
+            "third_party_num",
+            bs."name",
+            bs."short_name",
+            "corporate_name",
             "invoice_entete",
-            "siret_number", 
-            "vat_cee_number", 
-            "vat_number", 
-            "client_category", 
-            "supplier_category", 
-            "naf_code", 
-            "currency", 
-            "country", 
-            "language", 
-            "budget_code", 
-            "reviser", 
-            "ass"."name" as "payment_condition_supplier", 
-            "vat_sheme_supplier", 
-            "account_supplier_code", 
-            "acc"."name" as "payment_condition_client", 
-            "vat_sheme_client", 
+            "siret_number",
+            "vat_cee_number",
+            "vat_number",
+            "client_category",
+            "supplier_category",
+            "naf_code",
+            "currency",
+            "country",
+            "language",
+            "budget_code",
+            "reviser",
+            "ass"."name" as "payment_condition_supplier",
+            "vat_sheme_supplier",
+            "account_supplier_code",
+            "acc"."name" as "payment_condition_client",
+            "vat_sheme_client",
             "account_client_code",
-            {self.tiers},
+            {tiers},
             "email_01",
             "email_02",
             "email_03",
             "email_04",
             "email_05"
-        from {self.societies._meta.db_table} "bs"
+        from {table_1} "bs"
         left join "accountancy_paymentcondition" "ass"
-        on "ass"."auuid" = "bs"."payment_condition_supplier" 
+        on "ass"."auuid" = "bs"."payment_condition_supplier"
         left join "accountancy_paymentcondition" "acc"
-        on "acc"."auuid" = "bs"."payment_condition_client"  
-        {self.clause}
-        """
+        on "acc"."auuid" = "bs"."payment_condition_client"
+        {clause}
+            """
+        ).format(
+            tiers=sql.SQL(self.tiers),
+            table_1=sql.Identifier(self.societies._meta.db_table),
+            clause=sql.SQL(self.clause),
+        )
 
-    def get_clean_rows(self) -> iter:
-        """Retourne les lignes à écrire"""
+    def get_clean_rows(self) -> Iterator:
+        """Retourne les lignes à écrire."""
         with connection.cursor() as cursor:
             cursor.execute(self.query)
             return cursor.fetchall()
 
 
 def excel_liste_societies(
-    file_io: io.BytesIO, file_name: str, societies: Society.objects, society_type: str
+    file_io: io.BytesIO, file_name: str, societies: QuerySet, society_type: str
 ) -> dict:
-    """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients"""
+    """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:3])
     columns = getattr(SocietiesColumns, f"columns_list_{society_type}")

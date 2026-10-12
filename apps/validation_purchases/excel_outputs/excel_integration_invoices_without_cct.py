@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour les facturs founisseurs intégrées sans CCT
+"""Module d'export du fichier excel pour les facturs founisseurs intégrées sans CCT.
 
 Commentaire:
 
@@ -8,6 +8,7 @@ created by: Paulo ALVES
 modified at: 2022-05-12
 modified by: Paulo ALVES
 """
+
 import io
 
 from django.db.models import Count
@@ -16,23 +17,19 @@ from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
-from apps.edi.models import EdiImport
 from apps.core.excel_outputs.generic_list_export import excel_list_export
+from apps.edi.models import EdiImport
 
 COLUMNS = [
     {
         "entete": "Tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -40,9 +37,7 @@ COLUMNS = [
         "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
@@ -53,13 +48,12 @@ COLUMNS = [
         "entete": "Mois facture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center", "num_format": "mmmm yyyy"},
+            "align": "center",
+            "num_format": "mmmm yyyy",
         },
         "width": 13,
     },
@@ -67,15 +61,11 @@ COLUMNS = [
         "entete": "Code Fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 24,
     },
@@ -83,15 +73,11 @@ COLUMNS = [
         "entete": "Maison",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "text_wrap": True,
-            },
+            "text_wrap": True,
         },
         "width": 75,
     },
@@ -99,15 +85,11 @@ COLUMNS = [
         "entete": "N° Facture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 14,
     },
@@ -115,13 +97,12 @@ COLUMNS = [
         "entete": "Date Facture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"align": "center", "num_format": "dd/mm/yy"},
+            "align": "center",
+            "num_format": "dd/mm/yy",
         },
         "width": 12,
     },
@@ -129,16 +110,12 @@ COLUMNS = [
         "entete": "Montant\nHT",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
+            "align": "right",
+            "num_format": "#,##0.00",
         },
         "width": 11,
     },
@@ -146,16 +123,12 @@ COLUMNS = [
         "entete": "Montant\nTTC",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0.00",
-            },
+            "align": "right",
+            "num_format": "#,##0.00",
         },
         "width": 11,
     },
@@ -163,8 +136,9 @@ COLUMNS = [
 
 
 def get_rows():
-    """Renvoie les résultats de la requête nécessaire à l'export excel
-    :return: resultats de la requête
+    """Renvoie les résultats de la requête nécessaire à l'export excel.
+
+    :return: resultats de la requête.
     """
     rows_without_cct = (
         EdiImport.objects.filter(cct_uuid_identification__isnull=True)
@@ -201,7 +175,7 @@ def get_rows():
 
 
 def excel_integration_without_cct(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier Excel de la liste des factures intégrées sans CCT"""
+    """Fonction de génération du fichier Excel de la liste des factures intégrées sans CCT."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-3])
     get_clean_rows = get_rows()

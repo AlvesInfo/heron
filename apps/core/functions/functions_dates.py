@@ -1,11 +1,10 @@
-"""
-Module d'itilisation des dates
-"""
-from typing import AnyStr
-import datetime
-import calendar
+"""Module d'itilisation des dates."""
 
-import pendulum
+import calendar
+import datetime
+from typing import Any
+
+from django.utils import timezone
 
 MONTHS = [
     "",
@@ -41,8 +40,8 @@ WEEK_DAYS_FR = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "di
 WEEK_DAYS_SHORT_FR = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."]
 
 
-def get_date_apostrophe(dte: [pendulum, datetime, str]):
-    """Renvoi "de" où "d'" en fonction du mois reçu"""
+def get_date_apostrophe(dte: Any):
+    """Renvoi "de" où "d'" en fonction du mois reçu."""
     if isinstance(dte, (str,)):
         if not dte:
             return "de "
@@ -53,20 +52,22 @@ def get_date_apostrophe(dte: [pendulum, datetime, str]):
 
 
 def last_day_month(dte):
-    """Fonction qui retourne le dernier jour du mois
+    """Fonction qui retourne le dernier jour du mois.
+
     :param dte: 17/01/2017
-    :return: '2017-01-01' au format datetime.date(2017, 1, 31)
+    :return: '2017-01-01' au format datetime.date(2017, 1, 31).
     """
     return datetime.date(dte.year, dte.month, days_of_month(dte))
 
 
 def date_string_series(dte=None):
-    """Fonction qui renvoie une date sous forme de string :
+    """Fonction qui renvoie une date sous forme de string.
+
     :param dte: de type date
-    :return: de type string ex.: 2017_02_01
+    :return: de type string ex.: 2017_02_01.
     """
     if dte is None:
-        dte = datetime.datetime.now()
+        dte = timezone.localdate()
 
     y = str(dte.year)
     if len(y) == 2:
@@ -84,30 +85,32 @@ def date_string_series(dte=None):
 
 
 def time_string_series():
-    """Fonction qui renvoie le nombre de secondes entre maintenant et le 01/01/2000 - 00:00 :
-        exemple résultat -> 1497797172
-    :return: de type string
-    """
-    past = datetime.datetime(2000, 1, 1, 0, 0)
-    now = datetime.datetime.now()
-    delta = now - past
-    delta = str(abs(delta.days * 24 * 3600 + delta.seconds))
+    """Fonction qui renvoie le nombre de secondes entre maintenant et le 01/01/2000 - 00:00 UTC.
 
-    return delta
+        exemple résultat -> 1497797172
+    :return: de type string.
+    """
+    past = datetime.datetime(2000, 1, 1, tzinfo=datetime.UTC)
+    now = timezone.now()
+    delta = now - past
+
+    return str(abs(delta.days * 24 * 3600 + delta.seconds))
 
 
 def long_date_string(dte):
-    """Fonction qui renvoie le nom du mois (avec accents), avec l'année
+    """Fonction qui renvoie le nom du mois (avec accents), avec l'année.
+
     :param dte: 17/01/2017
-    :return: Janvier 2017
+    :return: Janvier 2017.
     """
     return f"{MONTHS[dte.month].capitalize()} {dte.year}"
 
 
 def days_of_month(dte):
-    """Fonction qui retourne le nombre de jours dans le mois
+    """Fonction qui retourne le nombre de jours dans le mois.
+
     :param dte: 17/01/2017
-    :return: 31
+    :return: 31.
     """
     return calendar.monthrange(dte.year, dte.month)[1]
 
@@ -117,18 +120,18 @@ def days_of_month(dte):
 DATE_FORMATS = ("%Y-%m-%d", "%d/%m/%Y", "%d.%m.%Y", "%d-%m-%Y", "%Y%m%d", "%d/%m/%y")
 
 
-def validate_date(value: AnyStr):
-    """
-    Fonction de validation et renvoie de la date au format datetime, en essayant les formats
+def validate_date(value: str):
+    """Fonction de validation et renvoie de la date au format datetime, en essayant les formats.
+
     de DATE_FORMATS dans l'ordre
     :param value: valeur à transformer
-    :return: datetime.datetime
+    :return: datetime.datetime.
     """
     value = str(value).strip()
 
     for date_format in DATE_FORMATS:
         try:
-            return datetime.datetime.strptime(value, date_format)
+            return datetime.datetime.strptime(value, date_format)  # noqa: DTZ007 (date sans heure)
         except ValueError:
             continue
 

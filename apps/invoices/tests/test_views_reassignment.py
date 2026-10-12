@@ -1,4 +1,5 @@
 """Tests de la vue de recherche des factures pour réaffectation"""
+
 import pytest
 from django.urls import reverse
 

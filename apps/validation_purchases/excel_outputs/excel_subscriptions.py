@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel du Contrôle des Abonnements
+"""Module d'export du fichier excel du Contrôle des Abonnements.
 
 Commentaire:
 
@@ -8,33 +8,35 @@ created by: Paulo ALVES
 modified at: 2023-07-03
 modified by: Paulo ALVES
 """
+
 import io
 from pathlib import Path
 
 import pendulum
-from django.db import connection
 from django.conf import settings
+from django.db import connection
+
 from apps.core.excel_outputs.excel_writer import (
+    columns_headers_writer,
     f_entetes,
     f_ligne,
-    columns_headers_writer,
 )
-from apps.core.excel_outputs.generic_list_export import PAGE_NUMBERS_FOOTER, excel_list_export, month_headers
+from apps.core.excel_outputs.generic_list_export import (
+    PAGE_NUMBERS_FOOTER,
+    excel_list_export,
+    month_headers,
+)
 
 COLUMNS = [
     {
         "entete": "Article Abonnement",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 50,
     },
@@ -42,15 +44,11 @@ COLUMNS = [
         "entete": "CCT X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 50,
     },
@@ -58,15 +56,11 @@ COLUMNS = [
         "entete": "Enseigne",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 15,
     },
@@ -74,16 +68,12 @@ COLUMNS = [
         "entete": "Date\nFermeture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yy",
-            },
+            "align": "center",
+            "num_format": "dd/mm/yy",
         },
         "width": 10,
     },
@@ -91,15 +81,11 @@ COLUMNS = [
         "entete": "M-11",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -107,15 +93,11 @@ COLUMNS = [
         "entete": "M-10",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -123,15 +105,11 @@ COLUMNS = [
         "entete": "M-9",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -139,15 +117,11 @@ COLUMNS = [
         "entete": "M-8",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -155,15 +129,11 @@ COLUMNS = [
         "entete": "M-7",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -171,15 +141,11 @@ COLUMNS = [
         "entete": "M-6",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -187,15 +153,11 @@ COLUMNS = [
         "entete": "M-5",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -203,15 +165,11 @@ COLUMNS = [
         "entete": "M-4",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -219,15 +177,11 @@ COLUMNS = [
         "entete": "M-3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -235,15 +189,11 @@ COLUMNS = [
         "entete": "M-2",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -251,15 +201,11 @@ COLUMNS = [
         "entete": "M-1",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -267,15 +213,11 @@ COLUMNS = [
         "entete": "M",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 10,
     },
@@ -283,15 +225,11 @@ COLUMNS = [
         "entete": "Total des 6\nderniers mois",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 14,
     },
@@ -299,32 +237,27 @@ COLUMNS = [
         "entete": "Commentaires",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 50,
     },
 ]
 
 
-def get_rows(file_path: Path, parmas_dict: dict = None):
-    """Renvoie les résultats de la requête nécessaire à l'export excel
+def get_rows(file_path: Path, parmas_dict: dict | None = None):
+    """Renvoie les résultats de la requête nécessaire à l'export excel.
+
     :param file_path: file pathlib.PATH
     :param parmas_dict: paramètre de la requête
-    :return: resultats de la requête
+    :return: resultats de la requête.
     """
     parmas_dict = parmas_dict or {}
 
     with file_path.open("r") as sql_file, connection.cursor() as cursor:
         query = sql_file.read()
-        # print(cursor.mogrify(query, parmas_dict).decode())
-        # LOGGER_EXPORT_EXCEL.exception(f"{cursor.mogrify(query).decode()!r}")
-        # print(query)
         cursor.execute(query, parmas_dict)
         return cursor.fetchall()
 
@@ -344,9 +277,14 @@ FORMAT_CLIENT = {
 
 
 def columns_mois() -> list[dict]:
-    """Colonnes dont les entêtes portent les mois, calculées à chaque export"""
+    """Colonnes dont les entêtes portent les mois, calculées à chaque export."""
     months = [
-        pendulum.now().subtract(months=mois).start_of("month").format("MMMM YYYY", locale="fr").capitalize().replace(" ", "\n")
+        pendulum.now()
+        .subtract(months=mois)
+        .start_of("month")
+        .format("MMMM YYYY", locale="fr")
+        .capitalize()
+        .replace(" ", "\n")
         for mois in range(12, 0, -1)
     ]
     return month_headers(COLUMNS, range(4, 16), months)
@@ -356,9 +294,9 @@ NB_CLOSING_DATE, NB_MOIS = 3, 15
 
 
 def subscription_line(values: list, f_lignes: list, f_lignes_odd: list) -> list:
-    """
-    Ligne prête à écrire : valeurs vides normalisées, date de fermeture convertie, et formats de
-    la date de fermeture et du mois M passés en rouge pour une maison fermée encore facturée
+    """Ligne prête à écrire : valeurs vides normalisées, date de fermeture convertie, et formats de.
+
+    la date de fermeture et du mois M passés en rouge pour une maison fermée encore facturée.
     """
     line = [value or "" for value in values]
     closing_date, mois = line[NB_CLOSING_DATE], line[NB_MOIS]
@@ -375,9 +313,13 @@ def subscription_line(values: list, f_lignes: list, f_lignes_odd: list) -> list:
     return line
 
 
-def write_block_header(excel, sheet: int, row: int, columns: list, label: str, page_breaks: list) -> int:
-    """Écrit le nom du bloc puis ses entêtes (saut de page avant, sauf pour le premier bloc) ;
-    renvoie la première ligne de données du bloc"""
+def write_block_header(
+    excel, sheet: int, row: int, columns: list, label: str, page_breaks: list
+) -> int:
+    """Écrit le nom du bloc puis ses entêtes (saut de page avant, sauf pour le premier bloc).
+
+    Renvoie la première ligne de données du bloc.
+    """
     row += 1
 
     if row > 5:
@@ -389,9 +331,12 @@ def write_block_header(excel, sheet: int, row: int, columns: list, label: str, p
     return row + 2
 
 
-def write_rows(excel, sheet: int, columns: list, rows, f_lignes: list, f_lignes_odd: list) -> list[int]:
-    """Un bloc par abonnement : nom, entêtes, lignes ; renvoie les sauts de page entre les blocs"""
-    row, row_format, current_subscription, page_breaks = 2, 1, "", []
+def write_rows(
+    excel, sheet: int, columns: list, rows, f_lignes: list, f_lignes_odd: list
+) -> list[int]:
+    """Un bloc par abonnement : nom, entêtes, lignes ; renvoie les sauts de page entre les blocs."""
+    row, row_format, current_subscription = 2, 1, ""
+    page_breaks: list = []
 
     for subscription, *values in rows:
         line = subscription_line(values, f_lignes, f_lignes_odd)
@@ -408,7 +353,7 @@ def write_rows(excel, sheet: int, columns: list, rows, f_lignes: list, f_lignes_
 
 
 def excel_subscriptions(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier du Contrôle des Abonnements"""
+    """Fonction de génération du fichier du Contrôle des Abonnements."""
     file_path = Path(f"{settings.APPS_DIR!s}/validation_purchases/sql_files/sql_subscriptions.sql")
 
     return excel_list_export(

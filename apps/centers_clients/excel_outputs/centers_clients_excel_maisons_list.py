@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour le répertoire des sociétés
+"""Module d'export du fichier excel pour le répertoire des sociétés.
 
 Commentaire:
 
@@ -11,26 +11,23 @@ modified by: Paulo ALVES
 
 import io
 
+from django.db.models import CharField, OuterRef, Subquery, Value
 from django.db.models.functions import Coalesce, NullIf
-from django.db.models import Value, CharField, OuterRef, Subquery
 
-from apps.core.functions.functions_utilitaires import format_siret
 from apps.book.models import Address
-from apps.centers_clients.models import Maison
 from apps.centers_clients.excel_outputs.centers_clients_columns import (
     columns_list_maisons,
 )
+from apps.centers_clients.models import Maison
 from apps.core.excel_outputs.generic_list_export import excel_list_export
+from apps.core.functions.functions_utilitaires import format_siret
 
 
 def get_clean_rows():
-    """Retourne les lignes à écrire"""
-
+    """Retourne les lignes à écrire."""
     # Adresse principale Sage (address_code="1") du Tiers X3, comme dans la vue
     # MaisonUpdate : unique_together (society, address_code) => une ligne au maximum
-    adresse_sage = Address.objects.filter(
-        society=OuterRef("third_party_num"), address_code="1"
-    )
+    adresse_sage = Address.objects.filter(society=OuterRef("third_party_num"), address_code="1")
 
     frequences_rfa = dict(Maison.Frequence.choices)
     remises_rfa = dict(Maison.Remise.choices)
@@ -179,14 +176,14 @@ def get_clean_rows():
 
 
 def excel_liste_maisons(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des maisons"""
+    """Fonction de génération du fichier de liste des maisons."""
     columns = columns_list_maisons
 
     return excel_list_export(
         file_io,
         file_name,
-        sheet_name='LISTE DES MAISONS',
-        title='LISTE DES MAISONS',
+        sheet_name="LISTE DES MAISONS",
+        title="LISTE DES MAISONS",
         columns=columns,
         rows=get_clean_rows(),
         orientation="landscape",

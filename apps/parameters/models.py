@@ -1,6 +1,6 @@
-"""
-FR : Module des modèles des paramètres
-EN : Parameters Models Module
+"""FR : Module des modèles des paramètres.
+
+EN : Parameters Models Module.
 
 Commentaire:
 
@@ -11,28 +11,28 @@ modified at: 2021-11-07
 modified by: Paulo ALVES
 """
 
+import contextlib
 import uuid
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError
-from django.urls.exceptions import NoReverseMatch
 
-
-from heron.models import DatesTable, FlagsTable
 from apps.accountancy.models import SectionSage
 from apps.countries.models import Currency
+from heron.models import DatesTable, FlagsTable
 
 
 class Parameters(FlagsTable):
-    """
-    Table des Parametrages généraux de l'application
+    """Table des Parametrages généraux de l'application.
+
     FR : Paramétrages
-    EN : Settings
+    EN : Settings.
     """
 
     name = models.CharField(unique=True, max_length=80)
@@ -63,25 +63,23 @@ class Parameters(FlagsTable):
     num_05 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class UnitChoices(FlagsTable):
-    """
-    Table de paramétrage des unités
+    """Table de paramétrage des unités.
+
     FR : Unités
-    EN : Unities
+    EN : Unities.
     """
 
     num = models.IntegerField(unique=True)
@@ -89,25 +87,23 @@ class UnitChoices(FlagsTable):
     to_display = models.CharField(null=True, max_length=5)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.unity}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["num"]
 
 
 class SendFiles(FlagsTable):
-    """
-    Table de paramétrage de l'envoi de fichier
+    """Table de paramétrage de l'envoi de fichier.
+
     FR : Envoi de fichiers
-    EN : SendFiles
+    EN : SendFiles.
     """
 
     name = models.CharField(unique=True, max_length=80, verbose_name="type d'envoi")
@@ -116,25 +112,23 @@ class SendFiles(FlagsTable):
     periodicity = models.CharField(null=True, blank=True, max_length=20)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class SendFilesMail(FlagsTable):
-    """
-    Table de paramétrage de l'envoi de fichier
+    """Table de paramétrage de l'envoi de fichier.
+
     FR : Envoi de fichiers
-    EN : SendFiles
+    EN : SendFiles.
     """
 
     file = models.ForeignKey(
@@ -156,66 +150,58 @@ class SendFilesMail(FlagsTable):
     email = models.EmailField(null=True, blank=True)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.file} - {self.user} - {self.email}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["file", "email", "user"]
         unique_together = (("file", "user", "email"),)
 
 
 class AddressCode(DatesTable):
-    """En attente"""
+    """En attente."""
 
 
 class SubFamilly(FlagsTable):
-    """
-    Sous Familles
+    """Sous Familles.
+
     FR : Sous Familles
-    EN : Sub Famillies
+    EN : Sub Famillies.
     """
 
     name = models.CharField(unique=True, max_length=80)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class InvoiceFunctions(FlagsTable):
-    """Table des fonctions qui génèrent les factures"""
+    """Table des fonctions qui génèrent les factures."""
 
     function_name = models.CharField(unique=True, max_length=255, verbose_name="nom")
     function = models.TextField(verbose_name="fonction")
-    absolute_path_windows = models.TextField(
-        null=True, blank=True, verbose_name="dir windows"
-    )
-    absolute_path_linux = models.TextField(
-        null=True, blank=True, verbose_name="dir linux"
-    )
+    absolute_path_windows = models.TextField(null=True, blank=True, verbose_name="dir windows")
+    absolute_path_linux = models.TextField(null=True, blank=True, verbose_name="dir linux")
     description = models.CharField(null=True, blank=True, max_length=255)
     reverse = models.CharField(null=True, blank=True, max_length=255, default="")
     redirect = models.CharField(null=True, blank=True, max_length=255, default="")
 
     def __str__(self):
-        """Texte renvoyé dans les appels à la class"""
+        """Texte renvoyé dans les appels à la class."""
         return f"{self.function_name}"
 
     @staticmethod
@@ -229,17 +215,15 @@ class InvoiceFunctions(FlagsTable):
         return reverse("parameters:functions_list")
 
     def save(self, *args, **kwargs):
-        """Calcul du champ reverse en fonction de redirect"""
+        """Calcul du champ reverse en fonction de redirect."""
         if self.redirect is not None and ":" in self.redirect:
-            try:
+            with contextlib.suppress(NoReverseMatch):
                 self.reverse = reverse(self.redirect)
-            except NoReverseMatch:
-                pass
 
         super().save(*args, **kwargs)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["function_name"]
         indexes = [
@@ -248,15 +232,13 @@ class InvoiceFunctions(FlagsTable):
 
 
 class Counter(FlagsTable):
-    """
-    Table des compteurs de l'application
+    """Table des compteurs de l'application.
+
     FR : Compteur
-    EN : Counter
+    EN : Counter.
     """
 
-    name = models.CharField(
-        unique=True, max_length=80, verbose_name="Type de numérotation"
-    )
+    name = models.CharField(unique=True, max_length=80, verbose_name="Type de numérotation")
     prefix = models.CharField(null=True, max_length=35, verbose_name="préfix")
     suffix = models.CharField(null=True, max_length=35, verbose_name="suffix")
     function = models.ForeignKey(
@@ -268,51 +250,45 @@ class Counter(FlagsTable):
         null=True,
     )
     lpad_num = models.IntegerField(null=True, default=0)
-    description = models.CharField(
-        null=True, max_length=255, verbose_name="description"
-    )
+    description = models.CharField(null=True, max_length=255, verbose_name="description")
     separateur = models.CharField(null=True, max_length=1, verbose_name="séparateur")
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.name}"
 
     @staticmethod
     def get_absolute_url():
-        """Url de retour après create ou Update"""
+        """Url de retour après create ou Update."""
         return reverse("parameters:numberings_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
         constraints = [
             # Ensures constraint on DB level, raises IntegrityError (500 on debug=False)
-            models.CheckConstraint(
-                check=models.Q(lpad_num__gte=0), name="lpad_num_gte_0"
-            ),
+            models.CheckConstraint(check=models.Q(lpad_num__gte=0), name="lpad_num_gte_0"),
         ]
 
     @staticmethod
     def bool_function(function):
-        """Si la fonction est None en paramètre, on renvoie False"""
+        """Si la fonction est None en paramètre, on renvoie False."""
         if function is None:
             return False
 
         counters = set(
-            Counter.objects.exclude(
-                Q(function="") | Q(function__isnull=True)
-            ).values_list("function", flat=True)
+            Counter.objects.exclude(Q(function="") | Q(function__isnull=True)).values_list(
+                "function", flat=True
+            )
         )
         return function.function_name in counters
 
     def clean(self):
-        """Clean method django"""
+        """Clean method django."""
         # Ensures constraint on model level, raises ValidationError
         if (self.lpad_num or 0) < 0:
             # raise error for field
@@ -321,14 +297,12 @@ class Counter(FlagsTable):
         if self.pk is None and self.bool_function(self.function):
             # Controle des doublonction sur les fonctions
             raise ValidationError(
-                {"function": _(f"La fonction {self.function} a déjà été utilisée")}
+                {"function": _("La fonction %s a déjà été utilisée") % self.function}
             )
 
 
 class CounterNums(models.Model):
-    """
-    Table de la numérotation des compteurs
-    """
+    """Table de la numérotation des compteurs."""
 
     counter = models.OneToOneField(
         Counter,
@@ -342,10 +316,10 @@ class CounterNums(models.Model):
 
 
 class Category(FlagsTable):
-    """
-    Grandes Catégories
+    """Grandes Catégories.
+
     FR : Grandes Catégories
-    EN : Categories
+    EN : Categories.
     """
 
     code = models.CharField(unique=True, max_length=15)
@@ -362,23 +336,21 @@ class Category(FlagsTable):
     )
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.ranking:02d} - {self.name}"
 
     @staticmethod
     def get_absolute_url():
-        """get absolute url in succes case"""
+        """Get absolute url in succes case."""
         return reverse("parameters:categories_list")
 
     def save(self, *args, **kwargs):
-        """
-        FR : Avant la sauvegarde on ajoute slug_name
-        EN : Before the backup we add slug_name
+        """FR : Avant la sauvegarde on ajoute slug_name.
+
+        EN : Before the backup we add slug_name.
         """
         if not self.slug_name:
             self.slug_name = slugify(self.name)
@@ -386,16 +358,16 @@ class Category(FlagsTable):
         super().save(*args, **kwargs)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["ranking"]
 
 
 class SubCategory(FlagsTable):
-    """
-    Sous Grandes Catégories - Rubriques Presta
+    """Sous Grandes Catégories - Rubriques Presta.
+
     FR : Sous Grandes Catégories
-    EN : Sub-Categories
+    EN : Sub-Categories.
     """
 
     code = models.CharField(unique=True, max_length=15)
@@ -411,61 +383,55 @@ class SubCategory(FlagsTable):
     )
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         try:
-            return (
-                f"{self.big_category.name} - {self.ranking} - {self.code} - {self.name}"
-            )
+            return f"{self.big_category.name} - {self.ranking} - {self.code} - {self.name}"
         except AttributeError:
             return ""
 
     @staticmethod
     def get_absolute_url():
-        """get absolute url in succes case"""
+        """Get absolute url in succes case."""
         return reverse("parameters:categories_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         unique_together = (("big_category", "ranking"),)
         ordering = ["ranking"]
 
 
 class Periodicity(FlagsTable):
-    """
-    Périodicité
+    """Périodicité.
+
     FR : Périodicité
-    EN : Periodicity
+    EN : Periodicity.
     """
 
     name = models.CharField(unique=True, max_length=80)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class SalePriceCategory(FlagsTable):
-    """
-    Catégorie des prix de ventes. Si l'on met un coéficient alors à l'arrivée d'une nouvelle ligne
+    """Catégorie des prix de ventes. Si l'on met un coéficient alors à l'arrivée d'une nouvelle ligne.
+
     de facture par défaut, il ira mettre le prix d'achat de la facture avec le coéficient prédéfini.
     FR : Catégorie des prix de ventes
-    EN : Sale Price Category
+    EN : Sale Price Category.
     """
 
     name = models.CharField(unique=True, max_length=80)
@@ -473,45 +439,41 @@ class SalePriceCategory(FlagsTable):
     comment = models.TextField(null=True, blank=True)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.name}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class ActionPermission(FlagsTable):
-    """
-    Action et Permissions
+    """Action et Permissions.
+
     FR : Action / Permissions
-    EN : Action / Permission
+    EN : Action / Permission.
     """
 
     name = models.CharField(unique=True, max_length=80)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class Nature(FlagsTable):
-    """
-    Table des natures. Ex. : Mr, Mme, SARL, ...
+    """Table des natures. Ex. : Mr, Mme, SARL, ...
+
     FR : Table des natures
-    EN : Nature table
+    EN : Nature table.
     """
 
     name = models.CharField(unique=True, blank=True, max_length=80)
@@ -521,14 +483,12 @@ class Nature(FlagsTable):
     for_formation = models.BooleanField(default=False)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def save(self, *args, **kwargs):
-        """
-        FR : Avant la sauvegarde on clean les données
-        EN : Before the backup we clean the data
+        """FR : Avant la sauvegarde on clean les données.
+
+        EN : Before the backup we clean the data.
         """
         self.name = self.name.capitalize()
 
@@ -538,7 +498,7 @@ class Nature(FlagsTable):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return self.to_display or self.name
 
     @staticmethod
@@ -547,13 +507,13 @@ class Nature(FlagsTable):
         return reverse("parameters:natures_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class IconOriginChoice(models.Model):
-    """Table des icônes pour la représentation des Origines des invoices"""
+    """Table des icônes pour la représentation des Origines des invoices."""
 
     origin = models.IntegerField(unique=True)
     origin_name = models.CharField(max_length=35)
@@ -561,10 +521,10 @@ class IconOriginChoice(models.Model):
 
 
 class BaseInvoiceTable(models.Model):
-    """
-    Table Abstraite de base pour les Factures
+    """Table Abstraite de base pour les Factures.
+
     FR : Table Abstraite de Base Flags
-    EN : Flags Abstract Table Flags
+    EN : Flags Abstract Table Flags.
     """
 
     uuid_file = models.UUIDField(null=True)
@@ -585,33 +545,27 @@ class BaseInvoiceTable(models.Model):
     invoice_amount_without_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0
     )
-    invoice_amount_tax = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
+    invoice_amount_tax = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     invoice_amount_with_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0
     )
     purchase_invoice = models.BooleanField(null=True, default=False)
     sale_invoice = models.BooleanField(null=True, default=False)
     manual_entry = models.BooleanField(null=True, default=False)
-    code_center = models.CharField(
-        null=True, max_length=15, verbose_name="code centrale fille"
-    )
-    code_signboard = models.CharField(
-        null=True, max_length=15, verbose_name="code enseigne"
-    )
+    code_center = models.CharField(null=True, max_length=15, verbose_name="code centrale fille")
+    code_signboard = models.CharField(null=True, max_length=15, verbose_name="code enseigne")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         abstract = True
 
 
 class BaseInvoiceDetailsTable(models.Model):
-    """
-    Table Abstraite de base pour les Détails de Factures
+    """Table Abstraite de base pour les Détails de Factures.
+
     FR : Table Abstraite de Base pour les Détails de Factures
-    EN : Flags Abstract Table for Invoices details
+    EN : Flags Abstract Table for Invoices details.
     """
 
     gross_unit_price = models.DecimalField(
@@ -635,9 +589,7 @@ class BaseInvoiceDetailsTable(models.Model):
         default=0,
         verbose_name="montant brut MOA avec 8 quand ALC avec H",
     )
-    base_discount_01 = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
+    base_discount_01 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     discount_price_01 = models.DecimalField(
         null=True,
         max_digits=20,
@@ -645,9 +597,7 @@ class BaseInvoiceDetailsTable(models.Model):
         default=0,
         verbose_name="remise 1 MOA avec 8 quand ALC avec H",
     )
-    base_discount_02 = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
+    base_discount_02 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     discount_price_02 = models.DecimalField(
         null=True,
         max_digits=20,
@@ -655,9 +605,7 @@ class BaseInvoiceDetailsTable(models.Model):
         default=0,
         verbose_name="remise 2 MOA avec 8 quand ALC avec H",
     )
-    base_discount_03 = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
+    base_discount_03 = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     discount_price_03 = models.DecimalField(
         null=True,
         max_digits=20,
@@ -696,16 +644,16 @@ class BaseInvoiceDetailsTable(models.Model):
     )
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         abstract = True
 
 
 class BaseCommonDetailsTable(models.Model):
-    """
-    Table Abstraite de base pour lignes communes entre aachats et ventes
+    """Table Abstraite de base pour lignes communes entre aachats et ventes.
+
     FR : Table Abstraite de base pour des artilces facturés
-    EN : Basic Abstract Table for Invoiced Items
+    EN : Basic Abstract Table for Invoiced Items.
     """
 
     # Article
@@ -729,15 +677,11 @@ class BaseCommonDetailsTable(models.Model):
     acuitis_order_number = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="RFF avec ON"
     )
-    acuitis_order_date = models.DateField(
-        null=True, verbose_name="DTM avec 4 quand RFF avec ON"
-    )
+    acuitis_order_date = models.DateField(null=True, verbose_name="DTM avec 4 quand RFF avec ON")
     delivery_number = models.CharField(
         null=True, blank=True, max_length=80, verbose_name="RFF avec AAK"
     )
-    delivery_date = models.DateField(
-        null=True, verbose_name="DTM avec 35 quand RFF avec AAK"
-    )
+    delivery_date = models.DateField(null=True, verbose_name="DTM avec 35 quand RFF avec AAK")
     client_name = models.CharField(null=True, blank=True, max_length=80)
     comment = models.CharField(null=True, blank=True, max_length=255)
     command_reference = models.CharField(null=True, blank=True, max_length=120)
@@ -750,9 +694,7 @@ class BaseCommonDetailsTable(models.Model):
         max_digits=20,
         verbose_name="QTY avec 47",
     )
-    item_weight = models.DecimalField(
-        null=True, max_digits=20, decimal_places=5, default=0
-    )
+    item_weight = models.DecimalField(null=True, max_digits=20, decimal_places=5, default=0)
     origin = models.ForeignKey(
         IconOriginChoice,
         null=True,
@@ -787,12 +729,8 @@ class BaseCommonDetailsTable(models.Model):
     initial_home = models.CharField(null=True, blank=True, max_length=15)
     initial_date = models.DateField(null=True, verbose_name="date initiale")
     final_date = models.DateField(null=True, verbose_name="date finale")
-    first_name = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="prenom"
-    )
-    last_name = models.CharField(
-        null=True, blank=True, max_length=80, verbose_name="nom"
-    )
+    first_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="prenom")
+    last_name = models.CharField(null=True, blank=True, max_length=80, verbose_name="nom")
     heures_formation = models.DecimalField(
         null=True,
         max_digits=20,
@@ -811,16 +749,16 @@ class BaseCommonDetailsTable(models.Model):
     flow_name = models.CharField(max_length=80, default="Saisie")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         abstract = True
 
 
 class ActionInProgress(FlagsTable):
-    """
-    Table des Actions en cours
+    """Table des Actions en cours.
+
     FR : Table des Actions en cours
-    EN : Current Actions Table
+    EN : Current Actions Table.
     """
 
     action = models.CharField(unique=True, max_length=80)
@@ -828,18 +766,16 @@ class ActionInProgress(FlagsTable):
     comment = models.CharField(blank=True, null=True, max_length=255)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["action"]
 
 
 class DefaultAxeArticle(FlagsTable):
-    """Table des axes par défaut du catalogue article à part sur l'axe Pro et les categories"""
+    """Table des axes par défaut du catalogue article à part sur l'axe Pro et les categories."""
 
     slug_name = models.CharField(unique=True, max_length=15)
     big_category = models.ForeignKey(
@@ -901,46 +837,42 @@ class DefaultAxeArticle(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
-        """Url de retour après create ou Update"""
-        return reverse(
-            "parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"}
-        )
+        """Url de retour après create ou Update."""
+        return reverse("parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"})
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["id"]
 
 
 class Email(models.Model):
-    """Modèle des emails pour la facturation"""
+    """Modèle des emails pour la facturation."""
 
     class EmailType(models.IntegerChoices):
-        """Invoice type choices"""
+        """Invoice type choices."""
 
         INV = 0, "Factures"
         DOC = 1, "Documents"
 
-    name = models.IntegerField(
-        unique=True, choices=EmailType.choices, default=EmailType.INV
-    )
+    name = models.IntegerField(unique=True, choices=EmailType.choices, default=EmailType.INV)
     description = models.CharField(max_length=255)
     subject = models.CharField(max_length=255)
     email_body = models.TextField(blank=True, null=True)
 
     @staticmethod
     def get_absolute_url():
-        """Renvoi l'url en cas de succes de la sauvegarde"""
+        """Renvoi l'url en cas de succes de la sauvegarde."""
         return reverse("parameters:emails_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class ExchangeRate(FlagsTable):
-    """Table des taux de change moyens"""
+    """Table des taux de change moyens."""
 
     curency_base = models.CharField(max_length=3, default="EUR")
     currency_change = models.ForeignKey(
@@ -956,11 +888,12 @@ class ExchangeRate(FlagsTable):
     rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
 
     def clean(self):
+        """Refuse un taux de change négatif."""
         if self.rate < 0:
             raise ValidationError("Le taux de change doit être positif")
 
     class Meta:
-        """Class Meta Django"""
+        """Class Meta Django."""
 
         ordering = ["currency_change"]
         unique_together = (("currency_change", "rate_month", "curency_base"),)
@@ -980,27 +913,23 @@ class ExchangeRate(FlagsTable):
 
 
 class ControlRebilling(FlagsTable):
-    """
-    Table servant de liste des fournisseurs à checker si on a reçu les factures
-    """
+    """Table servant de liste des fournisseurs à checker si on a reçu les factures."""
 
     name = models.CharField(unique=True, max_length=80)
     comment = models.TextField(null=True, blank=True)
 
     # Identification
-    uuid_identification = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False
-    )
+    uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.name}"
 
     def get_absolute_url(self):
-        """Retourne l'url en cas de success create, update ou delete"""
+        """Retourne l'url en cas de success create, update ou delete."""
         return reverse("parameters:control_rebilling_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]

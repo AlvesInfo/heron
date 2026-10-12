@@ -1,11 +1,13 @@
 # pylint: disable=E0401
-"""
-FR : Tests de l'app permissions (squelette : configuration et routes vides)
+"""FR : Tests de l'app permissions (squelette : configuration et routes vides)
+
+
 EN : Tests for permissions app skeleton
 
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import importlib
 
 from django.apps import apps as django_apps

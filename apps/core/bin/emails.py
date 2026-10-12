@@ -1,5 +1,5 @@
-"""
-FR : Module d'envoi des emails
+"""FR : Module d'envoi des emails.
+
 EN : Send emails module
 Commentaire:
 
@@ -11,17 +11,17 @@ modified by: Paulo ALVES
 """
 
 import smtplib
-from pathlib import Path
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from email import encoders
 from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from pathlib import Path
 
 import dkim
 from bs4 import BeautifulSoup
 
-from apps.core.functions.functions_setups import settings
 from apps.core.exceptions import EmailException
+from apps.core.functions.functions_setups import settings
 from heron.loggers import LOGGER_EMAIL
 
 EMAIL_HOST = settings.EMAIL_HOST
@@ -36,13 +36,20 @@ DKIM_PEM_FILE = settings.DKIM_PEM_FILE
 
 
 def prepare_mail(message, body, subject, email_text="", email_html="", context=None):
-    """Préparation smtp mail pour l'envoie du mail"""
+    """Préparation smtp mail pour l'envoie du mail : sujet, partie texte et partie html.
+
+    La partie texte est celle fournie (formatée avec le contexte), sinon le texte extrait du html.
+    """
     if not context:
         context = {}
 
     subject_mail = subject.format(**context)
     translate_email_html = email_html.format(**context)
-    translate_email_text = BeautifulSoup(translate_email_html, "lxml").get_text()
+    translate_email_text = (
+        email_text.format(**context)
+        if email_text
+        else BeautifulSoup(translate_email_html, "lxml").get_text()
+    )
 
     message["From"] = EMAIL_HOST_USER
     message["Subject"] = subject_mail
@@ -51,7 +58,7 @@ def prepare_mail(message, body, subject, email_text="", email_html="", context=N
 
 
 def send_mass_mail(email_list=None):
-    """Envoi des mails en masse"""
+    """Envoi des mails en masse."""
     if email_list is None:
         email_list = []
 
@@ -76,10 +83,10 @@ def send_mass_mail(email_list=None):
                     server,
                     mail_to,
                     subject,
-                    email_text,
-                    email_html,
-                    context,
-                    attachement_file_list,
+                    email_text=email_text,
+                    email_html=email_html,
+                    context=context,
+                    attachement_file_list=attachement_file_list,
                 )
 
     except (smtplib.SMTPException, ValueError) as error:
@@ -90,10 +97,8 @@ def send_mass_mail(email_list=None):
     return {"Send invoices email : ", f"{len(email_list)} ont été envoyés"}
 
 
-def send_mail(
-    server, mail_to, subject, email_text, email_html, context, attachement_file_list
-):
-    """Envoi le mail avec le template souhaité"""
+def send_mail(server, mail_to, subject, *, email_text, email_html, context, attachement_file_list):
+    """Envoi le mail avec le template souhaité."""
     message = MIMEMultipart()
     body = MIMEMultipart("alternative")
 
@@ -105,7 +110,7 @@ def send_mail(
         payload = MIMEBase("application", "octet-stream")
 
         try:
-            with open(file, "rb") as open_file:
+            with Path(file).open("rb") as open_file:
                 payload.set_payload(open_file.read())
         except Exception as msg_error:
             raise ValueError("échec à la lecture d'un fichier joint") from msg_error
@@ -123,7 +128,7 @@ def send_mail(
         sig = dkim.sign(
             message=message.as_bytes(),
             logger=LOGGER_EMAIL,
-            selector="email".encode(),
+            selector=b"email",
             domain=DOMAIN.encode(),
             privkey=dkim_private_key.encode(),
             include_headers=[b"from", b"to"],

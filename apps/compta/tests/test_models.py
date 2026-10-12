@@ -1,4 +1,5 @@
 """Tests des modèles compta"""
+
 import pytest
 from django.db import IntegrityError
 

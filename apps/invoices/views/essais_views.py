@@ -1,6 +1,4 @@
-# ruff: noqa: E722
-"""
-FR : View des essais
+"""FR : View des essais.
 
 Commentaire:
 
@@ -18,7 +16,7 @@ from apps.invoices.tasks import launch_celery_send_emails_essais
 
 
 def send_email_essais(request):
-    """Vue des essais d'envois par mails en mass"""
+    """Vue des essais d'envois par mails en mass."""
     user_pk = request.user.pk
     launch_celery_send_emails_essais(user_pk=str(user_pk))
     return redirect(reverse("invoices:send_email_pdf_invoice"))

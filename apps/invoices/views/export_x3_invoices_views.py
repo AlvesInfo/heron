@@ -1,6 +1,6 @@
-"""
-FR : View des lancements des exports X3
-EN : View of exports X3 launches
+"""FR : View des lancements des exports X3.
+
+EN : View of exports X3 launches.
 
 Commentaire:
 
@@ -10,37 +10,38 @@ created by: Paulo ALVES
 modified at: 2023-08-17
 modified by: Paulo ALVES
 """
-from zipfile import ZipFile
-from pathlib import Path
 
+from pathlib import Path
+from zipfile import ZipFile
+
+from celery import group
+from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.contrib import messages
 from django.utils.html import format_html
-from celery import group
 from django.views.generic import ListView
 
-from heron import celery_app
-from heron.loggers import LOGGER_X3, LOGGER_VIEWS
 from apps.core.bin.content_types import CONTENT_TYPE_FILE
 from apps.core.functions.functions_setups import settings
-from apps.invoices.models import Invoice, SaleInvoice, ExportX3
+from apps.edi.models import EdiValidation
 from apps.invoices.bin.invoives_nums import (
-    get_gaspar_num,
+    get_bicpar_num,
     get_bispar_num,
     get_bispard_num,
-    get_bicpar_num,
+    get_gaspar_num,
     get_zip_num,
 )
-from apps.edi.models import EdiValidation
+from apps.invoices.models import ExportX3, Invoice, SaleInvoice
+from heron import celery_app
+from heron.loggers import LOGGER_VIEWS, LOGGER_X3
 
 
 def _x3_exports() -> list[tuple]:
-    """
-    Exports X3 à lancer : (type d'export, centrale, champ du fichier dans ExportX3, nom du fichier).
+    """Exports X3 à lancer : (type d'export, centrale, champ du fichier dans ExportX3, nom du fichier).
+
     Les compteurs sont consommés dans l'ordre de la liste.
     """
     return [
@@ -54,7 +55,7 @@ def _x3_exports() -> list[tuple]:
 
 
 def _launch_x3_exports(exports: list[tuple], user_pk) -> list:
-    """Lance les tâches celery d'export et renvoie leurs résultats (True si l'export a réussi)"""
+    """Lance les tâches celery d'export et renvoie leurs résultats (True si l'export a réussi)."""
     tasks_list = [
         celery_app.signature(
             "launch_export_x3",
@@ -73,7 +74,7 @@ def _launch_x3_exports(exports: list[tuple], user_pk) -> list:
 
 
 def _save_x3_exports(exports: list[tuple], file_name_zip: str) -> None:
-    """Enregistre les fichiers générés (et leur zip) sur la période de validation en cours"""
+    """Enregistre les fichiers générés (et leur zip) sur la période de validation en cours."""
     edi_validations = EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first()
     export_x3, _ = ExportX3.objects.get_or_create(uuid_edi_validation=edi_validations)
     generated = {
@@ -94,15 +95,15 @@ def _save_x3_exports(exports: list[tuple], file_name_zip: str) -> None:
 
 
 def _delete_x3_files(exports: list[tuple]) -> None:
-    """Supprime les fichiers d'export générés (cas d'erreur)"""
+    """Supprime les fichiers d'export générés (cas d'erreur)."""
     for *_, file_name in exports:
         (Path(settings.EXPORT_DIR) / file_name).unlink(missing_ok=True)
 
 
 @transaction.atomic
-def generate_exports_X3(request):
-    """
-    View de lancement des exports X3, (GASPAR - OD, BICPAR - Clients, BISPAR - Fournisseurs)
+def generate_exports_x3(request):
+    """View de lancement des exports X3, (GASPAR - OD, BICPAR - Clients, BISPAR - Fournisseurs).
+
     :param request:
     :return:
     """
@@ -147,13 +148,13 @@ def generate_exports_X3(request):
 
         request.session["level"] = level
         messages.add_message(request, level, message)
-        LOGGER_X3.warning(f"{str(result_list)}, {str(all(result_list))}, {str(type(result_list))}")
+        LOGGER_X3.warning("%s, %s, %s", result_list, all(result_list), type(result_list))
 
     return render(request, "invoices/export_x3_invoices.html", context=context)
 
 
 class ExportX3Files(ListView):
-    """View pour download des fihiers X3 générés"""
+    """View pour download des fihiers X3 générés."""
 
     model = ExportX3
     context_object_name = "exports"
@@ -161,26 +162,33 @@ class ExportX3Files(ListView):
     extra_context = {"titre_table": "Fichiers X3"}
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["datatable_ordering"] = {"order": [(1, "desc")]}
         return context
 
 
+def _check_inside(directory: Path, file_path: Path, message: str) -> None:
+    """PermissionError si le chemin sort du répertoire autorisé (le nom vient de l'URL)."""
+    if directory not in file_path.parents:
+        raise PermissionError(message)
+
+
 def get_export_x3_file(request, file_name):
-    """Récupération des fichiers d'export X3 produits
+    """Récupération des fichiers d'export X3 produits.
+
     :param request: Request Django
     :param file_name: Paramètres get du nom du fichier à télécharger
-    :return: response_file
+    :return: response_file.
     """
     try:
         if request.method == "GET":
             export_dir = Path(settings.EXPORT_DIR).resolve()
             file_path = (export_dir / file_name).resolve()
 
-            # Le nom vient de l'URL : on refuse toute sortie du répertoire d'export
-            if export_dir not in file_path.parents:
-                raise PermissionError(f"chemin hors du répertoire d'export : {file_name!r}")
+            _check_inside(
+                export_dir, file_path, f"chemin hors du répertoire d'export : {file_name!r}"
+            )
 
             content_type = CONTENT_TYPE_FILE.get(file_path.suffix, "text/plain")
             response = HttpResponse(file_path.open("rb").read(), content_type=content_type)

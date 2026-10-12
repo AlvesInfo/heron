@@ -1,6 +1,6 @@
-"""
-FR : Module générique de donwload de fichiers
-EN : Generic file download module
+"""FR : Module générique de donwload de fichiers.
+
+EN : Generic file download module.
 
 Commentaire:
 
@@ -10,26 +10,35 @@ created by: Paulo ALVES
 modified at: 2022-05-19
 modified by: Paulo ALVES
 """
+
 import io
 from pathlib import Path
 
-from django.http import HttpResponse
-
 from django.conf import settings
+from django.http import HttpResponse
 
 CONTENT_TYPE_EXCEL = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 CONTENT_TYPE_CSV = "text/csv"
 
 
-def response_file(function_file, file_name, content_type, *args, download_token=None, **kwargs):
-    """Fonction qui renvoi un fichier par HttpResponse
+def download_status_key(download_token: str) -> str:
+    """Clé de session du marqueur de fin de téléchargement d'un jeton."""
+    return f"download_complete_{download_token}"
+
+
+def response_file(
+    function_file, file_name, content_type, *args, download_token=None, session=None, **kwargs
+):
+    """Fonction qui renvoi un fichier par HttpResponse.
+
     :param function_file: Fonction qui génère le fichier
     :param file_name: non à donner au fichier
     :param content_type: content_type http du fichier
     :param args: arguments à passer à la fonction
-    :param download_token: token pour signaler la fin du téléchargement au JavaScript (optionnel)
+    :param download_token: jeton pour signaler la fin du téléchargement au JavaScript (optionnel)
+    :param session: session de la requête, porteuse du marqueur de fin de téléchargement
     :param kwargs: arguments nommés à passer à la fonction
-    :return: HttpResponse
+    :return: HttpResponse.
     """
     file_io = io.BytesIO()
 
@@ -47,14 +56,10 @@ def response_file(function_file, file_name, content_type, *args, download_token=
     response["Content-Disposition"] = f"attachment; filename={file_name}"
     file_io.close()
 
-    # Définir le cookie pour signaler la fin du téléchargement au JavaScript
-    if download_token:
-        response.set_cookie(
-            f"download_complete_{download_token}",
-            "true",
-            max_age=60,
-            samesite="Lax"
-        )
+    # Fin de téléchargement signalée au JavaScript de la page (qui interroge core:download_status)
+    # par un marqueur en session : rien n'est écrit dans un cookie
+    if download_token and session is not None:
+        session[download_status_key(download_token)] = True
 
     return response
 
@@ -63,17 +68,17 @@ def x_accel_exists_file_response(
     file_path: Path,
     mime_type: str = CONTENT_TYPE_EXCEL,
 ):
-    """
-    Retourne l'objet response pour le téléchargement d'un fichier existant et rendu soit par nginx
+    """Retourne l'objet response pour le téléchargement d'un fichier existant et rendu soit par nginx.
+
     directement si on est en production, soit par l'objet content type de django
     :param file_path: non à donner au fichier
     :param mime_type: type mime du fichier à renvoyer
-    :return: HttpResponse
+    :return: HttpResponse.
     """
     response = HttpResponse()
 
     if settings.DEBUG:
-        with open(file_path, "rb") as file:
+        with Path(file_path).open("rb") as file:
             application = mime_type
             response = HttpResponse(file, content_type=application)
     else:

@@ -92,8 +92,9 @@ import uuid
 from django.http import JsonResponse
 from apps.core.models import SSEProgress
 
+
 def ma_vue(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         # Générer un job_id unique
         job_id = str(uuid.uuid4())
 
@@ -101,7 +102,7 @@ def ma_vue(request):
         ma_tache_celery.delay(job_id, request.user.id)
 
         # Retourner le job_id au frontend
-        return JsonResponse({'success': True, 'job_id': job_id})
+        return JsonResponse({"success": True, "job_id": job_id})
 
     return render(request, "mon_template.html")
 ```
@@ -113,14 +114,12 @@ import time
 from celery import shared_task
 from apps.core.models import SSEProgress
 
+
 @shared_task(name="ma_tache")
 def ma_tache_celery(job_id, user_id):
     # Créer l'entrée de progression
     progress = SSEProgress.objects.create(
-        job_id=job_id,
-        user_id=user_id,
-        task_type='mon_type',
-        total_items=100
+        job_id=job_id, user_id=user_id, task_type="mon_type", total_items=100
     )
 
     # Marquer comme démarré
@@ -300,29 +299,29 @@ Définis dans `apps/core/urls.py`:
 ### 1. Envoi d'emails
 
 ```python
-task_type='email_sending'
-metadata={'campaign_id': 123}
+task_type = "email_sending"
+metadata = {"campaign_id": 123}
 ```
 
 ### 2. Import EDI
 
 ```python
-task_type='edi_import'
-metadata={'file_format': 'ORDERS', 'supplier_id': 456}
+task_type = "edi_import"
+metadata = {"file_format": "ORDERS", "supplier_id": 456}
 ```
 
 ### 3. Génération rapports
 
 ```python
-task_type='report_generation'
-metadata={'report_type': 'monthly', 'format': 'PDF'}
+task_type = "report_generation"
+metadata = {"report_type": "monthly", "format": "PDF"}
 ```
 
 ### 4. Export comptabilité
 
 ```python
-task_type='accounting_export'
-metadata={'destination': 'X3', 'period': '2025-01'}
+task_type = "accounting_export"
+metadata = {"destination": "X3", "period": "2025-01"}
 ```
 
 ---

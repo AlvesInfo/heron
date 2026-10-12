@@ -1,6 +1,5 @@
-"""
-Tests de la vue de saisie manuelle des factures (edi:create_hand_invoices)
-"""
+"""Tests de la vue de saisie manuelle des factures (edi:create_hand_invoices)"""
+
 import json
 import logging
 
@@ -18,21 +17,33 @@ def url(category="marchandises"):
 
 
 @pytest.fixture
-def referentiel(make_society, make_vat, make_country_currency, make_nature, make_article, make_big_category):
+def referentiel(
+    make_society, make_vat, make_country_currency, make_nature, make_article, make_big_category
+):
     make_society("FOUR001", is_client=False)
     make_vat_rate(make_vat, "001", "20")
     make_country_currency("EUR")
     make_nature("Opticien", for_personnel=True, for_contact=False, to_display="OPT")
-    make_article(reference="FORM-1", society=make_society("ZFORM", is_client=False), big_category=make_big_category("Formation"))
+    make_article(
+        reference="FORM-1",
+        society=make_society("ZFORM", is_client=False),
+        big_category=make_big_category("Formation"),
+    )
 
 
 def post_data(entete=None, lignes=None):
     return {
         "data": json.dumps(
             {
-                "entete": entete if entete is not None else {
-                    "third_party_num": "FOUR001", "invoice_number": "FA-1", "invoice_date": "2026-01-15",
-                    "invoice_type": "380", "devise": "EUR", "sens": "2",
+                "entete": entete
+                if entete is not None
+                else {
+                    "third_party_num": "FOUR001",
+                    "invoice_number": "FA-1",
+                    "invoice_date": "2026-01-15",
+                    "invoice_type": "380",
+                    "devise": "EUR",
+                    "sens": "2",
                 },
                 "lignes": lignes if lignes is not None else [{"num": 1, "reference_article": "12"}],
             }
@@ -47,7 +58,7 @@ def test_unknown_category_redirects_home(logged_client):
     assert response.url == reverse("home")
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_not_finalized_invoicing_blocks_entry(logged_client, monkeypatch):
     with patched_attrs(monkeypatch, views_manual_entry, control_insertion=lambda: True):
         response = logged_client.get(url())
@@ -63,7 +74,7 @@ def test_not_finalized_invoicing_blocks_entry(logged_client, monkeypatch):
     ("category", "nb_display", "has_articles"),
     [("marchandises", 50, False), ("formation", 1, True), ("personnel", 30, True)],
 )
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_get_renders_entry_form(logged_client, category, nb_display, has_articles):
     response = logged_client.get(url(category))
 
@@ -82,7 +93,7 @@ def test_get_renders_entry_form(logged_client, category, nb_display, has_article
         assert "query_profession_type" not in context
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_post_without_ajax_renders_form(logged_client):
     response = logged_client.post(url(), post_data())
 
@@ -90,7 +101,7 @@ def test_post_without_ajax_renders_form(logged_client):
     assert response.context["category"] == "marchandises"
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_post_without_lines(ajax_client):
     response = ajax_client.post(url(), post_data(lignes=[{"num": 1, "reference_article": ""}]))
 
@@ -99,7 +110,7 @@ def test_post_without_lines(ajax_client):
     assert EdiImport.objects.count() == 0
 
 
-@pytest.mark.usefixtures('referentiel', 'make_trace')
+@pytest.mark.usefixtures("referentiel", "make_trace")
 def test_post_invalid_header(ajax_client):
     response = ajax_client.post(url(), post_data(entete={"invoice_number": "FA-1", "sens": "2"}))
 
@@ -112,13 +123,15 @@ def test_post_invalid_header(ajax_client):
     assert "FA-1" in trace.comment
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_post_existing_invoice(ajax_client, make_edi_import, monkeypatch):
     make_edi_import(third_party_num="FOUR001", invoice_number="FA-1", invoice_year=2026)
     calls = []
 
     with patched_attrs(
-        monkeypatch, views_manual_entry, set_hand_invoice=lambda *args: calls.append(args) or (False, "")
+        monkeypatch,
+        views_manual_entry,
+        set_hand_invoice=lambda *args: calls.append(args) or (False, ""),
     ):
         response = ajax_client.post(url(), post_data())
 
@@ -131,7 +144,7 @@ def test_post_existing_invoice(ajax_client, make_edi_import, monkeypatch):
 
 
 @pytest.mark.parametrize(("result", "level"), [((False, "créée"), 20), ((True, "refusée"), 50)])
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_post_delegates_to_set_hand_invoice(ajax_client, monkeypatch, result, level):
     seen = {}
 
@@ -151,13 +164,14 @@ def test_post_delegates_to_set_hand_invoice(ajax_client, monkeypatch, result, le
     assert seen["user"] == ajax_client.user
 
 
-@pytest.mark.usefixtures('referentiel')
+@pytest.mark.usefixtures("referentiel")
 def test_post_general_exception(ajax_client, monkeypatch, caplog):
     def _boom(*_args):
         raise RuntimeError("explosion")
 
-    with patched_attrs(monkeypatch, views_manual_entry, check_invoice_exists=_boom), caplog.at_level(
-        logging.ERROR, logger="error_views"
+    with (
+        patched_attrs(monkeypatch, views_manual_entry, check_invoice_exists=_boom),
+        caplog.at_level(logging.ERROR, logger="error_views"),
     ):
         response = ajax_client.post(url(), post_data())
 

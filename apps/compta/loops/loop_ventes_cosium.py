@@ -1,6 +1,6 @@
-"""
-FR : Module d'import en boucle des ventes cosium
-EN : Cosium sales loop import module
+"""FR : Module d'import en boucle des ventes cosium.
+
+EN : Cosium sales loop import module.
 
 Commentaire:
 
@@ -10,13 +10,14 @@ created by: Paulo ALVES
 modified at: 2023-03-02
 modified by: Paulo ALVES
 """
+
 import os
 import platform
 import sys
-from datetime import datetime
 import time
 
 import django
+from django.utils import timezone
 
 BASE_DIR = r"/"
 
@@ -31,15 +32,13 @@ django.setup()
 
 import pendulum
 
-from heron.loggers import LOGGER_IMPORT
-from apps.data_flux.models import Trace
 from apps.compta.imports.import_ventes_cosium import insert_ventes_cosium, mise_a_jour_ventes_cosium
+from apps.data_flux.models import Trace
+from heron.loggers import LOGGER_IMPORT
 
 
 def process():
-    """
-    Intégration des fichiers en fonction des fichiers présents dans le répertoire de processing/sage
-    """
+    """Intégration des fichiers en fonction des fichiers présents dans le répertoire de processing/sage."""
     start = time.time()
     error = False
     trace = Trace(
@@ -62,13 +61,13 @@ def process():
         if day in {1, 2, 3, 4, 5, 6}:
             mise_a_jour_ventes_cosium()
 
-    except TypeError as except_error:
+    except TypeError:
         error = True
-        LOGGER_IMPORT.exception(f"TypeError : Import Ventes Cosium\n{except_error!r}")
+        LOGGER_IMPORT.exception("TypeError : Import Ventes Cosium")
 
-    except Exception as except_error:
+    except Exception:
         error = True
-        LOGGER_IMPORT.exception(f"Exception Générale: Import Ventes Cosium\n{except_error!r}")
+        LOGGER_IMPORT.exception("Exception Générale: Import Ventes Cosium")
 
     finally:
         # La trace est créée avant le try : elle existe toujours ici
@@ -85,7 +84,7 @@ def process():
 
 if __name__ == "__main__":
     while True:
-        maintenant = datetime.now()
+        maintenant = timezone.localtime()
         heure = maintenant.hour
         minute = maintenant.minute
 

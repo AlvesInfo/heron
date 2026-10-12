@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des utilitaires de surveillance Celery et de la commande check_celery (broker simulé)
+"""FR : Tests des utilitaires de surveillance Celery et de la commande check_celery (broker simulé)
+
+
 EN : Tests for Celery monitoring utilities and the check_celery command (mocked broker)
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import io
 import types
 
@@ -65,11 +67,24 @@ def test_statut_sans_worker(inspector):
 
 
 def test_statut_avec_taches(inspector):
-    inspector.update({"active": {"w1": [TASK], "w2": []}, "scheduled": {"w1": [TASK, TASK]}, "reserved": {"w3": None}, "stats": {"w1": {}}})
+    inspector.update(
+        {
+            "active": {"w1": [TASK], "w2": []},
+            "scheduled": {"w1": [TASK, TASK]},
+            "reserved": {"w3": None},
+            "stats": {"w1": {}},
+        }
+    )
 
     status = get_celery_tasks_status()
 
-    assert (status["has_tasks"], status["total"], status["active"], status["scheduled"], status["reserved"]) == (True, 3, 1, 2, 0)
+    assert (
+        status["has_tasks"],
+        status["total"],
+        status["active"],
+        status["scheduled"],
+        status["reserved"],
+    ) == (True, 3, 1, 2, 0)
     assert sorted(status["workers"]) == ["w1", "w2", "w3"]
     assert has_active_celery_tasks() is True
     assert is_celery_available() is True
@@ -79,7 +94,14 @@ def test_liste_des_taches_actives(inspector):
     inspector["active"] = {"w1": [TASK], "w2": None}
 
     assert get_active_tasks_list() == [
-        {"worker": "w1", "task_id": "t1", "task_name": "apps.edi.tasks.launch", "args": [], "kwargs": {}, "time_start": 1.0}
+        {
+            "worker": "w1",
+            "task_id": "t1",
+            "task_name": "apps.edi.tasks.launch",
+            "args": [],
+            "kwargs": {},
+            "time_start": 1.0,
+        }
     ]
     inspector["active"] = None
     assert get_active_tasks_list() == []
@@ -88,7 +110,9 @@ def test_liste_des_taches_actives(inspector):
 def test_attente_de_fin_des_taches(inspector, monkeypatch):
     """Retour immédiat sans tâche, sinon attente jusqu'au délai avec le nombre restant"""
     sleeps = []
-    monkeypatch.setattr(celery_utils.time, "sleep", sleeps.append) if hasattr(celery_utils, "time") else None
+    monkeypatch.setattr(celery_utils.time, "sleep", sleeps.append) if hasattr(
+        celery_utils, "time"
+    ) else None
     import time  # pylint: disable=C0415
 
     monkeypatch.setattr(time, "sleep", sleeps.append)
@@ -101,7 +125,10 @@ def test_attente_de_fin_des_taches(inspector, monkeypatch):
 
 
 def test_statistiques_des_workers(inspector):
-    inspector["stats"] = {"w1": {"pool": {"implementation": "prefork", "max-concurrency": 8}, "total": {"t": 3}}, "w2": {}}
+    inspector["stats"] = {
+        "w1": {"pool": {"implementation": "prefork", "max-concurrency": 8}, "total": {"t": 3}},
+        "w2": {},
+    }
 
     assert get_celery_workers_stats() == {
         "w1": {"pool": "prefork", "max_concurrency": 8, "total_tasks": {"t": 3}},
@@ -134,7 +161,13 @@ def test_commande_sans_tache(inspector):
 
 
 def test_commande_avec_taches_et_details(inspector):
-    inspector.update({"stats": {"w1": {}}, "active": {"w1": [TASK, {**TASK, "id": "t2", "time_start": None}]}, "scheduled": {"w1": [TASK]}})
+    inspector.update(
+        {
+            "stats": {"w1": {}},
+            "active": {"w1": [TASK, {**TASK, "id": "t2", "time_start": None}]},
+            "scheduled": {"w1": [TASK]},
+        }
+    )
 
     output = _run("--details")
 

@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621,R0913
-"""
-FR : Tests des fonctions d'import des fichiers Sage X3 (apps/accountancy/imports/imports_sage.py)
+"""FR : Tests des fonctions d'import des fichiers Sage X3 (apps/accountancy/imports/imports_sage.py)
+
+
 EN : Tests for Sage X3 import functions
 
 Commentaire:
@@ -13,6 +14,7 @@ Commentaire:
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import csv
 import datetime
 from decimal import Decimal
@@ -67,16 +69,88 @@ pytestmark = pytest.mark.django_db
 APPLICATION_NAME = "accountacy_imports_import_sage"
 
 IMPORT_CASES = [
-    (account_sage, AccountSage, AccountSageSchema, "AccountSage", "Mise à jour Comptes Sage", "des Comptes comptables Sage", True),
+    (
+        account_sage,
+        AccountSage,
+        AccountSageSchema,
+        "AccountSage",
+        "Mise à jour Comptes Sage",
+        "des Comptes comptables Sage",
+        True,
+    ),
     (axe_sage, AxeSage, AxeSageSchema, "AxeSage", "Mise à jour Axes Sage", "des Axes Sage", False),
-    (section_sage, SectionSage, SectionSageSchema, "SectionSage", "Mise à jour Sections Sage", "des Sections Sage", True),
-    (vat_regime_sage, VatRegimeSage, VatRegimeSageSchema, "VatRegimeSage", "Mise à jour Régimes de Taxes Sage", "des Régimes de taxe Sage", True),
-    (vat_sage, VatSage, VatSageSchema, "VatSage", "Mise à jour Taxes Sage", "des Taxes Sage", False),
-    (vat_rat_sage, VatRatSage, VatRatSageSchema, "VatRatSage", "Mise à jour Taux de Taxes Sage", "des Taux de Taxes Sage", False),
-    (payement_condition, PaymentCondition, PaymentConditionSchema, "PaymentCondition", "Mise à jour Conditions de paiements Sage", "des Conditions de paiements Sage", False),
-    (tab_div_sage, TabDivSage, TabDivSageSchema, "TabDivSage", "Mise à jour Tables Diverses Sage", "des Tables Diverses Sage", False),
-    (category_sage_client, CategorySage, CategorySageSchema, "CategorySageClient", "Mise à jour Catégories Clients et Fournisseurs Sage", "des Catégories Clients Sage", False),
-    (category_sage_supplier, CategorySage, CategorySageSchema, "CategorySageSupplier", "Mise à jour Catégories Clients et Fournisseurs Sage", "des Catégories Fournisseurs Sage", False),
+    (
+        section_sage,
+        SectionSage,
+        SectionSageSchema,
+        "SectionSage",
+        "Mise à jour Sections Sage",
+        "des Sections Sage",
+        True,
+    ),
+    (
+        vat_regime_sage,
+        VatRegimeSage,
+        VatRegimeSageSchema,
+        "VatRegimeSage",
+        "Mise à jour Régimes de Taxes Sage",
+        "des Régimes de taxe Sage",
+        True,
+    ),
+    (
+        vat_sage,
+        VatSage,
+        VatSageSchema,
+        "VatSage",
+        "Mise à jour Taxes Sage",
+        "des Taxes Sage",
+        False,
+    ),
+    (
+        vat_rat_sage,
+        VatRatSage,
+        VatRatSageSchema,
+        "VatRatSage",
+        "Mise à jour Taux de Taxes Sage",
+        "des Taux de Taxes Sage",
+        False,
+    ),
+    (
+        payement_condition,
+        PaymentCondition,
+        PaymentConditionSchema,
+        "PaymentCondition",
+        "Mise à jour Conditions de paiements Sage",
+        "des Conditions de paiements Sage",
+        False,
+    ),
+    (
+        tab_div_sage,
+        TabDivSage,
+        TabDivSageSchema,
+        "TabDivSage",
+        "Mise à jour Tables Diverses Sage",
+        "des Tables Diverses Sage",
+        False,
+    ),
+    (
+        category_sage_client,
+        CategorySage,
+        CategorySageSchema,
+        "CategorySageClient",
+        "Mise à jour Catégories Clients et Fournisseurs Sage",
+        "des Catégories Clients Sage",
+        False,
+    ),
+    (
+        category_sage_supplier,
+        CategorySage,
+        CategorySageSchema,
+        "CategorySageSupplier",
+        "Mise à jour Catégories Clients et Fournisseurs Sage",
+        "des Catégories Fournisseurs Sage",
+        False,
+    ),
 ]
 
 
@@ -84,13 +158,31 @@ IMPORT_CASES = [
 
 
 @pytest.mark.parametrize(
-    ("import_function", "model", "validator", "flow_name", "trace_name", "comment_part", "with_uuid"), IMPORT_CASES
+    (
+        "import_function",
+        "model",
+        "validator",
+        "flow_name",
+        "trace_name",
+        "comment_part",
+        "with_uuid",
+    ),
+    IMPORT_CASES,
 )
 def test_fonctions_import_creent_la_trace_et_appellent_make_insert(
-    fake_make_insert, import_function, model, validator, flow_name, trace_name, comment_part, with_uuid
+    fake_make_insert,
+    import_function,
+    model,
+    validator,
+    flow_name,
+    trace_name,
+    comment_part,
+    with_uuid,
 ):
     """Chaque import crée une Trace nominative et délègue à make_insert avec les bons paramètres"""
-    file_path = Path(f"/tmp/{model.file_import_sage() if isinstance(model.file_import_sage(), str) else 'ZBICAT.heron'}")
+    file_path = Path(
+        f"/tmp/{model.file_import_sage() if isinstance(model.file_import_sage(), str) else 'ZBICAT.heron'}"
+    )
 
     trace, to_print = import_function(file_path)
 
@@ -119,18 +211,18 @@ def test_fonctions_import_creent_la_trace_et_appellent_make_insert(
         assert add_fields["uuid_identification"] == (uuid4, {})
 
 
-@pytest.mark.usefixtures('vat_rates_dataset')
+@pytest.mark.usefixtures("vat_rates_dataset")
 def test_vat_rat_sage_attend_et_corrige_le_taux_011(fake_make_insert):
     """L'import des taux attend 15 s (fichier X3 en cours d'écriture) puis remet la 011 à 0"""
     vat_rat_sage(Path("/tmp/ZBIRATVAT_journalier.heron"))
 
     assert fake_make_insert[0] == {"sleep": 15}
     assert fake_make_insert[1]["model"] is VatRatSage
-    assert set(VatRatSage.objects.filter(vat="011").values_list("rate", flat=True)) == {Decimal("0")}
-    assert VatRatSage.objects.filter(vat="001", rate=Decimal("20")).exists()
+    assert set(VatRatSage.objects.filter(vat="011").values_list("rate", flat=True)) == {Decimal(0)}
+    assert VatRatSage.objects.filter(vat="001", rate=Decimal(20)).exists()
 
 
-@pytest.mark.usefixtures('sage_dirs')
+@pytest.mark.usefixtures("sage_dirs")
 def test_mode_reglement_pretraite_le_fichier(fake_make_insert, make_mode_reglement, tmp_path):
     """Le fichier des modes de règlement est enrichi des uuid avant make_insert"""
     existing = make_mode_reglement("CHQ", name="Chèque", short_name="CHQ", legislation="FRA")
@@ -166,7 +258,7 @@ def test_repertoire_de_processing_module():
 
 
 @pytest.mark.integration
-@pytest.mark.usefixtures('sage_dirs')
+@pytest.mark.usefixtures("sage_dirs")
 def test_integration_axe_sage_insertion_puis_upsert(sage_file):
     """Lecture, validation djantic et upsert réels : création puis mise à jour des axes"""
     file = sage_file(AxeSage, [["BU", "Business~~Unit", "BU"], ["CCT", "Centre de coût", "CCT"]])
@@ -175,7 +267,10 @@ def test_integration_axe_sage_insertion_puis_upsert(sage_file):
 
     assert "Pas d'erreurs" in to_print
     assert trace.errors is False
-    assert dict(AxeSage.objects.values_list("axe", "name")) == {"BU": "Business", "CCT": "Centre de coût"}
+    assert dict(AxeSage.objects.values_list("axe", "name")) == {
+        "BU": "Business",
+        "CCT": "Centre de coût",
+    }
 
     file = sage_file(AxeSage, [["BU", "Business Unit renommée", "BU"], ["PRJ", "Projet", "PRJ"]])
 
@@ -215,7 +310,13 @@ def test_integration_section_sage_avec_axe_existant(sage_file, make_axe):
 @pytest.mark.integration
 def test_integration_fichier_en_erreur_est_trace(sage_file):
     """Une ligne invalide (valeur trop longue pour le code axe...) est comptée en erreur dans la trace"""
-    file = sage_file(VatSage, [["001", "TVA 20", "20", "FRA", "pas-un-uuid"], ["002", "TVA 5.5", "5.5", "FRA", str(uuid4())]])
+    file = sage_file(
+        VatSage,
+        [
+            ["001", "TVA 20", "20", "FRA", "pas-un-uuid"],
+            ["002", "TVA 5.5", "5.5", "FRA", str(uuid4())],
+        ],
+    )
 
     trace, to_print = vat_sage(file)
 

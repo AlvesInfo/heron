@@ -1,6 +1,6 @@
-"""
-FR : Modèles pour les ventes Cosium
-EN : Models for Cosium Sales
+"""FR : Modèles pour les ventes Cosium.
+
+EN : Models for Cosium Sales.
 
 Commentaire:
 
@@ -10,15 +10,16 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 from django.db import models
 
-from heron.models import FlagsTable
 from apps.accountancy.models import SectionSage
 from apps.centers_clients.models import Maison
+from heron.models import FlagsTable
 
 
 class VentesCosium(models.Model):
-    """Modèle des Ventes Cosium issues de la B.I"""
+    """Modèle des Ventes Cosium issues de la B.I."""
 
     id_bi = models.IntegerField()
     id_vente = models.CharField(blank=True, null=True, max_length=90)
@@ -108,10 +109,11 @@ class VentesCosium(models.Model):
     sale_month = models.DateField(null=True)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.code_maison} - {self.code_ean}"
 
     class Meta:
-        """class Meta Model DJango"""
+        """class Meta Model DJango."""
 
         indexes = [
             models.Index(
@@ -137,7 +139,7 @@ class VentesCosium(models.Model):
 
 
 class CaClients(FlagsTable):
-    """Modèle du chiffre d'affaires par clients et AXE_PRO, issues des ventes Cosium"""
+    """Modèle du chiffre d'affaires par clients et AXE_PRO, issues des ventes Cosium."""
 
     date_ca = models.DateField()
     code_maison = models.CharField(blank=True, null=True, max_length=30)
@@ -166,6 +168,7 @@ class CaClients(FlagsTable):
     ca_ht_devise = models.DecimalField(null=True, decimal_places=5, max_digits=20)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return (
             f"{self.date_ca.isoformat()} - "
             f"{self.cct_uuid_identification.cct} - "
@@ -173,7 +176,7 @@ class CaClients(FlagsTable):
         )
 
     class Meta:
-        """class Meta Model DJango"""
+        """class Meta Model DJango."""
 
         indexes = [
             models.Index(

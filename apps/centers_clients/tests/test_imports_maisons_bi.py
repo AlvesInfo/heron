@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'import des maisons depuis la B.I (imports/import_maisons_bi.py)
+"""FR : Tests de l'import des maisons depuis la B.I (imports/import_maisons_bi.py)
+
+
 EN : Tests for shops import from B.I
 
 Commentaire:
@@ -11,6 +12,7 @@ Les tests les créent comme tables ordinaires dans la transaction de test.
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import datetime
 
 import pytest
@@ -25,11 +27,9 @@ COLUMNS = (
     "code_maison, intitule, affaire, intitule_court, code_cosium, reference_cosium, compte_bbgr, "
     "date_ouverture, date_fermeture, immeuble, adresse, code_postal, ville, pays_x3, telephone, email"
 )
-DDL = (
-    "({cols})".format(
-        cols=", ".join(
-            f"{name} {'date' if name.startswith('date_') else 'text'}" for name in COLUMNS.split(", ")
-        )
+DDL = "({cols})".format(
+    cols=", ".join(
+        f"{name} {'date' if name.startswith('date_') else 'text'}" for name in COLUMNS.split(", ")
     )
 )
 
@@ -46,11 +46,22 @@ def bi_tables(make_country):
 
     def _insert(table, **values):
         row = {
-            "code_maison": "M001", "intitule": "Maison Un", "affaire": "", "intitule_court": "MU",
-            "code_cosium": "C1", "reference_cosium": "R1", "compte_bbgr": "B1",
-            "date_ouverture": datetime.date(2020, 1, 1), "date_fermeture": None, "immeuble": "",
-            "adresse": "1 rue", "code_postal": "75001", "ville": "Paris", "pays_x3": "FR",
-            "telephone": "01", "email": "un@heron.local",
+            "code_maison": "M001",
+            "intitule": "Maison Un",
+            "affaire": "",
+            "intitule_court": "MU",
+            "code_cosium": "C1",
+            "reference_cosium": "R1",
+            "compte_bbgr": "B1",
+            "date_ouverture": datetime.date(2020, 1, 1),
+            "date_fermeture": None,
+            "immeuble": "",
+            "adresse": "1 rue",
+            "code_postal": "75001",
+            "ville": "Paris",
+            "pays_x3": "FR",
+            "telephone": "01",
+            "email": "un@heron.local",
         }
         row.update(values)
         placeholders = ", ".join(f"%({name})s" for name in row)
@@ -109,7 +120,7 @@ def test_import_inchange_puis_modifie(bi_tables):
     assert maison.code_postal == "69000"
 
 
-@pytest.mark.usefixtures('bi_tables')
+@pytest.mark.usefixtures("bi_tables")
 def test_import_sans_lignes():
     """Tables vides : zéro maison"""
     assert import_maisons_bi() == "0 maisons importées ou mises à jour"

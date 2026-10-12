@@ -1,9 +1,11 @@
+"""Routes URL de l'application edi."""
+
 from django.urls import path
 
 from apps.edi.views import (
+    create_hand_invoices,
     # IMPORTS
     import_edi_invoices,
-    create_hand_invoices,
     # JAUGES
     import_jauge,
 )

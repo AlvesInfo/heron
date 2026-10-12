@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour les facturs founisseurs intégrées sans CCT
+"""Module d'export du fichier excel pour les facturs founisseurs intégrées sans CCT.
 
 Commentaire:
 
@@ -8,32 +8,29 @@ created by: Paulo ALVES
 modified at: 2022-05-12
 modified by: Paulo ALVES
 """
+
 import io
 
 import pendulum
 from django.db import connection
 
-from apps.core.functions.functions_postgresql import query_file_cursor
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
 from apps.core.excel_outputs.generic_list_export import excel_list_export, month_headers
+from apps.core.functions.functions_postgresql import query_file_cursor
 
 COLUMNS = [
     {
         "entete": "Tiers X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 10,
     },
@@ -41,9 +38,7 @@ COLUMNS = [
         "entete": "Fournisseur",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
@@ -54,24 +49,20 @@ COLUMNS = [
         "entete": "Axe Pro",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
-        "f_ligne": {**f_ligne, **{"align": "center"}},
+        "f_ligne": {**f_ligne, "align": "center"},
         "width": 18,
     },
     {
         "entete": "Mois-2\n",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"num_format": "#,##0.00"},
+            "num_format": "#,##0.00",
         },
         "width": 11,
     },
@@ -79,13 +70,11 @@ COLUMNS = [
         "entete": "Mois-1\n",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"num_format": "#,##0.00"},
+            "num_format": "#,##0.00",
         },
         "width": 11,
     },
@@ -93,13 +82,11 @@ COLUMNS = [
         "entete": "Mois M\n",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"num_format": "#,##0.00"},
+            "num_format": "#,##0.00",
         },
         "width": 11,
     },
@@ -107,13 +94,11 @@ COLUMNS = [
         "entete": "Variation",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{"num_format": "#,##0.00"},
+            "num_format": "#,##0.00",
         },
         "width": 11,
     },
@@ -121,15 +106,11 @@ COLUMNS = [
         "entete": "Commentaire",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "text_wrap": True,
-            },
+            "text_wrap": True,
         },
         "width": 80,
     },
@@ -137,16 +118,16 @@ COLUMNS = [
 
 
 def get_rows(cursor):
-    """Renvoie les résultats de la requête nécessaire à l'export excel
-    :return: resultats de la requête
+    """Renvoie les résultats de la requête nécessaire à l'export excel.
+
+    :return: resultats de la requête.
     """
     sql_context_file = "apps/validation_purchases/sql_files/sql_families_invoices.sql"
-    invoices_famillies = query_file_cursor(cursor, file_path=sql_context_file)
-    return invoices_famillies
+    return query_file_cursor(cursor, file_path=sql_context_file)
 
 
 def columns_mois() -> list[dict]:
-    """Colonnes dont les entêtes 3 à 5 portent les mois M-2, M-1 et M"""
+    """Colonnes dont les entêtes 3 à 5 portent les mois M-2, M-1 et M."""
     mois = pendulum.now().start_of("month")
     libelles = [
         f"Mois-2\n{mois.subtract(months=3).format('MMM YYYY', locale='fr')}",
@@ -157,13 +138,13 @@ def columns_mois() -> list[dict]:
 
 
 def rows_familles() -> list[tuple]:
-    """Lignes des familles facturées, limitées aux 8 colonnes du tableau"""
+    """Lignes des familles facturées, limitées aux 8 colonnes du tableau."""
     with connection.cursor() as cursor:
         return [rows[:8] for rows in get_rows(cursor)]
 
 
 def excel_integration_invoices_familly(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier Excel de la liste des factures intégrées sans CCT"""
+    """Fonction de génération du fichier Excel de la liste des factures intégrées sans CCT."""
     titre = " ".join(file_name.split("_")[:-3])
 
     return excel_list_export(

@@ -1,6 +1,6 @@
-"""
-FR : Module du modèle des maisons
-EN : Houses model module
+"""FR : Module du modèle des maisons.
+
+EN : Houses model module.
 
 Commentaire:
 
@@ -10,28 +10,28 @@ created by: Paulo ALVES
 modified at: 2022-04-07
 modified by: Paulo ALVES
 """
+
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError
-
-from heron.models import FlagsTable
 
 from apps.accountancy.models import (
     AccountSage,
     CctSage,
     CodePlanSage,
-    VatSage,
-    TabDivSage,
     SectionSage,
+    TabDivSage,
+    VatSage,
 )
+from apps.articles.models import Article
 from apps.book.models import Society
 from apps.centers_purchasing.models import ChildCenterPurchase, Signboard
-from apps.parameters.models import SalePriceCategory, Nature, InvoiceFunctions, UnitChoices
-from apps.countries.models import Country, Language, Currency
-from apps.articles.models import Article
+from apps.countries.models import Country, Currency, Language
+from apps.parameters.models import InvoiceFunctions, Nature, SalePriceCategory, UnitChoices
+from heron.models import FlagsTable
 
 CHOICES_LANGUE = (
     ("FRA", "Français"),
@@ -43,70 +43,73 @@ CHOICES_LANGUE = (
 
 
 class ClientFamilly(FlagsTable):
-    """
-    Table des familles des maisons
+    """Table des familles des maisons.
+
     FR : Table des Familles
-    EN : Families table
+    EN : Families table.
     """
 
     name = models.CharField(unique=True, max_length=80)
     comment = models.CharField(null=True, blank=True, max_length=255)
 
     def clean(self):
-        """
-        FR : Capitalisation avant validate_unique, pour que le doublon "franchise"/"Franchise"
+        """FR : Capitalisation avant validate_unique, pour que le doublon "franchise"/"Franchise".
+
              soit détecté par le formulaire et non par une IntegrityError à la sauvegarde
-        EN : Capitalize before validate_unique
+        EN : Capitalize before validate_unique.
         """
         if self.name:
             self.name = self.name.capitalize()
 
     def save(self, *args, **kwargs):
-        """
-        FR : Avant la sauvegarde on clean les données
-        EN : Before the backup we clean the data
+        """FR : Avant la sauvegarde on clean les données.
+
+        EN : Before the backup we clean the data.
         """
         self.name = self.name.capitalize()
 
         super().save(*args, **kwargs)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return self.name
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class TypeVente(models.Model):
+    """Table des types de vente.
+
+    0: BLOCAGE
+    1: VENTE
+    2: OD ANA.
     """
-    Table des types de vente
-        0: BLOCAGE
-        1: VENTE
-        2: OD ANA
-    """
+
     num = models.IntegerField(unique=True)
     name = models.CharField(max_length=20)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
+
         ordering = ["num"]
 
     def __str__(self):
-        """Retourne le str de la class"""
+        """Retourne le str de la class."""
         return f"{self.name}"
 
 
 class Maison(FlagsTable):
-    """
-    Table des Maisons
+    """Table des Maisons.
+
     FR : Table des Maisons
-    EN : Shop table
+    EN : Shop table.
     """
 
     class Frequence(models.IntegerChoices):
-        """Frequence choices"""
+        """Frequence choices."""
 
         AUCUNE = 0, _("---------")
         MENSUEL = 1, _("Mensuel")
@@ -115,7 +118,7 @@ class Maison(FlagsTable):
         ANNUEL = 4, _("Annuel")
 
     class Remise(models.IntegerChoices):
-        """Remise choices"""
+        """Remise choices."""
 
         AUCUNE = 0, _("---------")
         TOTAL = 1, _("Fournisseur Total")
@@ -396,12 +399,13 @@ class Maison(FlagsTable):
         to_field="num",
         related_name="cct_type_vente",
         db_column="type_x3",
-        default=0
+        default=0,
     )
 
     def clean(self):
         # Ensures constraint on model level, raises ValidationError
         # type_x3 est une FK vers TypeVente (to_field="num") : on compare la valeur stockée
+        """Contrôle la cohérence du type X3 et de l'axe BU au niveau du modèle."""
         if self.type_x3_id == 2 and not self.axe_bu:
             # raise error for field
             raise ValidationError(
@@ -426,59 +430,43 @@ class Maison(FlagsTable):
 
             if exist_list and cct_code not in set(exist_list):
                 raise ValidationError(
-                    {
-                        "reference_cosium": _(
-                            f"La référence Cosium existe déjà {exist_list[0]}"
-                        )
-                    }
+                    {"reference_cosium": _("La référence Cosium existe déjà %s") % exist_list[0]}
                 )
 
         # On vérifie que le compte au crédit soit bien un compte collectif
         if self.credit_account and not self.credit_account.collective:
             raise ValidationError(
-                    {
-                        "credit_account": _(
-                            "Le compte au crédit choisi, doit être un compte collectif !"
-                        )
-                    }
+                {"credit_account": _("Le compte au crédit choisi, doit être un compte collectif !")}
             )
 
         # On vérifie que le compte au débit soit bien un compte collectif
         if self.debit_account and not self.debit_account.collective:
             raise ValidationError(
-                    {
-                        "debit_account": _(
-                            "Le compte au débit choisi, doit être un compte collectif !"
-                        )
-                    }
+                {"debit_account": _("Le compte au débit choisi, doit être un compte collectif !")}
             )
 
         # On s'assure que le Tiers X3 client est bien un client
         if self.third_party_num_id and not self.third_party_num.is_client:
             raise ValidationError(
-                    {
-                        "third_party_num": _(
-                            "Le Tiers Client X3 doît être un client dans Sage X3 !"
-                        )
-                    }
+                {"third_party_num": _("Le Tiers Client X3 doît être un client dans Sage X3 !")}
             )
 
     def save(self, *args, **kwargs):
-        """
-        FR : Avant la sauvegarde on clean les données
-        EN : Before the backup we clean the data
-        """
+        """FR : Avant la sauvegarde on clean les données.
 
+        EN : Before the backup we clean the data.
+        """
         if not self.code_maison:
             self.code_maison = self.cct.cct
         super().save(*args, **kwargs)
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.cct} - {self.intitule}"
 
     @property
     def get_address(self):
-        """Renvoie le nom à afficher"""
+        """Renvoie le nom à afficher."""
         values_list = [self.intitule, self.immeuble, self.adresse, self.code_postal, self.ville]
         intitule_list = [value for value in values_list[:-2] if value]
         lieux_liste = [value for value in values_list[-2:] if value]
@@ -488,10 +476,11 @@ class Maison(FlagsTable):
 
     @staticmethod
     def get_absolute_url():
+        """Url de retour à la liste des maisons."""
         return reverse("centers_clients:maisons_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["cct"]
         indexes = [
@@ -519,30 +508,30 @@ class Maison(FlagsTable):
 
 
 class DocumentsSubscription(FlagsTable):
-    """
-    Abonnements des envois de documents aux contacts
+    """Abonnements des envois de documents aux contacts.
+
     FR : Table des abonnements aux envois de documents
-    EN : Table of subscriptions to sending documents
+    EN : Table of subscriptions to sending documents.
     """
 
     name = models.CharField(unique=True, max_length=80)
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return self.name
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["name"]
 
 
 class Contact(FlagsTable):
-    """
-    Contact des Maisons
+    """Contact des Maisons.
+
     FR : Table des Maisons
-    EN : Table of Shops
+    EN : Table of Shops.
     """
 
     maison = models.ForeignKey(
@@ -583,20 +572,20 @@ class Contact(FlagsTable):
     uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return " - ".join(part for part in (self.first_name, self.last_name) if part)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["last_name", "first_name"]
 
 
 class ContactExchange(models.Model):
-    """
-    Relation many to Many entre les contacts et les documents auxquels ils ont le droit
+    """Relation many to Many entre les contacts et les documents auxquels ils ont le droit.
+
     FR : Table des Contact / Documents
-    EN : Table of Contacts / Documents
+    EN : Table of Contacts / Documents.
     """
 
     contact = models.ForeignKey(
@@ -615,20 +604,20 @@ class ContactExchange(models.Model):
     )
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.contact} - {self.document}"
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["contact", "document"]
 
 
 class MaisonBi(models.Model):
-    """
-    Table des Maisons issue de la B.I
+    """Table des Maisons issue de la B.I.
+
     FR : Table des Maisons
-    EN : Shop table
+    EN : Shop table.
     """
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
@@ -662,10 +651,10 @@ class MaisonBi(models.Model):
 
 
 class MaisonSupllierExclusion(FlagsTable):
-    """
-    Table des identifiants des Maisons/Tiers X3 ne devant pas donner lieu à facturation
+    """Table des identifiants des Maisons/Tiers X3 ne devant pas donner lieu à facturation.
+
     FR : Table Identifiants Maisons/Tiers
-    EN : Shop/Suppliers Identifiers Table
+    EN : Shop/Suppliers Identifiers Table.
     """
 
     third_party_num = models.ForeignKey(
@@ -685,15 +674,16 @@ class MaisonSupllierExclusion(FlagsTable):
     )
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.third_party_num} - {self.cct_uuid_identification.cct.cct}"
 
     @staticmethod
     def get_success_url():
-        """Surcharge de l'url en case de succes pour revenir à l'écran d'accueil'"""
+        """Surcharge de l'url en case de succes pour revenir à l'écran d'accueil'."""
         return reverse("home")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["third_party_num", "cct_uuid_identification"]
         unique_together = (("third_party_num", "cct_uuid_identification"),)
@@ -710,10 +700,10 @@ class MaisonSupllierExclusion(FlagsTable):
 
 
 class MaisonSupplierIdentifier(FlagsTable):
-    """
-    Table des identifiants des Tiers X3 pour les Maisons (pour les fournisseurs edi)
+    """Table des identifiants des Tiers X3 pour les Maisons (pour les fournisseurs edi).
+
     FR : Table Identifiants Maisons/Tiers
-    EN : Shop/Suppliers Identifiers Table
+    EN : Shop/Suppliers Identifiers Table.
     """
 
     third_party_num = models.ForeignKey(
@@ -735,10 +725,11 @@ class MaisonSupplierIdentifier(FlagsTable):
     identifiant = models.CharField(max_length=35, verbose_name="Identifiant Maison")
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.third_party_num} - {self.maison}"
 
     class Meta:
-        """class Meta Django"""
+        """class Meta Django."""
 
         unique_together = (("third_party_num", "maison"),)
 
@@ -763,10 +754,10 @@ class MaisonSupplierIdentifier(FlagsTable):
 
 
 class SupllierCountryExclusion(FlagsTable):
-    """
-    Table des identifiants des Tiers X3/Pays ne devant pas donner lieu à facturation
+    """Table des identifiants des Tiers X3/Pays ne devant pas donner lieu à facturation.
+
     FR : Table Identifiants Tiers X3/Pays
-    EN : Suppliers/Countries Identifiers Table
+    EN : Suppliers/Countries Identifiers Table.
     """
 
     third_party_num = models.ForeignKey(
@@ -786,15 +777,16 @@ class SupllierCountryExclusion(FlagsTable):
     )
 
     def __str__(self):
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return f"{self.third_party_num} - {self.pays}"
 
     @staticmethod
     def get_success_url():
-        """Surcharge de l'url en case de succes pour revenir à l'écran d'accueil'"""
+        """Surcharge de l'url en case de succes pour revenir à l'écran d'accueil'."""
         return reverse("home")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["third_party_num", "pays"]
         unique_together = (("third_party_num", "pays"),)
@@ -811,9 +803,10 @@ class SupllierCountryExclusion(FlagsTable):
 
 
 class MaisonSubcription(FlagsTable):
-    """Table des souscriptions des abonnnements par maisons
+    """Table des souscriptions des abonnnements par maisons.
+
     FR : Table des souscriptions des abonnnements par maisonss
-    EN : Flags Abstract Table for Invoices details
+    EN : Flags Abstract Table for Invoices details.
     """
 
     maison = models.ForeignKey(
@@ -877,9 +870,9 @@ class MaisonSubcription(FlagsTable):
 
     @staticmethod
     def get_columns_import():
-        """
-        FR : Retourne la position des colonnes
-        EN : Returns the position of the columns
+        """FR : Retourne la position des colonnes.
+
+        EN : Returns the position of the columns.
         """
         return {
             "maison": 0,
@@ -894,15 +887,15 @@ class MaisonSubcription(FlagsTable):
 
     @staticmethod
     def get_uniques():
-        """
-        FR : Retourne les champs uniques de la table
-        EN: Returns the unique fields of the table
+        """FR : Retourne les champs uniques de la table.
+
+        EN: Returns the unique fields of the table.
         """
         return {"maison", "article", "function", "for_signboard"}
 
     @staticmethod
     def get_absolute_url():
-        """get absolute url in succes case"""
+        """Get absolute url in succes case."""
         return reverse("centers_clients:subscriptions_list")
 
     @staticmethod
@@ -911,7 +904,7 @@ class MaisonSubcription(FlagsTable):
         return reverse("centers_clients:subscriptions_list")
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["maison", "function", "article"]
         unique_together = (

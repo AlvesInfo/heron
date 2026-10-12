@@ -94,12 +94,13 @@ apps/[app]/
 import uuid
 from django.http import JsonResponse
 
+
 def ma_vue(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         job_id = str(uuid.uuid4())
         ma_tache.delay(job_id, request.user.id)
-        return JsonResponse({'success': True, 'job_id': job_id})
-    return render(request, 'template.html')
+        return JsonResponse({"success": True, "job_id": job_id})
+    return render(request, "template.html")
 ```
 
 ### Tâche Celery
@@ -107,11 +108,11 @@ def ma_vue(request):
 from celery import shared_task
 from apps.core.models import SSEProgress
 
+
 @shared_task(name="ma_tache")
 def ma_tache(job_id, user_id):
     progress = SSEProgress.objects.create(
-        job_id=job_id, user_id=user_id,
-        task_type='mon_type', total_items=100
+        job_id=job_id, user_id=user_id, task_type="mon_type", total_items=100
     )
     progress.mark_as_started()
 
@@ -196,10 +197,7 @@ new ProgressPolling(containerId, jobId, {
 ```python
 # Création
 progress = SSEProgress.objects.create(
-    job_id=job_id,
-    user_id=user_id,
-    task_type='mon_type',
-    total_items=100
+    job_id=job_id, user_id=user_id, task_type="mon_type", total_items=100
 )
 
 # Démarrage
@@ -207,22 +205,22 @@ progress.mark_as_started()
 
 # Mise à jour
 progress.update_progress(
-    processed=1,           # Nb items traités
-    failed=0,              # Nb items échoués (optionnel)
-    message='...'          # Message personnalisé (optionnel)
+    processed=1,  # Nb items traités
+    failed=0,  # Nb items échoués (optionnel)
+    message="...",  # Message personnalisé (optionnel)
 )
 
 # Fin
 progress.mark_as_completed()
 
 # En cas d'erreur
-progress.mark_as_failed('Message erreur')
+progress.mark_as_failed("Message erreur")
 
 # Propriétés disponibles
 progress.progress_percentage  # Pourcentage (0-100)
-progress.success_count        # Nb succès (processed - failed)
-progress.status               # 'pending', 'in_progress', 'completed', 'failed'
-progress.duration             # Durée en secondes
+progress.success_count  # Nb succès (processed - failed)
+progress.status  # 'pending', 'in_progress', 'completed', 'failed'
+progress.duration  # Durée en secondes
 ```
 
 ---
@@ -253,6 +251,7 @@ curl http://localhost:8000/core/sse-progress/[job_id]/
 ### Logs Python dans la tâche
 ```python
 import logging
+
 logger = logging.getLogger(__name__)
 logger.info(f"Job {job_id}: traitement...")
 ```

@@ -1,8 +1,10 @@
+"""Routes URL de l'application data_flux."""
+
 from django.urls import path
 
 from apps.data_flux.views import (
     # Import de fichiers
-    processing_files
+    processing_files,
 )
 
 app_name = "apps.data_flux"

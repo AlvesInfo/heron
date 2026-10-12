@@ -1,5 +1,9 @@
 """Tests des fonctions http : détection ajax (remplaçant de HttpRequest.is_ajax, supprimé dans
-Django 4) et boutons de pagination"""
+
+
+Django 4) et boutons de pagination
+"""
+
 from pathlib import Path
 
 import pytest
@@ -36,7 +40,9 @@ def test_aucun_appel_a_is_ajax_django_ne_subsiste():
 
     result = subprocess.run(
         ["grep", "-rln", "--include=*.py", r"\.is_ajax()", "apps", "heron"],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     offenders = [line for line in result.stdout.split() if "/tests/" not in line]
 
@@ -129,7 +135,8 @@ def test_aucun_template_n_affiche_la_pagination_avec_le_filtre_safe():
         str(template)
         for root in roots
         for template in root.rglob("*.html")
-        if "pagination|safe" in template.read_text(encoding="utf8", errors="ignore").replace(" ", "")
+        if "pagination|safe"
+        in template.read_text(encoding="utf8", errors="ignore").replace(" ", "")
     ]
 
     assert offenders == []

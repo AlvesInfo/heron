@@ -1,16 +1,17 @@
 """Tests des exports achats Héron non finalisés et achats import edi"""
+
 import io
 import logging
 from decimal import Decimal
 
 import pytest
 
+from apps.core.excel_outputs import generic_list_export
 from apps.validation_purchases.excel_outputs import (
     columns_excel,
     output_excel_purchases_edi_import as edi_out,
     output_excel_purchases_not_final_optimized as optimized,
 )
-from apps.core.excel_outputs import generic_list_export
 from conftest import patched_attrs
 
 pytestmark = pytest.mark.django_db
@@ -20,8 +21,8 @@ pytestmark = pytest.mark.django_db
 def not_final_data(make_maison, make_purchase_invoice_2, make_society):
     make_society("FOUR001", is_client=False, name="Fournisseur Un")
     maison = make_maison("AF0001")
-    make_purchase_invoice_2(maison.cct, "FOUR001", final=False, net_amount=Decimal("80"))
-    make_purchase_invoice_2(maison.cct, "FOUR001", final=True, net_amount=Decimal("999"))
+    make_purchase_invoice_2(maison.cct, "FOUR001", final=False, net_amount=Decimal(80))
+    make_purchase_invoice_2(maison.cct, "FOUR001", final=True, net_amount=Decimal(999))
     return maison
 
 
@@ -32,7 +33,7 @@ def test_columns_excel_listes():
     assert [c["entete"] for c in columns_excel.columns_rfa_signboard] == ["Enseigne"]
 
 
-@pytest.mark.usefixtures('not_final_data')
+@pytest.mark.usefixtures("not_final_data")
 def test_purchases_not_final(excel_io):
     file_io = io.BytesIO()
 
@@ -55,7 +56,7 @@ def test_purchases_not_final_sans_lignes(excel_io):
     assert len(excel_io(file_io)) == 4
 
 
-@pytest.mark.usefixtures('not_final_data')
+@pytest.mark.usefixtures("not_final_data")
 def test_purchases_not_final_fetch_rows_par_lots():
     """Les lignes sont lues par paquets de 1000 jusqu'à épuisement"""
     rows = list(optimized.fetch_rows())
@@ -67,27 +68,44 @@ def test_purchases_not_final_erreur(monkeypatch, caplog):
     def boom(*args, **kwargs):
         raise ValueError("boom")
 
-    with patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom), caplog.at_level(logging.ERROR):
-        assert optimized.excel_heron_purchases_not_final(io.BytesIO(), "o.xlsx") == {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
+    with (
+        patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom),
+        caplog.at_level(logging.ERROR),
+    ):
+        assert optimized.excel_heron_purchases_not_final(io.BytesIO(), "o.xlsx") == {
+            "KO": "ERREUR DANS LA GENERATION DU FICHIER"
+        }
 
     assert "o.xlsx" in caplog.text
 
 
 @pytest.fixture
-def edi_data(make_maison, make_edi_import, make_section, make_big_category, make_sub_category, make_society):
+def edi_data(
+    make_maison, make_edi_import, make_section, make_big_category, make_sub_category, make_society
+):
     make_society("FOUR001", is_client=False, name="Fournisseur Un")
     maison = make_maison("AF0001")
     big = make_big_category("Marchandises")
     return make_edi_import(
-        "FOUR001", "ART-1", cct_uuid_identification=maison, invoice_number="E1", invoice_type="381",
-        axe_bu=make_section("BU", "CAHA"), axe_pro=make_section("PRO", "OPT"), axe_prj=make_section("PRJ", "NAF"),
-        axe_pys=make_section("PYS", "FR"), axe_rfa=make_section("RFA", "NAF"),
-        big_category=big, sub_category=make_sub_category("Montures", big),
-        code_center="ACF", code_signboard="ACF", net_amount=Decimal("-10"),
+        "FOUR001",
+        "ART-1",
+        cct_uuid_identification=maison,
+        invoice_number="E1",
+        invoice_type="381",
+        axe_bu=make_section("BU", "CAHA"),
+        axe_pro=make_section("PRO", "OPT"),
+        axe_prj=make_section("PRJ", "NAF"),
+        axe_pys=make_section("PYS", "FR"),
+        axe_rfa=make_section("RFA", "NAF"),
+        big_category=big,
+        sub_category=make_sub_category("Montures", big),
+        code_center="ACF",
+        code_signboard="ACF",
+        net_amount=Decimal(-10),
     )
 
 
-@pytest.mark.usefixtures('edi_data')
+@pytest.mark.usefixtures("edi_data")
 def test_purchases_edi_import_excel(excel_io):
     file_io = io.BytesIO()
 
@@ -108,11 +126,17 @@ def test_purchases_edi_import_excel_erreur(monkeypatch, caplog):
     def boom(*args, **kwargs):
         raise ValueError("boom")
 
-    with patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom), patched_attrs(monkeypatch, edi_out, titre_page_writer=boom), caplog.at_level(logging.ERROR):
-        assert edi_out.excel_heron_purchases_edi_import(io.BytesIO(), "edi.xlsx") == {"KO": "ERREUR DANS LA GENERATION DU FICHIER"}
+    with (
+        patched_attrs(monkeypatch, generic_list_export, titre_page_writer=boom),
+        patched_attrs(monkeypatch, edi_out, titre_page_writer=boom),
+        caplog.at_level(logging.ERROR),
+    ):
+        assert edi_out.excel_heron_purchases_edi_import(io.BytesIO(), "edi.xlsx") == {
+            "KO": "ERREUR DANS LA GENERATION DU FICHIER"
+        }
 
 
-@pytest.mark.usefixtures('edi_data')
+@pytest.mark.usefixtures("edi_data")
 def test_purchases_edi_import_csv(tmp_path):
     """COPY TO côté serveur (Postgres local, même machine) : fichier csv avec entête et la ligne"""
     emplacement = tmp_path / "achats_edi.csv"

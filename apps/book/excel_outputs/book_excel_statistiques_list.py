@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour Familles Statistiques/Axes
+"""Module d'export du fichier excel pour Familles Statistiques/Axes.
 
 Commentaire:
 
@@ -11,14 +11,13 @@ modified by: Paulo ALVES
 
 import io
 
-from apps.book.models.supplier_identifiers_models import StatFamillyAxes
 from apps.book.excel_outputs.book_columns import columns_list_statistiques
+from apps.book.models.supplier_identifiers_models import StatFamillyAxes
 from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 
 def get_row():
-    """Class qui renvoie les bonnes colonnes pour le fichier Excel"""
-
+    """Class qui renvoie les bonnes colonnes pour le fichier Excel."""
     yield from [
         (
             row.get("name"),
@@ -60,7 +59,7 @@ def get_row():
 
 
 def excel_liste_statistiques(file_io: io.BytesIO, file_name: str) -> dict:
-    """Fonction de génération du fichier de liste des Familles Statistiques/Axes"""
+    """Fonction de génération du fichier de liste des Familles Statistiques/Axes."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     columns = columns_list_statistiques
@@ -73,5 +72,8 @@ def excel_liste_statistiques(file_io: io.BytesIO, file_name: str) -> dict:
         columns=columns,
         rows=get_row(),
         header_row=4,
-        merged_headers=[(0, 2, 'Familles', columns[0].get('f_entete')), (3, 14, 'Statistiques/Axes', columns[3].get('f_entete'))],
+        merged_headers=[
+            (0, 2, "Familles", columns[0].get("f_entete")),
+            (3, 14, "Statistiques/Axes", columns[3].get("f_entete")),
+        ],
     )

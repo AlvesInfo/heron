@@ -128,9 +128,7 @@ Dans la fonction `send_email_pdf_invoice`, ligne 346-348, remplacez :
 
 ```python
 # ANCIEN CODE
-celery_app.signature(
-    "celery_send_invoices_emails", kwargs={"user_pk": str(user_pk)}
-).apply_async()
+celery_app.signature("celery_send_invoices_emails", kwargs={"user_pk": str(user_pk)}).apply_async()
 ```
 
 Par :
@@ -156,7 +154,7 @@ result = sender.send_message(
     body_text="Texte brut",
     body_html="<h1>Votre facture</h1>",
     context={"cct": "CCT123"},
-    attachments=[Path("/chemin/vers/facture.pdf")]
+    attachments=[Path("/chemin/vers/facture.pdf")],
 )
 
 if result.success:

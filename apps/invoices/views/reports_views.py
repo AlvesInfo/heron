@@ -1,7 +1,6 @@
-# ruff: noqa: E722
-"""
-FR : View des états de sorties
-EN : View of invoicing launches
+"""FR : View des états de sorties.
+
+EN : View of invoicing launches.
 
 Commentaire:
 
@@ -15,25 +14,23 @@ modified by: Paulo ALVES
 import pendulum
 from django.shortcuts import render
 
-from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import (
-    response_file,
     CONTENT_TYPE_EXCEL,
+    response_file,
 )
 from apps.edi.models import EdiValidation
 from apps.invoices.bin.export_csv_achats import get_achats
+from heron.loggers import LOGGER_VIEWS
 
 
 def finalize_purchases_export(request):
-    """Vue d'export des achats finalisés avec filtres"""
+    """Vue d'export des achats finalisés avec filtres."""
     titre_table = "EXPORT DES ACHATS FINALISES"
     context = {"margin_table": 50, "titre_table": titre_table}
     try:
         if request.method == "POST":
             today = pendulum.now()
-            edi_validation = (
-                EdiValidation.objects.filter(final=True).order_by("-id").first()
-            )
+            edi_validation = EdiValidation.objects.filter(final=True).order_by("-id").first()
             dte_d = pendulum.parse(edi_validation.billing_period.isoformat())
             dte_f = dte_d.last_of("month")
             file_name = (

@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests de l'intégration en masse des staffs (csv) et des utilisateurs (excel)
+"""FR : Tests de l'intégration en masse des staffs (csv) et des utilisateurs (excel)
+
+
 EN : Tests for staffs (csv) and users (excel) mass insertion
 
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import smtplib
 from pathlib import Path
 
@@ -48,7 +50,13 @@ def test_insert_staffs(tmp_path, make_group, make_user):
     csv_file = _write(
         tmp_path,
         "staffs.csv",
-        staff_csv([STAFF_ROW, f"existe@heron.local;X;Y;x;Compta;{PASSWORD}", f"long@heron.local;{'P' * 90};Alves;long;;{PASSWORD}"]),
+        staff_csv(
+            [
+                STAFF_ROW,
+                f"existe@heron.local;X;Y;x;Compta;{PASSWORD}",
+                f"long@heron.local;{'P' * 90};Alves;long;;{PASSWORD}",
+            ]
+        ),
     )
 
     bol, errors = insert_staffs.insert_staffs(csv_file, "ACF")
@@ -58,7 +66,12 @@ def test_insert_staffs(tmp_path, make_group, make_user):
     assert len(errors) == 1
     assert "existe@heron.local" in errors[0]
     assert "email" in errors[0]
-    assert (created.is_staff, created.is_superuser, created.code_child_center, created.function) == (True, False, "ACF", "Compta")
+    assert (
+        created.is_staff,
+        created.is_superuser,
+        created.code_child_center,
+        created.function,
+    ) == (True, False, "ACF", "Compta")
     assert created.check_password(PASSWORD)
     assert [group.name for group in created.groups.all()] == ["Comptabilité"]
     assert len(User.objects.get(email="long@heron.local").first_name) == 80
@@ -69,7 +82,10 @@ def test_insert_staffs_sans_erreur_et_fichiers_invalides(tmp_path, monkeypatch):
     bad_columns = _write(tmp_path, "colonnes.csv", staff_csv(["a@b.fr;x"], header="email;autre"))
 
     assert insert_staffs.insert_staffs(ok_file, "ACF") == (True, [])
-    assert insert_staffs.insert_staffs(tmp_path / "absent.csv", "ACF") == (None, ["le fichier absent.csv est introuvable"])
+    assert insert_staffs.insert_staffs(tmp_path / "absent.csv", "ACF") == (
+        None,
+        ["le fichier absent.csv est introuvable"],
+    )
 
     bol, errors = insert_staffs.insert_staffs(bad_columns, "ACF")
     assert bol is None
@@ -80,7 +96,10 @@ def test_insert_staffs_sans_erreur_et_fichiers_invalides(tmp_path, monkeypatch):
 
     User.objects.filter(email="nouveau@heron.local").delete()
     monkeypatch.setattr(User.objects, "create_user", _raise)
-    assert insert_staffs.insert_staffs(ok_file, "ACF") == (None, ["erreur de création de l'utilisateur : nouveau@heron.local"])
+    assert insert_staffs.insert_staffs(ok_file, "ACF") == (
+        None,
+        ["erreur de création de l'utilisateur : nouveau@heron.local"],
+    )
     assert issubclass(UserInsertError, Exception)
 
 
@@ -89,7 +108,9 @@ def test_set_insert_staffs(make_staff, make_upload, media_tmp):
     staff = make_staff()
     make_upload(staff, "ok.csv", staff_csv([STAFF_ROW]), type_insert=1)
     make_upload(staff, "une.csv", staff_csv(["pas-un-email;a;b;c;d;e"]), type_insert=1)
-    make_upload(staff, "deux.csv", staff_csv(["pas-un-email;a;b;c;d;e", "autre;a;b;c;d;e"]), type_insert=1)
+    make_upload(
+        staff, "deux.csv", staff_csv(["pas-un-email;a;b;c;d;e", "autre;a;b;c;d;e"]), type_insert=1
+    )
     make_upload(staff, "users.xlsx", b"ignore", type_insert=0)
 
     result, html = set_insert_staffs(staff)
@@ -116,7 +137,13 @@ def test_set_insert_staffs(make_staff, make_upload, media_tmp):
 def test_insert_users(tmp_path, request_factory, make_group):
     """Création, rattachement aux groupes d'accès, mot de passe aléatoire et mail d'initialisation"""
     AuthGroupAccessStaff.objects.create(group=make_group("Achats"))
-    xlsx = _write(tmp_path, "users.xlsx", users_xlsx([["Nouveau@Heron.LOCAL", "Paul", "Alves", "paul", ""], ["pas-un-email", "", "", "", ""]]))
+    xlsx = _write(
+        tmp_path,
+        "users.xlsx",
+        users_xlsx(
+            [["Nouveau@Heron.LOCAL", "Paul", "Alves", "paul", ""], ["pas-un-email", "", "", "", ""]]
+        ),
+    )
 
     bol, errors = insert_users(xlsx, request_factory, "ACF")
 
@@ -145,7 +172,10 @@ def test_insert_users_fichiers_invalides(tmp_path, request_factory):
     assert bol is None
     assert "n'est pas supportée" in errors[0]
 
-    assert insert_users(tmp_path / "absent.xlsx", request_factory, "ACF") == (None, ["le fichier absent.xlsx est introuvable"])
+    assert insert_users(tmp_path / "absent.xlsx", request_factory, "ACF") == (
+        None,
+        ["le fichier absent.xlsx est introuvable"],
+    )
 
 
 @pytest.mark.parametrize(
@@ -156,9 +186,13 @@ def test_insert_users_fichiers_invalides(tmp_path, request_factory):
         (IntegrityError("doublon"), "erreur de création de l'utilisateur : a@heron.local", True),
     ],
 )
-def test_insert_users_erreurs_de_creation(tmp_path, request_factory, monkeypatch, exception, expected, created):
+def test_insert_users_erreurs_de_creation(
+    tmp_path, request_factory, monkeypatch, exception, expected, created
+):
     """Les erreurs à la création ou à l'envoi du mail sont rapportées, ligne par ligne"""
-    xlsx = _write(tmp_path, "users.xlsx", users_xlsx([["a@heron.local", "A", "B", "ab", "Vendeur"]]))
+    xlsx = _write(
+        tmp_path, "users.xlsx", users_xlsx([["a@heron.local", "A", "B", "ab", "Vendeur"]])
+    )
 
     def _raise(*_args, **_kwargs):
         raise exception
@@ -173,7 +207,9 @@ def test_insert_users_erreurs_de_creation(tmp_path, request_factory, monkeypatch
 
 
 def test_insert_users_sans_erreur(tmp_path, request_factory):
-    xlsx = _write(tmp_path, "users.xlsx", users_xlsx([["a@heron.local", "A", "B", "ab", "Vendeur"]]))
+    xlsx = _write(
+        tmp_path, "users.xlsx", users_xlsx([["a@heron.local", "A", "B", "ab", "Vendeur"]])
+    )
 
     assert insert_users(xlsx, request_factory, "ACF") == (True, [])
     assert User.objects.get(email="a@heron.local").function == "Vendeur"
@@ -181,7 +217,9 @@ def test_insert_users_sans_erreur(tmp_path, request_factory):
 
 def test_set_insert_users(make_staff, make_upload, media_tmp, request_factory):
     staff = make_staff()
-    make_upload(staff, "ok.xlsx", users_xlsx([["a@heron.local", "A", "B", "ab", ""]]), type_insert=0)
+    make_upload(
+        staff, "ok.xlsx", users_xlsx([["a@heron.local", "A", "B", "ab", ""]]), type_insert=0
+    )
     make_upload(staff, "ko.xlsx", users_xlsx([["pas-un-email", "", "", "", ""]]), type_insert=0)
     make_upload(staff, "staffs.csv", staff_csv([STAFF_ROW]), type_insert=1)
 

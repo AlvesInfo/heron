@@ -1,4 +1,4 @@
-"""Module pour la définition des colonnes excel pour le module compta
+"""Module pour la définition des colonnes excel pour le module compta.
 
 Commentaire:
 
@@ -9,26 +9,23 @@ modified at: 2022-05-12
 modified by: Paulo ALVES
 """
 
+from typing import Any
+
 from apps.core.excel_outputs.excel_writer import (
     f_entetes,
     f_ligne,
 )
 
-
-columns_sales_cosium = [
+columns_sales_cosium: list[dict[str, Any]] = [
     {
         "entete": "PAYS",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 6,
     },
@@ -36,16 +33,12 @@ columns_sales_cosium = [
         "entete": "ID VENTE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "right",
-                "num_format": "#,##0",
-            },
+            "align": "right",
+            "num_format": "#,##0",
         },
         "width": 11,
     },
@@ -53,15 +46,11 @@ columns_sales_cosium = [
         "entete": "CODE\nCOSIUM",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -69,15 +58,11 @@ columns_sales_cosium = [
         "entete": "CCT X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 40,
     },
@@ -85,15 +70,11 @@ columns_sales_cosium = [
         "entete": "FAMILLE\nCOSIUM",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -101,15 +82,11 @@ columns_sales_cosium = [
         "entete": "RAYON\nCOSIUM",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 22,
     },
@@ -117,16 +94,12 @@ columns_sales_cosium = [
         "entete": "DATE\nVENTE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yyyy",
-            },
+            "align": "center",
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -134,15 +107,11 @@ columns_sales_cosium = [
         "entete": "QTY",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0",
-            },
+            "num_format": "#,##0",
         },
         "width": 9,
     },
@@ -150,15 +119,11 @@ columns_sales_cosium = [
         "entete": "PRIX\nUNITAIRE\nNET",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 9,
     },
@@ -166,15 +131,11 @@ columns_sales_cosium = [
         "entete": "CA HT DEVISE\nAVANT REMSIE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 14,
     },
@@ -182,15 +143,11 @@ columns_sales_cosium = [
         "entete": "CA HT DEVISE\nAPRES REMSIE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 14,
     },
@@ -198,15 +155,11 @@ columns_sales_cosium = [
         "entete": "Taux de\nChange",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.000",
-            },
+            "num_format": "#,##0.000",
         },
         "width": 9,
     },
@@ -214,15 +167,11 @@ columns_sales_cosium = [
         "entete": "CA HT EUR\nAVANT REMSIE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 14,
     },
@@ -230,15 +179,11 @@ columns_sales_cosium = [
         "entete": "CA HT EUR\nAPRES REMSIE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 14,
     },
@@ -246,36 +191,28 @@ columns_sales_cosium = [
         "entete": "Mise à jour\nStock",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0",
-            },
+            "num_format": "#,##0",
         },
         "width": 10,
     },
 ]
 
 
-columns_ca_cosium = [
+columns_ca_cosium: list[dict[str, Any]] = [
     {
         "entete": "DATE\nCA",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-                "num_format": "dd/mm/yyyy",
-            },
+            "align": "center",
+            "num_format": "dd/mm/yyyy",
         },
         "width": 10,
     },
@@ -283,15 +220,11 @@ columns_ca_cosium = [
         "entete": "PAYS",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 6,
     },
@@ -299,15 +232,11 @@ columns_ca_cosium = [
         "entete": "CODE\nCOSIUM",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -315,15 +244,11 @@ columns_ca_cosium = [
         "entete": "CCT X3",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "left",
-            },
+            "align": "left",
         },
         "width": 40,
     },
@@ -331,15 +256,11 @@ columns_ca_cosium = [
         "entete": "FAMILLE\nCOSIUM",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 40,
     },
@@ -347,15 +268,11 @@ columns_ca_cosium = [
         "entete": "AXE PRO",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -363,15 +280,11 @@ columns_ca_cosium = [
         "entete": "CA HT\nEUR",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 11,
     },
@@ -379,15 +292,11 @@ columns_ca_cosium = [
         "entete": "CA HT\nDEVISE",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "num_format": "#,##0.00",
-            },
+            "num_format": "#,##0.00",
         },
         "width": 11,
     },

@@ -1,6 +1,6 @@
-"""
-FR : Module de post-traitement après import des fichiers Sage X3
-EN : Post-processing module before importing Sage X3 files
+"""FR : Module de post-traitement après import des fichiers Sage X3.
+
+EN : Post-processing module before importing Sage X3 files.
 
 Commentaire:
 
@@ -10,18 +10,18 @@ created by: Paulo ALVES
 modified at: 2022-05-10
 modified by: Paulo ALVES
 """
-from apps.core.functions import functions_setups  # noqa: F401  amorçage Django hors serveur
 
-from django.db.models.fields import NOT_PROVIDED
 from django.db import connection
+from django.db.models.fields import NOT_PROVIDED
 
 from apps.book.models import Society
+from apps.core.functions import functions_setups  # noqa: F401  amorçage Django hors serveur
 
 
 def bpr_book_post_processing():
-    """
-    Suppression des valeurs null dans la table Society,
-    pour les champs integrable, chargeable, od_ana
+    """Suppression des valeurs null dans la table Society,.
+
+    pour les champs integrable, chargeable, od_ana.
     """
     integrable = Society._meta.get_field("integrable").default
     integrable = False if integrable == NOT_PROVIDED else integrable
@@ -38,61 +38,59 @@ def bpr_book_post_processing():
     # Mise à jour des champs name (80 caract.), short_name (20 caract.), de book society
     with connection.cursor() as cursor:
         sql_update = """
-        update "book_society" 
-        set "name" = case 
-                        when "name" isnull or "name" = '' 
+        update "book_society"
+        set "name" = case
+                        when "name" isnull or "name" = ''
                         then "third_party_num"
                         else "name"
                     end,
-            "short_name" = case 
-                                when "short_name" isnull or "short_name" = ''  
-                                    then 
-                                        case 
-                                            when "name" isnull or "name" = '' 
+            "short_name" = case
+                                when "short_name" isnull or "short_name" = ''
+                                    then
+                                        case
+                                            when "name" isnull or "name" = ''
                                             then "third_party_num"
                                             else LEFT("name", 20)
-                                        end 
+                                        end
                                 else "short_name"
-                            end 
+                            end
         """
         cursor.execute(sql_update)
 
 
 def adress_sage_post_processing():
     """Mise à jour des champs pouvant avoir None dans les champs adresse...."""
-
     with connection.cursor() as cursor:
-
         # Mise à jour des valeurs 'None' dans book_address
         sql_book_adress = """
         update "book_address"
         set "line_01" = case when upper("line_01") = 'NONE' then null else "line_01" end,
             "line_02" = case when upper("line_02") = 'NONE' then null else "line_02" end,
             "line_03" = case when upper("line_03") = 'NONE' then null else "line_03" end,
-            "phone_number_01" = case 
-                                    when upper("phone_number_01") = 'NONE' 
-                                    then null 
-                                    else "phone_number_01" 
+            "phone_number_01" = case
+                                    when upper("phone_number_01") = 'NONE'
+                                    then null
+                                    else "phone_number_01"
                                 end,
-                                    "phone_number_02" = case 
-                                    when upper("phone_number_02") = 'NONE' 
-                                    then null 
-                                    else "phone_number_02" 
+                                    "phone_number_02" = case
+                                    when upper("phone_number_02") = 'NONE'
+                                    then null
+                                    else "phone_number_02"
                                 end,
-                                    "phone_number_03" = case 
-                                    when upper("phone_number_03") = 'NONE' 
-                                    then null 
-                                    else "phone_number_03" 
+                                    "phone_number_03" = case
+                                    when upper("phone_number_03") = 'NONE'
+                                    then null
+                                    else "phone_number_03"
                                 end,
-                                    "phone_number_04" = case 
-                                    when upper("phone_number_04") = 'NONE' 
-                                    then null 
-                                    else "phone_number_04" 
+                                    "phone_number_04" = case
+                                    when upper("phone_number_04") = 'NONE'
+                                    then null
+                                    else "phone_number_04"
                                 end,
-                                    "phone_number_05" = case 
-                                    when upper("phone_number_05") = 'NONE' 
-                                    then null 
-                                    else "phone_number_05" 
+                                    "phone_number_05" = case
+                                    when upper("phone_number_05") = 'NONE'
+                                    then null
+                                    else "phone_number_05"
                                 end
         where
             upper("line_01")= 'NONE'
@@ -109,22 +107,22 @@ def adress_sage_post_processing():
             or
             upper("phone_number_04")= 'NONE'
             or
-            upper("phone_number_05")= 'NONE';        
+            upper("phone_number_05")= 'NONE';
         """
         cursor.execute(sql_book_adress)
 
         # Mise à jour avec l'adresse 1 de book society
         sql_adress_1 = """
-        update "book_society" "bs" 
+        update "book_society" "bs"
         set "address_code" = "ba"."address_code",
-            "immeuble" = case 
-                            when "ba"."immeuble_02" isnull 
+            "immeuble" = case
+                            when "ba"."immeuble_02" isnull
                             then coalesce("ba"."immeuble", '')
                             when "ba"."immeuble" isnull
                             then coalesce("ba"."immeuble_02", '')
                             else (
-                                coalesce("ba"."immeuble", '') 
-                                || ' - ' || 
+                                coalesce("ba"."immeuble", '')
+                                || ' - ' ||
                                 coalesce("ba"."immeuble_02", '')
                             )
                         end,
@@ -140,7 +138,7 @@ def adress_sage_post_processing():
             "phone_number_01" = "ba"."phone_number_01",
             "mobile_number" = "ba"."mobile_number"
         from (
-            select 
+            select
                 "society" as "third_party_num",
                 "address_code",
                 "line_01" as "immeuble",
@@ -156,7 +154,7 @@ def adress_sage_post_processing():
                 "email_05",
                 "phone_number_01",
                 "mobile_number"
-            from book_address ba 
+            from book_address ba
             where address_code = '1'
         ) "ba"
         where "bs"."third_party_num" = "ba"."third_party_num"
@@ -165,12 +163,12 @@ def adress_sage_post_processing():
 
         # Mise à jour des valeurs 'None' Dans book_society
         sql_book_society = """
-        update "book_society" 
+        update "book_society"
         set "adresse" = case when upper("adresse") = 'NONE' then null else "adresse" end,
-            "code_postal" = case 
-                                when upper("code_postal") = 'NONE' 
-                                then null 
-                                else "code_postal" 
+            "code_postal" = case
+                                when upper("code_postal") = 'NONE'
+                                then null
+                                else "code_postal"
                             end,
             "email" = case when upper("email") = 'NONE' then null else "email" end,
             "immeuble" = case when upper("immeuble") = 'NONE' then null else "immeuble" end,
@@ -199,5 +197,4 @@ def adress_sage_post_processing():
 
 
 if __name__ == "__main__":
-    # bpr_book_post_processing()
     adress_sage_post_processing()

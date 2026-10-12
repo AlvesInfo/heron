@@ -1,11 +1,13 @@
-"""
-Fixtures et aides communes aux tests des post-traitements de l'app edi (chantier B).
+"""Fixtures et aides communes aux tests des post-traitements de l'app edi (chantier B).
+
+
 Importées explicitement par les modules de tests : `from apps.edi.tests.helpers_post import *`
 """
+
 import datetime
+from collections.abc import Callable
 from decimal import Decimal
 from typing import Any
-from collections.abc import Callable
 from uuid import uuid4
 
 import pytest
@@ -52,7 +54,7 @@ def make_vat_rat(make_vat) -> Callable[..., Any]:
 
     def _factory(
         vat: str = "001",
-        rate: Decimal | str = Decimal("20"),
+        rate: Decimal | str = Decimal(20),
         vat_start_date: datetime.date = datetime.date(2014, 1, 1),
         vat_regime: str = "FRA",
         **kwargs: Any,
@@ -82,8 +84,8 @@ def units(make_unit) -> None:
 
 @pytest.fixture
 def edi_batch(make_edi_import, units) -> Callable[..., Any]:  # pylint: disable=W0613
-    """
-    Crée des lignes edi_ediimport non validées (valid=False) partageant un même
+    """Crée des lignes edi_ediimport non validées (valid=False) partageant un même
+
     uuid_identification (un fichier importé) : `uuid, rows = edi_batch([{...}, {...}], flow_name=...)`
     """
 

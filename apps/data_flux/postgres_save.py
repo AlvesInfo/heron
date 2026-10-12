@@ -1,6 +1,6 @@
-"""
-Module d'insertion en base de donnée Postgresql,
-Par des méthode rapides de psycopg2
+"""Module d'insertion en base de donnée Postgresql,.
+
+Par des méthode rapides de psycopg2.
 
 Commentaire:
 
@@ -10,46 +10,47 @@ created by: Paulo ALVES
 modified at: 2021-10-30
 modified by: Paulo ALVES
 """
+
+import csv
 import io
 import random
 import string
-import csv
 from itertools import chain, islice
-from typing import AnyStr, Dict
 
-from psycopg2 import sql
-import psycopg2
 import django
-from django.db import models, connection
+import psycopg2
+from django.db import connection, models
+from psycopg2 import sql
 
 from heron.loggers import LOGGER_POSTGRES_SAVE
-from .models import Trace, Line
+
 from .exceptions import (
+    PostgresCardinalityViolationError,
     PostgresDjangoError,
     PostgresInsertMethodError,
-    PostgresCardinalityViolationError,
-    PostgresUniqueError,
     PostgresKeyError,
-    PostgresTypeError,
     PostgresPreparedError,
+    PostgresTypeError,
+    PostgresUniqueError,
 )
+from .models import Line, Trace
 
 
 def iter_slice(iterable, taille, form=tuple):
-    """
-    Parcourir n'importe quel itérable, par tailles
-        exemple :
-            l = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-            rows = iter_slice(l, 4)
-            for r in rows:
-                print(r)
-            ... (1, 2, 3, 4)
-            ... (5, 6, 7, 8)
-            ... (9, )
-        :param iterable: List, tuple, set, str etc...
-        :param taille: Nombre
-        :param form: Format de sortie, par default tuple, mais on peut choisir, list, set ...
-        :return: Générateur par tranches
+    """Parcourir n'importe quel itérable, par tailles.
+
+    exemple :
+        l = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        rows = iter_slice(l, 4)
+        for r in rows:
+            print(r)
+        ... (1, 2, 3, 4)
+        ... (5, 6, 7, 8)
+        ... (9, )
+    :param iterable: List, tuple, set, str etc...
+    :param taille: Nombre
+    :param form: Format de sortie, par default tuple, mais on peut choisir, list, set ...
+    :return: Générateur par tranches.
     """
     try:
         i_t = iter(iterable)
@@ -60,14 +61,14 @@ def iter_slice(iterable, taille, form=tuple):
 
 
 def execute_batch(cur, sql_execute, iterable, page_size=500):
-    """
-    Fonction prise à psycopg2.
+    """Fonction prise à psycopg2.
+
     execute batch, avec ajout de renvoi du nombre d'éléments envoyés en insertion
         :param cur:         Cursor psycopg2
         :param sql_execute: Requete sql
         :param iterable:    Iterateur des données à insèrer en base
         :param page_size:   Taille du slicing des tranches
-        :return: Slicing de l'itérateur par longeur de page_size
+        :return: Slicing de l'itérateur par longeur de page_size.
     """
     erreur = False
     count_initial = 0
@@ -94,8 +95,8 @@ def execute_batch(cur, sql_execute, iterable, page_size=500):
 
 
 def execute_prepared_upsert(cursor, sql_prepare, sql_execute, sql_deallocate, rows, page_size):
-    """
-    Fonction qui exécute une requete préparée, INSERT ou UPSERT.
+    """Fonction qui exécute une requete préparée, INSERT ou UPSERT.
+
         Attention!!! Cette requête sera en autocommit.
     Exemple :
         cursor.execute("PREPARE stmt (int) AS INSERT INTO foo VALUES ($1) ON CONFLICT DO NOTHING;")
@@ -106,7 +107,7 @@ def execute_prepared_upsert(cursor, sql_prepare, sql_execute, sql_deallocate, ro
     :param sql_execute:     Requête de l'exécution propement dite
     :param sql_deallocate:  Sql pour le deallocate
     :param rows:            Flux iterateur
-    :param page_size:       Taille des passes
+    :param page_size:       Taille des passes.
     """
     try:
         cursor.execute(sql_prepare)
@@ -126,18 +127,29 @@ def execute_prepared_upsert(cursor, sql_prepare, sql_execute, sql_deallocate, ro
 
 
 def get_random_name(size=10):
-    """
-    Génère une suite de lettre alléatoire en minuscule
+    """Génère une suite de lettre alléatoire en minuscule.
+
     :param size: taille
-    :return: suite de lettres en minuscule
+    :return: suite de lettres en minuscule.
     """
     ascii_choices = string.ascii_lowercase
     return "".join(random.SystemRandom().choice(ascii_choices) for _ in range(size)).lower()
 
 
+def _require_prepared_kwargs(kwargs_prepared: dict | None) -> dict:
+    """Dictionnaire des attributs du mode prepared, PostgresPreparedError s'il manque."""
+    if kwargs_prepared is None:
+        raise PostgresPreparedError(
+            "Vous devez donner le dictionnaire des attributs pour execute_bach, "
+            "pour le mode d'insertion prepared"
+        )
+
+    return kwargs_prepared
+
+
 class PostgresDjangoUpsert:
-    """
-    Class pour l'insertion en base de donnée de fichier de type csv
+    """Class pour l'insertion en base de donnée de fichier de type csv.
+
     (de préférence au format io.StringIO) par des méthodes de copy_expert, copy_from
     et execute_batch psycopg2.
     """
@@ -145,12 +157,12 @@ class PostgresDjangoUpsert:
     def __init__(
         self,
         model: models.Model,
-        fields_dict: Dict,
+        fields_dict: dict,
         cnx: connection = connection,
-        exclude_update_fields: set = None,
+        exclude_update_fields: set | None = None,
     ):
-        """
-        :param model:       Model Django
+        """:param model:       Model Django
+
         :param fields_dict: Dictonnaire des champs à utiliser pour les insertions en base.
                             True pour les champs uniques et False pour les champs à update
                             ex : fields_dict = {"unique": True, "other": False, ...}
@@ -170,10 +182,10 @@ class PostgresDjangoUpsert:
         self.fields_list = self.get_fields_list()
 
     def table_is_exists(self, table_name):
-        """
-        Vérifie si le nom choisi pour la table temporaire existe en base
+        """Vérifie si le nom choisi pour la table temporaire existe en base.
+
         :param table_name: nom de table à tester
-        :return: bool
+        :return: bool.
         """
         with self.cnx.cursor() as cursor:
             sql_exists = sql.SQL(
@@ -184,9 +196,9 @@ class PostgresDjangoUpsert:
             return bool(cursor.fetchone())
 
     def get_temp_table_name(self):
-        """
-        Retourne le nom de la table temporaire en s'assurant que le nom n'existe pas
-        :return: Nom de la table temporaire
+        """Retourne le nom de la table temporaire en s'assurant que le nom n'existe pas.
+
+        :return: Nom de la table temporaire.
         """
         name = None
 
@@ -198,12 +210,11 @@ class PostgresDjangoUpsert:
 
         return name
 
-    def get_column_field(self, field_key: AnyStr):
-        """
-        :param field_key: Champ du model django à retouner
+    def get_column_field(self, field_key: str):
+        """:param field_key: Champ du model django à retouner
+
         :return: Le Sql des paramètres de création de la table temporaire
         """
-
         try:
             field_attr = self.meta.get_field(field_key)
 
@@ -214,23 +225,23 @@ class PostgresDjangoUpsert:
 
         return field_attr
 
-    def get_column_properties(self, field_key: AnyStr):
-        """
-        :param field_key: Champ du model django à retouner
+    def get_column_properties(self, field_key: str):
+        """:param field_key: Champ du model django à retouner
+
         :return: Le Sql des paramètres de création de la table temporaire
         """
         field_attr = self.get_column_field(field_key)
         return (
             f' "{field_attr.column if field_attr.db_column is None else field_attr.db_column}" '
             f"{field_attr.db_type(self.cnx)} "
-            f'{"NOT NULL" if not self.meta.get_field(field_key).null else "NULL"}'
+            f"{'NOT NULL' if not self.meta.get_field(field_key).null else 'NULL'}"
         )
 
     def get_null_fields(self):
-        """Retourne la liste des champs qui peuvent être null"""
+        """Retourne la liste des champs qui peuvent être null."""
         null_fields_list = []
 
-        for field_key in self.fields_dict.keys():
+        for field_key in self.fields_dict:
             field = self.meta.get_field(field_key)
             if field.null:
                 null_fields_list.append(
@@ -243,13 +254,13 @@ class PostgresDjangoUpsert:
         return ""
 
     def get_fields_list(self):
-        """
-        Retourne la liste des champs db_column
+        """Retourne la liste des champs db_column.
+
         :return:
         """
         fields_list = []
 
-        for field_key in self.fields_dict.keys():
+        for field_key in self.fields_dict:
             field_attr = self.get_column_field(field_key)
             fields_list.append(
                 field_attr.column if field_attr.db_column is None else field_attr.db_column
@@ -257,9 +268,9 @@ class PostgresDjangoUpsert:
 
         return fields_list
 
-    def get_prepare_batch(self, stmt_name: AnyStr):
-        """
-        :param stmt_name: Nom du prepare stmt
+    def get_prepare_batch(self, stmt_name: str):
+        """:param stmt_name: Nom du prepare stmt
+
         :return: Les bases de la requête préparée
         """
         with self.cnx.cursor() as cursor:
@@ -275,8 +286,7 @@ class PostgresDjangoUpsert:
             params = ", ".join([f"${i}" for i, _ in enumerate(tipes, 1)])
             exe_val = ", ".join(["%s" for _ in tipes])
             prepare = sql.SQL(
-                "PREPARE {stmt_name} ({tipes}) AS INSERT INTO {table} ({fields}) "
-                "VALUES ({params}) "
+                "PREPARE {stmt_name} ({tipes}) AS INSERT INTO {table} ({fields}) VALUES ({params}) "
             ).format(
                 stmt_name=stmt_ident,
                 tipes=sql.SQL(", ").join(tipes),
@@ -293,10 +303,8 @@ class PostgresDjangoUpsert:
             return prepare, sql_execute, sql_deallocate
 
     def get_columns_upsert(self):
-        """
-        :return: Les clauses du SQL d'un upsert ON CONFICT ... UPDATE
-        """
-        fields_upsert_dict = {
+        """:return: Les clauses du SQL d'un upsert ON CONFICT ... UPDATE"""
+        fields_upsert_dict: dict[str, list] = {
             "conflict": [],
             "update": [],
         }
@@ -305,18 +313,17 @@ class PostgresDjangoUpsert:
             field_attr = self.get_column_field(field_key)
             field = field_attr.column if field_attr.db_column is None else field_attr.db_column
             if bool_value:
-                fields_upsert_dict.get("conflict").append(field)
+                fields_upsert_dict["conflict"].append(field)
             else:
-                fields_upsert_dict.get("update").append(field)
+                fields_upsert_dict["update"].append(field)
 
         return fields_upsert_dict
 
-    def get_fields(self, bool_pk=False):
-        """
-        :param bool_pk: Si on a besoins d'un champ pk, pour un ordre idention aux insertions
+    def get_fields(self, *, bool_pk=False):
+        """:param bool_pk: Si on a besoins d'un champ pk, pour un ordre idention aux insertions
+
         :return: les champs interprétés allant servir dans une requête
         """
-
         return sql.SQL(", ").join(
             [sql.Identifier(field) for field in self.fields_list]
             if not bool_pk
@@ -325,17 +332,15 @@ class PostgresDjangoUpsert:
 
     @property
     def get_base_insert(self):
-        """
-        :return: Le début du SQL de la requête d'insertion
-        """
+        """:return: Le début du SQL de la requête d'insertion"""
         insert_table = sql.Identifier(self.table_name)
         from_table = sql.Identifier(self.temp_table_name)
 
         return insert_table, from_table
 
-    def get_ddl_temp_table(self, bool_pk=False):
-        """
-        :param bool_pk: Si on a besoins d'un champ pk, pour un ordre idention aux insertions
+    def get_ddl_temp_table(self, *, bool_pk=False):
+        """:param bool_pk: Si on a besoins d'un champ pk, pour un ordre idention aux insertions
+
         :return: Le SQL du DDL de création d'une table temporaire
         """
         create_table = sql.Identifier(self.temp_table_name)
@@ -345,37 +350,26 @@ class PostgresDjangoUpsert:
             else ['"pk" bigint'] + [self.get_column_properties(field) for field in self.fields_dict]
         )
         suffix_sql = f" ({', '.join(fields_list)})"
-        sql_create = sql.SQL("CREATE TEMPORARY TABLE {create_table}" + suffix_sql).format(
+        return sql.SQL("CREATE TEMPORARY TABLE {create_table}" + suffix_sql).format(
             create_table=create_table
         )
 
-        return sql_create
-
     @property
     def get_query_insert(self):
-        """
-        :return: Le SQL de la clause ON CONFLICT DO NOTHING pour la requête upsert
-        """
+        """:return: Le SQL de la clause ON CONFLICT DO NOTHING pour la requête upsert"""
         insert_table, from_table = self.get_base_insert
-        sql_insert = sql.SQL(
+        return sql.SQL(
             "INSERT INTO {insert_table} ({fields})  SELECT {fields} FROM {form_table} "
         ).format(insert_table=insert_table, form_table=from_table, fields=self.get_fields())
-        return sql_insert
 
     @property
     def get_query_do_nothing(self):
-        """
-        :return: Le SQL de la clause ON CONFLICT DO NOTHING pour la requête upsert
-        """
-        sql_insert = sql.SQL("{base} ON CONFLICT DO NOTHING").format(base=self.get_query_insert)
-        return sql_insert
+        """:return: Le SQL de la clause ON CONFLICT DO NOTHING pour la requête upsert"""
+        return sql.SQL("{base} ON CONFLICT DO NOTHING").format(base=self.get_query_insert)
 
     @property
     def get_conflict_upsert_fields(self):
-        """
-        :return: Le SQL de la clause ON CONFLICT ... DO UPDATE pour la requête paramétrée
-        """
-
+        """:return: Le SQL de la clause ON CONFLICT ... DO UPDATE pour la requête paramétrée"""
         fields_conflict = sql.SQL(", ").join(
             [sql.Identifier(field) for field in self.get_columns_upsert().get("conflict")]
         )
@@ -390,11 +384,9 @@ class PostgresDjangoUpsert:
 
     @property
     def get_query_upsert(self):
-        """
-        :return: Le SQL de la clause ON CONFLICT ... DO UPDATE pour la requête upsert
-        """
+        """:return: Le SQL de la clause ON CONFLICT ... DO UPDATE pour la requête upsert"""
         fields_conflict, update_columns = self.get_conflict_upsert_fields
-        sql_upsert = sql.SQL(
+        return sql.SQL(
             "{base} ON CONFLICT ({fields_conflict}) DO UPDATE SET {update_columns}"
         ).format(
             base=self.get_query_insert,
@@ -402,13 +394,9 @@ class PostgresDjangoUpsert:
             update_columns=update_columns,
         )
 
-        return sql_upsert
-
     @property
     def get_upsert_batch(self):
-        """
-        :return: Le SQL de la clause ON CONFLICT ... DO UPDATE pour la requête paramétrée
-        """
+        """:return: Le SQL de la clause ON CONFLICT ... DO UPDATE pour la requête paramétrée"""
         with self.cnx.cursor() as cursor:
             fields_conflict, update_columns = self.get_conflict_upsert_fields
             sql_upsert = sql.SQL(
@@ -417,9 +405,9 @@ class PostgresDjangoUpsert:
 
             return cursor.mogrify(sql_upsert).decode()
 
-    def get_prepare_smt(self, mode: AnyStr, stmt_name: AnyStr):
-        """
-        :param mode:      Mode d'insertion d'une requête préparée
+    def get_prepare_smt(self, mode: str, stmt_name: str):
+        """:param mode:      Mode d'insertion d'une requête préparée
+
         :param stmt_name: Nom du prepare stmt
         :return: Le SQL de la clause ON CONFLICT ... DO UPDATE pour la requête upsert
         """
@@ -430,9 +418,7 @@ class PostgresDjangoUpsert:
         }
 
         if mode not in dict_mode:
-            raise PostgresInsertMethodError(
-                f"La methode {mode!r} d'insertion choisie n'existe pas"
-            )
+            raise PostgresInsertMethodError(f"La methode {mode!r} d'insertion choisie n'existe pas")
 
         prepare, sql_execute, sql_deallocate = self.get_prepare_batch(stmt_name)
 
@@ -444,24 +430,20 @@ class PostgresDjangoUpsert:
 
     @property
     def get_drop_temp(self):
-        """
-        :return: Le SQL de suppression de la table provisoire
-        """
+        """:return: Le SQL de suppression de la table provisoire"""
         table_drop = sql.Identifier(self.temp_table_name)
-        sql_drop = sql.SQL("DROP TABLE IF EXISTS {table_drop}").format(table_drop=table_drop)
-
-        return sql_drop
+        return sql.SQL("DROP TABLE IF EXISTS {table_drop}").format(table_drop=table_drop)
 
     def insertion(
         self,
         file: io.StringIO,
-        insert_mode: AnyStr = "upsert",
-        delimiter: AnyStr = ";",
-        quote_character: AnyStr = '"',
-        kwargs_prepared: Dict = None,
+        insert_mode: str = "upsert",
+        delimiter: str = ";",
+        quote_character: str = '"',
+        kwargs_prepared: dict | None = None,
     ):
-        """
-        Realise l'insertion choisie (upsert, do_nothing, insert)
+        """Realise l'insertion choisie (upsert, do_nothing, insert).
+
         :param file:            Fichier au format io.StringIO
         :param insert_mode:     Mode d'insertion choisi
         :param delimiter:       Séparateur des lignes du fichier
@@ -469,11 +451,10 @@ class PostgresDjangoUpsert:
         :param kwargs_prepared: Dictionnaire des attributs nécessaires à la requête préparée
                                 kwargs_prepared = {
                                     "mode": "insert" ou "do_nothing" ou "upsert",
-                                    "page_size": None ou nbre par iteration par défault 500,
+                                    "page_size": None ou nbre par iteration par défault 500,.
 
                                 }
         """
-
         insert_mode_dict = {
             "insert": None,
             "do_nothing": self.get_query_do_nothing,
@@ -508,7 +489,6 @@ class PostgresDjangoUpsert:
                     "QUOTE '{quote_character}', "
                     "FORMAT CSV )"
                 )
-                # print("sql_expert :", sql_expert)
                 if insert_mode == "insert":
                     # copy direct dans la table définitive
                     table = sql.Identifier(self.table_name)
@@ -522,15 +502,11 @@ class PostgresDjangoUpsert:
 
                 elif insert_mode == "prepared":
                     # Insertion en base avec une requête préparée.
-                    if kwargs_prepared is None:
-                        raise PostgresPreparedError(
-                            "Vous devez donner le dictionnaire des attributs pour execute_bach, "
-                            "pour le mode d'insertion prepared"
-                        )
+                    kwargs_prepared = _require_prepared_kwargs(kwargs_prepared)
                     stmt_name = get_random_name()
 
                     sql_prepare, sql_execute, sql_deallocate = self.get_prepare_smt(
-                        kwargs_prepared.get("mode"), stmt_name
+                        kwargs_prepared.get("mode") or "", stmt_name
                     )
                     csv_rows = csv.reader(
                         file,
@@ -562,7 +538,6 @@ class PostgresDjangoUpsert:
                 else:
                     # copy dans une table provisoire pour un do_nothing ou un upsert
                     table = sql.Identifier(self.temp_table_name)
-                    # print(cursor.mogrify(self.get_ddl_temp_table()).decode())
                     cursor.execute(self.get_ddl_temp_table())
                     sql_copy = sql.SQL(sql_expert).format(
                         table=table,
@@ -570,20 +545,10 @@ class PostgresDjangoUpsert:
                         delimiter=delimiter,
                         quote_character=quote_character,
                     )
-                    # print(cursor.mogrify(sql_copy).decode())
-                    # print(*file)
-                    # file.seek(0)
-                    # for line in file:
-                    #     print(line)
-
                     file.seek(0)
                     cursor.copy_expert(sql=sql_copy, file=file)
 
                     # do_nothing ou upsert
-                    # print(
-                    #     "insert_mode_dict.get(insert_mode) : ",
-                    #     insert_mode_dict.get(insert_mode)
-                    # )
                     cursor.execute(insert_mode_dict.get(insert_mode))
 
                     # suppression de la table provisoire
@@ -600,7 +565,7 @@ class PostgresDjangoUpsert:
             except psycopg2.errors.InvalidTextRepresentation as except_error:
                 file.seek(0)
                 LOGGER_POSTGRES_SAVE.exception(
-                    f"{except_error}\ntable : {table}\nfields : {fields}\n{file.read()!r}"
+                    "\ntable : %s\nfields : %s\n%r", table, fields, file.read()
                 )
                 raise PostgresTypeError(
                     f"Erreur de type, trace N° : {trace_prepared!r}"
@@ -614,7 +579,7 @@ class PostgresDjangoUpsert:
             except Exception as except_error:
                 file.seek(0)
                 LOGGER_POSTGRES_SAVE.exception(
-                    f"{except_error}\ntable : {table}\nfields : {fields}\n{file.read()!r}"
+                    "\ntable : %s\nfields : %s\n%r", table, fields, file.read()
                 )
                 raise PostgresDjangoError(
                     f"Erreur inconnue, trace N° : {trace_prepared!r}"
@@ -623,18 +588,18 @@ class PostgresDjangoUpsert:
         return True
 
     def get_columns_constraints(self, cursor):
-        """
-        :param cursor: Cursor de connexion psycopg2 à Postgresql
+        """:param cursor: Cursor de connexion psycopg2 à Postgresql
+
         :return: Retourne les contraintes d'unicité et les foreign key obligatoire
         """
         uniques_list = []
-        foreign_keys_dict = {}
+        foreign_keys_dict: dict = {}
 
         cursor.execute(
             sql.SQL(
                 """
         select column_name
-        from information_schema.columns 
+        from information_schema.columns
         where table_name = '{table_name}'
         """
             ).format(table_name=sql.SQL(self.temp_table_name))
@@ -645,14 +610,14 @@ class PostgresDjangoUpsert:
             sql.SQL(
                 """
         select
-            pgc.contype, 
+            pgc.contype,
             ccu.table_name,
             case when pgc.contype = 'u' then '' else pga.attname end as column,
             string_agg(distinct ccu.column_name, ';') as constraint_columns,
-            case 
+            case
                 when pgc.contype = 'u' then false
-                when is_nullable='YES' then false 
-                else true 
+                when is_nullable='YES' then false
+                else true
             end as mandatory
         from pg_constraint pgc
             join pg_namespace nsp on nsp.oid = pgc.connamespace
@@ -662,21 +627,21 @@ class PostgresDjangoUpsert:
                   and nsp.nspname = ccu.constraint_schema
             left join pg_attribute pga
                    on pga.attrelid = pgc.conrelid
-                  and pga.attnum   = ANY(pgc.conkey) 
+                  and pga.attnum   = ANY(pgc.conkey)
             left join information_schema.columns ccc
-                on nsp.nspname = ccc.table_schema 
+                on nsp.nspname = ccc.table_schema
                 and pga.attname = ccc.column_name
         where cls.relname = '{table_name}'
         and contype  in ('f', 'u')
         group by case when pgc.contype = 'u' then '' else pga.attname end,
-                 cls.relname, 
-                 ccu.table_name, 
-                 pgc.contype, 
+                 cls.relname,
+                 ccu.table_name,
+                 pgc.contype,
                  pgc.conkey,
-                 case 
+                 case
                     when pgc.contype = 'u' then false
-                    when is_nullable='YES' then false 
-                    else true 
+                    when is_nullable='YES' then false
+                    else true
                  end
         """
             ).format(table_name=sql.SQL(self.table_name))
@@ -709,8 +674,8 @@ class PostgresDjangoUpsert:
 
     @staticmethod
     def check_unique_key(cursor, table, uniques_list):
-        """
-        :param cursor:       Cursor de connexion psycopg2 à Postgresql
+        """:param cursor:       Cursor de connexion psycopg2 à Postgresql
+
         :param table:        Table en BDD à tester
         :param uniques_list: Liste des champs uniques dans la table y compris groupe d'unicité
         :return: Check des combinaisons  clefs uniques dans la table
@@ -746,20 +711,20 @@ class PostgresDjangoUpsert:
         return cursor.fetchall()
 
     def check_foreign_key(self, cursor):
-        """
-        :param cursor: Cursor de connexion psycopg2 à Postgresql
+        """:param cursor: Cursor de connexion psycopg2 à Postgresql
+
         :return: Check que les clefs étrangères existent dans la table liée
         """
 
     def insert_with_pre_validation(
         self,
         file: io.StringIO,
-        delimiter: AnyStr = ";",
-        quote_character: AnyStr = '"',
-        trace: Trace = None,
+        delimiter: str = ";",
+        quote_character: str = '"',
+        trace: Trace | None = None,
     ):
-        """
-        Méthode pour insertion avec auparavant, une pré-validation, des clés primaires
+        """Méthode pour insertion avec auparavant, une pré-validation, des clés primaires.
+
         ou des clés groupées. Une Trace sera mise en place dans le cadre d'import de fichier suivi.
         :param file:            Fichier au format io.StringIO
         :param delimiter:       Séparateur des lignes du fichier
@@ -767,7 +732,7 @@ class PostgresDjangoUpsert:
         :param trace:           models Django Trace, pour tracer un import
         :return:
         """
-        # TODO : Implémentation de la validation des clés éxistantes à finir d'implémenter
+        # Limitation connue : la validation des clés existantes n'est pas implémentée
         numbered_io_file = io.StringIO()
 
         if trace:
@@ -775,7 +740,7 @@ class PostgresDjangoUpsert:
             LOGGER_POSTGRES_SAVE.info(error_line)
 
         for i, line in enumerate(file):
-            numbered_io_file.write(f"{quote_character}{str(i)}{quote_character}{delimiter}" + line)
+            numbered_io_file.write(f"{quote_character}{i!s}{quote_character}{delimiter}" + line)
 
         numbered_io_file.seek(0)
 
@@ -809,10 +774,9 @@ class PostgresDjangoUpsert:
                 uniques = self.check_unique_key(cursor, self.temp_table_name, uniques_list)
 
                 for columns, values, number in uniques:
-                    LOGGER_POSTGRES_SAVE.info("%s %s %s %s", 'values : ', '--'.join(columns.split('__')), values, number)
-
-            # # do_nothing ou upsert
-            # cursor.execute(insert_mode_dict.get(insert_mode))
+                    LOGGER_POSTGRES_SAVE.info(
+                        "%s %s %s %s", "values : ", "--".join(columns.split("__")), values, number
+                    )
 
             # suppression de la table provisoire
             cursor.execute(self.get_drop_temp)

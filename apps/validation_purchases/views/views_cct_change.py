@@ -1,6 +1,6 @@
-"""
-FR : Module qui change les CCT dans les écrans ou l'on peut modifier le CCT par double click
-EN : Module that changes the CCTs in the screens where you can modify the CCT by double click
+"""FR : Module qui change les CCT dans les écrans ou l'on peut modifier le CCT par double click.
+
+EN : Module that changes the CCTs in the screens where you can modify the CCT by double click.
 
 Commentaire:
 
@@ -15,18 +15,17 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect
 
-from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS
-from apps.core.bin.change_traces import trace_change
-from apps.validation_purchases.bin.validations_utilities import set_is_multi_store
 from apps.centers_clients.models import Maison
-from apps.validation_purchases.forms import ChangeCttForm
+from apps.core.bin.change_traces import trace_change
+from apps.core.functions.functions_http import is_ajax
 from apps.edi.models import EdiImport
+from apps.validation_purchases.bin.validations_utilities import set_is_multi_store
+from apps.validation_purchases.forms import ChangeCttForm
+from heron.loggers import LOGGER_VIEWS
 
 
 def cct_change(request):
-    """Fonction de changement du cct d'une facture"""
-
+    """Fonction de changement du cct d'une facture."""
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -61,8 +60,7 @@ def cct_change(request):
                 data_dict.get("invoice_year"),
             )
             message = (
-                f"La Facture n° {data_dict.get('invoice_number')}, a bien comme nouveau CCT :"
-                f"{cct}."
+                f"La Facture n° {data_dict.get('invoice_number')}, a bien comme nouveau CCT :{cct}."
             )
             messages.add_message(request, 20, message)
 
@@ -70,6 +68,6 @@ def cct_change(request):
 
     else:
         messages.add_message(request, 50, f"Une erreur c'est produite : {form.errors}")
-        LOGGER_VIEWS.error(f"cct_change, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("cct_change, form invalid : %r", form.errors)
 
     return JsonResponse(data)

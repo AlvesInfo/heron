@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests des modèles de la centrale d'achat (apps/centers_purchasing/models.py)
+"""FR : Tests des modèles de la centrale d'achat (apps/centers_purchasing/models.py)
+
+
 EN : Tests for purchasing center models
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import pytest
 from django.db import IntegrityError, transaction
 from django.urls import reverse
@@ -42,7 +44,12 @@ def test_centrale_mere(make_principal_center):
 
 @pytest.mark.parametrize(
     ("iban", "expected"),
-    [("FR76 3000-6000 0112 3456 7890 189", "FR76 3000 6000 0112 3456 7890 189"), ("fr761234567", "fr76 1234 567"), (None, ""), ("", "")],
+    [
+        ("FR76 3000-6000 0112 3456 7890 189", "FR76 3000 6000 0112 3456 7890 189"),
+        ("fr761234567", "fr76 1234 567"),
+        (None, ""),
+        ("", ""),
+    ],
 )
 def test_centrale_fille_iban_formate_par_groupes_de_quatre(make_child_center, iban, expected):
     """L'IBAN est nettoyé (espaces, tirets) et regroupé par 4, sans espace final"""
@@ -61,7 +68,12 @@ def test_centrale_fille_str_url_et_tri(make_child_center):
 
 
 def test_enseigne(make_signboard, make_child_center, make_sale_price_category):
-    enseigne = make_signboard("ACF", name="Acuitis", child_center=make_child_center("ACF"), sale_price_category=make_sale_price_category())
+    enseigne = make_signboard(
+        "ACF",
+        name="Acuitis",
+        child_center=make_child_center("ACF"),
+        sale_price_category=make_sale_price_category(),
+    )
 
     assert str(enseigne) == "ACF - Acuitis"
     assert Signboard.get_absolute_url() == reverse("centers_purchasing:enseignes_list")
@@ -98,7 +110,9 @@ def test_regroupements_de_facturation(make_grouping_goods):
         GroupingGoods.objects.create(ranking=3, base="Marchandises", grouping_goods="Montures")
 
 
-def test_axe_pro_regroupement_un_axe_une_seule_fois(make_axe_pro_grouping, make_section, make_grouping_goods):
+def test_axe_pro_regroupement_un_axe_une_seule_fois(
+    make_axe_pro_grouping, make_section, make_grouping_goods
+):
     link = make_axe_pro_grouping("OPT")
 
     assert link.grouping_goods.grouping_goods == "Montures"
@@ -114,17 +128,38 @@ def test_axe_pro_regroupement_un_axe_une_seule_fois(make_axe_pro_grouping, make_
 def test_comptes_par_axe_pro(make_accounts_axe_pro_category, make_sub_category):
     """Clé d'import, colonnes du fichier et unicité du quintuplet (rubrique renseignée)"""
     make_accounts_axe_pro_category(child_center="ACF", vat="001")
-    account = make_accounts_axe_pro_category(child_center="ACF", vat="001", sub_category=make_sub_category("Montures"))
+    account = make_accounts_axe_pro_category(
+        child_center="ACF", vat="001", sub_category=make_sub_category("Montures")
+    )
 
-    assert AccountsAxeProCategory.get_uniques() == {"child_center", "big_category", "sub_category", "axe_pro", "vat"}
-    assert list(AccountsAxeProCategory.get_columns_import()) == ["child_center", "big_category", "sub_category", "axe_pro", "vat", "purchase_account", "sale_account"]
+    assert AccountsAxeProCategory.get_uniques() == {
+        "child_center",
+        "big_category",
+        "sub_category",
+        "axe_pro",
+        "vat",
+    }
+    assert list(AccountsAxeProCategory.get_columns_import()) == [
+        "child_center",
+        "big_category",
+        "sub_category",
+        "axe_pro",
+        "vat",
+        "purchase_account",
+        "sale_account",
+    ]
     assert AccountsAxeProCategory.objects.count() == 2
     assert account.purchase_account.account == "607000"
 
     with pytest.raises(IntegrityError), transaction.atomic():
         AccountsAxeProCategory.objects.create(
-            child_center=account.child_center, big_category=account.big_category, sub_category=account.sub_category,
-            axe_pro=account.axe_pro, vat=account.vat, purchase_account=account.purchase_account, sale_account=account.sale_account,
+            child_center=account.child_center,
+            big_category=account.big_category,
+            sub_category=account.sub_category,
+            axe_pro=account.axe_pro,
+            vat=account.vat,
+            purchase_account=account.purchase_account,
+            sale_account=account.sale_account,
         )
 
 
@@ -140,7 +175,9 @@ def test_tva_applicable_par_axe_pro(make_applicable_pro_vat, make_child_center, 
     vat = make_vat("001")
 
     with pytest.raises(IntegrityError), transaction.atomic():
-        ApplicableProVat.objects.create(child_center=child_center, axe_pro=with_axe.axe_pro, vat=vat)
+        ApplicableProVat.objects.create(
+            child_center=child_center, axe_pro=with_axe.axe_pro, vat=vat
+        )
 
 
 def test_type_facture(make_type_facture, make_child_center):
@@ -155,7 +192,12 @@ def test_type_facture(make_type_facture, make_child_center):
     child_center = make_child_center("ACF")
 
     with pytest.raises(IntegrityError), transaction.atomic():
-        TypeFacture.objects.create(child_center=child_center, invoice_type="380", purchase_type_facture="X", sale_type_facture="Y")
+        TypeFacture.objects.create(
+            child_center=child_center,
+            invoice_type="380",
+            purchase_type_facture="X",
+            sale_type_facture="Y",
+        )
 
 
 def test_action_sans_champ_metier():

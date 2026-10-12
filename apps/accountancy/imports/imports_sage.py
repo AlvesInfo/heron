@@ -1,6 +1,6 @@
-"""
-FR : Module d'import des modèles de Sage X3
-EN : Import module for Sage X3 models
+"""FR : Module d'import des modèles de Sage X3.
+
+EN : Import module for Sage X3 models.
 
 Commentaire:
 
@@ -11,49 +11,49 @@ modified at: 2022-04-08
 modified by: Paulo ALVES
 """
 
-from uuid import uuid4
-from pathlib import Path
 import time
+from pathlib import Path
+from uuid import uuid4
 
 from django.utils import timezone
 
-from apps.core.functions.functions_setups import settings
-from apps.data_flux.make_inserts import make_insert
-from apps.accountancy.bin.sage_pre_processing import mode_reglement_file
 from apps.accountancy.bin.sage_post_processing import rat_vat_correction
-from apps.accountancy.models import (
-    AccountSage,
-    AxeSage,
-    SectionSage,
-    VatRegimeSage,
-    VatSage,
-    VatRatSage,
-    ModeReglement,
-    PaymentCondition,
-    TabDivSage,
-    CategorySage,
-)
+from apps.accountancy.bin.sage_pre_processing import mode_reglement_file
 from apps.accountancy.forms.forms_djantic.sage import (
     AccountSageSchema,
     AxeSageSchema,
-    SectionSageSchema,
-    VatRegimeSageSchema,
-    VatSageSchema,
-    VatRatSageSchema,
+    CategorySageSchema,
     ModeReglementSchema,
     PaymentConditionSchema,
+    SectionSageSchema,
     TabDivSageSchema,
-    CategorySageSchema,
+    VatRatSageSchema,
+    VatRegimeSageSchema,
+    VatSageSchema,
 )
+from apps.accountancy.models import (
+    AccountSage,
+    AxeSage,
+    CategorySage,
+    ModeReglement,
+    PaymentCondition,
+    SectionSage,
+    TabDivSage,
+    VatRatSage,
+    VatRegimeSage,
+    VatSage,
+)
+from apps.core.functions.functions_setups import settings
+from apps.data_flux.make_inserts import make_insert
 from apps.data_flux.trace import get_trace
 
 proccessing_dir = Path(settings.PROCESSING_SAGE_DIR)
 
 
 def account_sage(file_path: Path):
-    """
-    Import du fichier des comptes comptable Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des comptes comptable Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = AccountSage
     validator = AccountSageSchema
@@ -71,17 +71,15 @@ def account_sage(file_path: Path):
             "uuid_identification": (uuid4, {}),
         },
     }
-    to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
 
 
 def axe_sage(file_path: Path):
-    """
-    Import du fichier des axes Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des axes Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = AxeSage
     validator = AxeSageSchema
@@ -98,17 +96,15 @@ def axe_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
 
 
 def section_sage(file_path: Path):
-    """
-    Import du fichier des Sections Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Sections Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = SectionSage
     validator = SectionSageSchema
@@ -126,17 +122,15 @@ def section_sage(file_path: Path):
             "uuid_identification": (uuid4, {}),
         },
     }
-    to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
 
 
 def vat_regime_sage(file_path: Path):
-    """
-    Import du fichier des Régimes de taxe Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Régimes de taxe Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = VatRegimeSage
     validator = VatRegimeSageSchema
@@ -154,17 +148,15 @@ def vat_regime_sage(file_path: Path):
             "uuid_identification": (uuid4, {}),
         },
     }
-    to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
 
 
 def vat_sage(file_path: Path):
-    """
-    Import du fichier des Taxes Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Taxes Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = VatSage
     validator = VatSageSchema
@@ -181,17 +173,15 @@ def vat_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
 
 
 def vat_rat_sage(file_path: Path):
-    """
-    Import du fichier des Taux de Taxes Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Taux de Taxes Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     time.sleep(15)
     model = VatRatSage
@@ -209,17 +199,15 @@ def vat_rat_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
     rat_vat_correction()
     return trace, to_print
 
 
 def mode_reglement(file_path: Path):
-    """
-    Import du fichier des Conditions de paiements Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Conditions de paiements Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = ModeReglement
     validator = ModeReglementSchema
@@ -243,9 +231,9 @@ def mode_reglement(file_path: Path):
 
 
 def payement_condition(file_path: Path):
-    """
-    Import du fichier des Conditions de paiements Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Conditions de paiements Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = PaymentCondition
     validator = PaymentConditionSchema
@@ -262,17 +250,15 @@ def payement_condition(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
 
 
 def tab_div_sage(file_path: Path):
-    """
-    Import du fichier des Tables Diverses Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Tables Diverses Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = TabDivSage
     validator = TabDivSageSchema
@@ -289,17 +275,15 @@ def tab_div_sage(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
 
 
 def category_sage_client(file_path: Path):
-    """
-    Import du fichier des Catégories Clients et Fournisseurs Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Catégories Clients et Fournisseurs Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = CategorySage
     validator = CategorySageSchema
@@ -316,17 +300,15 @@ def category_sage_client(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print
 
 
 def category_sage_supplier(file_path: Path):
-    """
-    Import du fichier des Catégories Clients et Fournisseurs Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Catégories Clients et Fournisseurs Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = CategorySage
     validator = CategorySageSchema
@@ -343,8 +325,6 @@ def category_sage_supplier(file_path: Path):
             "modified_at": timezone.now(),
         },
     }
-    to_print = make_insert(
-        model, flow_name, file_path, trace, validator, params_dict_loader
-    )
+    to_print = make_insert(model, flow_name, file_path, trace, validator, params_dict_loader)
 
     return trace, to_print

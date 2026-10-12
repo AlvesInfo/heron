@@ -1,15 +1,23 @@
 # pylint: disable=E0401,W0621,W0611,R0913
 """Tests du paquet api_gmail : configuration, authentification OAuth2, envoi, tâches et vues"""
+
 import json
 import logging
 import types
+from pathlib import Path
 
 import pytest
 from django.test import RequestFactory
 
 from apps.data_flux.models import Trace
-from apps.invoices.bin.api_gmail import auth, config as config_module, sender as sender_module
-from apps.invoices.bin.api_gmail import tasks_gmail, tasks_gmail_sse, views_sse
+from apps.invoices.bin.api_gmail import (
+    auth,
+    config as config_module,
+    sender as sender_module,
+    tasks_gmail,
+    tasks_gmail_sse,
+    views_sse,
+)
 from apps.invoices.bin.api_gmail.sender import EmailResult, RateLimiter
 from apps.invoices.tests.helpers_external import INVOICE_MONTH, http_error
 
@@ -30,20 +38,29 @@ def test_gmail_config_lecture_et_valeurs_par_defaut(gmail_config_file):
     assert config.sender_name == "Heron"
     assert config.max_per_second == 2
     assert (config.max_per_minute, config.batch_size, config.delay_between_batches) == (100, 50, 2)
-    assert (config.max_retries, config.retry_delay, config.retry_backoff, config.max_retry_delay) == (3, 5, 2, 60)
+    assert (
+        config.max_retries,
+        config.retry_delay,
+        config.retry_backoff,
+        config.max_retry_delay,
+    ) == (3, 5, 2, 60)
     assert (config.http_timeout, config.auth_timeout) == (30, 60)
     assert config.credentials_file_name == "gmail_credentials.json"
     assert config.token_file_name == "gmail_token.json"
     assert config.credentials_file_path == config_module.ENV_DIR / "gmail_credentials.json"
     assert config.token_file_path == config_module.ENV_DIR / "gmail_token.json"
     assert (config.log_level, config.debug) == ("INFO", False)
-    assert (config.use_batch_mode, config.check_quotas, config.save_draft_on_failure) == (True, True, False)
+    assert (config.use_batch_mode, config.check_quotas, config.save_draft_on_failure) == (
+        True,
+        True,
+        False,
+    )
     assert config.get("sender.email.nested") is None
     assert config.get("inconnu", "défaut") == "défaut"
     assert config.get_oauth2_credentials_dict()["installed"]["client_id"] == "id"
 
 
-@pytest.mark.usefixtures('gmail_config_file')
+@pytest.mark.usefixtures("gmail_config_file")
 def test_gmail_config_fichier_absent_ou_invalide(tmp_path):
     with pytest.raises(FileNotFoundError, match="n'existe pas"):
         config_module.GmailConfig(tmp_path / "absent.yaml")
@@ -93,7 +110,9 @@ def creds(valid=True, expired=False, refresh_token=None, refresh_error=None):
 def test_get_credentials_token_valide(authenticator, monkeypatch):
     authenticator.config.token_file_path.write_text("{}")
     valid = creds()
-    monkeypatch.setattr(auth.Credentials, "from_authorized_user_file", staticmethod(lambda path, scopes: valid))
+    monkeypatch.setattr(
+        auth.Credentials, "from_authorized_user_file", staticmethod(lambda path, scopes: valid)
+    )
 
     assert authenticator.get_credentials() is valid
 
@@ -101,7 +120,9 @@ def test_get_credentials_token_valide(authenticator, monkeypatch):
 def test_get_credentials_token_expire_rafraichi(authenticator, monkeypatch):
     authenticator.config.token_file_path.write_text("{}")
     expired = creds(valid=False, expired=True, refresh_token="r")
-    monkeypatch.setattr(auth.Credentials, "from_authorized_user_file", staticmethod(lambda path, scopes: expired))
+    monkeypatch.setattr(
+        auth.Credentials, "from_authorized_user_file", staticmethod(lambda path, scopes: expired)
+    )
     monkeypatch.setattr(auth, "Request", lambda: None)
 
     result = authenticator.get_credentials()
@@ -121,25 +142,36 @@ def test_get_credentials_flow_complet(authenticator, monkeypatch, caplog):
     monkeypatch.setattr(auth.Credentials, "from_authorized_user_file", staticmethod(bad_load))
     new_creds = creds()
     flow = types.SimpleNamespace(run_local_server=lambda port: new_creds)
-    monkeypatch.setattr(auth.InstalledAppFlow, "from_client_secrets_file", staticmethod(lambda path, scopes: flow))
+    monkeypatch.setattr(
+        auth.InstalledAppFlow, "from_client_secrets_file", staticmethod(lambda path, scopes: flow)
+    )
 
     with caplog.at_level(logging.WARNING, logger="send_email"):
         result = authenticator.get_credentials()
 
     assert result is new_creds
     assert "Erreur lors du chargement du token" in caplog.text
-    assert json.loads(authenticator.config.credentials_file_path.read_text()) == {"installed": {"client_id": "id"}}
+    assert json.loads(authenticator.config.credentials_file_path.read_text()) == {
+        "installed": {"client_id": "id"}
+    }
 
 
 def test_get_credentials_refresh_en_erreur_puis_flow(authenticator, monkeypatch):
     authenticator.config.token_file_path.write_text("{}")
-    expired = creds(valid=False, expired=True, refresh_token="r", refresh_error=RuntimeError("refresh ko"))
-    monkeypatch.setattr(auth.Credentials, "from_authorized_user_file", staticmethod(lambda path, scopes: expired))
+    expired = creds(
+        valid=False, expired=True, refresh_token="r", refresh_error=RuntimeError("refresh ko")
+    )
+    monkeypatch.setattr(
+        auth.Credentials, "from_authorized_user_file", staticmethod(lambda path, scopes: expired)
+    )
     monkeypatch.setattr(auth, "Request", lambda: None)
     new_creds = creds()
     monkeypatch.setattr(
-        auth.InstalledAppFlow, "from_client_secrets_file",
-        staticmethod(lambda path, scopes: types.SimpleNamespace(run_local_server=lambda port: new_creds)),
+        auth.InstalledAppFlow,
+        "from_client_secrets_file",
+        staticmethod(
+            lambda path, scopes: types.SimpleNamespace(run_local_server=lambda port: new_creds)
+        ),
     )
 
     assert authenticator.get_credentials() is new_creds
@@ -168,8 +200,11 @@ def test_get_credentials_sauvegarde_token_impossible(authenticator, monkeypatch,
     authenticator.config.token_file_path = tmp_path / "absent" / "token.json"
     new_creds = creds()
     monkeypatch.setattr(
-        auth.InstalledAppFlow, "from_client_secrets_file",
-        staticmethod(lambda path, scopes: types.SimpleNamespace(run_local_server=lambda port: new_creds)),
+        auth.InstalledAppFlow,
+        "from_client_secrets_file",
+        staticmethod(
+            lambda path, scopes: types.SimpleNamespace(run_local_server=lambda port: new_creds)
+        ),
     )
 
     with caplog.at_level(logging.WARNING, logger="send_email"):
@@ -189,7 +224,7 @@ def test_create_credentials_file_deja_present(authenticator):
 def test_create_credentials_file_erreur(authenticator, tmp_path, caplog):
     authenticator.config.credentials_file_path = tmp_path / "absent" / "credentials.json"
 
-    with pytest.raises(OSError, match=r'.+'), caplog.at_level(logging.ERROR, logger="send_email"):
+    with pytest.raises(OSError, match=r".+"), caplog.at_level(logging.ERROR, logger="send_email"):
         authenticator._create_credentials_file_if_needed(authenticator.config.credentials_file_path)  # pylint: disable=W0212
 
     assert "Erreur lors de la création du fichier credentials.json" in caplog.text
@@ -232,7 +267,7 @@ def test_revoke_credentials(authenticator, monkeypatch, caplog):
 
     monkeypatch.setattr(type(authenticator.config.token_file_path), "unlink", lambda self: boom())
 
-    with pytest.raises(OSError, match=r'.+'), caplog.at_level(logging.ERROR, logger="send_email"):
+    with pytest.raises(OSError, match=r".+"), caplog.at_level(logging.ERROR, logger="send_email"):
         authenticator.revoke_credentials()
 
 
@@ -258,7 +293,11 @@ def test_create_message_avec_pieces_jointes(fake_sender_module, tmp_path, caplog
 
     with caplog.at_level(logging.WARNING, logger="send_email"):
         message = sender.create_message(
-            ["a@b.fr", "c@d.fr"], "Sujet {cct}", "texte", "<p>{cct}</p>", {"cct": "AF0001"},
+            ["a@b.fr", "c@d.fr"],
+            "Sujet {cct}",
+            "texte",
+            "<p>{cct}</p>",
+            {"cct": "AF0001"},
             [attachment, tmp_path / "absent.pdf"],
         )
 
@@ -270,16 +309,17 @@ def test_create_message_piece_jointe_illisible(fake_sender_module, tmp_path, mon
     sender, _ = fake_sender_module()
     attachment = tmp_path / "facture.pdf"
     attachment.write_bytes(b"%PDF")
-    real_open = open
+    real_open = Path.open
 
     def bad_open(path, *args, **kwargs):
         if str(path).endswith("facture.pdf"):
             raise OSError("illisible")
         return real_open(path, *args, **kwargs)
 
-    monkeypatch.setattr("builtins.open", bad_open)
+    # les pièces jointes sont lues par Path.open
+    monkeypatch.setattr(Path, "open", bad_open)
 
-    with pytest.raises(OSError, match=r'.+'), caplog.at_level(logging.ERROR, logger="send_email"):
+    with pytest.raises(OSError, match=r".+"), caplog.at_level(logging.ERROR, logger="send_email"):
         sender.create_message(["a@b.fr"], "s", "t", "<p>h</p>", {}, [attachment])
 
 
@@ -322,7 +362,9 @@ def test_send_message_http_non_recuperable(fake_sender_module):
 
 def test_send_message_toutes_tentatives_echouees(fake_sender_module, caplog):
     """Erreurs SSL : le service est réinitialisé, puis échec après le nombre max de tentatives"""
-    sender, service = fake_sender_module(outcomes=[OSError("EOF occurred"), OSError("ssl error"), OSError("autre")])
+    sender, service = fake_sender_module(
+        outcomes=[OSError("EOF occurred"), OSError("ssl error"), OSError("autre")]
+    )
     resets = []
     sender._reset_service = lambda: resets.append(1)  # pylint: disable=W0212
 
@@ -353,7 +395,8 @@ def test_send_mass_mail(fake_sender_module, make_sse_progress, tmp_path, caplog)
 
     with caplog.at_level(logging.INFO, logger="send_email"):
         nb_success, nb_errors, results = sender.send_mass_mail(
-            [(["a@b.fr"], *email), (["c@d.fr"], *email), (["", None], *email)], job_id=progress.job_id
+            [(["a@b.fr"], *email), (["c@d.fr"], *email), (["", None], *email)],
+            job_id=progress.job_id,
         )
 
     assert (nb_success, nb_errors) == (1, 2)
@@ -371,7 +414,9 @@ def test_send_mass_mail_sans_jauge_et_progression(fake_sender_module, tmp_path, 
     attachment.write_bytes(b"%PDF")
 
     with caplog.at_level(logging.INFO, logger="send_email"):
-        nb_success, nb_errors, _ = sender.send_mass_mail([(["a@b.fr"], "s", "t", "<p>h</p>", {}, [attachment])] * 50)
+        nb_success, nb_errors, _ = sender.send_mass_mail(
+            [(["a@b.fr"], "s", "t", "<p>h</p>", {}, [attachment])] * 50
+        )
 
     assert (nb_success, nb_errors) == (49, 1)
     assert "Progression: 50/50" in caplog.text
@@ -381,7 +426,9 @@ def test_send_mass_mail_sans_piece_jointe(fake_sender_module):
     """Sans pièce jointe (None) : l'email envoyé est compté une seule fois, en succès"""
     sender, _ = fake_sender_module(outcomes=[{"id": "ok"}])
 
-    nb_success, nb_errors, results = sender.send_mass_mail([(["a@b.fr"], "s", "t", "<p>h</p>", {}, None)])
+    nb_success, nb_errors, results = sender.send_mass_mail(
+        [(["a@b.fr"], "s", "t", "<p>h</p>", {}, None)]
+    )
 
     assert (nb_success, nb_errors) == (1, 0)
     assert [result.success for result in results] == [True]
@@ -439,13 +486,26 @@ class FakeMassSender:
         return self.results[0]
 
 
-@pytest.mark.usefixtures('email_template')
-def test_launch_celery_send_invoice_mails_gmail(sale_for_email, make_user, make_sale_invoice, monkeypatch):
+@pytest.mark.usefixtures("email_template")
+def test_launch_celery_send_invoice_mails_gmail(
+    sale_for_email, make_user, make_sale_invoice, monkeypatch
+):
     """Deux factures dans le même pdf global : un seul email ; résultat surnuméraire ignoré"""
     sale, _ = sale_for_email()
-    second = make_sale_invoice(cct="AF0001", third_party_num="CLI001", printed=True, global_invoice_file="AF0001_global.pdf", invoice_month=INVOICE_MONTH)
+    second = make_sale_invoice(
+        cct="AF0001",
+        third_party_num="CLI001",
+        printed=True,
+        global_invoice_file="AF0001_global.pdf",
+        invoice_month=INVOICE_MONTH,
+    )
     user = make_user()
-    fake = FakeMassSender([EmailResult(success=True, message_id="m1", recipient="client@heron.local"), EmailResult(success=False, error="surnuméraire")])
+    fake = FakeMassSender(
+        [
+            EmailResult(success=True, message_id="m1", recipient="client@heron.local"),
+            EmailResult(success=False, error="surnuméraire"),
+        ]
+    )
     monkeypatch.setattr(tasks_gmail, "sender", fake)
 
     result = tasks_gmail.launch_celery_send_invoice_mails_gmail(user.pk, "job")
@@ -465,14 +525,18 @@ def test_launch_celery_send_invoice_mails_gmail(sale_for_email, make_user, make_
     assert trace.created_by == user
 
 
-@pytest.mark.usefixtures('email_template')
-def test_launch_celery_send_invoice_mails_gmail_par_cct_en_erreur(sale_for_email, make_user, monkeypatch):
+@pytest.mark.usefixtures("email_template")
+def test_launch_celery_send_invoice_mails_gmail_par_cct_en_erreur(
+    sale_for_email, make_user, monkeypatch
+):
     sale, _ = sale_for_email()
     user = make_user()
     fake = FakeMassSender([EmailResult(success=False, error="quota", recipient="x")])
     monkeypatch.setattr(tasks_gmail, "sender", fake)
 
-    result = tasks_gmail.launch_celery_send_invoice_mails_gmail(user.pk, "job", cct="AF0001", period=INVOICE_MONTH.isoformat())
+    result = tasks_gmail.launch_celery_send_invoice_mails_gmail(
+        user.pk, "job", cct="AF0001", period=INVOICE_MONTH.isoformat()
+    )
 
     assert result == {"success": True, "sent": 0, "errors": 1, "total": 1}
     sale.refresh_from_db()
@@ -480,7 +544,7 @@ def test_launch_celery_send_invoice_mails_gmail_par_cct_en_erreur(sale_for_email
     assert Trace.objects.get().errors is True
 
 
-@pytest.mark.usefixtures('email_template')
+@pytest.mark.usefixtures("email_template")
 def test_launch_celery_send_invoice_mails_gmail_sans_email(sale_for_email, make_user, email_dirs):
     """Fichier pdf absent : aucune donnée préparée, rien à envoyer"""
     sale_for_email()
@@ -491,8 +555,10 @@ def test_launch_celery_send_invoice_mails_gmail_sans_email(sale_for_email, make_
     assert result == {"success": True, "sent": 0, "errors": 0}
 
 
-@pytest.mark.usefixtures('email_template')
-def test_launch_celery_send_invoice_mails_gmail_exception(sale_for_email, make_user, monkeypatch, caplog):
+@pytest.mark.usefixtures("email_template")
+def test_launch_celery_send_invoice_mails_gmail_exception(
+    sale_for_email, make_user, monkeypatch, caplog
+):
     sale_for_email()
 
     def boom(**kwargs):
@@ -518,7 +584,9 @@ def test_prepare_invoice_email_data_sans_adresse(sale_for_email, caplog):
 def test_send_invoice_email_gmail(sale_for_email, make_user, monkeypatch):
     sale, context_dict = sale_for_email()
     user = make_user()
-    monkeypatch.setattr(tasks_gmail, "sender", FakeMassSender([EmailResult(success=True, message_id="m1")]))
+    monkeypatch.setattr(
+        tasks_gmail, "sender", FakeMassSender([EmailResult(success=True, message_id="m1")])
+    )
 
     result = tasks_gmail.send_invoice_email_gmail(context_dict, user.pk)
 
@@ -532,7 +600,9 @@ def test_send_invoice_email_gmail_date_et_echec(sale_for_email, make_user, monke
     """invoice_month déjà une date, et résultat en échec"""
     sale, context_dict = sale_for_email()
     context_dict["invoice_month"] = INVOICE_MONTH
-    monkeypatch.setattr(tasks_gmail, "sender", FakeMassSender([EmailResult(success=False, error="ko")]))
+    monkeypatch.setattr(
+        tasks_gmail, "sender", FakeMassSender([EmailResult(success=False, error="ko")])
+    )
 
     tasks_gmail.send_invoice_email_gmail(context_dict, make_user().pk)
 
@@ -541,13 +611,19 @@ def test_send_invoice_email_gmail_date_et_echec(sale_for_email, make_user, monke
     assert Trace.objects.get().errors is True
 
     context_dict["invoice_month"] = INVOICE_MONTH
-    monkeypatch.setattr(tasks_gmail, "sender", FakeMassSender([EmailResult(success=True, message_id="m")]))
-    tasks_gmail.send_invoice_email_gmail(context_dict, make_user(email="b@heron.local", username="b").pk)
+    monkeypatch.setattr(
+        tasks_gmail, "sender", FakeMassSender([EmailResult(success=True, message_id="m")])
+    )
+    tasks_gmail.send_invoice_email_gmail(
+        context_dict, make_user(email="b@heron.local", username="b").pk
+    )
     sale.refresh_from_db()
     assert sale.send_email is True
 
 
-def test_send_invoice_email_gmail_sans_donnees_et_exception(sale_for_email, make_user, email_dirs, monkeypatch, caplog):
+def test_send_invoice_email_gmail_sans_donnees_et_exception(
+    sale_for_email, make_user, email_dirs, monkeypatch, caplog
+):
     _, context_dict = sale_for_email()
     (email_dirs.sales / "AF0001_global.pdf").unlink()
 
@@ -568,16 +644,40 @@ def test_send_invoice_email_gmail_sans_donnees_et_exception(sale_for_email, make
 
 
 # TÂCHE SSE ========================================================================================
-@pytest.mark.usefixtures('email_template')
-def test_task_sse_succes_et_echec(sale_for_email, make_user, make_maison, make_sale_invoice, monkeypatch, fake_tracker):
+@pytest.mark.usefixtures("email_template")
+def test_task_sse_succes_et_echec(
+    sale_for_email, make_user, make_maison, make_sale_invoice, monkeypatch, fake_tracker
+):
     sale, _ = sale_for_email()
-    make_sale_invoice(cct="AF0001", third_party_num="CLI001", printed=True, global_invoice_file="AF0001_global.pdf", invoice_month=INVOICE_MONTH)
+    make_sale_invoice(
+        cct="AF0001",
+        third_party_num="CLI001",
+        printed=True,
+        global_invoice_file="AF0001_global.pdf",
+        invoice_month=INVOICE_MONTH,
+    )
     make_maison("AF0002", third_party_num=sale.third_party_num, email="m2@heron.local")
-    other = make_sale_invoice(cct="AF0002", third_party_num="CLI001", printed=True, global_invoice_file="AF0001_global.pdf", invoice_month=INVOICE_MONTH)
-    make_sale_invoice(cct="AF0003", third_party_num="CLI001", printed=True, global_invoice_file="absent.pdf", invoice_month=INVOICE_MONTH)  # pdf absent : ignorée
+    other = make_sale_invoice(
+        cct="AF0002",
+        third_party_num="CLI001",
+        printed=True,
+        global_invoice_file="AF0001_global.pdf",
+        invoice_month=INVOICE_MONTH,
+    )
+    make_sale_invoice(
+        cct="AF0003",
+        third_party_num="CLI001",
+        printed=True,
+        global_invoice_file="absent.pdf",
+        invoice_month=INVOICE_MONTH,
+    )  # pdf absent : ignorée
     user = make_user()
-    results = iter([EmailResult(success=True, message_id="m1"), EmailResult(success=False, error="quota")])
-    monkeypatch.setattr(tasks_gmail_sse, "sender", types.SimpleNamespace(send_message=lambda *args: next(results)))
+    results = iter(
+        [EmailResult(success=True, message_id="m1"), EmailResult(success=False, error="quota")]
+    )
+    monkeypatch.setattr(
+        tasks_gmail_sse, "sender", types.SimpleNamespace(send_message=lambda *args: next(results))
+    )
 
     result = tasks_gmail_sse.launch_celery_send_invoice_mails_gmail_sse(user.pk, job_id="job-sse")
 
@@ -595,7 +695,7 @@ def test_task_sse_succes_et_echec(sale_for_email, make_user, make_maison, make_s
     assert progress.failed_items == 1
 
 
-@pytest.mark.usefixtures('email_template')
+@pytest.mark.usefixtures("email_template")
 def test_task_sse_suivi_en_erreur_apres_envoi(sale_for_email, make_user, monkeypatch, fake_tracker):
     """Email parti mais suivi non enregistré : compté une seule fois, en succès, avec avertissement"""
     sale_for_email()
@@ -604,12 +704,17 @@ def test_task_sse_suivi_en_erreur_apres_envoi(sale_for_email, make_user, monkeyp
         raise RuntimeError("trace impossible")
 
     monkeypatch.setattr(
-        tasks_gmail_sse, "sender",
-        types.SimpleNamespace(send_message=lambda *args: EmailResult(success=True, message_id="m1")),
+        tasks_gmail_sse,
+        "sender",
+        types.SimpleNamespace(
+            send_message=lambda *args: EmailResult(success=True, message_id="m1")
+        ),
     )
     monkeypatch.setattr(tasks_gmail_sse, "_record_sent", boom)
 
-    result = tasks_gmail_sse.launch_celery_send_invoice_mails_gmail_sse(make_user().pk, job_id="job-suivi")
+    result = tasks_gmail_sse.launch_celery_send_invoice_mails_gmail_sse(
+        make_user().pk, job_id="job-suivi"
+    )
 
     assert (result["sent"], result["errors"], result["total"]) == (1, 0, 1)
     warnings = [event for event in fake_tracker.events if event[0] == "warning"]
@@ -617,8 +722,10 @@ def test_task_sse_suivi_en_erreur_apres_envoi(sale_for_email, make_user, monkeyp
     assert "envoyé, suivi incomplet" in warnings[0][1][0]
 
 
-@pytest.mark.usefixtures('email_template')
-def test_task_sse_exception_par_email_et_filtre_cct(sale_for_email, make_user, monkeypatch, fake_tracker):
+@pytest.mark.usefixtures("email_template")
+def test_task_sse_exception_par_email_et_filtre_cct(
+    sale_for_email, make_user, monkeypatch, fake_tracker
+):
     sale_for_email()
 
     def boom(*args):
@@ -635,7 +742,7 @@ def test_task_sse_exception_par_email_et_filtre_cct(sale_for_email, make_user, m
     assert [event[0] for event in fake_tracker.events] == ["start", "warning", "complete"]
 
 
-@pytest.mark.usefixtures('email_template', 'fake_tracker')
+@pytest.mark.usefixtures("email_template", "fake_tracker")
 def test_task_sse_rien_a_envoyer_et_erreur_globale(make_user, caplog):
     user = make_user()
 
@@ -651,18 +758,24 @@ def test_task_sse_rien_a_envoyer_et_erreur_globale(make_user, caplog):
     assert "job_id" in result
 
 
-@pytest.mark.usefixtures('email_template')
+@pytest.mark.usefixtures("email_template")
 def test_task_sse_erreur_globale_avec_jauge(sale_for_email, make_user, monkeypatch, fake_tracker):
     """Erreur après création de la jauge : elle est marquée en échec et l'événement SSE envoyé"""
     sale_for_email()
-    monkeypatch.setattr(tasks_gmail_sse, "sender", types.SimpleNamespace(send_message=lambda *a: EmailResult(success=True, message_id="m")))
+    monkeypatch.setattr(
+        tasks_gmail_sse,
+        "sender",
+        types.SimpleNamespace(send_message=lambda *a: EmailResult(success=True, message_id="m")),
+    )
 
     def boom(self, *args, **kwargs):
         raise RuntimeError("sse down")
 
     monkeypatch.setattr(fake_tracker, "send_start", boom)
 
-    result = tasks_gmail_sse.launch_celery_send_invoice_mails_gmail_sse(make_user().pk, job_id="job-ko")
+    result = tasks_gmail_sse.launch_celery_send_invoice_mails_gmail_sse(
+        make_user().pk, job_id="job-ko"
+    )
 
     assert result["success"] is False
     assert ("error", ("❌ Erreur critique : sse down",), {}) in fake_tracker.events
@@ -680,7 +793,9 @@ def test_prepare_invoice_email_data_sse(sale_for_email, email_dirs, caplog):
     assert data["mail_to"] == ["client@heron.local", "maison@heron.local"]
     assert data["email_tuple"][4]["periode"] == "JANVIER 2026"
 
-    _, context_dict = sale_for_email(cct="AF0002", emails=(), maison_email=None, third_party_num="CLI002")
+    _, context_dict = sale_for_email(
+        cct="AF0002", emails=(), maison_email=None, third_party_num="CLI002"
+    )
 
     with caplog.at_level(logging.WARNING, logger="send_email"):
         assert tasks_gmail_sse.prepare_invoice_email_data(context_dict) is None
@@ -693,7 +808,13 @@ def test_prepare_invoice_email_data_sse(sale_for_email, email_dirs, caplog):
 @pytest.fixture
 def render_recorder(monkeypatch):
     rendered = []
-    monkeypatch.setattr(views_sse, "render", lambda request, template, context=None: rendered.append((template, context)) or types.SimpleNamespace(status_code=200))
+    monkeypatch.setattr(
+        views_sse,
+        "render",
+        lambda request, template, context=None: (
+            rendered.append((template, context)) or types.SimpleNamespace(status_code=200)
+        ),
+    )
     return rendered
 
 
@@ -701,7 +822,11 @@ def test_views_sse(make_user, monkeypatch, render_recorder):
     user = make_user()
     factory = RequestFactory()
     delayed = []
-    monkeypatch.setattr(views_sse.launch_celery_send_invoice_mails_gmail_sse, "delay", lambda **kwargs: delayed.append(kwargs))
+    monkeypatch.setattr(
+        views_sse.launch_celery_send_invoice_mails_gmail_sse,
+        "delay",
+        lambda **kwargs: delayed.append(kwargs),
+    )
 
     request = factory.get("/send/")
     request.user = user
@@ -713,7 +838,9 @@ def test_views_sse(make_user, monkeypatch, render_recorder):
     response = views_sse.send_invoices_emails_sse(request)
     payload = json.loads(response.content)
     assert payload["success"] is True
-    assert delayed == [{"user_pk": user.pk, "cct": "AF0001", "period": "2026-01-01", "job_id": payload["job_id"]}]
+    assert delayed == [
+        {"user_pk": user.pk, "cct": "AF0001", "period": "2026-01-01", "job_id": payload["job_id"]}
+    ]
 
     request = factory.get("/progress/")
     request.user = user

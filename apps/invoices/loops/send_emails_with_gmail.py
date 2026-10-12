@@ -1,17 +1,19 @@
+"""Envoi des factures de vente par e-mail via l'API Gmail."""
+
 import time
 
 from celery import group
 from django.db import transaction
 
-from heron import celery_app
-from heron.loggers import LOGGER_EMAIL
 from apps.core.models import SSEProgress
 from apps.parameters.bin.core import get_action
 from apps.parameters.models import ActionInProgress
+from heron import celery_app
+from heron.loggers import LOGGER_EMAIL
 
 
 def send_invoices_emails_gmail(user: int, job_id: str):
-    """Envoi en masse des emails par gmail"""
+    """Envoi en masse des emails par gmail."""
     result = ""
     info = ""
     progress = None
@@ -21,9 +23,7 @@ def send_invoices_emails_gmail(user: int, job_id: str):
 
     # 1. Marque l'action comme en cours (transaction courte, commitée immédiatement)
     with transaction.atomic():
-        active_action = ActionInProgress.objects.select_for_update().get(
-            action="send_mass_mail"
-        )
+        active_action = ActionInProgress.objects.select_for_update().get(action="send_mass_mail")
         active_action.in_progress = True
         active_action.save()
 
@@ -46,7 +46,7 @@ def send_invoices_emails_gmail(user: int, job_id: str):
             ]
         )().get(3600)
         info = str(result)
-        LOGGER_EMAIL.warning(f"result : {result!r},\nin {time.time() - start_all} s")
+        LOGGER_EMAIL.warning("result : %r,\nin %s s", result, time.time() - start_all)
 
         # Marquer comme terminé, mais avant rafraîchir pour avoir les dernières valeurs
         progress.refresh_from_db()
@@ -64,10 +64,8 @@ def send_invoices_emails_gmail(user: int, job_id: str):
                 progress = SSEProgress.objects.get(job_id=job_id)
             if progress:
                 progress.mark_as_failed(str(error))
-        except Exception as e:
-            LOGGER_EMAIL.error(
-                f"Impossible de marquer le SSEProgress comme failed: {e}"
-            )
+        except Exception:
+            LOGGER_EMAIL.exception("Impossible de marquer le SSEProgress comme failed")
 
     finally:
         # 3. Remet l'action en cours à False (transaction courte, toujours exécutée)

@@ -1,6 +1,6 @@
-"""
-FR : Module des vues pour les jauges des imports
-EN : Views module for imports gauges
+"""FR : Module des vues pour les jauges des imports.
+
+EN : Views module for imports gauges.
 
 Commentaire:
 
@@ -13,15 +13,14 @@ modified by: Paulo ALVES
 
 import uuid
 
-from django.shortcuts import render
 from django.http import JsonResponse
+from django.shortcuts import render
 
 from apps.edi.tasks import task_test_import_jauge
 
 
 def import_jauge(request):
-    """Vue de la jauge des imports"""
-
+    """Vue de la jauge des imports."""
     if request.method == "POST":
         # Générer le job_id
         job_id = str(uuid.uuid4())
@@ -38,5 +37,5 @@ def import_jauge(request):
         )
 
     # GET : Afficher la page avec le formulaire
-    context = {}
+    context: dict = {}
     return render(request, "edi/edi_jauge_import.html", context)

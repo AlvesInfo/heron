@@ -1,4 +1,5 @@
 """Tests de la numérotation des factures et des fichiers d'export"""
+
 import pendulum
 import pytest
 
@@ -34,6 +35,8 @@ def test_compteurs_simples(make_counter, function, counter):
 
 def test_get_zip_num(make_counter, monkeypatch):
     make_counter("generic", num=12, lpad_num=4)
-    monkeypatch.setattr(invoives_nums.pendulum, "now", lambda *a, **k: pendulum.datetime(2026, 1, 31))
+    monkeypatch.setattr(
+        invoives_nums.pendulum, "now", lambda *a, **k: pendulum.datetime(2026, 1, 31)
+    )
 
     assert invoives_nums.get_zip_num() == "ZIP_2026_01_31_0012"

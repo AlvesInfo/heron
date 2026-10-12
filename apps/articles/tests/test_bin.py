@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des modules bin de l'app articles (sous-catégorie, requêtes, transferts BBGR, imports B.I)
+"""FR : Tests des modules bin de l'app articles (sous-catégorie, requêtes, transferts BBGR, imports B.I)
+
+
 EN : Tests for articles bin modules
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import logging
 import uuid
 from decimal import Decimal
@@ -36,8 +38,15 @@ def test_check_sub_category(make_sub_category, make_big_category):
     category = make_big_category("Marchandises")
     sub_category = make_sub_category("Montures", big_category=category)
 
-    assert check_sub_category(sub_category.uuid_identification, category.uuid_identification) is True
-    assert check_sub_category(sub_category.uuid_identification, make_big_category("Verres").uuid_identification) is False
+    assert (
+        check_sub_category(sub_category.uuid_identification, category.uuid_identification) is True
+    )
+    assert (
+        check_sub_category(
+            sub_category.uuid_identification, make_big_category("Verres").uuid_identification
+        )
+        is False
+    )
     assert check_sub_category(uuid.uuid4(), category.uuid_identification) is False
 
 
@@ -46,7 +55,13 @@ def test_check_sub_category(make_sub_category, make_big_category):
 
 def test_get_articles_et_get_article(make_article, make_sub_category):
     """Dictionnaires des articles : libellé héron prioritaire, clés renommées"""
-    heron = make_article("A", libelle="Brut", libelle_heron="Héron", customs_code="9003", sub_category=make_sub_category("Montures"))
+    heron = make_article(
+        "A",
+        libelle="Brut",
+        libelle_heron="Héron",
+        customs_code="9003",
+        sub_category=make_sub_category("Montures"),
+    )
     brut = make_article("B", libelle="Brut seul", libelle_heron="")
 
     articles = get_articles([heron.pk, brut.pk, 999999])
@@ -55,7 +70,21 @@ def test_get_articles_et_get_article(make_article, make_sub_category):
     assert articles[heron.pk]["libelle"] == "Héron"
     assert articles[heron.pk]["reference_article"] == "A"
     assert articles[brut.pk]["libelle"] == "Brut seul"
-    assert set(articles[heron.pk]) == {"reference_article", "ean_code", "libelle", "famille", "axe_bu", "axe_prj", "axe_pro", "axe_pys", "axe_rfa", "big_category", "sub_category", "customs_code", "item_weight"}
+    assert set(articles[heron.pk]) == {
+        "reference_article",
+        "ean_code",
+        "libelle",
+        "famille",
+        "axe_bu",
+        "axe_prj",
+        "axe_pro",
+        "axe_pys",
+        "axe_rfa",
+        "big_category",
+        "sub_category",
+        "customs_code",
+        "item_weight",
+    }
 
     article = get_article(heron.pk)
     assert article["libelle"] == "Héron"
@@ -75,17 +104,21 @@ def receptions(make_society, make_article, make_article_account):
     plv = make_article("PLV-PLV", society=bbgr001, libelle="PLV")
     make_article("FRAMES-MONTURE OPT", society=bbgr001, libelle="Montures")
     make_article("HORS-LISTE", society=bbgr001)
-    make_article_account(article=plv, child_center="ACF", vat="001", purchase_account="607000", sale_account="707000")
+    make_article_account(
+        article=plv, child_center="ACF", vat="001", purchase_account="607000", sale_account="707000"
+    )
     return bbgr001
 
 
-@pytest.mark.usefixtures('receptions')
+@pytest.mark.usefixtures("receptions")
 def test_transfert_receptions_articles(caplog):
     """Les articles listés sont copiés chez BBGR006, pas les autres ; second passage sans doublon"""
     caplog.set_level(logging.INFO, logger="imports")
     transfert_receptions.transfert_receptions_articles()
 
-    copies = set(Article.objects.filter(third_party_num="BBGR006").values_list("reference", flat=True))
+    copies = set(
+        Article.objects.filter(third_party_num="BBGR006").values_list("reference", flat=True)
+    )
     assert copies == {"PLV-PLV", "FRAMES-MONTURE OPT"}
     assert "True" in caplog.text
 
@@ -95,7 +128,7 @@ def test_transfert_receptions_articles(caplog):
     assert "False" in caplog.text
 
 
-@pytest.mark.usefixtures('receptions')
+@pytest.mark.usefixtures("receptions")
 def test_transfert_receptions_articles_conflit(make_article, make_society, caplog):
     """Une copie existante avec d'autres valeurs provoque une IntegrityError avalée"""
     caplog.set_level(logging.INFO, logger="imports")
@@ -106,7 +139,7 @@ def test_transfert_receptions_articles_conflit(make_article, make_society, caplo
     assert "duplicate key" in caplog.text
 
 
-@pytest.mark.usefixtures('receptions')
+@pytest.mark.usefixtures("receptions")
 def test_transfert_receptions_articles_article_introuvable(monkeypatch, caplog):
     """La branche DoesNotExist (défensive) est journalisée"""
     caplog.set_level(logging.INFO, logger="imports")
@@ -127,10 +160,16 @@ def test_transfert_receptions_articles_article_introuvable(monkeypatch, caplog):
     with patched_attrs(monkeypatch, transfert_receptions, Article=_FakeArticle):
         transfert_receptions.transfert_receptions_articles()
 
-    assert sum("article introuvable" in record.getMessage() for record in caplog.records) == 2
+    assert (
+        sum(
+            record.exc_info is not None and "article introuvable" in str(record.exc_info[1])
+            for record in caplog.records
+        )
+        == 2
+    )
 
 
-@pytest.mark.usefixtures('receptions')
+@pytest.mark.usefixtures("receptions")
 def test_transfert_receptions_accounts(caplog):
     """Les comptes des articles copiés sont recréés chez BBGR006 ; sans copie, DoesNotExist affiché"""
     caplog.set_level(logging.INFO, logger="imports")
@@ -141,7 +180,12 @@ def test_transfert_receptions_accounts(caplog):
     transfert_receptions.transfert_receptions_accounts()
 
     copy = ArticleAccount.objects.get(article__third_party_num="BBGR006")
-    assert (copy.purchase_account, copy.sale_account, copy.vat.vat, copy.child_center.code) == ("607000", "707000", "001", "ACF")
+    assert (copy.purchase_account, copy.sale_account, copy.vat.vat, copy.child_center.code) == (
+        "607000",
+        "707000",
+        "001",
+        "ACF",
+    )
 
     ArticleAccount.objects.filter(pk=copy.pk).update(purchase_account="999999")
     transfert_receptions.transfert_receptions_accounts()
@@ -155,7 +199,9 @@ def _articles(third_party_num):
     return {a.reference: a for a in Article.objects.filter(third_party_num=third_party_num)}
 
 
-def test_insert_bbgr_002_articles(bi_articles_table, make_default_axes, make_supplier_family_axes, make_country):
+def test_insert_bbgr_002_articles(
+    bi_articles_table, make_default_axes, make_supplier_family_axes, make_country
+):
     """BBGR002 : prix de revient aval, axes par défaut, axe pro par famille, pays traduit, SAV exclu"""
     axes = make_default_axes()
     family = make_supplier_family_axes("LUNETTES")
@@ -171,7 +217,7 @@ def test_insert_bbgr_002_articles(bi_articles_table, make_default_axes, make_sup
 
     articles = _articles("BBGR002")
     assert set(articles) == {"EAN1", "EAN2", "EAN5"}
-    assert articles["EAN1"].catalog_price == Decimal("10")
+    assert articles["EAN1"].catalog_price == Decimal(10)
     assert articles["EAN1"].axe_pro == family.axe_pro
     assert articles["EAN1"].made_in.country == "FR"
     assert articles["EAN1"].axe_bu == axes.axe_bu
@@ -194,7 +240,7 @@ def test_insert_bbgr_003_articles(bi_articles_table, make_default_axes, make_sup
 
     bbgr_003_articles.insert_bbgr_003_articles()
 
-    assert _articles("BBGR003")["EAN1"].catalog_price == Decimal("20")
+    assert _articles("BBGR003")["EAN1"].catalog_price == Decimal(20)
 
 
 def test_insert_bbgr_004_articles(bi_articles_table, make_default_axes, make_supplier_family_axes):
@@ -206,10 +252,15 @@ def test_insert_bbgr_004_articles(bi_articles_table, make_default_axes, make_sup
     bbgr_004_articles.insert_bbgr_004_articles()
 
     assert set(_articles("BBGR004")) == {"D1-EAN1", "D2-EAN1", "D3-EAN1", "F-EAN1"}
-    assert all(a.ean_code == "EAN1" and a.catalog_price == Decimal("20") for a in _articles("BBGR004").values())
+    assert all(
+        a.ean_code == "EAN1" and a.catalog_price == Decimal(20)
+        for a in _articles("BBGR004").values()
+    )
 
 
-def test_insert_bbgr_006_articles(bi_articles_table, make_default_axes, make_supplier_family_axes, make_section):
+def test_insert_bbgr_006_articles(
+    bi_articles_table, make_default_axes, make_supplier_family_axes, make_section
+):
     """BBGR006 : rayons MO/MS sur l'axe BU SUPPLY, les autres sur l'axe BU par défaut"""
     axes = make_default_axes()
     make_supplier_family_axes("LUNETTES")
@@ -246,11 +297,17 @@ def test_imports_articles_main(monkeypatch, caplog):
     def _boom():
         raise RuntimeError("B.I indisponible")
 
-    with patched_attrs(
-        monkeypatch, imports_articles,
-        insert_bbgr_002_articles=_ok("002"), insert_bbgr_003_articles=_boom,
-        insert_bbgr_004_articles=_ok("004"), insert_bbgr_006_articles=_boom,
-    ), caplog.at_level(logging.ERROR, logger="edi"):
+    with (
+        patched_attrs(
+            monkeypatch,
+            imports_articles,
+            insert_bbgr_002_articles=_ok("002"),
+            insert_bbgr_003_articles=_boom,
+            insert_bbgr_004_articles=_ok("004"),
+            insert_bbgr_006_articles=_boom,
+        ),
+        caplog.at_level(logging.ERROR, logger="edi"),
+    ):
         imports_articles.main()
 
     assert calls == ["002", "004"]
@@ -265,10 +322,17 @@ def test_imports_articles_main_tout_en_erreur(monkeypatch, caplog):
     def _boom():
         raise RuntimeError("B.I indisponible")
 
-    with patched_attrs(
-        monkeypatch, imports_articles,
-        insert_bbgr_002_articles=_boom, insert_bbgr_003_articles=_boom, insert_bbgr_004_articles=_boom, insert_bbgr_006_articles=_boom,
-    ), caplog.at_level(logging.ERROR, logger="edi"):
+    with (
+        patched_attrs(
+            monkeypatch,
+            imports_articles,
+            insert_bbgr_002_articles=_boom,
+            insert_bbgr_003_articles=_boom,
+            insert_bbgr_004_articles=_boom,
+            insert_bbgr_006_articles=_boom,
+        ),
+        caplog.at_level(logging.ERROR, logger="edi"),
+    ):
         imports_articles.main()
 
     assert caplog.text.count("Exception Générale") == 4

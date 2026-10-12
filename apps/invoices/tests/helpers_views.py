@@ -1,19 +1,20 @@
 # pylint: disable=E0401,W0621,C0415
-"""
-FR : Fixtures d'aide aux tests des vues et des tâches de l'app invoices.
+"""FR : Fixtures d'aide aux tests des vues et des tâches de l'app invoices.
+
+
      Importées explicitement par les modules de tests : `from apps.invoices.tests.helpers_views import *`
 EN : Helper fixtures for invoices views / tasks tests
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import types
 import uuid
-from typing import Any
 from collections.abc import Callable
+from typing import Any
 
 import pytest
-
 
 
 @pytest.fixture
@@ -54,7 +55,9 @@ def make_counter_views(db) -> Callable[..., Any]:  # pylint: disable=W0613
 def export_counters(make_counter_views) -> None:
     """Compteurs des fichiers d'export X3 (GASPAR, BICPAR, BISPAR, BISPARD, zip)"""
     # Numéros distincts : les fichiers AC00_<num>.txt des trois compteurs portent le même préfixe
-    for num, name in enumerate(("gaspar_num", "bicpar_num", "bispard_num", "bispar_num", "generic"), 1):
+    for num, name in enumerate(
+        ("gaspar_num", "bicpar_num", "bispard_num", "bispar_num", "generic"), 1
+    ):
         make_counter_views(name, num=num)
 
 
@@ -74,9 +77,15 @@ def make_sse_progress(make_user) -> Callable[..., Any]:
     from apps.core.models import SSEProgress
 
     def _factory(job_id: str | None = None, user=None, **kwargs: Any):
-        defaults = {"task_type": "invoices", "total_items": 1, "metadata": {"success": [], "failed": []}}
+        defaults = {
+            "task_type": "invoices",
+            "total_items": 1,
+            "metadata": {"success": [], "failed": []},
+        }
         defaults.update(kwargs)
-        return SSEProgress.objects.create(job_id=job_id or str(uuid.uuid4()), user=user or make_user(), **defaults)
+        return SSEProgress.objects.create(
+            job_id=job_id or str(uuid.uuid4()), user=user or make_user(), **defaults
+        )
 
     return _factory
 
@@ -125,8 +134,8 @@ class FakeTrace:
 
 @pytest.fixture
 def celery_recorder(monkeypatch) -> Callable[..., types.SimpleNamespace]:
-    """
-    Remplace `celery_app.signature` et `group` d'un module : les signatures sont enregistrées,
+    """Remplace `celery_app.signature` et `group` d'un module : les signatures sont enregistrées,
+
     `group(...)()` renvoie un objet dont `.get()` renvoie `results`, `group(...).apply_async()`
     enregistre l'appel. `recorder.signatures` = liste des (name, kwargs).
     """
@@ -157,7 +166,7 @@ def celery_recorder(monkeypatch) -> Callable[..., types.SimpleNamespace]:
             def apply_async(self):
                 recorder.applied += 1
 
-        with_attrs = {"group": _Group}
+        with_attrs: dict[str, Any] = {"group": _Group}
 
         if hasattr(module, "celery_app"):
             with_attrs["celery_app"] = types.SimpleNamespace(signature=signature)

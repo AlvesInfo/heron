@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des fixtures de données de book (natures, copie des adresses clients)
+"""FR : Tests des fixtures de données de book (natures, copie des adresses clients)
+
+
 EN : Tests for book data fixtures
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import pytest
 
 from apps.book.data_fixtures.insert_fixtures import copy_client, fixtures_nature
@@ -44,8 +46,17 @@ def test_copy_client(make_society, make_address, make_country):
     client = make_society("CLI001", is_client=True)
     make_address(client, "2", line_01="Autre")
     make_address(
-        client, "1", default_adress=True, line_01="Immeuble", line_02="12 rue", postal_code="75001", city="Paris",
-        country=france, phone_number_01="01", mobile_number="06", email_01="cli@acuitis.com",
+        client,
+        "1",
+        default_adress=True,
+        line_01="Immeuble",
+        line_02="12 rue",
+        postal_code="75001",
+        city="Paris",
+        country=france,
+        phone_number_01="01",
+        mobile_number="06",
+        email_01="cli@acuitis.com",
     )
     without = make_society("CLI002", is_client=True)
     supplier = make_society("FOUR001", is_client=False)
@@ -56,7 +67,17 @@ def test_copy_client(make_society, make_address, make_country):
     client.refresh_from_db()
     without.refresh_from_db()
     supplier.refresh_from_db()
-    assert (client.immeuble, client.adresse, client.code_postal, client.ville) == ("Immeuble", "12 rue", "75001", "Paris")
-    assert (client.pays, client.telephone, client.mobile, client.email) == (france, "01", "06", "cli@acuitis.com")
+    assert (client.immeuble, client.adresse, client.code_postal, client.ville) == (
+        "Immeuble",
+        "12 rue",
+        "75001",
+        "Paris",
+    )
+    assert (client.pays, client.telephone, client.mobile, client.email) == (
+        france,
+        "01",
+        "06",
+        "cli@acuitis.com",
+    )
     assert without.immeuble is None
     assert supplier.immeuble is None

@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour les centrales Filles
+"""Module d'export du fichier excel pour les centrales Filles.
 
 Commentaire:
 
@@ -10,44 +10,52 @@ modified by: Paulo ALVES
 """
 
 import io
+from collections.abc import Iterator
 
 from django.db import connection
-from apps.centers_purchasing.models import PrincipalCenterPurchase, ChildCenterPurchase
+from django.db.models import QuerySet
+from psycopg2 import sql
+
 from apps.centers_purchasing.excel_outputs.output_excel_filles_columns import columns_list_filles
+from apps.centers_purchasing.models import PrincipalCenterPurchase
 from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 
 class GetRows:
-    """Class qui renvoie les bonnes colonnes pour le fichier Excel"""
+    """Class qui renvoie les bonnes colonnes pour le fichier Excel."""
 
-    def __init__(self, filles: ChildCenterPurchase.objects):
+    def __init__(self, filles: QuerySet):
+        """Prépare la requête des centrales filles."""
         self.filles = filles
 
-        self.query = f"""
+        self.query = sql.SQL(
+            """
         select
-            "fille"."code", 
-            "fille"."name", 
-            "fille"."base_center" || ' -' || "mere"."name", 
-            "fille"."generic_coefficient", 
+            "fille"."code",
+            "fille"."name",
+            "fille"."base_center" || ' -' || "mere"."name",
+            "fille"."generic_coefficient",
             "fille"."legal_notice",
             "fille"."footer",
             "fille"."comment"
-        from {self.filles._meta.db_table} "fille"
-        join {PrincipalCenterPurchase._meta.db_table} "mere"
+        from {table_0} "fille"
+        join {table_1} "mere"
         on "fille"."base_center" = "mere"."code"
-        """
+            """
+        ).format(
+            table_0=sql.Identifier(self.filles._meta.db_table),
+            table_1=sql.Identifier(PrincipalCenterPurchase._meta.db_table),
+        )
 
-    def get_clean_rows(self) -> iter:
-        """Retourne les lignes à écrire"""
+    def get_clean_rows(self) -> Iterator:
+        """Retourne les lignes à écrire."""
         with connection.cursor() as cursor:
             cursor.execute(self.query)
             return cursor.fetchall()
 
 
-def excel_filles_list(
-    file_io: io.BytesIO, file_name: str, filles: ChildCenterPurchase.objects
-) -> dict:
-    """Fonction de génération du fichier de liste des Centrales Filles"""
+def excel_filles_list(file_io: io.BytesIO, file_name: str, filles: QuerySet) -> dict:
+    """Fonction de génération du fichier de liste des Centrales Filles."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     columns = columns_list_filles

@@ -1,4 +1,4 @@
-"""Module d'export du fichier excel pour les centrales Mères
+"""Module d'export du fichier excel pour les centrales Mères.
 
 Commentaire:
 
@@ -10,39 +10,43 @@ modified by: Paulo ALVES
 """
 
 import io
+from collections.abc import Iterator
 
 from django.db import connection
-from apps.centers_purchasing.models import PrincipalCenterPurchase
+from django.db.models import QuerySet
+from psycopg2 import sql
+
 from apps.centers_purchasing.excel_outputs.output_excel_meres_columns import columns_list_meres
 from apps.core.excel_outputs.generic_list_export import excel_list_export
 
 
 class GetRows:
-    """Class qui renvoie les bonnes colonnes pour le fichier Excel"""
+    """Class qui renvoie les bonnes colonnes pour le fichier Excel."""
 
-    def __init__(self, meres: PrincipalCenterPurchase.objects):
+    def __init__(self, meres: QuerySet):
+        """Prépare la requête des centrales mères."""
         self.meres = meres
 
-        self.query = f"""
+        self.query = sql.SQL(
+            """
         select
-            "code", 
-            "name", 
-            "generic_coefficient", 
+            "code",
+            "name",
+            "generic_coefficient",
             "comment"
-        from {self.meres._meta.db_table}
-        """
+        from {table_0}
+            """
+        ).format(table_0=sql.Identifier(self.meres._meta.db_table))
 
-    def get_clean_rows(self) -> iter:
-        """Retourne les lignes à écrire"""
+    def get_clean_rows(self) -> Iterator:
+        """Retourne les lignes à écrire."""
         with connection.cursor() as cursor:
             cursor.execute(self.query)
             return cursor.fetchall()
 
 
-def excel_meres_list(
-    file_io: io.BytesIO, file_name: str, meres: PrincipalCenterPurchase.objects
-) -> dict:
-    """Fonction de génération du fichier de liste des Centrales Mère"""
+def excel_meres_list(file_io: io.BytesIO, file_name: str, meres: QuerySet) -> dict:
+    """Fonction de génération du fichier de liste des Centrales Mère."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])
     columns = columns_list_meres

@@ -1,6 +1,6 @@
-"""
-FR : Module des formulaires de validation des imports Sage X3
-EN : Sage X3 import validation forms module
+"""FR : Module des formulaires de validation des imports Sage X3.
+
+EN : Sage X3 import validation forms module.
 
 Commentaire:
 
@@ -10,25 +10,26 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 from django import forms
 
-from apps.core.validations.forms_base import SageNullBooleanField, TildeTextField
 from apps.accountancy.models import (
     AccountSage,
     AxeSage,
-    SectionSage,
-    VatRegimeSage,
-    VatSage,
-    VatRatSage,
-    PaymentCondition,
-    TabDivSage,
     CategorySage,
     CurrencySage,
+    PaymentCondition,
+    SectionSage,
+    TabDivSage,
+    VatRatSage,
+    VatRegimeSage,
+    VatSage,
 )
+from apps.core.validations.forms_base import SageNullBooleanField, TildeTextField
 
 
 class AccountSageForm(forms.ModelForm):
-    """Validation de l'import ZBIACCOUNT des comptes comptables Sage X3"""
+    """Validation de l'import ZBIACCOUNT des comptes comptables Sage X3."""
 
     collective = SageNullBooleanField()
     analytic = SageNullBooleanField()
@@ -36,7 +37,7 @@ class AccountSageForm(forms.ModelForm):
     short_name = TildeTextField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = AccountSage
         fields = [
@@ -75,13 +76,13 @@ class AccountSageForm(forms.ModelForm):
 
 
 class AxeSageForm(forms.ModelForm):
-    """Validation de l'import ZBIAXES des Axes Sage X3"""
+    """Validation de l'import ZBIAXES des Axes Sage X3."""
 
     name = TildeTextField()
     short_name = TildeTextField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = AxeSage
         fields = [
@@ -92,14 +93,14 @@ class AxeSageForm(forms.ModelForm):
 
 
 class SectionSageForm(forms.ModelForm):
-    """Validation de l'import ZBICCE des Sections Sage X3"""
+    """Validation de l'import ZBICCE des Sections Sage X3."""
 
     chargeable = SageNullBooleanField()
     name = TildeTextField()
     short_name = TildeTextField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = SectionSage
         fields = [
@@ -114,14 +115,14 @@ class SectionSageForm(forms.ModelForm):
 
 
 class VatRegimeSageForm(forms.ModelForm):
-    """Validation de l'import ZBIVAT des Régimes de TVA Sage X3"""
+    """Validation de l'import ZBIVAT des Régimes de TVA Sage X3."""
 
     active = SageNullBooleanField()
     name = TildeTextField()
     short_name = TildeTextField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = VatRegimeSage
         fields = [
@@ -137,13 +138,13 @@ class VatRegimeSageForm(forms.ModelForm):
 
 
 class VatSageForm(forms.ModelForm):
-    """Validation de l'import ZBIRATVAT des TVA Sage X3"""
+    """Validation de l'import ZBIRATVAT des TVA Sage X3."""
 
     name = TildeTextField()
     short_name = TildeTextField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = VatSage
         fields = [
@@ -156,13 +157,13 @@ class VatSageForm(forms.ModelForm):
 
 
 class VatRatSageForm(forms.ModelForm):
-    """Validation de l'import ZBIRATVAT des Taux de TVA Sage X3"""
+    """Validation de l'import ZBIRATVAT des Taux de TVA Sage X3."""
 
     exoneration = SageNullBooleanField()
     vat_start_date = forms.DateField(input_formats=["%d%m%y"])
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = VatRatSage
         fields = [
@@ -175,13 +176,13 @@ class VatRatSageForm(forms.ModelForm):
 
 
 class PaymentConditionForm(forms.ModelForm):
-    """Validation de l'import ZBIPTE des Conditions de paiement Sage X3"""
+    """Validation de l'import ZBIPTE des Conditions de paiement Sage X3."""
 
     name = TildeTextField()
     short_name = TildeTextField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = PaymentCondition
         fields = [
@@ -200,7 +201,7 @@ class PaymentConditionForm(forms.ModelForm):
 
 
 class TabDivSageForm(forms.ModelForm):
-    """Validation de l'import ZBIDIV des Tables Diverses Sage X3"""
+    """Validation de l'import ZBIDIV des Tables Diverses Sage X3."""
 
     def_val = SageNullBooleanField()
     active = SageNullBooleanField()
@@ -208,7 +209,7 @@ class TabDivSageForm(forms.ModelForm):
     short_name = TildeTextField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = TabDivSage
         fields = [
@@ -252,13 +253,13 @@ class TabDivSageForm(forms.ModelForm):
 
 
 class CategorySageForm(forms.ModelForm):
-    """Validation de l'import ZBICATC des Catégories Sage X3"""
+    """Validation de l'import ZBICATC des Catégories Sage X3."""
 
     name = TildeTextField()
     short_name = TildeTextField()
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = CategorySage
         fields = [
@@ -271,13 +272,13 @@ class CategorySageForm(forms.ModelForm):
 
 
 class CurrencySageForm(forms.ModelForm):
-    """Validation de l'import ZBICUR des Taux de Change Sage X3"""
+    """Validation de l'import ZBICUR des Taux de Change Sage X3."""
 
     exchange_date = forms.DateField(input_formats=["%d%m%y"])
     modification_date = forms.DateField(input_formats=["%d%m%y"])
 
     class Meta:
-        """class Meta du forms.ModelForm django"""
+        """class Meta du forms.ModelForm django."""
 
         model = CurrencySage
         fields = [

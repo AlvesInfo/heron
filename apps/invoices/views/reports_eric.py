@@ -1,7 +1,6 @@
-# ruff: noqa: E722
-"""
-FR : View des lancements de la facturations
-EN : View of invoicing launches
+"""FR : View des lancements de la facturations.
+
+EN : View of invoicing launches.
 
 Commentaire:
 
@@ -13,20 +12,20 @@ modified by: Paulo ALVES
 """
 
 import pendulum
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from heron.loggers import LOGGER_VIEWS
 from apps.core.functions.functions_http_response import (
-    response_file,
     CONTENT_TYPE_EXCEL,
+    response_file,
 )
 from apps.edi.models import EdiValidation
 from apps.invoices.bin.export_csv_achats import get_achats
+from heron.loggers import LOGGER_VIEWS
 
 
 def valid_export_achats(request):
-    """5.1 Vue d'export des achats non finalisés pour Eric Martinet"""
+    """5.1 Vue d'export des achats non finalisés pour Eric Martinet."""
     titre_table = "EXPORT DES ACHATS AUX DATES DE LA DERNIERE FINALISATION VALIDE"
     context = {"margin_table": 50, "titre_table": titre_table}
 
@@ -37,15 +36,13 @@ def valid_export_achats(request):
 
 
 def export_achats(_):
-    """
-    Export du csv achats pour Eric Martinet
+    """Export du csv achats pour Eric Martinet.
+
     :return:
     """
     try:
         today = pendulum.now()
-        edi_validation = (
-            EdiValidation.objects.filter(final=True).order_by("-id").first()
-        )
+        edi_validation = EdiValidation.objects.filter(final=True).order_by("-id").first()
         dte_d = pendulum.parse(edi_validation.billing_period.isoformat())
         dte_f = dte_d.last_of("month")
         file_name = (

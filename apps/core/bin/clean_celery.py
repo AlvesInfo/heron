@@ -1,16 +1,18 @@
-from functools import wraps
+"""Décorateur de nettoyage mémoire pour les tâches Celery."""
+
 import gc
+from functools import wraps
+
 from django.db import reset_queries
 
 
 def clean_memory(func):
-    """clean memory for celery task"""
+    """Clean memory for celery task."""
 
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            result = func(*args, **kwargs)
-            return result
+            return func(*args, **kwargs)
         finally:
             # Réinitialiser les requêtes Django
             reset_queries()

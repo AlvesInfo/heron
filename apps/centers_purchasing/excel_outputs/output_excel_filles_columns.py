@@ -1,4 +1,4 @@
-"""Module pour la définition des colonnes excel pour le module Centrales Mères
+"""Module pour la définition des colonnes excel pour le module Centrales Mères.
 
 Commentaire:
 
@@ -14,21 +14,16 @@ from apps.core.excel_outputs.excel_writer import (
     f_ligne,
 )
 
-
 columns_list_filles = [
     {
         "entete": "Code",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 12,
     },
@@ -36,15 +31,11 @@ columns_list_filles = [
         "entete": "Nom",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 15,
     },
@@ -52,15 +43,11 @@ columns_list_filles = [
         "entete": "Centrale mère",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 20,
     },
@@ -68,15 +55,11 @@ columns_list_filles = [
         "entete": "Coef. centrale fille",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{
-                "align": "center",
-            },
+            "align": "center",
         },
         "width": 8,
     },
@@ -84,13 +67,10 @@ columns_list_filles = [
         "entete": "Mentions légales",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 107,
     },
@@ -98,13 +78,10 @@ columns_list_filles = [
         "entete": "Pied de Facture",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 107,
     },
@@ -112,13 +89,10 @@ columns_list_filles = [
         "entete": "Commentaire",
         "f_entete": {
             **f_entetes,
-            **{
-                "bg_color": "#dce7f5",
-            },
+            "bg_color": "#dce7f5",
         },
         "f_ligne": {
             **f_ligne,
-            **{},
         },
         "width": 107,
     },

@@ -1,6 +1,6 @@
-"""
-FR : Module d'import des modèles de Sage X3
-EN : Import module for Sage X3 models
+"""FR : Module d'import des modèles de Sage X3.
+
+EN : Import module for Sage X3 models.
 
 Commentaire:
 
@@ -10,22 +10,23 @@ created by: Paulo ALVES
 modified at: 2022-05-10
 modified by: Paulo ALVES
 """
+
 from pathlib import Path
 
 from apps.core.functions.functions_setups import settings
-from apps.data_flux.make_inserts import make_insert
-from apps.countries.models import Country
-from apps.countries.forms.forms_djantic.sage import CountrySageSchema
 from apps.countries.bin.countries_post_processing import pays_post_insert
+from apps.countries.forms.forms_djantic.sage import CountrySageSchema
+from apps.countries.models import Country
+from apps.data_flux.make_inserts import make_insert
 from apps.data_flux.trace import get_trace
 
 proccessing_dir = Path(settings.PROCESSING_SAGE_DIR)
 
 
 def pays_sage(file_path: Path):
-    """
-    Import du fichier des Pays Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des Pays Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = Country
     validator = CountrySageSchema

@@ -1,8 +1,8 @@
-"""
-FR : Construction du JSON de facture (schéma facturx_fr.models.Invoice) à partir
+"""FR : Construction du JSON de facture (schéma facturx_fr.models.Invoice) à partir.
+
      d'une facture de vente heron (SaleInvoice + SaleInvoiceDetail)
 EN : Builds the invoice JSON (facturx_fr.models.Invoice schema) from a heron
-     sales invoice (SaleInvoice + SaleInvoiceDetail)
+     sales invoice (SaleInvoice + SaleInvoiceDetail).
 
 Règles de correspondance (voir facturx_conf.py) :
     - Vendeur  : Society liée à la centrale fille (ChildCenterPurchase.society)
@@ -18,9 +18,10 @@ created by: Paulo ALVES
 modified at: 2026-10-10
 modified by: Paulo ALVES
 """
+
 import re
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pendulum
 from bs4 import BeautifulSoup
@@ -50,22 +51,22 @@ DIGITS_ONLY = re.compile(r"\D+")
 
 
 class FacturXMappingError(Exception):
-    """Données heron insuffisantes pour produire une facture Factur-X"""
+    """Données heron insuffisantes pour produire une facture Factur-X."""
 
 
 def _clean(value: Any) -> str:
-    """Nettoie une chaîne (None -> '')"""
+    """Nettoie une chaîne (None -> '')."""
     return str(value or "").strip()
 
 
 def _digits(value: Any) -> str:
-    """Ne conserve que les chiffres (SIREN, SIRET)"""
+    """Ne conserve que les chiffres (SIREN, SIRET)."""
     return DIGITS_ONLY.sub("", _clean(value))
 
 
-def _identifiers(*values: Any, country_code: str) -> Tuple[Optional[str], Optional[str]]:
-    """
-    (SIREN, SIRET) normalisés depuis les champs siren / siret (souvent mélangés en base).
+def _identifiers(*values: Any, country_code: str) -> tuple[str | None, str | None]:
+    """(SIREN, SIRET) normalisés depuis les champs siren / siret (souvent mélangés en base).
+
     Hors France, les identifiants nationaux ne sont pas des SIREN : on ne renvoie rien.
     """
     if country_code != DOMESTIC_COUNTRY_CODE:
@@ -85,20 +86,20 @@ def _identifiers(*values: Any, country_code: str) -> Tuple[Optional[str], Option
     return siren, siret
 
 
-def _vat_number(value: Any) -> Optional[str]:
-    """Normalise un numéro de TVA intracommunautaire (sans espaces, majuscules)"""
+def _vat_number(value: Any) -> str | None:
+    """Normalise un numéro de TVA intracommunautaire (sans espaces, majuscules)."""
     cleaned = _clean(value).replace(" ", "").upper()
     return cleaned or None
 
 
 def _country_code(country: Any, default: str = DOMESTIC_COUNTRY_CODE) -> str:
-    """Code pays ISO 3166-1 alpha-2 depuis un objet Country ou une chaîne"""
+    """Code pays ISO 3166-1 alpha-2 depuis un objet Country ou une chaîne."""
     code = _clean(getattr(country, "country", country)).upper()
     return code[:2] if len(code) >= 2 else default
 
 
 def _html_to_text(value: Any) -> str:
-    """Convertit un texte HTML (CKEditor) en texte brut"""
+    """Convertit un texte HTML (CKEditor) en texte brut."""
     cleaned = _clean(value)
     if not cleaned:
         return ""
@@ -112,8 +113,8 @@ def _address(
     postal_code: Any,
     country: Any,
     fallback_street: str,
-) -> Dict[str, Any]:
-    """Construit une adresse conforme au modèle Address de facturx-fr"""
+) -> dict[str, Any]:
+    """Construit une adresse conforme au modèle Address de facturx-fr."""
     street_text = _clean(street) or _clean(additional) or fallback_street
     additional_text = _clean(additional) if _clean(street) else ""
     return {
@@ -125,8 +126,8 @@ def _address(
     }
 
 
-def _party_from_society(society: Society, email: Optional[str] = None) -> Dict[str, Any]:
-    """Partie (vendeur / acheteur) depuis un tiers X3"""
+def _party_from_society(society: Society, email: str | None = None) -> dict[str, Any]:
+    """Partie (vendeur / acheteur) depuis un tiers X3."""
     name = _clean(society.corporate_name) or _clean(society.name) or _clean(society.short_name)
     address = _address(
         society.adresse,
@@ -151,8 +152,8 @@ def _party_from_society(society: Society, email: Optional[str] = None) -> Dict[s
     }
 
 
-def _party_from_maison(maison: Maison, society: Optional[Society]) -> Dict[str, Any]:
-    """Partie acheteur depuis la Maison (CCT) facturée, complétée par son tiers X3"""
+def _party_from_maison(maison: Maison, society: Society | None) -> dict[str, Any]:
+    """Partie acheteur depuis la Maison (CCT) facturée, complétée par son tiers X3."""
     name = _clean(maison.invoice_entete) or _clean(maison.intitule)
     address = _address(
         maison.adresse,
@@ -185,11 +186,11 @@ def _party_from_maison(maison: Maison, society: Optional[Society]) -> Dict[str, 
     }
 
 
-def get_seller(sale: SaleInvoice) -> Tuple[Dict[str, Any], ChildCenterPurchase]:
-    """
-    Vendeur : Society liée à la centrale fille de la facture
+def get_seller(sale: SaleInvoice) -> tuple[dict[str, Any], ChildCenterPurchase]:
+    """Vendeur : Society liée à la centrale fille de la facture.
+
     :param sale: facture de vente
-    :return: (partie vendeur, centrale fille)
+    :return: (partie vendeur, centrale fille).
     """
     try:
         center = ChildCenterPurchase.objects.select_related("society", "society__country").get(
@@ -216,11 +217,11 @@ def get_seller(sale: SaleInvoice) -> Tuple[Dict[str, Any], ChildCenterPurchase]:
     return seller, center
 
 
-def get_buyer(sale: SaleInvoice) -> Dict[str, Any]:
-    """
-    Acheteur : Maison (CCT) facturée, à défaut le tiers X3 facturé
+def get_buyer(sale: SaleInvoice) -> dict[str, Any]:
+    """Acheteur : Maison (CCT) facturée, à défaut le tiers X3 facturé.
+
     :param sale: facture de vente
-    :return: partie acheteur
+    :return: partie acheteur.
     """
     society = (
         Society.objects.select_related("country")
@@ -241,15 +242,15 @@ def get_buyer(sale: SaleInvoice) -> Dict[str, Any]:
     )
 
 
-def _vat_regimes() -> Dict[str, str]:
-    """Code TVA X3 -> régime de TVA (FRA, CEE, EXP, DOM, ...)"""
+def _vat_regimes() -> dict[str, str]:
+    """Code TVA X3 -> régime de TVA (FRA, CEE, EXP, DOM, ...)."""
     return dict(VatSage.objects.values_list("vat", "vat_regime"))
 
 
 def _vat_category(
-    vat_code: str, vat_rate: Decimal, regimes: Dict[str, str]
-) -> Tuple[str, Any, Any]:
-    """Catégorie TVA EN16931 d'une ligne : (catégorie, code motif, motif)"""
+    vat_code: str, vat_rate: Decimal, regimes: dict[str, str]
+) -> tuple[str, Any, Any]:
+    """Catégorie TVA EN16931 d'une ligne : (catégorie, code motif, motif)."""
     if vat_rate > 0:
         return "S", None, None
 
@@ -258,10 +259,10 @@ def _vat_category(
 
 
 def _payment_means_code(mode_reglement: Any) -> str:
-    """
-    Code moyen de paiement UNTDID 4461 depuis le mode de règlement de la facture
+    """Code moyen de paiement UNTDID 4461 depuis le mode de règlement de la facture.
+
     (SaleInvoice.mode_reglement : code ou intitulé X3, ex. "VIR", "Prélèvement"), complété par
-    le mode de règlement X3 correspondant s'il existe
+    le mode de règlement X3 correspondant s'il existe.
     """
     haystack = _clean(mode_reglement).upper()
 
@@ -273,7 +274,9 @@ def _payment_means_code(mode_reglement: Any) -> str:
     ).first()
 
     if mode is not None:
-        haystack = f"{haystack} {_clean(mode.code)} {_clean(mode.name)} {_clean(mode.short_name)}".upper()
+        haystack = (
+            f"{haystack} {_clean(mode.code)} {_clean(mode.name)} {_clean(mode.short_name)}".upper()
+        )
 
     for keyword, code in PAYMENT_MEANS_KEYWORDS:
         if keyword in haystack:
@@ -283,21 +286,21 @@ def _payment_means_code(mode_reglement: Any) -> str:
 
 
 def _line_quantities(
-    detail: SaleInvoiceDetail, common: Optional[InvoiceCommonDetails], sign: int
-) -> Tuple[Decimal, Decimal, Decimal]:
-    """
-    Quantité, prix unitaire et montant net d'une ligne, signés
+    detail: SaleInvoiceDetail, common: InvoiceCommonDetails | None, sign: int
+) -> tuple[Decimal, Decimal, Decimal]:
+    """Quantité, prix unitaire et montant net d'une ligne, signés.
+
     :param detail: ligne de vente
     :param common: ligne commune (porte la quantité), peut être None
     :param sign: 1 ou -1 (inversion des montants pour les avoirs)
-    :return: (quantité, prix unitaire, montant net)
+    :return: (quantité, prix unitaire, montant net).
     """
     net_amount = (Decimal(detail.net_amount or 0) * sign).quantize(TWO_PLACES)
     qty = Decimal(getattr(common, "qty", None) or 0)
 
     if qty == 0:
         # Pas de quantité : une unité au montant net
-        return Decimal("1"), net_amount, net_amount
+        return Decimal(1), net_amount, net_amount
 
     qty = (qty * sign).quantize(FIVE_PLACES)
     unit_price = Decimal(detail.net_unit_price or 0).quantize(FIVE_PLACES)
@@ -307,11 +310,11 @@ def _line_quantities(
 
 def _line_adjustments(
     qty: Decimal, unit_price: Decimal, net_amount: Decimal
-) -> Tuple[Optional[Decimal], Optional[Decimal]]:
-    """
-    Écart d'arrondi entre qty x PU et le montant net réellement facturé :
-    absorbé dans une remise / majoration de ligne pour conserver les totaux heron
-    :return: (remise, majoration), None si sans objet
+) -> tuple[Decimal | None, Decimal | None]:
+    """Écart d'arrondi entre qty x PU et le montant net réellement facturé.
+
+    Absorbé dans une remise / majoration de ligne pour conserver les totaux heron.
+    :return: (remise, majoration), None si sans objet.
     """
     gap = (net_amount - (qty * unit_price)).quantize(TWO_PLACES)
 
@@ -328,19 +331,19 @@ def _build_line(
     number: int,
     sale: SaleInvoice,
     detail: SaleInvoiceDetail,
-    common: Optional[InvoiceCommonDetails],
+    common: InvoiceCommonDetails | None,
     sign: int,
-    regimes: Dict[str, str],
-) -> Dict[str, Any]:
-    """
-    Ligne de facture au format facturx-fr
+    regimes: dict[str, str],
+) -> dict[str, Any]:
+    """Ligne de facture au format facturx-fr.
+
     :param number: numéro de ligne
     :param sale: facture de vente
     :param detail: ligne de vente
     :param common: ligne commune (quantité, libellé, référence), peut être None
     :param sign: 1 ou -1 (inversion des montants pour les avoirs)
     :param regimes: code TVA X3 -> régime de TVA
-    :return: ligne au format facturx-fr
+    :return: ligne au format facturx-fr.
     """
     libelle = _clean(getattr(common, "libelle", ""))
     reference = _clean(getattr(common, "reference_article", ""))
@@ -377,13 +380,13 @@ def _build_line(
     }
 
 
-def build_lines(sale: SaleInvoice, sign: int, regimes: Dict[str, str]) -> List[Dict[str, Any]]:
-    """
-    Lignes de facture depuis les SaleInvoiceDetail
+def build_lines(sale: SaleInvoice, sign: int, regimes: dict[str, str]) -> list[dict[str, Any]]:
+    """Lignes de facture depuis les SaleInvoiceDetail.
+
     :param sale: facture de vente
     :param sign: 1 ou -1 (inversion des montants pour les avoirs)
     :param regimes: code TVA X3 -> régime de TVA
-    :return: liste des lignes au format facturx-fr
+    :return: liste des lignes au format facturx-fr.
     """
     details = list(SaleInvoiceDetail.objects.filter(uuid_invoice=sale).order_by("ranking", "pk"))
     # Quantités, libellés et références article sont dans InvoiceCommonDetails
@@ -414,20 +417,21 @@ def build_lines(sale: SaleInvoice, sign: int, regimes: Dict[str, str]) -> List[D
     return lines
 
 
-def _check_totals(lines: List[Dict[str, Any]], amount_ht: Decimal, sign: int) -> List[str]:
-    """
-    Contrôle de cohérence des totaux HT des lignes avec la facture heron
+def _check_totals(lines: list[dict[str, Any]], amount_ht: Decimal, sign: int) -> list[str]:
+    """Contrôle de cohérence des totaux HT des lignes avec la facture heron.
+
     :param lines: lignes au format facturx-fr
     :param amount_ht: montant HT de la facture heron
     :param sign: 1 ou -1 (inversion des montants pour les avoirs)
-    :return: liste d'avertissements (vide si cohérent)
+    :return: liste d'avertissements (vide si cohérent).
     """
     total_lines = sum(
         (Decimal(line["quantity"]) * Decimal(line["unit_price"]))
         - Decimal(line["discount_amount"] or 0)
         + Decimal(line["charge_amount"] or 0)
         for line in lines
-    ).quantize(TWO_PLACES)
+    )
+    total_lines = Decimal(total_lines).quantize(TWO_PLACES)
     expected = (amount_ht * sign).quantize(TWO_PLACES)
 
     if total_lines != expected:
@@ -436,23 +440,23 @@ def _check_totals(lines: List[Dict[str, Any]], amount_ht: Decimal, sign: int) ->
     return []
 
 
-def _payment_means(sale: SaleInvoice) -> Dict[str, Any]:
-    """Moyen de paiement (code + coordonnées bancaires du centre si connues)"""
+def _payment_means(sale: SaleInvoice) -> dict[str, Any]:
+    """Moyen de paiement (code + coordonnées bancaires du centre si connues)."""
     centers = sale.centers
     iban = _clean(getattr(centers, "iban", "") or getattr(centers, "iban_center", "")).replace(
         " ", ""
     )
     bic = _clean(getattr(centers, "code_swift_center", "")).replace(" ", "")
 
-    payment_means: Dict[str, Any] = {"code": _payment_means_code(sale.mode_reglement)}
+    payment_means: dict[str, Any] = {"code": _payment_means_code(sale.mode_reglement)}
     if iban:
         payment_means["bank_account"] = {"iban": iban, "bic": bic or None}
 
     return payment_means
 
 
-def _payment_terms(sale: SaleInvoice) -> Optional[Dict[str, str]]:
-    """Conditions de paiement depuis les paramètres du client"""
+def _payment_terms(sale: SaleInvoice) -> dict[str, str] | None:
+    """Conditions de paiement depuis les paramètres du client."""
     condition = _clean(getattr(sale.parties, "payment_condition_client", ""))
 
     if condition:
@@ -461,8 +465,8 @@ def _payment_terms(sale: SaleInvoice) -> Optional[Dict[str, str]]:
     return None
 
 
-def _billing_period(sale: SaleInvoice) -> Tuple[Optional[str], Optional[str]]:
-    """Période de facturation (mois de facture) au format ISO"""
+def _billing_period(sale: SaleInvoice) -> tuple[str | None, str | None]:
+    """Période de facturation (mois de facture) au format ISO."""
     invoice_month = sale.invoice_month
 
     if not invoice_month:
@@ -477,7 +481,7 @@ def _billing_period(sale: SaleInvoice) -> Tuple[Optional[str], Optional[str]]:
 
 
 def _invoice_note(sale: SaleInvoice) -> str:
-    """Note de facture : type, catégorie, CCT et mentions légales du centre"""
+    """Note de facture : type, catégorie, CCT et mentions légales du centre."""
     note_parts = [f"{sale.invoice_type_name} {sale.big_category} - CCT {sale.cct_id}"]
     legal_notice = _html_to_text(getattr(sale.centers, "legal_notice_center", ""))
 
@@ -487,11 +491,11 @@ def _invoice_note(sale: SaleInvoice) -> str:
     return "\n".join(note_parts)[:1000]
 
 
-def build_facturx_invoice(sale: SaleInvoice) -> Tuple[Dict[str, Any], List[str]]:
-    """
-    Construit le JSON de la facture pour le serveur Factur-X
+def build_facturx_invoice(sale: SaleInvoice) -> tuple[dict[str, Any], list[str]]:
+    """Construit le JSON de la facture pour le serveur Factur-X.
+
     :param sale: facture de vente heron (SaleInvoice)
-    :return: (facture JSON-compatible, liste d'avertissements non bloquants)
+    :return: (facture JSON-compatible, liste d'avertissements non bloquants).
     """
     type_code = INVOICE_TYPE_CODES.get(_clean(sale.invoice_type).upper())
     if type_code is None:

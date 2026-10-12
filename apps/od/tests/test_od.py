@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests de l'app od : OD à passer depuis un fichier csv (modèle, schéma, import, validations,
+"""FR : Tests de l'app od : OD à passer depuis un fichier csv (modèle, schéma, import, validations,
+
+
      numérotation Sage) et export X3 sur le journal ODINV
 EN : Tests for od app: OD to post from a csv file and X3 export on ODINV journal
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import csv
 import datetime
 import importlib
@@ -85,10 +87,10 @@ def make_od():
             "axe_prj": "NAF",
             "axe_pys": "FR",
             "axe_rfa": "NAF",
-            "montant_ht": Decimal("100"),
+            "montant_ht": Decimal(100),
             "vat": "001",
-            "montant_tva": Decimal("20"),
-            "montant_ttc": Decimal("120"),
+            "montant_tva": Decimal(20),
+            "montant_ttc": Decimal(120),
         }
         defaults.update(kwargs)
         return ModelOd.objects.create(**defaults)
@@ -102,7 +104,14 @@ def referentiel(make_account, make_section, make_cct, make_society):
     make_account("FRA", "707000", nb_axes=2, call_code="")
     make_account("FRA", "445710", nb_axes=0)
     make_account("FRA", "411000", nb_axes=2, call_code="411000")
-    for axe, section in (("BU", "CAHA"), ("CCT", "AF0001"), ("PRO", "OPT"), ("PRJ", "NAF"), ("PYS", "FR"), ("RFA", "NAF")):
+    for axe, section in (
+        ("BU", "CAHA"),
+        ("CCT", "AF0001"),
+        ("PRO", "OPT"),
+        ("PRJ", "NAF"),
+        ("PYS", "FR"),
+        ("RFA", "NAF"),
+    ):
         make_section(axe, section)
     make_cct("AF0001")
     make_society("TIERS01")
@@ -119,11 +128,29 @@ def _write_csv(path, rows):
 
 def _csv_row(**overrides):
     row = {
-        "date_od": "31/03/2025", "libelle_od": "OD mars", "date_extourne": "01/04/2025", "libelle_extourne": "Extourne",
-        "compte_produit": "707000", "compte_tva": "445710", "compte_collectif": "411000", "journal": "ODINV",
-        "type_ecriture": "OD", "facture_heron": "FAC000000001234", "libelle": "Abonnement", "third_party_num": "TIERS01",
-        "code_plan": "FRA", "axe_bu": "CAHA", "cct": "AF0001", "axe_pro": "OPT", "axe_prj": "NAF", "axe_pys": "FR",
-        "axe_rfa": "NAF", "montant_ht": "100", "vat": "001", "montant_tva": "20", "montant_ttc": "120",
+        "date_od": "31/03/2025",
+        "libelle_od": "OD mars",
+        "date_extourne": "01/04/2025",
+        "libelle_extourne": "Extourne",
+        "compte_produit": "707000",
+        "compte_tva": "445710",
+        "compte_collectif": "411000",
+        "journal": "ODINV",
+        "type_ecriture": "OD",
+        "facture_heron": "FAC000000001234",
+        "libelle": "Abonnement",
+        "third_party_num": "TIERS01",
+        "code_plan": "FRA",
+        "axe_bu": "CAHA",
+        "cct": "AF0001",
+        "axe_pro": "OPT",
+        "axe_prj": "NAF",
+        "axe_pys": "FR",
+        "axe_rfa": "NAF",
+        "montant_ht": "100",
+        "vat": "001",
+        "montant_tva": "20",
+        "montant_ttc": "120",
     }
     row.update(overrides)
     return [row[column] for column in COLUMNS]
@@ -147,7 +174,10 @@ def test_app_config_et_modele(make_od):
     assert od_line.base_sage_invoice_number is None
 
 
-@pytest.mark.parametrize("module_name", ["apps.od.admin", "apps.od.bin", "apps.od.forms", "apps.od.imports", "apps.od.sql_files"])
+@pytest.mark.parametrize(
+    "module_name",
+    ["apps.od.admin", "apps.od.bin", "apps.od.forms", "apps.od.imports", "apps.od.sql_files"],
+)
 def test_packages_importables(module_name):
     assert importlib.import_module(module_name) is not None
 
@@ -155,9 +185,23 @@ def test_packages_importables(module_name):
 def test_schema_dates_excel_et_troncature():
     """Dates jj/mm/aaaa, textes tronqués au max_length, montants décimaux, dates techniques posées"""
     validated = OdSchema(
-        date_od="31/03/2025", date_extourne="01/04/2025", code_plan="FRA", journal="ODINV", type_ecriture="OD",
-        libelle="L" * 40, third_party_num="TIERS01", axe_bu="CAHA", cct="AF0001",
-        axe_pro="OPT", axe_prj="NAF", axe_pys="FR", axe_rfa="NAF", montant_ht="100.5", vat="001", montant_tva="20.1", montant_ttc="120.6",
+        date_od="31/03/2025",
+        date_extourne="01/04/2025",
+        code_plan="FRA",
+        journal="ODINV",
+        type_ecriture="OD",
+        libelle="L" * 40,
+        third_party_num="TIERS01",
+        axe_bu="CAHA",
+        cct="AF0001",
+        axe_pro="OPT",
+        axe_prj="NAF",
+        axe_pys="FR",
+        axe_rfa="NAF",
+        montant_ht="100.5",
+        vat="001",
+        montant_tva="20.1",
+        montant_ttc="120.6",
     ).dict()
 
     assert OdSchema.Config.model is ModelOd
@@ -172,7 +216,22 @@ def test_schema_dates_excel_et_troncature():
 
 def test_schema_date_obligatoire():
     with pytest.raises(ValidationError) as excinfo:
-        OdSchema(date_od="", date_extourne="01/04/2025", code_plan="FRA", journal="ODINV", type_ecriture="OD", libelle="x", third_party_num="T", axe_bu="B", cct="C", axe_pro="P", axe_prj="J", axe_pys="Y", axe_rfa="R", vat="001")
+        OdSchema(
+            date_od="",
+            date_extourne="01/04/2025",
+            code_plan="FRA",
+            journal="ODINV",
+            type_ecriture="OD",
+            libelle="x",
+            third_party_num="T",
+            axe_bu="B",
+            cct="C",
+            axe_pro="P",
+            axe_prj="J",
+            axe_pys="Y",
+            axe_rfa="R",
+            vat="001",
+        )
 
     assert {error["loc"][0] for error in excinfo.value.errors()} == {"date_od"}
 
@@ -194,10 +253,20 @@ def test_import_od_a_passer_unitaire(od_env, monkeypatch):
         trace, to_print = import_od_a_passer(file)
 
     model, flow_name, source, call_trace, validator, loader, kwargs = calls[0]
-    assert (trace.trace_name, trace.flow_name, trace.application_name) == ("Import od à passer", "ModelOd", "import_od_a_passer")
+    assert (trace.trace_name, trace.flow_name, trace.application_name) == (
+        "Import od à passer",
+        "ModelOd",
+        "import_od_a_passer",
+    )
     assert trace.comment == "import du fichier od.csv, des OD à passer"
     assert "Pas d'erreurs" in to_print
-    assert (model, flow_name, source, call_trace, validator) == (ModelOd, "ModelOd", file, trace, OdSchema)
+    assert (model, flow_name, source, call_trace, validator) == (
+        ModelOd,
+        "ModelOd",
+        file,
+        trace,
+        OdSchema,
+    )
     assert loader["trace"] is trace
     assert set(loader["add_fields_dict"]) == {"created_at", "modified_at"}
     assert kwargs == {"insert_mode": "insert"}
@@ -206,7 +275,19 @@ def test_import_od_a_passer_unitaire(od_env, monkeypatch):
 @pytest.mark.integration
 def test_import_od_a_passer_integration(od_env):
     """Chaîne data_flux réelle : colonnes par nom d'entête, dates et montants convertis"""
-    file = _write_csv(od_env["processing"] / "od.csv", [_csv_row(), _csv_row(libelle="Second", compte_produit="", montant_ht="50", montant_tva="10", montant_ttc="60")])
+    file = _write_csv(
+        od_env["processing"] / "od.csv",
+        [
+            _csv_row(),
+            _csv_row(
+                libelle="Second",
+                compte_produit="",
+                montant_ht="50",
+                montant_tva="10",
+                montant_ttc="60",
+            ),
+        ],
+    )
 
     trace, to_print = import_od_a_passer(file)
 
@@ -214,7 +295,10 @@ def test_import_od_a_passer_integration(od_env):
     assert "Pas d'erreurs" in to_print
     assert trace.errors is False
     assert set(lines) == {"Abonnement", "Second"}
-    assert (lines["Abonnement"].date_od, lines["Abonnement"].montant_ttc) == (datetime.date(2025, 3, 31), Decimal("120"))
+    assert (lines["Abonnement"].date_od, lines["Abonnement"].montant_ttc) == (
+        datetime.date(2025, 3, 31),
+        Decimal(120),
+    )
     assert lines["Second"].compte_produit is None
 
 
@@ -225,11 +309,19 @@ def test_validation_amounts(make_od):
     make_od(libelle="Equilibrée")
     assert validation_amounts(False, "ok") == (False, "ok")
 
-    make_od(libelle="Fausse", montant_ht=Decimal("100"), montant_tva=Decimal("20"), montant_ttc=Decimal("121"))
+    make_od(
+        libelle="Fausse",
+        montant_ht=Decimal(100),
+        montant_tva=Decimal(20),
+        montant_ttc=Decimal(121),
+    )
     error, message = validation_amounts(False, "ok")
 
     assert error is True
-    assert message == '<span>- la ligne "Fausse : (100.00000 + 20.00000) - (121.00000)" est déséquilibrée</span><br>'
+    assert (
+        message
+        == '<span>- la ligne "Fausse : (100.00000 + 20.00000) - (121.00000)" est déséquilibrée</span><br>'
+    )
 
 
 def test_update_blank_account_et_facture(make_od):
@@ -241,7 +333,12 @@ def test_update_blank_account_et_facture(make_od):
 
     blank.refresh_from_db()
     kept.refresh_from_db()
-    assert (blank.compte_produit, blank.compte_tva, blank.compte_collectif, blank.facture_heron) == ("", "", "", "")
+    assert (
+        blank.compte_produit,
+        blank.compte_tva,
+        blank.compte_collectif,
+        blank.facture_heron,
+    ) == ("", "", "", "")
     assert (kept.compte_produit, kept.facture_heron) == ("707000", "FAC000000001234")
 
 
@@ -308,7 +405,10 @@ def test_import_od_files_nominal(od_env, referentiel, make_od):
 
     lines = {line.libelle: line for line in ModelOd.objects.all()}
     assert error is False
-    assert message == "<span>- le fichier od_1.csv a été intégrer avec succes</span><br><span>- le fichier od_2.csv a été intégrer avec succes</span><br>"
+    assert (
+        message
+        == "<span>- le fichier od_1.csv a été intégrer avec succes</span><br><span>- le fichier od_2.csv a été intégrer avec succes</span><br>"
+    )
     assert set(lines) == {"Abonnement", "Second"}
     assert lines["Abonnement"].base_sage_invoice_number == "000000001234"
     assert lines["Second"].base_sage_invoice_number == "00001"
@@ -323,7 +423,10 @@ def test_import_od_files_fichier_en_erreur(od_env, referentiel):
     error, message = import_od_files()
 
     assert error is True
-    assert message == '<span>- le fichier "od_1.csv" a générer une erreur veillez consulter les traces</span><br>'
+    assert (
+        message
+        == '<span>- le fichier "od_1.csv" a générer une erreur veillez consulter les traces</span><br>'
+    )
     assert ModelOd.objects.count() == 0
 
 
@@ -376,7 +479,13 @@ def test_write_odinv_fichier_nomme(od_env, referentiel, make_od):
     assert headers[1][2] == "OD250401000000001234"
     assert headers[0][5] == "310325"
     collectif = lines[1]
-    assert (collectif[1], collectif[3], collectif[5], collectif[8], collectif[9]) == ("1", "1", "411000", "411000", "TIERS01")
+    assert (collectif[1], collectif[3], collectif[5], collectif[8], collectif[9]) == (
+        "1",
+        "1",
+        "411000",
+        "411000",
+        "TIERS01",
+    )
     assert collectif[12] == "120,00"
     assert lines[2][1] == "1"
     assert lines[2][8:14] == ["CAHA", "AF0001", "OPT", "NAF", "FR", "NAF"]
@@ -388,7 +497,12 @@ def test_write_odinv_fichier_nomme(od_env, referentiel, make_od):
 def test_write_odinv_fichiers_numerotes_par_lot(od_env, referentiel, make_od):
     """Sans nom de fichier : un fichier par lot de nb_fac pièces, numérotés par le compteur gaspar"""
     make_od(base_sage_invoice_number="000000000001", facture_heron="FAC000000000001")
-    make_od(base_sage_invoice_number="000000000002", facture_heron="FAC000000000002", date_od=datetime.date(2025, 5, 31), date_extourne=datetime.date(2025, 6, 1))
+    make_od(
+        base_sage_invoice_number="000000000002",
+        facture_heron="FAC000000000002",
+        date_od=datetime.date(2025, 5, 31),
+        date_extourne=datetime.date(2025, 6, 1),
+    )
 
     write_odinv("AC00", nb_fac=3)
 
@@ -404,12 +518,63 @@ def test_write_odinv_regroupe_les_lignes_d(od_env, monkeypatch):
     """Lignes de même compte dans une pièce : une seule ligne D, autant de lignes A"""
 
     def _line(invoice, account, with_a=True):
-        g_block = ["G", "ODINV", invoice, "AC00", "ODINV", "310325", "STDCO", "EUR", "lib", "doc", "ref"]
-        d_block = ["D", 0, "2", 0, "AC00", "", "AFR", "FRA", account, "TIERS01", 1, "EUR", Decimal("10"), "des", "", "707000"]
-        a_block = ["A", 0, "BU", "CCT", "PRO", "PRJ", "PYS", "RFA", "CAHA", "AF0001", "OPT", "NAF", "FR", "NAF", Decimal("10"), 1]
+        g_block = [
+            "G",
+            "ODINV",
+            invoice,
+            "AC00",
+            "ODINV",
+            "310325",
+            "STDCO",
+            "EUR",
+            "lib",
+            "doc",
+            "ref",
+        ]
+        d_block = [
+            "D",
+            0,
+            "2",
+            0,
+            "AC00",
+            "",
+            "AFR",
+            "FRA",
+            account,
+            "TIERS01",
+            1,
+            "EUR",
+            Decimal(10),
+            "des",
+            "",
+            "707000",
+        ]
+        a_block = [
+            "A",
+            0,
+            "BU",
+            "CCT",
+            "PRO",
+            "PRJ",
+            "PYS",
+            "RFA",
+            "CAHA",
+            "AF0001",
+            "OPT",
+            "NAF",
+            "FR",
+            "NAF",
+            Decimal(10),
+            1,
+        ]
         return [invoice, *g_block, *d_block, "A" if with_a else "", *a_block, 1]
 
-    rows = [_line("OD1", "411000"), _line("OD1", "411000"), _line("OD1", "707000", with_a=False), _line("OD2", "411000")]
+    rows = [
+        _line("OD1", "411000"),
+        _line("OD1", "411000"),
+        _line("OD1", "707000", with_a=False),
+        _line("OD2", "411000"),
+    ]
 
     with patched_attrs(monkeypatch, export_od_inv, get_rows=lambda *_args, **_kwargs: iter(rows)):
         write_odinv("AC00", file_name="regroupe.txt")
@@ -424,4 +589,9 @@ def test_write_odinv_regroupe_les_lignes_d(od_env, monkeypatch):
     with patched_attrs(monkeypatch, export_od_inv, get_rows=lambda *_args, **_kwargs: iter(rows)):
         write_odinv("AC00", file_name="sans_a.txt")
 
-    assert [line[0] for line in _read_lines(od_env["export"] / "sans_a.txt")] == ["G", "D", "D", "A"]
+    assert [line[0] for line in _read_lines(od_env["export"] / "sans_a.txt")] == [
+        "G",
+        "D",
+        "D",
+        "A",
+    ]

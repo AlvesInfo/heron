@@ -1,30 +1,29 @@
-"""
-Views des Enseignes
-"""
+"""Views des Enseignes."""
+
 from pathlib import Path
 
 import pendulum
+from django.conf import settings
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
-from heron.loggers import LOGGER_VIEWS
-from django.conf import settings
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
 from apps.centers_purchasing.bin.copy_logos import copy_static
 from apps.centers_purchasing.excel_outputs.output_excel_enseignes_list import (
     excel_enseignes_list,
 )
-from apps.centers_purchasing.models import Signboard
 from apps.centers_purchasing.forms import SignboardForm
-
+from apps.centers_purchasing.models import Signboard
+from apps.core.bin.change_traces import ChangeTraceMixin
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from heron.loggers import LOGGER_VIEWS
 
 # ECRANS DES CENTRALES FILLES ======================================================================
 
+
 class EnseignesList(ListView):
-    """View de la liste des Enseignes"""
+    """View de la liste des Enseignes."""
 
     model = Signboard
     context_object_name = "enseignes"
@@ -33,7 +32,7 @@ class EnseignesList(ListView):
 
 
 class EnseigneCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Enseignes"""
+    """CreateView de création des Enseignes."""
 
     model = Signboard
     form_class = SignboardForm
@@ -42,6 +41,7 @@ class EnseigneCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     error_message = "L'Enseigne %(code)s n'a pu être créé, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
+        """Ajoute au contexte le titre, le mode création et le lien de retour."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("centers_purchasing:enseignes_list")
@@ -49,7 +49,7 @@ class EnseigneCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -63,7 +63,7 @@ class EnseigneCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 
 class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des Enseignes"""
+    """UpdateView pour modification des Enseignes."""
 
     model = Signboard
     context_object_name = "enseigne"
@@ -73,7 +73,7 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     error_message = "L'Enseigne %(code)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:enseignes_list")
         context["titre_table"] = (
@@ -96,7 +96,9 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         # On supprime les fichiers qui sont devenus orphelins
         logo_files_path = {
             Signboard._meta.get_field("logo").upload_to + file.name
-            for file in (Path(settings.MEDIA_DIR) / Signboard._meta.get_field("logo").upload_to).glob("*")
+            for file in (
+                Path(settings.MEDIA_DIR) / Signboard._meta.get_field("logo").upload_to
+            ).glob("*")
         }
         logo_files_model = {
             row.get("logo") for row in Signboard.objects.all().values("logo") if row.get("logo")
@@ -112,18 +114,15 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 def enseignes_export_list(request):
-    """
-    Export Excel de la liste des Enseignes
-    :param request: Request Django
-    :return: response_file
-    """
+    """Export Excel de la liste des Enseignes.
 
+    :param request: Request Django
+    :return: response_file.
+    """
     try:
         if request.method == "GET":
             today = pendulum.now()
-            file_name = (
-                f"LISTING_DES_ENSEIGNES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
-            )
+            file_name = f"LISTING_DES_ENSEIGNES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 
             return response_file(excel_enseignes_list, file_name, CONTENT_TYPE_EXCEL, Signboard)
 

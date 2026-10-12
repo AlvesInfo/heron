@@ -1,6 +1,6 @@
-"""
-FR : Module des requêtes sql de post-traitement après import des fichiers Newson
-EN : Post-processing sql module after importing supplier invoice files
+"""FR : Module des requêtes sql de post-traitement après import des fichiers Newson.
+
+EN : Post-processing sql module after importing supplier invoice files.
 
 Commentaire:
 
@@ -10,13 +10,14 @@ created by: Paulo ALVES
 modified at: 2022-11-27
 modified by: Paulo ALVES
 """
+
 from psycopg2 import sql
 
 post_newson_dict = {
     "sql_update": sql.SQL(
         """
         update "edi_ediimport"
-        set 
+        set
             "invoice_type" = case when "invoice_type" = 'FA' then '380' else '381' end,
             "gross_unit_price" = ("gross_amount"::numeric / "qty"::numeric)::numeric,
             "net_unit_price" = ("net_amount"::numeric / "qty"::numeric)::numeric,
@@ -31,7 +32,7 @@ post_newson_dict = {
     "sql_round_net_amount": sql.SQL(
         """
         update "edi_ediimport"
-        set 
+        set
             "net_amount" = round("net_amount", 2)::numeric,
             "amount_with_vat" = round(round("amount_with_vat", 2) * (1 + "vat_rate"), 2)::numeric
         where "uuid_identification" = %(uuid_identification)s
@@ -43,11 +44,11 @@ post_newson_dict = {
         update "edi_ediimport" edi
         set
             "net_amount" = case
-                                when ("invoice_type" = '381' and "qty" < 0) 
-                                  or ("invoice_type" = '380' and "qty" > 0) 
+                                when ("invoice_type" = '381' and "qty" < 0)
+                                  or ("invoice_type" = '380' and "qty" > 0)
                                 then abs("net_amount")::numeric
-                                when ("invoice_type" = '381' and "qty" > 0) 
-                                  or ("invoice_type" = '380' and "qty" < 0) 
+                                when ("invoice_type" = '381' and "qty" > 0)
+                                  or ("invoice_type" = '380' and "qty" < 0)
                                 then -abs("net_amount")::numeric
                             end
         where "uuid_identification" = %(uuid_identification)s

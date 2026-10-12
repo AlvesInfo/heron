@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,R0913,R0914
-"""
-FR : Tests des vues de l'app parameters (CRUD, exports Excel, suppressions ajax, taux de change)
+"""FR : Tests des vues de l'app parameters (CRUD, exports Excel, suppressions ajax, taux de change)
+
+
 EN : Tests for parameters app views
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import datetime
 from decimal import Decimal
 
@@ -49,9 +51,19 @@ def _boom(*_args, **_kwargs):
 @pytest.mark.parametrize(
     "route",
     [
-        "categories_list", "category_create", "functions_list", "function_create", "numberings_list",
-        "numbering_create", "natures_list", "nature_create", "emails_list", "email_create",
-        "control_rebilling_list", "control_rebilling_create", "period_select_exchange",
+        "categories_list",
+        "category_create",
+        "functions_list",
+        "function_create",
+        "numberings_list",
+        "numbering_create",
+        "natures_list",
+        "nature_create",
+        "emails_list",
+        "email_create",
+        "control_rebilling_list",
+        "control_rebilling_create",
+        "period_select_exchange",
     ],
 )
 def test_pages_sans_parametre(logged_client, route):
@@ -62,7 +74,9 @@ def test_pages_sans_parametre(logged_client, route):
 
 def test_categories_creation_et_modification(logged_client, make_big_category):
     created = logged_client.post(
-        reverse("parameters:category_create"), {"ranking": 5, "code": "SERV", "name": "Services"}, follow=True
+        reverse("parameters:category_create"),
+        {"ranking": 5, "code": "SERV", "name": "Services"},
+        follow=True,
     )
     category = Category.objects.get(code="SERV")
     other = make_big_category("Marchandises")
@@ -70,7 +84,12 @@ def test_categories_creation_et_modification(logged_client, make_big_category):
     assert created.status_code == 200
     assert category.slug_name == "services"
     assert category.created_by == logged_client.user
-    assert logged_client.get(reverse("parameters:category_update", kwargs={"pk": other.pk})).status_code == 200
+    assert (
+        logged_client.get(
+            reverse("parameters:category_update", kwargs={"pk": other.pk})
+        ).status_code
+        == 200
+    )
 
     updated = logged_client.post(
         reverse("parameters:category_update", kwargs={"pk": other.pk}),
@@ -83,7 +102,9 @@ def test_categories_creation_et_modification(logged_client, make_big_category):
     assert other.modified_by == logged_client.user
 
 
-def test_rubriques_creation_modification_et_404(logged_client, make_big_category, make_sub_category):
+def test_rubriques_creation_modification_et_404(
+    logged_client, make_big_category, make_sub_category
+):
     category = make_big_category("Marchandises")
     existing = make_sub_category("Montures", big_category=category)
     create_url = reverse("parameters:sub_category_create", kwargs={"category_pk": category.pk})
@@ -91,24 +112,47 @@ def test_rubriques_creation_modification_et_404(logged_client, make_big_category
     page = logged_client.get(create_url)
     assert page.status_code == 200
     assert page.context["category_new"] == 2
-    assert logged_client.get(reverse("parameters:sub_category_create", kwargs={"category_pk": 99999})).status_code == 404
-    assert logged_client.post(reverse("parameters:sub_category_create", kwargs={"category_pk": 99999}), {}).status_code == 404
+    assert (
+        logged_client.get(
+            reverse("parameters:sub_category_create", kwargs={"category_pk": 99999})
+        ).status_code
+        == 404
+    )
+    assert (
+        logged_client.post(
+            reverse("parameters:sub_category_create", kwargs={"category_pk": 99999}), {}
+        ).status_code
+        == 404
+    )
 
     created = logged_client.post(
-        create_url, {"big_category": category.uuid_identification, "ranking": 2, "code": "VERRES", "name": "Verres"}
+        create_url,
+        {
+            "big_category": category.uuid_identification,
+            "ranking": 2,
+            "code": "VERRES",
+            "name": "Verres",
+        },
     )
     assert created.status_code == 302, created.context["form"].errors
     assert created.url == reverse("parameters:category_update", kwargs={"pk": category.pk})
     assert SubCategory.objects.get(code="VERRES").big_category == category
 
-    update_url = reverse("parameters:sub_category_update", kwargs={"category_pk": category.pk, "pk": existing.pk})
+    update_url = reverse(
+        "parameters:sub_category_update", kwargs={"category_pk": category.pk, "pk": existing.pk}
+    )
     page = logged_client.get(update_url)
     assert page.status_code == 200
     assert page.context["category_new"] == existing.ranking
 
     updated = logged_client.post(
         update_url,
-        {"big_category": category.uuid_identification, "ranking": existing.ranking, "code": existing.code, "name": "Montures solaires"},
+        {
+            "big_category": category.uuid_identification,
+            "ranking": existing.ranking,
+            "code": existing.code,
+            "name": "Montures solaires",
+        },
     )
     existing.refresh_from_db()
     assert updated.status_code == 302
@@ -120,7 +164,11 @@ def test_axes_par_defaut(logged_client, make_default_axes, make_sub_category, ma
     inside = make_sub_category("Montures", big_category=axes.big_category)
     outside = make_sub_category("Hors catégorie", big_category=make_big_category("Services"))
     url = reverse("parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"})
-    data = {key: value for key, value in DefaultAxeArticleForm(instance=axes).initial.items() if value is not None}
+    data = {
+        key: value
+        for key, value in DefaultAxeArticleForm(instance=axes).initial.items()
+        if value is not None
+    }
 
     page = logged_client.get(url)
     assert page.status_code == 200
@@ -131,7 +179,10 @@ def test_axes_par_defaut(logged_client, make_default_axes, make_sub_category, ma
     axes.refresh_from_db()
     assert axes.sub_category == inside
 
-    assert logged_client.post(url, {**data, "sub_category": outside.uuid_identification}).status_code == 302
+    assert (
+        logged_client.post(url, {**data, "sub_category": outside.uuid_identification}).status_code
+        == 302
+    )
     axes.refresh_from_db()
     assert axes.sub_category is None
 
@@ -143,7 +194,14 @@ def test_axes_par_defaut(logged_client, make_default_axes, make_sub_category, ma
 def test_fonctions_creation_et_modification(logged_client, make_invoice_function):
     created = logged_client.post(
         reverse("parameters:function_create"),
-        {"function_name": "ROYALTIES", "function": "apps.x.y", "absolute_path_windows": "", "absolute_path_linux": "", "description": "", "redirect": ""},
+        {
+            "function_name": "ROYALTIES",
+            "function": "apps.x.y",
+            "absolute_path_windows": "",
+            "absolute_path_linux": "",
+            "description": "",
+            "redirect": "",
+        },
     )
     function = make_invoice_function("ABONNEMENT")
     update_url = reverse("parameters:function_update", kwargs={"pk": function.pk})
@@ -154,7 +212,14 @@ def test_fonctions_creation_et_modification(logged_client, make_invoice_function
 
     updated = logged_client.post(
         update_url,
-        {"function_name": "ABONNEMENT", "function": function.function, "absolute_path_windows": "", "absolute_path_linux": "", "description": "Mensuel", "redirect": ""},
+        {
+            "function_name": "ABONNEMENT",
+            "function": function.function,
+            "absolute_path_windows": "",
+            "absolute_path_linux": "",
+            "description": "Mensuel",
+            "redirect": "",
+        },
     )
     function.refresh_from_db()
     assert updated.status_code == 302
@@ -164,7 +229,15 @@ def test_fonctions_creation_et_modification(logged_client, make_invoice_function
 def test_numerotations_creation_et_modification(logged_client, make_counter):
     created = logged_client.post(
         reverse("parameters:numbering_create"),
-        {"name": "factures", "prefix": "FAC", "suffix": "", "function": "", "lpad_num": 6, "description": "", "separateur": "-"},
+        {
+            "name": "factures",
+            "prefix": "FAC",
+            "suffix": "",
+            "function": "",
+            "lpad_num": 6,
+            "description": "",
+            "separateur": "-",
+        },
     )
     counter = make_counter("avoirs")
     update_url = reverse("parameters:numbering_update", kwargs={"pk": counter.pk})
@@ -175,7 +248,16 @@ def test_numerotations_creation_et_modification(logged_client, make_counter):
     assert logged_client.get(update_url).status_code == 200
 
     updated = logged_client.post(
-        update_url, {"name": "avoirs", "prefix": "AV", "suffix": "", "function": "", "lpad_num": 5, "description": "", "separateur": ""}
+        update_url,
+        {
+            "name": "avoirs",
+            "prefix": "AV",
+            "suffix": "",
+            "function": "",
+            "lpad_num": 5,
+            "description": "",
+            "separateur": "",
+        },
     )
     counter.refresh_from_db()
     assert updated.status_code == 302
@@ -184,7 +266,8 @@ def test_numerotations_creation_et_modification(logged_client, make_counter):
 
 def test_natures_creation_et_modification(logged_client, make_nature):
     created = logged_client.post(
-        reverse("parameters:nature_create"), {"name": "Madame", "to_display": "Mme", "for_contact": "on"}
+        reverse("parameters:nature_create"),
+        {"name": "Madame", "to_display": "Mme", "for_contact": "on"},
     )
     nature = make_nature("Monsieur")
     update_url = reverse("parameters:nature_update", kwargs={"pk": nature.pk})
@@ -193,7 +276,9 @@ def test_natures_creation_et_modification(logged_client, make_nature):
     assert Nature.objects.get(name="Madame").for_contact is True
     assert logged_client.get(update_url).status_code == 200
 
-    updated = logged_client.post(update_url, {"name": "Monsieur", "to_display": "M.", "for_personnel": "on"})
+    updated = logged_client.post(
+        update_url, {"name": "Monsieur", "to_display": "M.", "for_personnel": "on"}
+    )
     nature.refresh_from_db()
     assert updated.status_code == 302
     assert (nature.to_display, nature.for_personnel) == ("M.", True)
@@ -201,7 +286,8 @@ def test_natures_creation_et_modification(logged_client, make_nature):
 
 def test_emails_creation_et_modification(logged_client, make_email):
     created = logged_client.post(
-        reverse("parameters:email_create"), {"description": "Factures", "subject": "Vos factures", "email_body": "<p>Bonjour</p>"}
+        reverse("parameters:email_create"),
+        {"description": "Factures", "subject": "Vos factures", "email_body": "<p>Bonjour</p>"},
     )
     email = Email.objects.get(description="Factures")
     other = make_email(1, description="Documents")
@@ -211,14 +297,19 @@ def test_emails_creation_et_modification(logged_client, make_email):
     assert email.name == 0
     assert logged_client.get(update_url).status_code == 200
 
-    updated = logged_client.post(update_url, {"description": "Documents", "subject": "Nouveau sujet", "email_body": "<p>Hello</p>"})
+    updated = logged_client.post(
+        update_url,
+        {"description": "Documents", "subject": "Nouveau sujet", "email_body": "<p>Hello</p>"},
+    )
     other.refresh_from_db()
     assert updated.status_code == 302
     assert other.subject == "Nouveau sujet"
 
 
 def test_controles_creation_et_modification(logged_client, make_control):
-    created = logged_client.post(reverse("parameters:control_rebilling_create"), {"name": "Essilor", "comment": ""})
+    created = logged_client.post(
+        reverse("parameters:control_rebilling_create"), {"name": "Essilor", "comment": ""}
+    )
     control = make_control("Hoya")
     update_url = reverse("parameters:control_rebilling_update", kwargs={"pk": control.pk})
 
@@ -243,7 +334,11 @@ def test_controles_creation_et_modification(logged_client, make_control):
         ("functions_export_list", functions_views, "parameters:functions_list"),
         ("numberings_export_list", numberings_views, "parameters:numberings_list"),
         ("natures_export_list", nature_views, "parameters:natures_list"),
-        ("control_rebilling_export_list", control_rebilling_views, "parameters:control_rebilling_list"),
+        (
+            "control_rebilling_export_list",
+            control_rebilling_views,
+            "parameters:control_rebilling_list",
+        ),
     ],
 )
 def test_exports_excel(logged_client, monkeypatch, make_default_axes, route, module, fallback):
@@ -261,7 +356,11 @@ def test_exports_excel(logged_client, monkeypatch, make_default_axes, route, mod
     failed = logged_client.get(url)
 
     assert failed.status_code == 302
-    expected = reverse(fallback) if fallback else reverse("parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"})
+    expected = (
+        reverse(fallback)
+        if fallback
+        else reverse("parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"})
+    )
     assert failed.url == expected
 
 
@@ -270,7 +369,13 @@ def test_exports_excel(logged_client, monkeypatch, make_default_axes, route, mod
 
 @pytest.mark.parametrize(
     "route",
-    ["delete_sub_category", "function_delete", "numbering_delete", "nature_delete", "delete_control_rebilling"],
+    [
+        "delete_sub_category",
+        "function_delete",
+        "numbering_delete",
+        "nature_delete",
+        "delete_control_rebilling",
+    ],
 )
 def test_suppressions_refusees_hors_ajax_ou_hors_post(logged_client, ajax_client, route):
     url = reverse(f"parameters:{route}")
@@ -380,13 +485,17 @@ def test_creation_taux(logged_client, make_country_currency, make_exchange_rate)
     rate = ExchangeRate.objects.get(currency_change="CHF", rate_month=MONTH)
     assert created.status_code == 302
     assert created.url == reverse("parameters:exchanges_list", kwargs={"month": MONTH})
-    assert (rate.rate, rate.curency_base, rate.created_by) == (Decimal("1.05"), "EUR", logged_client.user)
+    assert (rate.rate, rate.curency_base, rate.created_by) == (
+        Decimal("1.05"),
+        "EUR",
+        logged_client.user,
+    )
 
     again = logged_client.post(url, {"currency_change": "CHF", "rate": "0"})
     rate.refresh_from_db()
     assert again.status_code == 302
     assert ExchangeRate.objects.filter(currency_change="CHF").count() == 1
-    assert rate.rate == Decimal("1")
+    assert rate.rate == Decimal(1)
 
     invalid = logged_client.post(url, {"currency_change": "XXX", "rate": "1"})
     assert invalid.status_code == 200
@@ -405,4 +514,8 @@ def test_modification_taux(logged_client, make_exchange_rate):
     rate.refresh_from_db()
     assert updated.status_code == 302
     assert updated.url == reverse("parameters:exchanges_list", kwargs={"month": rate.rate_month})
-    assert (rate.rate, rate.rate_month, rate.modified_by) == (Decimal("1.10"), datetime.date(2026, 1, 1), logged_client.user)
+    assert (rate.rate, rate.rate_month, rate.modified_by) == (
+        Decimal("1.10"),
+        datetime.date(2026, 1, 1),
+        logged_client.user,
+    )

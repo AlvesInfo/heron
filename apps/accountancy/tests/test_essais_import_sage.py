@@ -1,6 +1,7 @@
 # pylint: disable=E0401,W0621,R0903
-"""
-FR : Tests du script d'essai d'import des devises (apps/accountancy/essais/essais_import_sage.py)
+"""FR : Tests du script d'essai d'import des devises (apps/accountancy/essais/essais_import_sage.py)
+
+
 EN : Tests for currency import trial script
 
 Commentaire:
@@ -11,12 +12,12 @@ context manager : on vérifie le câblage du script, pas la lecture de fichier.
 created at: 2026-10-10
 created by: Paulo ALVES
 """
-from pathlib import Path
 
 import logging
+from pathlib import Path
+from typing import ClassVar
 
 import pytest
-from typing import ClassVar
 
 from apps.accountancy.essais import essais_import_sage
 from apps.accountancy.forms.forms_django.sage_forms import CurrencySageForm
@@ -27,7 +28,7 @@ from conftest import patched_attrs
 class _FakeInsertion:
     """Doublure de ModelFormInsertion (context manager + validate + errors)"""
 
-    created: ClassVar = []
+    created: ClassVar[list] = []
 
     def __init__(self, **kwargs):
         self.kwargs = kwargs

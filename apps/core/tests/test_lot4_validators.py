@@ -1,12 +1,14 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des validateurs de base pydantic (apps/core/validations/pydantic_validators_base.py),
+"""FR : Tests des validateurs de base pydantic (apps/core/validations/pydantic_validators_base.py),
+
+
      du séparateur décimal de forms_base et des champs de sérialiseur (functions_serializers.py)
 EN : Tests for base pydantic validators, forms_base decimal separator and serializer fields
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import datetime
 from decimal import Decimal
 
@@ -34,14 +36,13 @@ from apps.core.validations.pydantic_validators_base import (
     ValidateFieldsBase,
 )
 
-
 # VALIDATEUR GÉNÉRIQUE =============================================================================
 
 
 class Generic(ValidateFieldsBase):
     """Texte tronqué, décimal à zéro par défaut, date multi formats"""
 
-    name: constr(max_length=5) | None
+    name: constr(max_length=5) | None  # type: ignore[valid-type]
     amount: Decimal | None
     day: datetime.date | None
 
@@ -68,19 +69,21 @@ def test_validate_fields_base_date_non_reconnue():
     with pytest.raises(ValidationError):
         Generic(name="x", amount="0", day="janvier 2026")
 
-    assert Generic(name="x", amount="0", day=datetime.date(2026, 2, 1)).day == datetime.date(2026, 2, 1)
+    assert Generic(name="x", amount="0", day=datetime.date(2026, 2, 1)).day == datetime.date(
+        2026, 2, 1
+    )
 
 
 # TEXTE ============================================================================================
 
 
 class Texts(TruncateStrFieldsBase):
-    name: constr(max_length=4) | None
+    name: constr(max_length=4) | None  # type: ignore[valid-type]
     number: int
 
 
 class SageTexts(SageTruncateStrFieldsBase):
-    name: constr(max_length=4) | None
+    name: constr(max_length=4) | None  # type: ignore[valid-type]
     number: int = 0
 
 
@@ -111,7 +114,18 @@ class FalseBooleans(SageNullFalseBooleanFieldsBase):
     name: str
 
 
-@pytest.mark.parametrize(("value", "expected"), [("2", True), ("OUI", True), ("1", False), ("", False), ("faux", False), ("peut-être", None), (None, None)])
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("2", True),
+        ("OUI", True),
+        ("1", False),
+        ("", False),
+        ("faux", False),
+        ("peut-être", None),
+        (None, None),
+    ],
+)
 def test_booleens_sage_nullables(value, expected):
     validated = NullBooleans(flag=value, name="y")
 
@@ -119,7 +133,10 @@ def test_booleens_sage_nullables(value, expected):
     assert validated.name == "y"
 
 
-@pytest.mark.parametrize(("value", "expected"), [("2.0", True), ("vrai", True), ("1", False), ("", False), ("autre", False), (None, False)])
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [("2.0", True), ("vrai", True), ("1", False), ("", False), ("autre", False), (None, False)],
+)
 def test_booleens_sage_faux_par_defaut(value, expected):
     validated = FalseBooleans(flag=value, name="x")
 
@@ -144,7 +161,7 @@ def test_decimaux():
     assert Decimals(amount="1.234,50", name="x").amount == Decimal("1234.50")
     assert Decimals(amount=None, name="x").amount is None
     assert Decimals(amount="7", name="y").name == "y"
-    assert ZeroDecimals(amount="", name="x").amount == Decimal("0")
+    assert ZeroDecimals(amount="", name="x").amount == Decimal(0)
     assert ZeroDecimals(amount="2,5", name="x").amount == Decimal("2.5")
     assert ZeroDecimals(amount="1", name="z").name == "z"
 
@@ -200,30 +217,69 @@ def _vat_model(base):
     return Vat
 
 
-@pytest.mark.parametrize(("value", "expected"), [("20%", Decimal("0.20")), ("5%5", Decimal("0.055")), ("0.2", Decimal("0.2"))])
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [("20%", Decimal("0.20")), ("5%5", Decimal("0.055")), ("0.2", Decimal("0.2"))],
+)
 def test_tva_eye_confort(value, expected):
     assert _vat_model(TvaEyeConfor)(vat_rate=value).vat_rate == expected
 
 
-@pytest.mark.parametrize(("value", "expected"), [("2000", Decimal("0.2")), ("0550.0", Decimal("0.055")), ("0", Decimal("0")), ("", Decimal("0")), ("0.2", Decimal("0.2"))])
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("2000", Decimal("0.2")),
+        ("0550.0", Decimal("0.055")),
+        ("0", Decimal(0)),
+        ("", Decimal(0)),
+        ("0.2", Decimal("0.2")),
+    ],
+)
 def test_tva_generique(value, expected):
     assert _vat_model(TvaGenerique)(vat_rate=value).vat_rate == expected
 
 
-@pytest.mark.parametrize(("value", "expected"), [("1", Decimal("0.2")), (2, Decimal("0.055")), ("", Decimal("0")), (None, Decimal("0")), ("0.1", Decimal("0.1"))])
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("1", Decimal("0.2")),
+        (2, Decimal("0.055")),
+        ("", Decimal(0)),
+        (None, Decimal(0)),
+        ("0.1", Decimal("0.1")),
+    ],
+)
 def test_tva_interson(value, expected):
     assert _vat_model(TvaInterson)(vat_rate=value).vat_rate == expected
 
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [("20,00", Decimal("0.2")), ("06", Decimal("0.055")), ("5.50", Decimal("0.055")), ("020.0", Decimal("0.2")), ("00.0", Decimal("0")), ("", Decimal("0")), ("0.1", Decimal("0.1")), (0, Decimal("0"))],
+    [
+        ("20,00", Decimal("0.2")),
+        ("06", Decimal("0.055")),
+        ("5.50", Decimal("0.055")),
+        ("020.0", Decimal("0.2")),
+        ("00.0", Decimal(0)),
+        ("", Decimal(0)),
+        ("0.1", Decimal("0.1")),
+        (0, Decimal(0)),
+    ],
 )
 def test_tva_widex(value, expected):
     assert _vat_model(TvaWidex)(vat_rate=value).vat_rate == expected
 
 
-@pytest.mark.parametrize(("value", "expected"), [("C0", Decimal("0")), ("E7", Decimal("0")), ("C3", Decimal("0.055")), ("C4", Decimal("0.2")), ("0.1", Decimal("0.1"))])
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("C0", Decimal(0)),
+        ("E7", Decimal(0)),
+        ("C3", Decimal("0.055")),
+        ("C4", Decimal("0.2")),
+        ("0.1", Decimal("0.1")),
+    ],
+)
 def test_tva_newson(value, expected):
     assert _vat_model(TvaNewson)(vat_rate=value).vat_rate == expected
 
@@ -233,11 +289,22 @@ def test_tva_newson(value, expected):
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [("1,234.5", Decimal("1234.5")), ("1.234,5", Decimal("1234.5")), ("1 234", Decimal("1234")), ("2,5", Decimal("2.5")), (None, Decimal("0"))],
+    [
+        ("1,234.5", Decimal("1234.5")),
+        ("1.234,5", Decimal("1234.5")),
+        ("1 234", Decimal(1234)),
+        ("2,5", Decimal("2.5")),
+        (None, Decimal(0)),
+    ],
 )
 def test_null_zero_decimal_field_separateurs(value, expected):
     """Le premier séparateur rencontré est celui des milliers"""
-    assert NullZeroDecimalField(localize=False).clean(value.replace(" ", "") if isinstance(value, str) else value) == expected
+    assert (
+        NullZeroDecimalField(localize=False).clean(
+            value.replace(" ", "") if isinstance(value, str) else value
+        )
+        == expected
+    )
 
 
 # CHAMPS DE SÉRIALISEUR ============================================================================
@@ -250,7 +317,20 @@ class Row(serializers.Serializer):
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [("1", True), ("2.0", True), ("0", False), ("-1", False), ("oui", True), ("X", True), ("non", False), ("-", False), ("", None), ("nul", None), ("true", True), ("false", False)],
+    [
+        ("1", True),
+        ("2.0", True),
+        ("0", False),
+        ("-1", False),
+        ("oui", True),
+        ("X", True),
+        ("non", False),
+        ("-", False),
+        ("", None),
+        ("nul", None),
+        ("true", True),
+        ("false", False),
+    ],
 )
 def test_null_boolean_field(value, expected):
     row = Row(data={"flag": value, "name": "x"})
@@ -276,7 +356,9 @@ def test_null_boolean_field_nul_sans_allow_null():
     assert strict.is_valid() is False
 
 
-@pytest.mark.parametrize(("value", "expected"), [("  abcdef ", "abcd"), (12345, "1234"), (1.5, "1.5"), ("", "")])
+@pytest.mark.parametrize(
+    ("value", "expected"), [("  abcdef ", "abcd"), (12345, "1234"), (1.5, "1.5"), ("", "")]
+)
 def test_max_length_char_field(value, expected):
     row = Row(data={"flag": "1", "name": value})
 

@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests du chargeur de fichiers EDI OPTO 33 (classe Opto33Loader de apps/data_flux/loader.py)
+"""FR : Tests du chargeur de fichiers EDI OPTO 33 (classe Opto33Loader de apps/data_flux/loader.py)
+
+
 EN : Tests for the EDI OPTO 33 loader
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import io
 import uuid
 
@@ -34,7 +36,11 @@ SEGMENTS = [
     "UNT+12+1",
     "UNZ+1+1863",
 ]
-COLUMNS = {"invoice_number": "invoice_number", "reference_article": "reference_article", "qty": "qty"}
+COLUMNS = {
+    "invoice_number": "invoice_number",
+    "reference_article": "reference_article",
+    "qty": "qty",
+}
 
 
 @pytest.fixture
@@ -83,14 +89,21 @@ def test_champs_ajoutes_a_la_volee(edi_file):
     with Opto33Loader(edi_file, COLUMNS, params_dict=params) as loader:
         assert loader.get_add_dict == {"uuid_identification": identifier, "flow": "Edi"}
         assert loader.get_add_values == [identifier, "Edi"]
-        assert list(loader.read()) == [f"FAC001;ART001;2;{identifier};Edi", f"FAC001;ART002;1;{identifier};Edi"]
+        assert list(loader.read()) == [
+            f"FAC001;ART001;2;{identifier};Edi",
+            f"FAC001;ART002;1;{identifier};Edi",
+        ]
 
     with Opto33Loader(edi_file, COLUMNS, params_dict=params) as loader:
         assert list(loader.read_list())[1] == ["FAC001", "ART002", "1", str(identifier), "Edi"]
 
     with Opto33Loader(edi_file, COLUMNS, params_dict=params) as loader:
         assert next(iter(loader.read_dict())) == {
-            "invoice_number": "FAC001", "reference_article": "ART001", "qty": "2", "uuid_identification": identifier, "flow": "Edi",
+            "invoice_number": "FAC001",
+            "reference_article": "ART001",
+            "qty": "2",
+            "uuid_identification": identifier,
+            "flow": "Edi",
         }
 
 
@@ -99,14 +112,22 @@ def test_champ_ajoute_sans_arguments(edi_file, make_trace):
     trace = make_trace()
     params = {"add_fields_dict": {"uuid_identification": (uuid.uuid4,)}, "trace": trace}
 
-    with Opto33Loader(edi_file, COLUMNS, params_dict=params) as loader, pytest.raises(GetAddDictError, match="tuple de 2"):
+    with (
+        Opto33Loader(edi_file, COLUMNS, params_dict=params) as loader,
+        pytest.raises(GetAddDictError, match="tuple de 2"),
+    ):
         _ = loader.get_add_dict
 
     trace.refresh_from_db()
     assert trace.errors is True
     assert trace.comment == "La méthode get_add_dict a besoins d'un tuple de 2 élements"
 
-    with Opto33Loader(edi_file, COLUMNS, params_dict={"add_fields_dict": {"x": (uuid.uuid4,)}}) as loader, pytest.raises(GetAddDictError):
+    with (
+        Opto33Loader(
+            edi_file, COLUMNS, params_dict={"add_fields_dict": {"x": (uuid.uuid4,)}}
+        ) as loader,
+        pytest.raises(GetAddDictError),
+    ):
         _ = loader.get_add_dict
 
 

@@ -1,6 +1,6 @@
-"""
-FR : Module des formulaires pour l'objet numérotation (interne, externe, etc...)
-EN : Forms module for the numbering object (internal, external, etc.)
+"""FR : Module des formulaires pour l'objet numérotation (interne, externe, etc...).
+
+EN : Forms module for the numbering object (internal, external, etc.).
 
 Commentaire:
 
@@ -10,6 +10,7 @@ created by: Paulo ALVES
 modified at: 2023-03-11
 modified by: Paulo ALVES
 """
+
 from django import forms
 
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
@@ -17,12 +18,12 @@ from apps.parameters.models import Counter
 
 
 class CounterForm(forms.ModelForm):
-    """Form pour les Compteurs"""
+    """Form pour les Compteurs."""
 
     use_required_attribute = False
 
     def __init__(self, *args, **kwargs):
-        """Ajout ou transformation des champs de formulaires"""
+        """Ajout ou transformation des champs de formulaires."""
         super().__init__(*args, **kwargs)
 
         self.fields["lpad_num"].required = False
@@ -33,7 +34,7 @@ class CounterForm(forms.ModelForm):
         self.fields["separateur"].required = False
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         model = Counter
         fields = (

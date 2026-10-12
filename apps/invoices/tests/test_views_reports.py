@@ -1,4 +1,5 @@
 """Tests des vues d'export des achats (reports_eric, reports_views) et des essais d'envoi"""
+
 import datetime
 import logging
 
@@ -18,7 +19,9 @@ def fake_get_achats(file_io, file_name, dte_d, dte_f):
 
 def test_valid_export_achats(logged_client):
     assert logged_client.get(reverse("invoices:valid_export_achats")).status_code == 200
-    assert logged_client.post(reverse("invoices:valid_export_achats")).url == reverse("invoices:export_achats")
+    assert logged_client.post(reverse("invoices:valid_export_achats")).url == reverse(
+        "invoices:export_achats"
+    )
 
 
 def test_export_achats(logged_client, make_edi_validation, monkeypatch):
@@ -58,7 +61,10 @@ def test_finalize_purchases_export(make_user, make_edi_validation, monkeypatch, 
     def boom(*args, **kwargs):
         raise RuntimeError("boom")
 
-    with patched_attrs(monkeypatch, reports_views, response_file=boom), caplog.at_level(logging.ERROR):
+    with (
+        patched_attrs(monkeypatch, reports_views, response_file=boom),
+        caplog.at_level(logging.ERROR),
+    ):
         response = reports_views.finalize_purchases_export(request)
 
     assert response.status_code == 200
@@ -77,7 +83,11 @@ def test_send_email_essais(make_user, monkeypatch):
     request = RequestFactory().get("/essais/")
     request.user = make_user()
 
-    with patched_attrs(monkeypatch, essais_views, launch_celery_send_emails_essais=lambda user_pk: calls.append(user_pk)):
+    with patched_attrs(
+        monkeypatch,
+        essais_views,
+        launch_celery_send_emails_essais=lambda user_pk: calls.append(user_pk),
+    ):
         response = essais_views.send_email_essais(request)
 
     assert response.url == reverse("invoices:send_email_pdf_invoice")

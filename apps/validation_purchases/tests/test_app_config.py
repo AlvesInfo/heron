@@ -1,4 +1,5 @@
 """Tests de la configuration de l'app validation_purchases"""
+
 import importlib
 
 from django.apps import apps
@@ -12,8 +13,14 @@ def test_app_config():
 
 
 def test_paquets_importables():
-    for name in ["apps.validation_purchases", "apps.validation_purchases.admin", "apps.validation_purchases.models",
-                 "apps.validation_purchases.forms", "apps.validation_purchases.urls", "apps.validation_purchases.views"]:
+    for name in [
+        "apps.validation_purchases",
+        "apps.validation_purchases.admin",
+        "apps.validation_purchases.models",
+        "apps.validation_purchases.forms",
+        "apps.validation_purchases.urls",
+        "apps.validation_purchases.views",
+    ]:
         assert importlib.import_module(name)
 
 

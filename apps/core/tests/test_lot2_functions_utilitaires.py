@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des utilitaires génériques (apps/core/functions/functions_utilitaires.py)
+"""FR : Tests des utilitaires génériques (apps/core/functions/functions_utilitaires.py)
+
+
 EN : Tests for generic utilities
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import datetime
 import logging
 from decimal import Decimal
@@ -41,8 +43,16 @@ from apps.core.functions.functions_utilitaires import (
         ([3, 4], [0, 3], True),
         ([0, 3], [4, 6], False),
         ([0, 3], [-4, -6], False),
-        ([datetime.date(2022, 1, 1), datetime.date(2022, 1, 3)], [datetime.date(2022, 1, 2), datetime.date(2022, 1, 2)], True),
-        ([datetime.date(2022, 1, 1), datetime.date(2022, 1, 3)], [datetime.date(2022, 1, 6), datetime.date(2022, 1, 8)], False),
+        (
+            [datetime.date(2022, 1, 1), datetime.date(2022, 1, 3)],
+            [datetime.date(2022, 1, 2), datetime.date(2022, 1, 2)],
+            True,
+        ),
+        (
+            [datetime.date(2022, 1, 1), datetime.date(2022, 1, 3)],
+            [datetime.date(2022, 1, 6), datetime.date(2022, 1, 8)],
+            False,
+        ),
     ],
 )
 def test_overlaps(first, second, expected):
@@ -117,7 +127,12 @@ def test_encoding_detect_latin_1(tmp_path):
     path = tmp_path / "fichier.csv"
     path.write_bytes("énergie électrique été à côté\n".encode("latin-1") * 20)
 
-    assert encoding_detect(path).lower() in {"iso-8859-1", "windows-1252", "iso-8859-9", "windows-1254"}
+    assert encoding_detect(path).lower() in {
+        "iso-8859-1",
+        "windows-1252",
+        "iso-8859-9",
+        "windows-1254",
+    }
 
 
 def test_encoding_detect_fichier_absent(tmp_path):
@@ -137,7 +152,12 @@ def test_get_client_ip():
     """Adresse derrière un proxy (X-Forwarded-For) sinon adresse distante"""
     factory = RequestFactory()
 
-    assert get_client_ip(factory.get("/", HTTP_X_FORWARDED_FOR="10.0.0.1, 10.0.0.2", REMOTE_ADDR="127.0.0.1")) == "10.0.0.1"
+    assert (
+        get_client_ip(
+            factory.get("/", HTTP_X_FORWARDED_FOR="10.0.0.1, 10.0.0.2", REMOTE_ADDR="127.0.0.1")
+        )
+        == "10.0.0.1"
+    )
     assert get_client_ip(factory.get("/", REMOTE_ADDR="192.168.1.10")) == "192.168.1.10"
 
 
@@ -161,7 +181,14 @@ def test_get_decimal(value, expected):
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [("20 %", "20"), ("1.234,5", "1234.5"), ("1,234.5", "1234.5"), ("", "0"), ("-1", "-1"), ("12,5", "12.5")],
+    [
+        ("20 %", "20"),
+        ("1.234,5", "1234.5"),
+        ("1,234.5", "1234.5"),
+        ("", "0"),
+        ("-1", "-1"),
+        ("12,5", "12.5"),
+    ],
 )
 def test_get_zero_decimal(value, expected):
     """Comme get_decimal, sans le signe, le % retiré et zéro par défaut"""

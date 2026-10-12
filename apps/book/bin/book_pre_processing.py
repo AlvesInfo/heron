@@ -1,6 +1,6 @@
-"""
-FR : Module de pré-traitement avant import des fichiers de factures fournisseur
-EN : Pre-processing module before importing supplier invoice files
+"""FR : Module de pré-traitement avant import des fichiers de factures fournisseur.
+
+EN : Pre-processing module before importing supplier invoice files.
 
 Commentaire:
 
@@ -10,29 +10,32 @@ created by: Paulo ALVES
 modified at: 2022-05-10
 modified by: Paulo ALVES
 """
+
 import csv
 from pathlib import Path
 
 from django.db import connection
-from apps.data_flux.postgres_save import get_random_name
+
 from apps.book.models import Society
+from apps.data_flux.postgres_save import get_random_name
 
 
 def bp_book_pre_processing(path_dir: Path, file: Path):
-    """
-    Transformation du fichier en entrée des fournisseurs - BPS et client - BPC,
+    """Transformation du fichier en entrée des fournisseurs - BPS et client - BPC,.
+
     pour y ajouter les colonnes nécessaires du type de tiers (fournisseur, client, employé, ...)
     :param path_dir: Répertoire du fichier à traité
-    :param file: Fichier à traiter
+    :param file: Fichier à traiter.
     """
     while True:
         new_file = path_dir / f"{get_random_name()}.csv"
         if not new_file.is_file():
             break
 
-    with file.open("r", encoding="utf8") as file_to_parse, new_file.open(
-        "w", encoding="utf8", newline=""
-    ) as file_to_write:
+    with (
+        file.open("r", encoding="utf8") as file_to_parse,
+        new_file.open("w", encoding="utf8", newline="") as file_to_write,
+    ):
         csv_reader = csv.reader(
             file_to_parse,
             delimiter=";",
@@ -94,8 +97,8 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
                     code_dict_exists.get(payment_condition_client, comptant),
                     vat_sheme_client,
                     account_client_code,
+                    *society_types,
                 ]
-                + society_types
             )
 
     file.unlink()
@@ -103,19 +106,20 @@ def bp_book_pre_processing(path_dir: Path, file: Path):
 
 
 def society_book_pre_processing(path_dir: Path, file: Path):
-    """
-    Transformation du fichier en entrée des adresses sociétés Sage, en vérifiant que le tiers existe
+    """Transformation du fichier en entrée des adresses sociétés Sage, en vérifiant que le tiers existe.
+
     :param path_dir: Répertoire du fichier à traité
-    :param file: Fichier à traiter
+    :param file: Fichier à traiter.
     """
     while True:
         new_file = path_dir / f"{get_random_name()}.csv"
         if not new_file.is_file():
             break
 
-    with file.open("r", encoding="utf8") as file_to_parse, new_file.open(
-        "w", encoding="utf8", newline=""
-    ) as file_to_write:
+    with (
+        file.open("r", encoding="utf8") as file_to_parse,
+        new_file.open("w", encoding="utf8", newline="") as file_to_write,
+    ):
         csv_reader = csv.reader(
             file_to_parse,
             delimiter=";",
@@ -137,19 +141,20 @@ def society_book_pre_processing(path_dir: Path, file: Path):
 
 
 def bank_book_pre_processing(path_dir: Path, file: Path):
-    """
-    Transformation du fichier en entrée des banques sociétés Sage, en vérifiant que le tiers existe
+    """Transformation du fichier en entrée des banques sociétés Sage, en vérifiant que le tiers existe.
+
     :param path_dir: Répertoire du fichier à traité
-    :param file: Fichier à traiter
+    :param file: Fichier à traiter.
     """
     while True:
         new_file = path_dir / f"{get_random_name()}.csv"
         if not new_file.is_file():
             break
 
-    with file.open("r", encoding="utf8") as file_to_parse, new_file.open(
-        "w", encoding="utf8", newline=""
-    ) as file_to_write:
+    with (
+        file.open("r", encoding="utf8") as file_to_parse,
+        new_file.open("w", encoding="utf8", newline="") as file_to_write,
+    ):
         csv_reader = csv.reader(
             file_to_parse,
             delimiter=";",

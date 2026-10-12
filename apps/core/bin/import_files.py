@@ -1,6 +1,6 @@
-"""
-FR : Module d'import de données issues d'un fichier
-EN : Module for importing data from a file
+"""FR : Module d'import de données issues d'un fichier.
+
+EN : Module for importing data from a file.
 
 Commentaire:
 
@@ -10,21 +10,68 @@ created by: Paulo ALVES
 modified at: 2023-05-14
 modified by: Paulo ALVES
 """
-from typing import Dict
+
 import shutil
 from pathlib import Path
 
 from django.utils import timezone
 
-from heron.loggers import LOGGER_IMPORT
 from apps.data_flux.exceptions import DuplicatesError, ModelFieldError
-from apps.data_flux.trace import get_trace
 from apps.data_flux.make_inserts import make_insert
+from apps.data_flux.trace import get_trace
+from heron.loggers import LOGGER_IMPORT
+
+# Messages utilisateur des erreurs de structure du fichier
+FILE_ERRORS = {
+    DuplicatesError: "Vous avez des doublons dans le fichier",
+    ModelFieldError: "Vous avez des champs qui n'existent pas en base",
+}
 
 
-def import_file_process(file_path: Path, params_dict: Dict, save_dir: Path = None):
-    """
-    Intégration de fichiers dans les modèles ou tables
+def _call_hook(params_dict: dict, name: str):
+    """Appelle la fonction optionnelle (pre_processing / post_processing) du paramétrage."""
+    hook = params_dict.get(name)
+
+    if hook:
+        hook()
+
+
+def _translated_file(file_path: Path, params_dict: dict) -> Path:
+    """Fichier à intégrer : le fichier traduit par translate_file s'il est paramétré."""
+    translate = params_dict.get("translate_file")
+    return translate(file_path) if translate else file_path
+
+
+def _cleanup_translated(new_file_path, file_path: Path):
+    """Supprime le fichier traduit temporaire s'il existe encore."""
+    if new_file_path and new_file_path != file_path and new_file_path.is_file():
+        new_file_path.unlink()
+
+
+def _archive_source(file_path: Path, save_dir):
+    """Déplace le fichier source vers le répertoire de sauvegarde, ou le supprime."""
+    if save_dir:
+        destination = Path(save_dir) / file_path.name
+        shutil.move(file_path.resolve(), destination.resolve())
+    else:
+        file_path.unlink()
+
+
+def _finish_trace(trace, *, error: bool):
+    """Marque la trace en erreur le cas échéant et l'enregistre."""
+    if trace is None:
+        return
+
+    if error:
+        trace.errors = True
+        trace.comment = trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
+
+    trace.save()
+
+
+def import_file_process(file_path: Path, params_dict: dict, save_dir: Path | None = None):
+    """Intégration de fichiers dans les modèles ou tables.
+
     :param file_path: Fichier à importer
     :param params_dict: Dictionnaire des paramètres :
                         params_dict = {
@@ -45,9 +92,9 @@ def import_file_process(file_path: Path, params_dict: Dict, save_dir: Path = Non
                         }
     :param save_dir: Répertoire de sauvegarde du fichier, s'il n'est pas donné,
                            le fichier est effaçé
-    :return: Liste des fichiers
+    :return: Liste des fichiers.
     """
-    new_file_path = ""
+    new_file_path: Path | str = ""
     error = False
     trace = None
     to_print = ""
@@ -64,15 +111,8 @@ def import_file_process(file_path: Path, params_dict: Dict, save_dir: Path = Non
             "trace": trace,
             "add_fields_dict": params_dict.get("add_fields_dict"),
         }
-
-        new_file_path = (
-            params_dict.get("translate_file")(file_path)
-            if params_dict.get("translate_file")
-            else file_path
-        )
-
-        if params_dict.get("pre_processing"):
-            params_dict.get("pre_processing")()
+        new_file_path = _translated_file(file_path, params_dict)
+        _call_hook(params_dict, "pre_processing")
 
         to_print = make_insert(
             params_dict.get("model"),
@@ -81,56 +121,32 @@ def import_file_process(file_path: Path, params_dict: Dict, save_dir: Path = Non
             trace,
             params_dict.get("validator"),
             params_dict_loader,
-            # insert_mode="upsert",
         )
 
-        if new_file_path != file_path:
-            new_file_path.unlink()
-
-        if params_dict.get("post_processing"):
-            params_dict.get("post_processing")()
+        _cleanup_translated(new_file_path, file_path)
+        _call_hook(params_dict, "post_processing")
 
         trace.time_to_process = (timezone.now() - trace.created_at).total_seconds()
         trace.final_at = timezone.now()
         trace.save()
+        _archive_source(file_path, save_dir)
 
-        if save_dir:
-            destination = Path(save_dir) / file_path.name
-            shutil.move(file_path.resolve(), destination.resolve())
-        else:
-            file_path.unlink()
-
-    except DuplicatesError as except_error:
+    except (DuplicatesError, ModelFieldError) as except_error:
         error = True
-        to_print = "Vous avez des doublons dans le fichier"
-        LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
+        to_print = FILE_ERRORS[type(except_error)]
+        LOGGER_IMPORT.exception("TypeError")
 
-    except ModelFieldError as except_error:
+    except TypeError:
         error = True
-        to_print = "Vous avez des champs qui n'existent pas en base"
-        LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
+        LOGGER_IMPORT.exception("TypeError")
 
-    except TypeError as except_error:
+    except Exception:
         error = True
-        LOGGER_IMPORT.exception(f"TypeError : {except_error!r}")
-
-    except Exception as except_error:
-        error = True
-        LOGGER_IMPORT.exception(f"Exception Générale: {file_path.name}\n{except_error!r}")
+        LOGGER_IMPORT.exception("Exception Générale: %s", file_path.name)
 
     finally:
-        if error and trace:
-            trace.errors = True
-            trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
-
-        if trace is not None:
-            trace.save()
-
-        if new_file_path and new_file_path != file_path and new_file_path.is_file():
-            new_file_path.unlink()
-
-        LOGGER_IMPORT.info("%s %s", 'to_print : ', to_print)
+        _finish_trace(trace, error=error)
+        _cleanup_translated(new_file_path, file_path)
+        LOGGER_IMPORT.info("%s %s", "to_print : ", to_print)
 
     return error, to_print

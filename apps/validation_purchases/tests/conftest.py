@@ -1,24 +1,27 @@
 # pylint: disable=E0401,W0621,C0415
-"""
-FR : Fixtures propres aux tests de l'app validation_purchases (écrans de validation des achats)
+"""FR : Fixtures propres aux tests de l'app validation_purchases (écrans de validation des achats)
+
+
 EN : Fixtures for validation_purchases app tests
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import datetime
 import types
-from typing import Any
 from collections.abc import Callable
+from typing import Any
 
 import pytest
-
 
 
 @pytest.fixture
 def validation_period(make_edi_validation) -> Any:
     """Période de validation en cours (EdiValidation final=False, janvier 2026)"""
-    return make_edi_validation(billing_period=datetime.date(2026, 1, 1), billing_date=datetime.date(2026, 1, 31))
+    return make_edi_validation(
+        billing_period=datetime.date(2026, 1, 1), billing_date=datetime.date(2026, 1, 31)
+    )
 
 
 @pytest.fixture
@@ -32,7 +35,7 @@ def month_period() -> types.SimpleNamespace:
 
 
 @pytest.fixture
-def excel_io() -> Callable[[], Any]:
+def excel_io() -> Callable[[Any], Any]:
     """Renvoie une fonction lisant les cellules de la première feuille d'un BytesIO xlsx"""
     import openpyxl
 
@@ -43,24 +46,25 @@ def excel_io() -> Callable[[], Any]:
 
     return _read
 
+
 # Fixtures des modules d'aide de l'app (collectées ici, plus d'import dans les tests)
 from apps.validation_purchases.tests.helpers_excel import (  # noqa: E402,F401  pylint: disable=W0611,C0413
+    bi_maisons_table,
     ko_writer,
     make_edi_row,
     make_purchase_invoice,
     make_sale_rows,
     make_subscription,
-    bi_maisons_table,
 )
 from apps.validation_purchases.tests.helpers_excel_2 import (  # noqa: E402,F401  pylint: disable=W0611,C0413
     make_ca_client,
+    make_purchase_invoice_2,
     make_sale_invoice,
     make_sale_invoice_detail,
-    make_purchase_invoice_2,
     make_supplier_rate,
 )
 from apps.validation_purchases.tests.helpers_views import (  # noqa: E402,F401  pylint: disable=W0611,C0413
-    stub_excel,
-    make_action,
     integration_data,
+    make_action,
+    stub_excel,
 )

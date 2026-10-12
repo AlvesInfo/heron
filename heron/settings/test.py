@@ -1,6 +1,6 @@
-"""
-FR : Settings dédiés aux tests pytest
-EN : Settings dedicated to pytest tests
+"""FR : Settings dédiés aux tests pytest.
+
+EN : Settings dedicated to pytest tests.
 
 Commentaire:
 
@@ -12,14 +12,13 @@ Django ne tente pas de créer une base de test sur un serveur distant.
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 from decouple import AutoConfig
 
 from heron import settings as _base_settings
 
 # Ré-export des settings du module de base, sans import *
-globals().update(
-    {name: value for name, value in vars(_base_settings).items() if name.isupper()}
-)
+globals().update({name: value for name, value in vars(_base_settings).items() if name.isupper()})
 from heron.settings import ENV_ROOT, LOGGING
 
 _config = AutoConfig(search_path=ENV_ROOT)
@@ -43,7 +42,9 @@ DATABASES = {
 }
 
 # Pas d'écriture de fichiers de logs pendant les tests : tout part sur la console
-for _handler in LOGGING["handlers"].values():
+_logging: dict = LOGGING
+
+for _handler in _logging["handlers"].values():
     if _handler.get("class") == "logging.FileHandler":
         _handler.update({"class": "logging.StreamHandler"})
         _handler.pop("filename", None)

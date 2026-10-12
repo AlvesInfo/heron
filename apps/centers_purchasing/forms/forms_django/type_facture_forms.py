@@ -1,19 +1,18 @@
-"""
-Forms des dictionnaires Centrale FIlle / Type de pièces
-"""
+"""Forms des dictionnaires Centrale FIlle / Type de pièces."""
+
 from django import forms
 
-from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.centers_purchasing.models import TypeFacture
+from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
 class TypeFactureForm(forms.ModelForm):
-    """Formulaires de la liste des dictionnaires Centrale FIlle / Type de pièces"""
+    """Formulaires de la liste des dictionnaires Centrale FIlle / Type de pièces."""
 
     use_required_attribute = False
 
     class Meta:
-        """class Meta du form django"""
+        """class Meta du form django."""
 
         model = TypeFacture
         fields = [
@@ -29,13 +28,13 @@ class TypeFactureForm(forms.ModelForm):
 
 
 class TypeFactureDeleteForm(forms.ModelForm):
-    """Formulaires de la liste des dictionnaires Centrale FIlle / Type de pièces"""
+    """Formulaires de la liste des dictionnaires Centrale FIlle / Type de pièces."""
 
     # Le champ id (AutoField) n\'est pas généré par le ModelForm : déclaré pour valider l\'existence
     id = forms.ModelChoiceField(queryset=TypeFacture.objects.all())
 
     class Meta:
-        """class Meta du form django"""
+        """class Meta du form django."""
 
         model = TypeFacture
         fields = [

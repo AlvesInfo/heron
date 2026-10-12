@@ -1,0 +1,34 @@
+repos:
+  - repo: local
+    hooks:
+      - id: uv-check
+        name: Check uv configuration
+        entry: uv pip check
+        pass_filenames: false
+        language: system
+        require_serial: true
+
+      - id: format-sources
+        name: Format sources using ruff
+        entry: uv run ruff format apps heron conftest.py scripts
+        language: system
+        require_serial: true
+        types_or: [python, pyi]
+
+      - id: mypy
+        name: Check Typing
+        entry: uv run mypy
+        pass_filenames: false
+        language: system
+        require_serial: true
+        types_or: [python]
+
+      - id: ruff
+        name: Check Linter
+        description: "Run 'ruff' for extremely fast Python linting"
+        entry: uv run ruff check  --fix apps heron conftest.py scripts
+        language: system
+        types_or: [python, pyi]
+        args: [--fix, --exit-non-zero-on-fix]
+        verbose: true
+

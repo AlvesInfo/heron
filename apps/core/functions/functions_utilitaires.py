@@ -1,29 +1,27 @@
-"""
-Module Utilitaires
-"""
-import os
-from itertools import chain, islice, accumulate
-import time
-from decimal import Decimal
-import datetime
-from operator import itemgetter
-from chardet.universaldetector import UniversalDetector
-from typing import AnyStr
+"""Module Utilitaires."""
+
 import importlib
+import time
+from collections.abc import Iterable
+from itertools import accumulate, chain, islice
+from operator import itemgetter
+from pathlib import Path
+
+from chardet.universaldetector import UniversalDetector
 
 from heron.loggers import LOGGER_DJANGO
 
 
 class EncodingError(Exception):
-    """Exception sniff encodig"""
+    """Exception sniff encodig."""
 
 
 def overlaps(
-    iterable_1: [int, float, Decimal, type(datetime)],
-    iterable_2: [int, float, Decimal, type(datetime)],
+    iterable_1: Iterable,
+    iterable_2: Iterable,
 ):
-    """
-    :param iterable_1: iterable de int, float, Decimal ou de datetime
+    """:param iterable_1: iterable de int, float, Decimal ou de datetime
+
     :param iterable_2: iterable de int, float, Decimal ou de datetime
     :return: Renvoie True si iterable_1 overlap iterable_2 sinon False
     >>> overlaps([0, 3], [3, 4])
@@ -263,12 +261,12 @@ N_DIC = {
 
 
 def num_string_series(num=0, nb_car=1):
-    """
-    Fonction qui renvoie un style de generate_series postgesql :
-            exemple résultat -> 0000000018
-        :param num: De type int
-        :param nb_car: De type int, nombre de caractères souhaités
-        :return: De type string
+    """Fonction qui renvoie un style de generate_series postgresql.
+
+        exemple résultat -> 0000000018
+    :param num: De type int
+    :param nb_car: De type int, nombre de caractères souhaités
+    :return: De type string.
     """
     nb_init = "00000000000000000000000000000000000000000000000000{0}"
     num = int(num)
@@ -278,20 +276,20 @@ def num_string_series(num=0, nb_car=1):
 
 
 def iter_slice(iterable, taille, form=tuple):
-    """
-    Parcourir n'importe quel itérable, par tailles
-        exemple :
-            l = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-            rows = iter_slice(l, 4)
-            for r in rows:
-                print(r)
-            ... (1, 2, 3, 4)
-            ... (5, 6, 7, 8)
-            ... (9, )
-        :param iterable: List, tuple, set, str etc...
-        :param taille: Nombre
-        :param form: Format de sortie, par default tuple, mais on peut choisir, list, set ...
-        :return: Générateur par tranches
+    """Parcourir n'importe quel itérable, par tailles.
+
+    exemple :
+        l = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        rows = iter_slice(l, 4)
+        for r in rows:
+            print(r)
+        ... (1, 2, 3, 4)
+        ... (5, 6, 7, 8)
+        ... (9, )
+    :param iterable: List, tuple, set, str etc...
+    :param taille: Nombre
+    :param form: Format de sortie, par default tuple, mais on peut choisir, list, set ...
+    :return: Générateur par tranches.
     """
     i_t = iter(iterable)
 
@@ -300,43 +298,44 @@ def iter_slice(iterable, taille, form=tuple):
 
 
 class Timer:
-    """
-    Timer
-    """
+    """Timer."""
 
     def __init__(self):
+        """Démarre le chronomètre."""
         self.start = time.time()
 
     def __enter__(self):
+        """Entre dans le contexte et renvoie le chronomètre."""
         return self
 
     def __exit__(self, *args):
+        """Journalise la durée écoulée à la sortie du contexte."""
         duree = time.time() - self.start
-        LOGGER_DJANGO.info(f'{duree}s')
+        LOGGER_DJANGO.info("%ss", duree)
         return False
 
     def __str__(self):
-        """Texte renvoyé dans les selects et à l'affichage de l'objet"""
+        """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         duree = time.time() - self.start
         return f"intermédiaire : {duree}s"
 
 
 def alpha(v_s):
-    """
-    Fonction qui supprime les tabulations, saut de lignes CR/LF, les .0 et les espaces devant
+    """Fonction qui supprime les tabulations, saut de lignes CR/LF, les .0 et les espaces devant.
+
     et derrière
         :param v_s: String à corriger
-        :return: String corrigé
+        :return: String corrigé.
     """
     intermediate = str(v_s).replace("\n", "").replace("\t", "").replace("\r", "").strip()
     return intermediate.replace(".0", "") if intermediate.endswith(".0") else intermediate.strip()
 
 
 def pages(iterable):
-    """
-    Fonction qui renvoie les pages à la façon des pages à imprimer
-        :param iterable: Un itérable, qui comporte des chiffres et un séparateur
-        :return: La liste complète des pages une à une
+    """Fonction qui renvoie les pages à la façon des pages à imprimer.
+
+    :param iterable: Un itérable, qui comporte des chiffres et un séparateur
+    :return: La liste complète des pages une à une.
     """
     if iterable is None:
         return None
@@ -345,21 +344,21 @@ def pages(iterable):
 
 
 def delete_file(file):
+    """Fonction qui supprime un fichier.
+
+    :param file: Chemin vers le fichier à supprimer
+    :return: None.
     """
-    Fonction qui supprime un fichier
-        :param file: Chemin vers le fichier à supprimer
-        :return: None
-    """
-    if os.path.isfile(file):
-        os.remove(file)
+    if Path(file).is_file():
+        Path(file).unlink()
 
 
 def encoding_detect(path_file):
-    """Fonction qui renvoi l'encoding le plus probable de du fichier passé en paramètre"""
+    """Fonction qui renvoi l'encoding le plus probable de du fichier passé en paramètre."""
     try:
         detector = UniversalDetector()
 
-        with open(path_file, "rb") as file:
+        with Path(path_file).open("rb") as file:
             for line in file:
                 detector.feed(line)
 
@@ -369,13 +368,14 @@ def encoding_detect(path_file):
             detector.close()
 
     except Exception as except_error:
-        raise EncodingError(f"encoding_detect : {path_file.name !r}") from except_error
+        raise EncodingError(f"encoding_detect : {path_file.name!r}") from except_error
 
     return detector.result["encoding"]
 
 
 def slicing_parser(iterable):
-    """Fonction qui retourne un itemgetter sur un iterabble de nombre formant le nombre de
+    """Fonction qui retourne un itemgetter sur un iterabble de nombre formant le nombre de.
+
     caractères (tranches) à récupérer par item getter. Des tranches de slices
         exemple:
             ... iterable = [2, 5, 4]
@@ -383,27 +383,21 @@ def slicing_parser(iterable):
             équivalent à
             ... parse_slicing = itemgetter(slice(0, 2, None), slice(2, 7, None), slice(7, 11, None))
         :param iterable: la ligne à slicer : slicing = (2, 5, 4)
-        :return: itemgetter(slice(0, 2, None), slice(2, 7, None), slice(7, 11, None))
+        :return: itemgetter(slice(0, 2, None), slice(2, 7, None), slice(7, 11, None)).
     """
     start_iter = iter(iterable[:-1])
     end_iter = iter(iterable)
     return itemgetter(
-        *(slice(k, v) for k, v in zip(accumulate(chain([0], start_iter)), accumulate(end_iter)))
+        *(
+            slice(k, v)
+            for k, v in zip(accumulate(chain([0], start_iter)), accumulate(end_iter), strict=False)
+        )
     )
 
 
-# def pprint_dict(dict_pp):
-#     from pprint imports pformat
-#     from yapf.yapflib.yapf_api imports FormatCode
-#
-#     dict_string = pformat(dict_pp)
-#     formatted_code, _ = FormatCode(dict_string)
-#     print("formated : ",formatted_code)
-#     return formatted_code
-
-
 def get_client_ip(request):
-    """Récupère l'adresse ip si elle existe
+    """Récupère l'adresse ip si elle existe.
+
     :param request:
     :return:
     """
@@ -415,8 +409,9 @@ def get_client_ip(request):
 
 
 def _without_thousands_separator(test_value):
-    """Valeur portant un point et une virgule : le premier rencontré est le séparateur de
-    milliers (supprimé), le second le séparateur décimal (remplacé par un point)
+    """Valeur portant un point et une virgule : le premier rencontré est le séparateur de.
+
+    milliers (supprimé), le second le séparateur décimal (remplacé par un point).
     """
     first = next(letter for letter in test_value if letter in {".", ","})
     to_delete, to_replace = (".", ",") if first == "." else (",", ".")
@@ -425,8 +420,9 @@ def _without_thousands_separator(test_value):
 
 
 def get_decimal(value):
-    """Normalise un nombre saisi (séparateurs français ou anglais) en notation à point,
-    la valeur est renvoyée telle quelle si elle contient autre chose que des chiffres
+    """Normalise un nombre saisi (séparateurs français ou anglais) en notation à point,.
+
+    la valeur est renvoyée telle quelle si elle contient autre chose que des chiffres.
     """
     test_value = str(value).strip().replace(" ", "")
     test_decimal = [
@@ -445,7 +441,7 @@ def get_decimal(value):
 
 
 def get_zero_decimal(value):
-    """Comme get_decimal, sans signe, le % retiré, zéro si la valeur est vide"""
+    """Comme get_decimal, sans signe, le % retiré, zéro si la valeur est vide."""
     test_value = str(value).strip().replace(" ", "").replace("%", "")
     test_decimal = [
         val
@@ -463,10 +459,10 @@ def get_zero_decimal(value):
 
 
 def format_siret(siret):
-    """
-    Formate un n° de SIREN (9 chiffres) ou SIRET (14 chiffres)
-        :param siret: N° de SIREN ou SIRET
-        :return: N° formaté : "000 000 000" ou "000 000 000 00000" ou tel quel sans espaces
+    """Formate un n° de SIREN (9 chiffres) ou SIRET (14 chiffres).
+
+    :param siret: N° de SIREN ou SIRET
+    :return: N° formaté : "000 000 000" ou "000 000 000 00000" ou tel quel sans espaces.
     """
     if siret is None or not siret:
         return ""
@@ -482,13 +478,12 @@ def format_siret(siret):
     return value
 
 
-def get_module_object(function_path_point: AnyStr):
-    """Retourne l'objet au sens python
+def get_module_object(function_path_point: str):
+    """Retourne l'objet au sens python.
+
     :param function_path_point: path de la fonction pointée (ex. home.file_func.function)
-    :return: l'objet au sens python
+    :return: l'objet au sens python.
     """
     module_path, function_name = function_path_point.rsplit(".", 1)
     module = importlib.import_module(module_path)
-    function = getattr(module, function_name)
-
-    return function
+    return getattr(module, function_name)

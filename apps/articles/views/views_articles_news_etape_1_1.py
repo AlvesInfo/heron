@@ -1,43 +1,42 @@
-"""
-Views des Nouveaux articles à valider ou changer
-"""
+"""Views des Nouveaux articles à valider ou changer."""
+
 import inspect
 
 import pendulum
 from django.contrib import messages
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import connection, transaction
 from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
 
-from heron.loggers import LOGGER_EXPORT_EXCEL
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.core.functions.functions_http import get_pagination_buttons
-from apps.core.models import ChangesTrace
-from apps.edi.bin.edi_articles_news import (
-    insert_new_articles,
-    SQL_FLAG_ERROR_SUB_CATEGORY,
-    SQL_FLAG_WITHOUT_AXES,
-    SQL_EDI_IMPORT_ARTICLES,
-    SQL_AXE_BU,
-    SQL_AXE_PRJ,
-    SQL_AXE_PRO,
-    SQL_AXE_PYS,
-    SQL_AXE_RFA,
-)
 from apps.articles.excel_outputs.output_excel_articles_news_list import (
     excel_liste_articles_news,
 )
 from apps.articles.models import Article
 from apps.centers_purchasing.bin.update_account_article import set_update_articles_confict_account
+from apps.core.functions.functions_http import get_pagination_buttons
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
+from apps.core.models import ChangesTrace
+from apps.edi.bin.edi_articles_news import (
+    SQL_AXE_BU,
+    SQL_AXE_PRJ,
+    SQL_AXE_PRO,
+    SQL_AXE_PYS,
+    SQL_AXE_RFA,
+    SQL_EDI_IMPORT_ARTICLES,
+    SQL_FLAG_ERROR_SUB_CATEGORY,
+    SQL_FLAG_WITHOUT_AXES,
+    insert_new_articles,
+)
+from heron.loggers import LOGGER_EXPORT_EXCEL
 
 
 # ECRANS DES NOUVEAUX ARTICLES =====================================================================
 def new_articles_list(request):
-    """Affichage de tous les nouveaux articles présents en base par pagination de 200"""
+    """Affichage de tous les nouveaux articles présents en base par pagination de 200."""
     limit = 200
 
     # On met à jour les articles sans axes ou en erreur de rubrique presta avant affichage
@@ -105,8 +104,7 @@ def new_articles_list(request):
 
 @transaction.atomic
 def articles_new_validation(request):
-    """Validation des nouveaux articles en masse"""
-
+    """Validation des nouveaux articles en masse."""
     # On met à jour les articles sans axes ou en erreur de rubrique presta avant affichage
     with connection.cursor() as cursor:
         cursor.execute(SQL_FLAG_ERROR_SUB_CATEGORY)
@@ -184,10 +182,10 @@ def articles_new_validation(request):
 
 
 def articles_news_export_list(_):
-    """
-    Export Excel de la liste des Sociétés
+    """Export Excel de la liste des Sociétés.
+
     :param _: Request Django
-    :return: response_file
+    :return: response_file.
     """
     try:
         today = pendulum.now()

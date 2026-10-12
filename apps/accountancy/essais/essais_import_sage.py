@@ -88,9 +88,7 @@ def essai_iter_file_to_insert(file):
                 t = CurrencySageSchema(**row)
             except ValidationError as except_error:
                 LOGGER_DJANGO.exception("%s %s", i + 1, except_error.errors())
-                # raise Exception from errors
             else:
-                # ...
                 LOGGER_DJANGO.info("%s %s", i + 1, t.dict())
                 # try:
                 # upsert = PostresDjangoUpsert(

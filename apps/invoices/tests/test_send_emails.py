@@ -1,5 +1,6 @@
 # pylint: disable=E0401,W0621,W0611
 """Tests de l'envoi des factures par email (SMTP via apps.core) et de la boucle Gmail"""
+
 import logging
 
 import pytest
@@ -31,7 +32,13 @@ def mass_mail(monkeypatch):
 def test_invoices_send_by_email(sale_for_email, make_sale_invoice, mass_mail):
     """Les emails valides du tiers et de la maison sont destinataires, les factures sont flaguées"""
     sale, context_dict = sale_for_email(emails=("client@heron.local", "", "pas-un-email"))
-    second = make_sale_invoice(cct="AF0001", third_party_num="CLI001", printed=True, global_invoice_file="AF0001_global.pdf", invoice_month=INVOICE_MONTH)
+    second = make_sale_invoice(
+        cct="AF0001",
+        third_party_num="CLI001",
+        printed=True,
+        global_invoice_file="AF0001_global.pdf",
+        invoice_month=INVOICE_MONTH,
+    )
 
     trace, to_print = send_invoices_emails.invoices_send_by_email(context_dict)
 
@@ -42,7 +49,7 @@ def test_invoices_send_by_email(sale_for_email, make_sale_invoice, mass_mail):
     assert trace.errors is False
     assert trace.file_name == "send email invoice : AF0001_global.pdf"
     assert trace.time_to_process >= 0
-    mail_to, subject, text, html, context, attachments = mass_mail[0]
+    mail_to, subject, _, _, context, attachments = mass_mail[0]
     assert sorted(mail_to) == ["client@heron.local", "maison@heron.local"]
     assert subject == "Factures {periode}"
     assert context["periode"] == "JANVIER 2026"
@@ -68,13 +75,20 @@ def test_invoices_send_by_email_sans_adresse(sale_for_email, mass_mail):
     assert sale.send_email is False
 
 
-@pytest.mark.parametrize(("exception", "logged"), [(EmailException("smtp"), "EmailException"), (RuntimeError("boom"), "Exception Générale")])
-def test_invoices_send_by_email_erreurs_envoi(sale_for_email, monkeypatch, caplog, exception, logged):
+@pytest.mark.parametrize(
+    ("exception", "logged"),
+    [(EmailException("smtp"), "EmailException"), (RuntimeError("boom"), "Exception Générale")],
+)
+def test_invoices_send_by_email_erreurs_envoi(
+    sale_for_email, monkeypatch, caplog, exception, logged
+):
     _, context_dict = sale_for_email()
 
-    with raising_once(exception) as boom, patched_attrs(
-        monkeypatch, send_invoices_emails, send_mass_mail=boom
-    ), caplog.at_level(logging.ERROR, logger="send_email"):
+    with (
+        raising_once(exception) as boom,
+        patched_attrs(monkeypatch, send_invoices_emails, send_mass_mail=boom),
+        caplog.at_level(logging.ERROR, logger="send_email"),
+    ):
         trace, _ = send_invoices_emails.invoices_send_by_email(context_dict)
 
     assert trace.errors is True
@@ -83,11 +97,16 @@ def test_invoices_send_by_email_erreurs_envoi(sale_for_email, monkeypatch, caplo
 
 
 # essais_send_by_email =============================================================================
-@pytest.mark.usefixtures('email_dirs')
+@pytest.mark.usefixtures("email_dirs")
 def test_essais_send_by_email(mass_mail):
     context_dict = {
-        "invoice_month": "2026-01-01", "email_list": "essai@heron.local", "cct": "AF0001",
-        "global_invoice_file": "un.pdf", "subject_email": "s", "email_text": "t", "email_html": "h",
+        "invoice_month": "2026-01-01",
+        "email_list": "essai@heron.local",
+        "cct": "AF0001",
+        "global_invoice_file": "un.pdf",
+        "subject_email": "s",
+        "email_text": "t",
+        "email_html": "h",
     }
 
     trace, to_print = send_emails_essais.essais_send_by_email(context_dict)
@@ -98,9 +117,14 @@ def test_essais_send_by_email(mass_mail):
     assert trace.errors is False
 
 
-@pytest.mark.usefixtures('email_dirs')
+@pytest.mark.usefixtures("email_dirs")
 def test_essais_send_by_email_sans_adresse_et_erreurs(monkeypatch, caplog):
-    context_dict = {"invoice_month": "2026-01-01", "email_list": "", "cct": "AF0001", "global_invoice_file": "un.pdf"}
+    context_dict = {
+        "invoice_month": "2026-01-01",
+        "email_list": "",
+        "cct": "AF0001",
+        "global_invoice_file": "un.pdf",
+    }
 
     trace, to_print = send_emails_essais.essais_send_by_email(context_dict)
 
@@ -110,9 +134,11 @@ def test_essais_send_by_email_sans_adresse_et_erreurs(monkeypatch, caplog):
     context_dict["email_list"] = "essai@heron.local"
 
     for exception in (EmailException("smtp"), RuntimeError("boom")):
-        with raising_once(exception) as boom, patched_attrs(
-            monkeypatch, send_emails_essais, send_mass_mail=boom
-        ), caplog.at_level(logging.ERROR, logger="send_email"):
+        with (
+            raising_once(exception) as boom,
+            patched_attrs(monkeypatch, send_emails_essais, send_mass_mail=boom),
+            caplog.at_level(logging.ERROR, logger="send_email"),
+        ):
             trace, _ = send_emails_essais.essais_send_by_email(context_dict)
 
         assert trace.errors is True
@@ -141,7 +167,11 @@ def celery_group(monkeypatch):
             return state["result"]
 
     monkeypatch.setattr(send_emails_with_gmail, "group", _Group)
-    monkeypatch.setattr(send_emails_with_gmail, "celery_app", type("App", (), {"signature": staticmethod(signature)}))
+    monkeypatch.setattr(
+        send_emails_with_gmail,
+        "celery_app",
+        type("App", (), {"signature": staticmethod(signature)}),
+    )
     return state
 
 
@@ -176,7 +206,7 @@ def test_send_invoices_emails_gmail_erreur(make_user, make_sse_progress, celery_
     assert progress.status == "failed"
 
 
-@pytest.mark.usefixtures('celery_group')
+@pytest.mark.usefixtures("celery_group")
 def test_send_invoices_emails_gmail_sans_job_id(make_user):
     error, info = send_emails_with_gmail.send_invoices_emails_gmail(make_user().pk, "")
 
@@ -184,7 +214,7 @@ def test_send_invoices_emails_gmail_sans_job_id(make_user):
     assert "DoesNotExist" in info
 
 
-@pytest.mark.usefixtures('celery_group')
+@pytest.mark.usefixtures("celery_group")
 def test_send_invoices_emails_gmail_jauge_inconnue(make_user, caplog):
     """Sans jauge : l'erreur est journalisée, et le marquage en échec ne peut aboutir"""
     user = make_user()

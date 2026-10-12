@@ -1,6 +1,6 @@
-"""
-FR : Module de lancement de la boucle d'import des fichiers sage par supervisor
-EN : Module for launching the sage file import loop by supervisor
+"""FR : Module de lancement de la boucle d'import des fichiers sage par supervisor.
+
+EN : Module for launching the sage file import loop by supervisor.
 
 Commentaire:
 
@@ -10,13 +10,14 @@ created by: Paulo ALVES
 modified at: 2022-05-11
 modified by: Paulo ALVES
 """
+
 import os
 import platform
 import sys
-from datetime import datetime
 import time
 
 import django
+from django.utils import timezone
 
 BASE_DIR = r"/"
 
@@ -29,13 +30,13 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "heron.settings")
 
 django.setup()
 
-from apps.countries.loops.imports_loop import process as process_countries
 from apps.accountancy.loops.imports_loop import process as process_accountancy
 from apps.book.loops.imports_loop import process as process_book
+from apps.countries.loops.imports_loop import process as process_countries
 
 
 def main():
-    """Main Function"""
+    """Main Function."""
     process_countries()
     process_accountancy()
     process_book()
@@ -43,7 +44,7 @@ def main():
 
 if __name__ == "__main__":
     while True:
-        maintenant = datetime.now()
+        maintenant = timezone.localtime()
         heure = maintenant.hour
         minute = maintenant.minute
 

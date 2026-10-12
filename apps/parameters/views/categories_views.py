@@ -1,37 +1,35 @@
-"""
-Views des Paramètres
-"""
+"""Views des Paramètres."""
+
 import pendulum
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView
 
+from apps.core.bin.change_traces import ChangeTraceMixin, trace_mark_delete
 from apps.core.functions.functions_http import is_ajax
-from heron.loggers import LOGGER_VIEWS, LOGGER_EXPORT_EXCEL
-from apps.core.bin.change_traces import ChangeTraceMixin
-from apps.core.bin.change_traces import trace_mark_delete
-from apps.core.functions.functions_http_response import response_file, CONTENT_TYPE_EXCEL
-from apps.parameters.excel_outputs.parameters_excel_categories_list import (
-    excel_liste_categories,
-)
+from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.parameters.excel_outputs.parameters_excel_axe_articles_defaut_list import (
     excel_list_axe_article_defaut,
 )
-from apps.parameters.models import Category, SubCategory, DefaultAxeArticle
+from apps.parameters.excel_outputs.parameters_excel_categories_list import (
+    excel_liste_categories,
+)
 from apps.parameters.forms import (
     CategoryForm,
-    SubCategoryForm,
-    DeleteSubCategoryForm,
     DefaultAxeArticleForm,
+    DeleteSubCategoryForm,
+    SubCategoryForm,
 )
+from apps.parameters.models import Category, DefaultAxeArticle, SubCategory
+from heron.loggers import LOGGER_EXPORT_EXCEL, LOGGER_VIEWS
 
 
 # ECRANS DES CATEGORIES ============================================================================
 class CategoriesList(ListView):
-    """View de la liste des Catégories"""
+    """View de la liste des Catégories."""
 
     model = Category
     context_object_name = "categories"
@@ -40,7 +38,7 @@ class CategoriesList(ListView):
 
 
 class CategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Catégories"""
+    """CreateView de création des Catégories."""
 
     model = Category
     form_class = CategoryForm
@@ -49,7 +47,7 @@ class CategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     error_message = "La Catégorie %(name)s n'a pu être créé, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse("parameters:categories_list")
@@ -57,7 +55,7 @@ class CategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -65,7 +63,7 @@ class CategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 
 class CategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
+    """UpdateView pour modification des identifiants pour les fournisseurs EDI."""
 
     model = Category
     form_class = CategoryForm
@@ -75,14 +73,13 @@ class CategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         """Insert the form into the context dict."""
-
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Mise à jour Catégorie"
         context["chevron_retour"] = reverse("parameters:categories_list")
         return super().get_context_data(**context)
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -90,13 +87,12 @@ class CategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 def categories_export_list(_):
-    """
-    Export Excel de la liste des Sociétés
+    """Export Excel de la liste des Sociétés.
+
     :param _: Request Django
-    :return: response_file
+    :return: response_file.
     """
     try:
-
         today = pendulum.now()
         file_name = f"LISTING_DES_CATEGORIES_{today.format('Y_M_D')}_{today.int_timestamp}.xlsx"
 
@@ -110,7 +106,7 @@ def categories_export_list(_):
 
 # ECRANS DES RUBRIQUES PRESTA ======================================================================
 class SubCategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
-    """CreateView de création des Catégories"""
+    """CreateView de création des Catégories."""
 
     model = SubCategory
     form_class = SubCategoryForm
@@ -118,19 +114,19 @@ class SubCategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     success_message = "La Rubrique Presta %(name)s a été créé avec success"
     error_message = "La Rubrique Presta %(name)s n'a pu être créé, une erreur c'est produite"
 
-    def get(self, request, *args, **kwargs):
-        """Ajout de self.category a l'instance de la vue (404 si la catégorie n'existe pas)"""
+    def get(self, _request, *_args, **kwargs):
+        """Ajout de self.category a l'instance de la vue (404 si la catégorie n'existe pas)."""
         self.category = get_object_or_404(Category, pk=kwargs.get("category_pk"))
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
-        """Ajout de self.category a l'instance de la vue (404 si la catégorie n'existe pas)"""
+        """Ajout de self.category a l'instance de la vue (404 si la catégorie n'existe pas)."""
         self.object = None
         self.category = get_object_or_404(Category, pk=kwargs.get("category_pk"))
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse(
@@ -142,12 +138,11 @@ class SubCategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         return context
 
     def get_success_url(self):
-        """Surcharge de l'url en case de succes pour revenir à la catégorie où l'on était"""
-
+        """Surcharge de l'url en case de succes pour revenir à la catégorie où l'on était."""
         return reverse("parameters:category_update", kwargs={"pk": self.category.pk})
 
     def form_valid(self, form):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.created_by = self.request.user
         self.request.session["level"] = 20
 
@@ -155,7 +150,7 @@ class SubCategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
 
 
 class SubCategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification des identifiants pour les fournisseurs EDI"""
+    """UpdateView pour modification des identifiants pour les fournisseurs EDI."""
 
     model = SubCategory
     form_class = SubCategoryForm
@@ -164,7 +159,7 @@ class SubCategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     error_message = "La Rubrique Presta %(name)s n'a pu être modifiée, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
-        """On surcharge la méthode get_context_data, pour ajouter du contexte au template"""
+        """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["create"] = True
         context["chevron_retour"] = reverse(
@@ -177,12 +172,11 @@ class SubCategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        """Surcharge de l'url en case de succes pour revenir à la catégorie où l'on était"""
-
+        """Surcharge de l'url en case de succes pour revenir à la catégorie où l'on était."""
         return reverse("parameters:category_update", kwargs={"pk": self.object.big_category.pk})
 
-    def form_valid(self, form, **kwargs):
-        """Ajout de l'user à la sauvegarde du formulaire"""
+    def form_valid(self, form):
+        """Ajout de l'user à la sauvegarde du formulaire."""
         form.instance.modified_by = self.request.user
         self.request.session["level"] = 20
 
@@ -191,11 +185,11 @@ class SubCategoryUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 @transaction.atomic
 def delete_sub_category(request):
-    """Suppression des rubriques prestas
-    :param request: Request Django
-    :return: view
-    """
+    """Suppression des rubriques prestas.
 
+    :param request: Request Django
+    :return: view.
+    """
     if not is_ajax(request) or request.method != "POST":
         return redirect("home")
 
@@ -213,14 +207,14 @@ def delete_sub_category(request):
         data = {"success": "success"}
 
     else:
-        LOGGER_VIEWS.exception(f"delete_sub_category, form invalid : {form.errors!r}")
+        LOGGER_VIEWS.error("delete_sub_category, form invalid : %r", form.errors)
 
     return JsonResponse(data)
 
 
 # ECRANS DES AXES SUR LES ARTICLES PAR DEFAUT ======================================================
 class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
-    """UpdateView pour modification Axes et catégorie par défaut des articles"""
+    """UpdateView pour modification Axes et catégorie par défaut des articles."""
 
     model = DefaultAxeArticle
     form_class = DefaultAxeArticleForm
@@ -231,6 +225,7 @@ class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
     error_message = "Les catégories et axes  n'ont pu être modifiés, une erreur c'est produite"
 
     def get_context_data(self, **kwargs):
+        """Ajoute au contexte le titre, le lien de retour et les sous-catégories de la rubrique."""
         context = super().get_context_data(**kwargs)
         context["titre_table"] = "Catégories et Axes par défaut pour les articles"
         context["chevron_retour"] = reverse("home")
@@ -239,6 +234,7 @@ class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        """Renseigne l'auteur et contrôle que la sous-catégorie appartient à la rubrique."""
         form.instance.modified_by = self.request.user
         if (
             form.instance.sub_category is None
@@ -251,12 +247,11 @@ class DefaultAxeAricleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
 
 def axe_articles_defaut_export_list(_):
-    """
-    Export Excel de la liste des Axes par défaut pour les articles
-    :return: response_file axes_articles
+    """Export Excel de la liste des Axes par défaut pour les articles.
+
+    :return: response_file axes_articles.
     """
     try:
-
         today = pendulum.now()
         file_name = (
             f"LISTING_DES_AXES_ARTICLES_PAR_DEFAUT_"
@@ -268,4 +263,6 @@ def axe_articles_defaut_export_list(_):
     except Exception:
         LOGGER_EXPORT_EXCEL.exception("view : axe_articles_defaut_export_list")
 
-    return redirect(reverse("parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"}))
+    return redirect(
+        reverse("parameters:axes_articles_defaut", kwargs={"slug_name": "axes_articles"})
+    )

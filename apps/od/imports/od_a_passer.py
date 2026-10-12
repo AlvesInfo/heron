@@ -1,6 +1,6 @@
-"""
-FR : Module d'import des modèles de Sage X3
-EN : Import module for Sage X3 models
+"""FR : Module d'import des modèles de Sage X3.
+
+EN : Import module for Sage X3 models.
 
 Commentaire:
 
@@ -13,26 +13,25 @@ modified by: Paulo ALVES
 
 from pathlib import Path
 
-from django.utils import timezone
 from django.db import connection
-from django.db.models import F, ExpressionWrapper, CharField, Value, Func, Q
+from django.db.models import CharField, ExpressionWrapper, F, Func, Q, Value
+from django.utils import timezone
 
 from apps.core.functions.functions_setups import settings
 from apps.data_flux.make_inserts import make_insert
-from apps.od.models import ModelOd
-from apps.od.forms.forms_djantic.djantic_od import OdSchema
 from apps.data_flux.trace import get_trace
-from apps.parameters.models import Counter
+from apps.od.forms.forms_djantic.djantic_od import OdSchema
+from apps.od.models import ModelOd
 from apps.parameters.bin.core import get_counter_num
-
+from apps.parameters.models import Counter
 
 proccessing_dir = Path(settings.PROCESSING_OD_A_PASSER)
 
 
 def import_od_a_passer(file_path: Path):
-    """
-    Import du fichier des comptes comptable Sage X3
-    :param file_path: Path du fichier à traiter
+    """Import du fichier des comptes comptable Sage X3.
+
+    :param file_path: Path du fichier à traiter.
     """
     model = ModelOd
     validator = OdSchema
@@ -63,10 +62,10 @@ def import_od_a_passer(file_path: Path):
 
 
 def validation_amounts(error, message):
-    """
-    Validation des sommes des montants HT et TVA pour vérifier qu'ils soient égaux au montant ttc
+    """Validation des sommes des montants HT et TVA pour vérifier qu'ils soient égaux au montant ttc.
+
     :param error: Erreur (booléen)
-    :param message: Message à renvoyer
+    :param message: Message à renvoyer.
     """
     # Concaténation des champs pour recréer l'expression `delta`
     delta_expression = ExpressionWrapper(
@@ -86,8 +85,9 @@ def validation_amounts(error, message):
 
     # Filtre pour la condition WHERE
     items = list(
-        ModelOd.objects.annotate(delta=delta_expression)
-        .filter(~Q(montant_ttc=(F("montant_ht") + F("montant_tva"))))[:30]
+        ModelOd.objects.annotate(delta=delta_expression).filter(
+            ~Q(montant_ttc=(F("montant_ht") + F("montant_tva")))
+        )[:30]
     )
 
     if not items:
@@ -97,34 +97,32 @@ def validation_amounts(error, message):
     error = True
 
     for item in items:
-        message += (
-            f'<span>- la ligne "{item.delta}" est déséquilibrée</span><br>'
-        )
+        message += f'<span>- la ligne "{item.delta}" est déséquilibrée</span><br>'
 
     return error, message
 
 
 def update_blank_account():
-    """
-    Mise à jour des colonnes compte_produit, compte_tva, compte_collectif,
-    par un blank si les colonnes sont nulles
+    """Mise à jour des colonnes compte_produit, compte_tva, compte_collectif,.
+
+    par un blank si les colonnes sont nulles.
     """
     sql_update = """
     update "od_modelod"
-    set "compte_produit" = case 
-                            when "compte_produit" is null 
-                            then '' 
-                            else "compte_produit" 
+    set "compte_produit" = case
+                            when "compte_produit" is null
+                            then ''
+                            else "compte_produit"
                            end,
-        "compte_tva" = case 
-                        when "compte_tva" is null 
-                        then '' 
-                        else "compte_tva" 
+        "compte_tva" = case
+                        when "compte_tva" is null
+                        then ''
+                        else "compte_tva"
                        end,
-        "compte_collectif" = case 
-                                when "compte_collectif" is null 
-                                then '' 
-                                else "compte_collectif" 
+        "compte_collectif" = case
+                                when "compte_collectif" is null
+                                then ''
+                                else "compte_collectif"
                              end
     """
     with connection.cursor() as cursor:
@@ -132,23 +130,23 @@ def update_blank_account():
 
 
 def validation_accounts(error, message):
-    """
-    Validation que les comptes comptable Sage X3 existent bien
+    """Validation que les comptes comptable Sage X3 existent bien.
+
     :param error: Erreur (booléen)
-    :param message: Message à renvoyer
+    :param message: Message à renvoyer.
     """
     sql_verif_accounts = """
     with "all_od_accounts" as (
-        select 
-            "id", 
+        select
+            "id",
             unnest(array["compte_produit", "compte_tva", "compte_collectif"]) as "account",
             "code_plan"
         from "od_modelod"
     )
-    select 
+    select
         "odm"."id"
     from "all_od_accounts" "odm"
-    left join "accountancy_accountsage" "aa" 
+    left join "accountancy_accountsage" "aa"
     on "aa"."code_plan_sage" = "odm"."code_plan"
     and "aa"."account" = "odm"."account"
     where "aa"."account" isnull
@@ -157,7 +155,7 @@ def validation_accounts(error, message):
 
     with connection.cursor() as cursor:
         cursor.execute(sql_verif_accounts)
-        fake_accounts = set([row[0] for row in cursor.fetchall()])
+        fake_accounts = {row[0] for row in cursor.fetchall()}
 
     if not fake_accounts:
         return error, message
@@ -184,33 +182,33 @@ def validation_accounts(error, message):
     )
 
     # Filtre pour la condition WHERE
-    queryset = ModelOd.objects.annotate(account=delta_expression).filter(
-        pk__in=fake_accounts
-    )
+    queryset = ModelOd.objects.annotate(account=delta_expression).filter(pk__in=fake_accounts)
 
     message = ""
     error = True
 
     for item in queryset[:30]:
-        message += f'<span>- la ligne "{item.account}" a un compte comptable qui est erroné</span><br>'
+        message += (
+            f'<span>- la ligne "{item.account}" a un compte comptable qui est erroné</span><br>'
+        )
 
     return error, message
 
 
 def validation_axes(error, message):
-    """
-    Validation que les axes Sage X3 existent bien
+    """Validation que les axes Sage X3 existent bien.
+
     :param error: Erreur (booléen)
-    :param message: Message à renvoyer
+    :param message: Message à renvoyer.
     """
     sql_verif_axes = """
     with "all_od_axes" as (
-        select 
-            "id", 
+        select
+            "id",
             unnest(array["axe_bu", "axe_pro", "axe_prj", "axe_pys", "axe_rfa"]) as "axe"
         from "od_modelod"
     )
-    select 
+    select
         "oda"."id"
     from "all_od_axes" "oda"
     left join "accountancy_sectionsage" "aa"
@@ -221,7 +219,7 @@ def validation_axes(error, message):
 
     with connection.cursor() as cursor:
         cursor.execute(sql_verif_axes)
-        fake_axes = set([row[0] for row in cursor.fetchall()])
+        fake_axes = {row[0] for row in cursor.fetchall()}
 
     if not fake_axes:
         return error, message
@@ -258,24 +256,22 @@ def validation_axes(error, message):
     error = True
 
     for item in queryset[:30]:
-        message += (
-            f'<span>- la ligne "{item.axes}" a un axe qui est erroné</span><br>'
-        )
+        message += f'<span>- la ligne "{item.axes}" a un axe qui est erroné</span><br>'
 
     return error, message
 
 
 def validation_cct(error, message):
-    """
-    Validation que les cct existent bien
+    """Validation que les cct existent bien.
+
     :param error: Erreur (booléen)
-    :param message: Message à renvoyer
+    :param message: Message à renvoyer.
     """
     sql_verif_axes = """
-    select 
+    select
         "odm"."id"
     from "od_modelod" "odm"
-    left join "accountancy_cctsage" "aa" 
+    left join "accountancy_cctsage" "aa"
     on "aa"."cct" = "odm"."cct"
     where "aa"."cct" isnull
     """
@@ -283,7 +279,7 @@ def validation_cct(error, message):
 
     with connection.cursor() as cursor:
         cursor.execute(sql_verif_axes)
-        fake_cct = set([row[0] for row in cursor.fetchall()])
+        fake_cct = {row[0] for row in cursor.fetchall()}
 
     if not fake_cct:
         return error, message
@@ -306,9 +302,7 @@ def validation_cct(error, message):
     )
 
     # Filtre pour la condition WHERE
-    queryset = ModelOd.objects.annotate(cct_false=delta_expression).filter(
-        pk__in=fake_cct
-    )
+    queryset = ModelOd.objects.annotate(cct_false=delta_expression).filter(pk__in=fake_cct)
 
     message = ""
     error = True
@@ -320,16 +314,16 @@ def validation_cct(error, message):
 
 
 def validation_third_party_num(error, message):
-    """
-    Validation que les third_party_num (tiers) existent bien
+    """Validation que les third_party_num (tiers) existent bien.
+
     :param error: Erreur (booléen)
-    :param message: Message à renvoyer
+    :param message: Message à renvoyer.
     """
     sql_verif_tiers = """
-    select 
+    select
         "odm"."id"
     from "od_modelod" "odm"
-    left join "book_society" "aa" 
+    left join "book_society" "aa"
     on "aa"."third_party_num" = "odm"."third_party_num"
     where "aa"."third_party_num" isnull
     """
@@ -337,7 +331,7 @@ def validation_third_party_num(error, message):
 
     with connection.cursor() as cursor:
         cursor.execute(sql_verif_tiers)
-        fake_tiers = set([row[0] for row in cursor.fetchall()])
+        fake_tiers = {row[0] for row in cursor.fetchall()}
 
     if not fake_tiers:
         return error, message
@@ -360,9 +354,7 @@ def validation_third_party_num(error, message):
     )
 
     # Filtre pour la condition WHERE
-    queryset = ModelOd.objects.annotate(tiers_false=delta_expression).filter(
-        pk__in=fake_tiers
-    )
+    queryset = ModelOd.objects.annotate(tiers_false=delta_expression).filter(pk__in=fake_tiers)
 
     message = ""
     error = True
@@ -374,13 +366,13 @@ def validation_third_party_num(error, message):
 
 
 def update_blank_facture_heron():
-    """Mise à jour de la colonne facture_heron, par un blank si la colonne est nulle"""
+    """Mise à jour de la colonne facture_heron, par un blank si la colonne est nulle."""
     sql_update = """
     update "od_modelod"
-    set "facture_heron" = case 
-                            when "facture_heron" is null 
-                            then '' 
-                            else "facture_heron" 
+    set "facture_heron" = case
+                            when "facture_heron" is null
+                            then ''
+                            else "facture_heron"
                            end
     """
     with connection.cursor() as cursor:
@@ -388,9 +380,9 @@ def update_blank_facture_heron():
 
 
 def set_base_sage_invoice_number():
-    """On va setter un n° de pièce sage pour les exports sage"""
+    """On va setter un n° de pièce sage pour les exports sage."""
     sql_invoices_number = """
-    select 
+    select
         "facture_heron"
     from "od_modelod"
     group by "facture_heron"
@@ -424,7 +416,7 @@ def set_base_sage_invoice_number():
 
 
 def import_od_files():
-    """Boucle d'import des fichiers pour générer les od"""
+    """Boucle d'import des fichiers pour générer les od."""
     # On efface d'abord les données de la table
     ModelOd.objects.all().delete()
     message = ""
@@ -442,9 +434,7 @@ def import_od_files():
             )
             return error, message
 
-        message += (
-            f"<span>- le fichier {file_path.name} a été intégrer avec succes</span><br>"
-        )
+        message += f"<span>- le fichier {file_path.name} a été intégrer avec succes</span><br>"
 
     error, message = validation_amounts(error, message)
 
@@ -478,4 +468,4 @@ def import_od_files():
 if __name__ == "__main__":
     print(import_od_files())
     set_base_sage_invoice_number()
-    print(validation_accounts(False, "message"))
+    print(validation_accounts(error=False, message="message"))

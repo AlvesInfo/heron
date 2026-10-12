@@ -1,4 +1,5 @@
 """Tests des vues de lancement de la facturation (insertions, pdf, Factur-X, envois, finalisation)"""
+
 import datetime
 import logging
 import types
@@ -21,7 +22,11 @@ pytestmark = pytest.mark.django_db
 def checks(monkeypatch):
     """Contrôles externes pilotables : finalisation, manquants, process en cours, emails"""
     state = types.SimpleNamespace(
-        not_finalize=False, missings=[], in_progress=(False, False, False), emails=[], facturx_in_progress=False
+        not_finalize=False,
+        missings=[],
+        in_progress=(False, False, False),
+        emails=[],
+        facturx_in_progress=False,
     )
     with patched_attrs(
         monkeypatch,
@@ -44,7 +49,7 @@ def threads(thread_recorder):
 URL_INSERT = "invoices:generate_invoices_insertions"
 
 
-@pytest.mark.usefixtures('checks')
+@pytest.mark.usefixtures("checks")
 def test_insertions_sans_facture(logged_client):
     response = logged_client.get(reverse(URL_INSERT))
 
@@ -70,7 +75,7 @@ def test_insertions_manquants(logged_client, checks, make_edi_import):
     assert response.context["all_missings"] == checks.missings
 
 
-@pytest.mark.usefixtures('checks', 'month_period')
+@pytest.mark.usefixtures("checks", "month_period")
 def test_insertions_get_ok(logged_client, make_edi_import):
     make_edi_import()
     response = logged_client.get(reverse(URL_INSERT))
@@ -79,11 +84,14 @@ def test_insertions_get_ok(logged_client, make_edi_import):
     assert response.context["titre_table"] == "Génération de la facturation"
 
 
-@pytest.mark.parametrize(("in_progress", "titre"), [
-    ((True, False, False), "INSERTION DES FACTURES EN COURS"),
-    ((False, True, False), "GENERATION DES PDF EN COURS"),
-    ((False, False, True), "EN COURS D'ENVOI PAR MAIL"),
-])
+@pytest.mark.parametrize(
+    ("in_progress", "titre"),
+    [
+        ((True, False, False), "INSERTION DES FACTURES EN COURS"),
+        ((False, True, False), "GENERATION DES PDF EN COURS"),
+        ((False, False, True), "EN COURS D'ENVOI PAR MAIL"),
+    ],
+)
 def test_insertions_en_cours(logged_client, checks, make_edi_import, in_progress, titre):
     make_edi_import()
     checks.in_progress = in_progress
@@ -93,7 +101,7 @@ def test_insertions_en_cours(logged_client, checks, make_edi_import, in_progress
     assert titre in response.context["titre_table"]
 
 
-@pytest.mark.usefixtures('checks')
+@pytest.mark.usefixtures("checks")
 def test_insertions_post_lance_le_thread(logged_client, make_edi_import, month_period, threads):
     make_edi_import()
     response = logged_client.post(reverse(URL_INSERT), {"periode": month_period.value})
@@ -103,10 +111,16 @@ def test_insertions_post_lance_le_thread(logged_client, make_edi_import, month_p
     progress = SSEProgress.objects.get(job_id=payload["job_id"])
     assert progress.task_type == "invoices_insertion"
     assert progress.total_items == 15
-    assert threads == [(views.invoices_insertion, (logged_client.user.uuid_identification, month_period.dte_f, payload["job_id"]), True)]
+    assert threads == [
+        (
+            views.invoices_insertion,
+            (logged_client.user.uuid_identification, month_period.dte_f, payload["job_id"]),
+            True,
+        )
+    ]
 
 
-@pytest.mark.usefixtures('checks')
+@pytest.mark.usefixtures("checks")
 def test_insertions_post_invalide(logged_client, make_edi_import, threads):
     make_edi_import()
     response = logged_client.post(reverse(URL_INSERT), {"periode": "x"})
@@ -126,7 +140,7 @@ def test_pdf_non_finalise(logged_client, checks):
     assert response.context["not_finalize"] is True
 
 
-@pytest.mark.usefixtures('checks')
+@pytest.mark.usefixtures("checks")
 def test_pdf_rien_a_generer(logged_client):
     response = logged_client.get(reverse(URL_PDF))
 
@@ -134,12 +148,15 @@ def test_pdf_rien_a_generer(logged_client):
     assert response.context["en_cours"] is False
 
 
-@pytest.mark.parametrize(("in_progress", "titre"), [
-    ((False, False, False), "Génération des factures de ventes en pdf"),
-    ((True, False, False), "INSERTION DES FACTURES EN COURS"),
-    ((False, True, False), "GENERATION DES PDF EN COURS"),
-    ((False, False, True), "EN COURS D'ENVOI PAR MAIL"),
-])
+@pytest.mark.parametrize(
+    ("in_progress", "titre"),
+    [
+        ((False, False, False), "Génération des factures de ventes en pdf"),
+        ((True, False, False), "INSERTION DES FACTURES EN COURS"),
+        ((False, True, False), "GENERATION DES PDF EN COURS"),
+        ((False, False, True), "EN COURS D'ENVOI PAR MAIL"),
+    ],
+)
 def test_pdf_get(logged_client, checks, make_sale_invoice, in_progress, titre):
     make_sale_invoice()
     checks.in_progress = in_progress
@@ -150,7 +167,7 @@ def test_pdf_get(logged_client, checks, make_sale_invoice, in_progress, titre):
     assert titre in response.context["titre_table"]
 
 
-@pytest.mark.usefixtures('checks')
+@pytest.mark.usefixtures("checks")
 def test_pdf_post_lance_le_thread(logged_client, make_sale_invoice, threads):
     make_sale_invoice("AF0001")
     make_sale_invoice("AF0002", invoice_number="FV2")
@@ -160,7 +177,9 @@ def test_pdf_post_lance_le_thread(logged_client, make_sale_invoice, threads):
     progress = SSEProgress.objects.get(job_id=payload["job_id"])
     assert progress.task_type == "generation_pdf_invoices"
     assert progress.total_items == 3
-    assert threads == [(views.launch_celery_pdf_launch, (logged_client.user.pk, payload["job_id"]), True)]
+    assert threads == [
+        (views.launch_celery_pdf_launch, (logged_client.user.pk, payload["job_id"]), True)
+    ]
 
 
 # FACTUR-X =========================================================================================
@@ -186,7 +205,7 @@ def facturx_server(monkeypatch):
         yield state
 
 
-@pytest.mark.usefixtures('checks', 'facturx_server')
+@pytest.mark.usefixtures("checks", "facturx_server")
 def test_facturx_rien_a_generer(logged_client):
     response = logged_client.get(reverse(URL_FX))
 
@@ -196,7 +215,7 @@ def test_facturx_rien_a_generer(logged_client):
     assert response.context["server_version"] == "1.2"
 
 
-@pytest.mark.usefixtures('checks')
+@pytest.mark.usefixtures("checks")
 def test_facturx_serveur_indisponible(logged_client, facturx_server, make_sale_invoice, caplog):
     make_sale_invoice(printed=True)
     facturx_server.error = FacturXClientError("down")
@@ -208,26 +227,35 @@ def test_facturx_serveur_indisponible(logged_client, facturx_server, make_sale_i
     assert response.context["news"] is False
     assert "indisponible" in caplog.text
 
-    assert logged_client.post(reverse(URL_FX)).json() == {"success": False, "error": "Le serveur Factur-X est injoignable"}
+    assert logged_client.post(reverse(URL_FX)).json() == {
+        "success": False,
+        "error": "Le serveur Factur-X est injoignable",
+    }
 
 
-@pytest.mark.parametrize(("in_progress", "facturx", "titre"), [
-    ((True, False, False), False, "INSERTION DES FACTURES EN COURS"),
-    ((False, True, False), False, "GENERATION DES PDF EN COURS"),
-    ((False, False, True), False, "EN COURS D'ENVOI PAR MAIL"),
-    ((False, False, False), True, "GENERATION DES FACTUR-X EN COURS"),
-])
-@pytest.mark.usefixtures('facturx_server')
+@pytest.mark.parametrize(
+    ("in_progress", "facturx", "titre"),
+    [
+        ((True, False, False), False, "INSERTION DES FACTURES EN COURS"),
+        ((False, True, False), False, "GENERATION DES PDF EN COURS"),
+        ((False, False, True), False, "EN COURS D'ENVOI PAR MAIL"),
+        ((False, False, False), True, "GENERATION DES FACTUR-X EN COURS"),
+    ],
+)
+@pytest.mark.usefixtures("facturx_server")
 def test_facturx_en_cours(logged_client, checks, in_progress, facturx, titre):
     checks.in_progress, checks.facturx_in_progress = in_progress, facturx
     response = logged_client.get(reverse(URL_FX))
 
     assert response.context["en_cours"] is True
     assert titre in response.context["titre_table"]
-    assert logged_client.post(reverse(URL_FX)).json() == {"success": False, "error": "Un traitement est en cours"}
+    assert logged_client.post(reverse(URL_FX)).json() == {
+        "success": False,
+        "error": "Un traitement est en cours",
+    }
 
 
-@pytest.mark.usefixtures('checks', 'facturx_server')
+@pytest.mark.usefixtures("checks", "facturx_server")
 def test_facturx_post_lance_le_thread(logged_client, make_sale_invoice, threads):
     make_sale_invoice(printed=True, global_invoice_file="AF0001.pdf")
     response = logged_client.post(reverse(URL_FX))
@@ -236,7 +264,9 @@ def test_facturx_post_lance_le_thread(logged_client, make_sale_invoice, threads)
     progress = SSEProgress.objects.get(job_id=payload["job_id"])
     assert progress.task_type == "generation_facturx_invoices"
     assert progress.total_items == 2
-    assert threads == [(views.launch_celery_facturx_launch, (logged_client.user.pk, payload["job_id"]), True)]
+    assert threads == [
+        (views.launch_celery_facturx_launch, (logged_client.user.pk, payload["job_id"]), True)
+    ]
     assert logged_client.get(reverse(URL_FX)).context["news"] is True
 
 
@@ -273,16 +303,22 @@ def test_get_pdf_file(logged_client, invoices_dirs, make_sale_invoice):
     (invoices_dirs.sales / "AF0001.pdf").write_bytes(b"%PDF-1.4 test")
     make_sale_invoice(global_invoice_file="AF0001.pdf")
 
-    response = logged_client.get(reverse("invoices:get_pdf_file", kwargs={"file_name": "AF0001.pdf"}))
+    response = logged_client.get(
+        reverse("invoices:get_pdf_file", kwargs={"file_name": "AF0001.pdf"})
+    )
 
     assert response.status_code == 200
     assert response["Content-Type"] == "application/pdf"
     assert response.content == b"%PDF-1.4 test"
 
-    response = logged_client.get(reverse("invoices:get_pdf_file", kwargs={"file_name": "PDF_ALLS_2026-01-01_2026-01-31.zip"}))
+    response = logged_client.get(
+        reverse("invoices:get_pdf_file", kwargs={"file_name": "PDF_ALLS_2026-01-01_2026-01-31.zip"})
+    )
 
     assert response["Content-Disposition"].endswith(".zip")
-    assert zipfile.ZipFile(invoices_dirs.sales / "PDF_ALLS_2026-01-01_2026-01-31.zip").namelist() == ["AF0001.pdf"]
+    assert zipfile.ZipFile(
+        invoices_dirs.sales / "PDF_ALLS_2026-01-01_2026-01-31.zip"
+    ).namelist() == ["AF0001.pdf"]
 
 
 def test_get_pdf_file_refuse_sortie_du_repertoire(logged_client, invoices_dirs, caplog):
@@ -296,14 +332,16 @@ def test_get_pdf_file_refuse_sortie_du_repertoire(logged_client, invoices_dirs, 
 
     assert response.url == reverse("home")
     assert "get_pdf_file" in caplog.text
-    assert logged_client.post(reverse("invoices:get_pdf_file", kwargs={"file_name": "x.pdf"})).url == reverse("home")
+    assert logged_client.post(
+        reverse("invoices:get_pdf_file", kwargs={"file_name": "x.pdf"})
+    ).url == reverse("home")
 
 
 # ENVOI DES MAILS ==================================================================================
 URL_MAIL = "invoices:send_email_pdf_invoice"
 
 
-@pytest.mark.usefixtures('checks')
+@pytest.mark.usefixtures("checks")
 def test_send_email_rien_a_envoyer(logged_client):
     response = logged_client.get(reverse(URL_MAIL))
 
@@ -321,12 +359,15 @@ def test_send_email_emails_invalides(logged_client, checks, make_sale_invoice):
     assert response.context["emails_errors_list"] == [("mauvais@", "CLI001")]
 
 
-@pytest.mark.parametrize(("in_progress", "titre"), [
-    ((False, False, False), "Envoi global"),
-    ((True, False, False), "INSERTION DE FACTURES EN COURS"),
-    ((False, True, False), "GENERATION DE PDF EN COURS"),
-    ((False, False, True), "EN COURS D'ENVOI PAR MAIL"),
-])
+@pytest.mark.parametrize(
+    ("in_progress", "titre"),
+    [
+        ((False, False, False), "Envoi global"),
+        ((True, False, False), "INSERTION DE FACTURES EN COURS"),
+        ((False, True, False), "GENERATION DE PDF EN COURS"),
+        ((False, False, True), "EN COURS D'ENVOI PAR MAIL"),
+    ],
+)
 def test_send_email_get(logged_client, checks, make_sale_invoice, in_progress, titre):
     make_sale_invoice(printed=True)
     checks.in_progress = in_progress
@@ -336,17 +377,21 @@ def test_send_email_get(logged_client, checks, make_sale_invoice, in_progress, t
     assert titre in response.context["titre_table"]
 
 
-@pytest.mark.usefixtures('checks')
+@pytest.mark.usefixtures("checks")
 def test_send_email_post_lance_le_thread(logged_client, make_sale_invoice, threads):
     make_sale_invoice("AF0001", printed=True, global_invoice_file="AF0001.pdf")
-    make_sale_invoice("AF0001", printed=True, global_invoice_file="AF0001.pdf", invoice_number="FV2")
+    make_sale_invoice(
+        "AF0001", printed=True, global_invoice_file="AF0001.pdf", invoice_number="FV2"
+    )
     response = logged_client.post(reverse(URL_MAIL))
 
     payload = response.json()
     progress = SSEProgress.objects.get(job_id=payload["job_id"])
     assert progress.task_type == "send_invoices_emails"
     assert progress.total_items == 1
-    assert threads == [(views.send_invoices_emails_gmail, (logged_client.user.pk, payload["job_id"]), True)]
+    assert threads == [
+        (views.send_invoices_emails_gmail, (logged_client.user.pk, payload["job_id"]), True)
+    ]
 
 
 # FINALISATION =====================================================================================
@@ -367,7 +412,7 @@ def finalize_patches(monkeypatch):
         yield calls
 
 
-@pytest.mark.usefixtures('checks', 'finalize_patches')
+@pytest.mark.usefixtures("checks", "finalize_patches")
 def test_finalize_nouveaux_articles(logged_client, make_article):
     make_article(new_article=True)
     response = logged_client.get(reverse(URL_FINAL))
@@ -376,17 +421,21 @@ def test_finalize_nouveaux_articles(logged_client, make_article):
     assert logged_client.session["level"] == 50
 
 
-@pytest.mark.usefixtures('checks', 'finalize_patches')
+@pytest.mark.usefixtures("checks", "finalize_patches")
 def test_finalize_comptes_manquants(logged_client, make_edi_import, monkeypatch):
     make_edi_import()
-    with patched_attrs(monkeypatch, views, articles_acuitis_without_accounts="select * from edi_ediimport"):
+    with patched_attrs(
+        monkeypatch, views, articles_acuitis_without_accounts="select * from edi_ediimport"
+    ):
         response = logged_client.get(reverse(URL_FINAL))
 
     assert response.url == reverse("articles:articles_without_account_list")
 
 
-@pytest.mark.usefixtures('checks')
-def test_finalize_integrations_non_validees(logged_client, finalize_patches, make_edi_import_control):
+@pytest.mark.usefixtures("checks")
+def test_finalize_integrations_non_validees(
+    logged_client, finalize_patches, make_edi_import_control
+):
     make_edi_import_control(valid=False)
     response = logged_client.get(reverse(URL_FINAL))
 
@@ -394,7 +443,7 @@ def test_finalize_integrations_non_validees(logged_client, finalize_patches, mak
     assert finalize_patches == ["validations"]
 
 
-@pytest.mark.usefixtures('checks', 'finalize_patches')
+@pytest.mark.usefixtures("checks", "finalize_patches")
 def test_finalize_cct_manquants(logged_client, make_edi_import):
     make_edi_import(cct_uuid_identification=None)
     response = logged_client.get(reverse(URL_FINAL))
@@ -402,7 +451,7 @@ def test_finalize_cct_manquants(logged_client, make_edi_import):
     assert response.url == reverse("validation_purchases:without_cct_purchases")
 
 
-@pytest.mark.usefixtures('checks', 'finalize_patches')
+@pytest.mark.usefixtures("checks", "finalize_patches")
 def test_finalize_rien_a_finaliser(logged_client, make_edi_validation):
     validation = make_edi_validation(billing_period=datetime.date(2026, 1, 1))
     response = logged_client.get(reverse(URL_FINAL))
@@ -417,18 +466,24 @@ def test_finalize_rien_a_finaliser(logged_client, make_edi_validation):
     assert any("rien à finaliser" in str(m) for m in response.context["messages"])
 
 
-@pytest.mark.usefixtures('checks', 'finalize_patches')
-def test_finalize_rien_a_finaliser_message_deja_present(logged_client, make_edi_validation, monkeypatch):
+@pytest.mark.usefixtures("checks", "finalize_patches")
+def test_finalize_rien_a_finaliser_message_deja_present(
+    logged_client, make_edi_validation, monkeypatch
+):
     make_edi_validation()
-    with patched_attrs(monkeypatch, views.messages, get_messages=lambda request: ["déjà un message"]):
+    with patched_attrs(
+        monkeypatch, views.messages, get_messages=lambda request: ["déjà un message"]
+    ):
         response = logged_client.get(reverse(URL_FINAL))
 
     assert response.status_code == 200
     assert "level" not in logged_client.session
 
 
-@pytest.mark.usefixtures('finalize_patches')
-def test_finalize_exports_x3_manquants(logged_client, checks, make_edi_validation, make_sale_invoice):
+@pytest.mark.usefixtures("finalize_patches")
+def test_finalize_exports_x3_manquants(
+    logged_client, checks, make_edi_validation, make_sale_invoice
+):
     make_edi_validation()
     make_sale_invoice(export=False)
     checks.not_finalize = True
@@ -438,8 +493,10 @@ def test_finalize_exports_x3_manquants(logged_client, checks, make_edi_validatio
     assert any("imports X3" in str(m) for m in response.context["messages"])
 
 
-@pytest.mark.usefixtures('finalize_patches')
-def test_finalize_get_pret(logged_client, checks, make_edi_validation, make_sale_invoice, make_invoice):
+@pytest.mark.usefixtures("finalize_patches")
+def test_finalize_get_pret(
+    logged_client, checks, make_edi_validation, make_sale_invoice, make_invoice
+):
     make_edi_validation(billing_period=datetime.date(2026, 4, 1))
     make_sale_invoice(export=True)
     make_invoice(export=True)
@@ -450,7 +507,9 @@ def test_finalize_get_pret(logged_client, checks, make_edi_validation, make_sale
     assert response.context["titre_table"].endswith("d'Avril 2026")
 
 
-def test_finalize_post(logged_client, checks, finalize_patches, make_edi_validation, make_sale_invoice):
+def test_finalize_post(
+    logged_client, checks, finalize_patches, make_edi_validation, make_sale_invoice
+):
     validation = make_edi_validation(billing_period=datetime.date(2026, 1, 1))
     make_sale_invoice(export=True)
     checks.not_finalize = True

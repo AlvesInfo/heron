@@ -1,37 +1,36 @@
-# ruff: noqa: E722
+"""Vues de l'étape 6.1 de la validation des achats : RFA mensuelles générées."""
+
 import pendulum
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from heron.loggers import LOGGER_VIEWS
-
 from apps.core.functions.functions_http_response import (
-    response_file,
     CONTENT_TYPE_EXCEL,
+    response_file,
 )
 from apps.validation_purchases.excel_outputs.output_excel_rfa_mensuelles import (
     excel_rfa_mensuelles,
 )
+from heron.loggers import LOGGER_VIEWS
 
 # CONTROLES ETAPE 6.1 - Contrôles des achats importés
 
 
 def rfa_mensuelles(request):
-    """View de l'étape 6.1 - Contrôle des RFA mensuelles générées"""
+    """View de l'étape 6.1 - Contrôle des RFA mensuelles générées."""
     context = {
         "titre_table": "6.1 - Export des RFA mensuelles générées",
     }
 
-    return render(
-        request, "validation_purchases/rfa_mensuelles_list.html", context=context
-    )
+    return render(request, "validation_purchases/rfa_mensuelles_list.html", context=context)
 
 
 def rfa_generated_export(_):
-    """View de l'étape 6.1 - Export des RFA mensuelles générée
+    """View de l'étape 6.1 - Export des RFA mensuelles générée.
+
     Export Excel des RFA mensuelles générée
     :param _: Request Django
-    :return: response_file
+    :return: response_file.
     """
     try:
         today = pendulum.now()

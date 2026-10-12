@@ -1,4 +1,4 @@
-"""Module d'imports de fixtures en base au premier démarrage de l'application
+"""Module d'imports de fixtures en base au premier démarrage de l'application.
 
 Commentaire:
 
@@ -8,17 +8,20 @@ created by: Paulo ALVES
 modified at: 2022-03-03
 modified by: Paulo ALVES
 """
-from pathlib import Path
+
+import contextlib
 import csv
+from pathlib import Path
+
 from django.db.utils import IntegrityError
 
-from apps.core.functions.functions_setups import settings
 from apps.book.models import Society
+from apps.core.functions.functions_setups import settings
 from apps.parameters.models import Nature
 
 
 def fixtures_nature():
-    """Fonction d'ajout de fixtures pour la table Nature"""
+    """Fonction d'ajout de fixtures pour la table Nature."""
     file: Path = Path(settings.APPS_DIR) / "book/data_fixtures/nature_fixtures.csv"
 
     with file.open(encoding="utf8") as csv_file:
@@ -30,14 +33,12 @@ def fixtures_nature():
         ]
 
         for row in csv_rows:
-            try:
-                Nature.objects.update_or_create(**dict(zip(list_keys, row)))
-            except IntegrityError:
-                pass
+            with contextlib.suppress(IntegrityError):
+                Nature.objects.update_or_create(**dict(zip(list_keys, row, strict=False)))
 
 
 def copy_client():
-    """Insertion des adresses par défault de sage X3, dans l'adresse client pour les centrales"""
+    """Insertion des adresses par défault de sage X3, dans l'adresse client pour les centrales."""
     clients = Society.objects.filter(is_client=True)
 
     for client in clients:

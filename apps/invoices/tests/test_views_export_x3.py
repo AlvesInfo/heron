@@ -1,4 +1,5 @@
 """Tests des vues de génération et de téléchargement des exports X3"""
+
 import logging
 import zipfile
 
@@ -27,8 +28,15 @@ def test_get_avec_factures(logged_client, make_sale_invoice):
     assert response.context["export"] is True
 
 
-@pytest.mark.usefixtures('export_counters')
-def test_post_succes(logged_client, make_sale_invoice, make_invoice, make_edi_validation, invoices_dirs, celery_recorder):
+@pytest.mark.usefixtures("export_counters")
+def test_post_succes(
+    logged_client,
+    make_sale_invoice,
+    make_invoice,
+    make_edi_validation,
+    invoices_dirs,
+    celery_recorder,
+):
     make_sale_invoice()
     make_invoice()
     make_edi_validation()
@@ -40,20 +48,29 @@ def test_post_succes(logged_client, make_sale_invoice, make_invoice, make_edi_va
 
     assert response.status_code == 200
     assert [name for name, _ in recorder.signatures] == ["launch_export_x3"] * 6
-    assert [kw["export_type"] for _, kw in recorder.signatures] == ["odana", "sale", "purchase", "gdaud", "sdoa", "do"]
+    assert [kw["export_type"] for _, kw in recorder.signatures] == [
+        "odana",
+        "sale",
+        "purchase",
+        "gdaud",
+        "sdoa",
+        "do",
+    ]
     export = ExportX3.objects.get()
     assert export.odana_file.name == "AC00_00001.txt"
     assert export.sale_file.name == ""
     assert export.purchase_file.name == ""
     assert export.alls_zip_file.name.startswith("AC00_")
     assert export.alls_zip_file.name.endswith("00005.zip")
-    assert zipfile.ZipFile(invoices_dirs.export / export.alls_zip_file.name).namelist() == ["AC00_00001.txt"]
+    assert zipfile.ZipFile(invoices_dirs.export / export.alls_zip_file.name).namelist() == [
+        "AC00_00001.txt"
+    ]
     assert SaleInvoice.objects.filter(export=True).count() == 1
     assert Invoice.objects.filter(export=True).count() == 1
     assert logged_client.session["level"] == 20
 
 
-@pytest.mark.usefixtures('export_counters')
+@pytest.mark.usefixtures("export_counters")
 def test_post_erreur(logged_client, make_sale_invoice, invoices_dirs, celery_recorder, caplog):
     make_sale_invoice()
     celery_recorder(views, results=[True, False, True, True, True, True])
@@ -80,7 +97,9 @@ def test_export_x3_files_list(logged_client, make_export_x3):
 
 def test_get_export_x3_file(logged_client, invoices_dirs, caplog):
     (invoices_dirs.export / "AC00_1.txt").write_text("T;1")
-    response = logged_client.get(reverse("invoices:get_export_x3_file", kwargs={"file_name": "AC00_1.txt"}))
+    response = logged_client.get(
+        reverse("invoices:get_export_x3_file", kwargs={"file_name": "AC00_1.txt"})
+    )
 
     assert response.status_code == 200
     assert response.content == b"T;1"
@@ -94,4 +113,6 @@ def test_get_export_x3_file(logged_client, invoices_dirs, caplog):
 
     assert response.url == reverse("home")
     assert "get_export_x3_file" in caplog.text
-    assert logged_client.post(reverse("invoices:get_export_x3_file", kwargs={"file_name": "AC00_1.txt"})).url == reverse("home")
+    assert logged_client.post(
+        reverse("invoices:get_export_x3_file", kwargs={"file_name": "AC00_1.txt"})
+    ).url == reverse("home")

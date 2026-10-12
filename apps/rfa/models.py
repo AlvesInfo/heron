@@ -1,6 +1,6 @@
-"""
-FR : Module de préparation à l'import des factures fournisseurs
-EN : Preparation module for importing supplier invoices
+"""FR : Module de préparation à l'import des factures fournisseurs.
+
+EN : Preparation module for importing supplier invoices.
 
 Commentaire:
 
@@ -10,22 +10,23 @@ created by: Paulo ALVES
 modified at: 2024-08-05
 modified by: Paulo ALVES
 """
-from django.db import models
 
-from heron.models import FlagsTable
+from django.db import models
 
 from apps.accountancy.models import SectionSage
 from apps.book.models.base_sage_models import Society
 from apps.centers_clients.models import Maison
 from apps.centers_purchasing.models import Signboard
+from heron.models import FlagsTable
 
 
 class SignboardExclusion(FlagsTable):
-    """
-    Table des enseignes à exclure des rfa
+    """Table des enseignes à exclure des rfa.
+
     FR : Table des exclusions Rfa par enseignes
-    EN : Table of RFA exclusions by brand
+    EN : Table of RFA exclusions by brand.
     """
+
     signboard = models.OneToOneField(
         Signboard,
         on_delete=models.PROTECT,
@@ -35,21 +36,22 @@ class SignboardExclusion(FlagsTable):
         verbose_name="enseigne",
         related_name="signboard_rfa",
         db_column="signboard",
-        unique=True
+        unique=True,
     )
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["signboard"]
 
 
 class ClientExclusion(FlagsTable):
-    """
-    Table des maisons à exclure des rfa
+    """Table des maisons à exclure des rfa.
+
     FR : Table des maisons à exclure des rfa
-    EN : Table of clients to exclude from RFA
+    EN : Table of clients to exclude from RFA.
     """
+
     cct = models.OneToOneField(
         Maison,
         on_delete=models.PROTECT,
@@ -60,21 +62,22 @@ class ClientExclusion(FlagsTable):
         related_name="cct_rfa",
         db_column="cct",
         unique=True,
-        limit_choices_to={"type_x3__in": (1, 2), "cct__active": True}
+        limit_choices_to={"type_x3__in": (1, 2), "cct__active": True},
     )
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["cct"]
 
 
 class ClientSupplierExclusion(FlagsTable):
-    """
-    Table des maisons par founisseurs  à exclure des rfa
+    """Table des maisons par founisseurs  à exclure des rfa.
+
     FR : Table des maisons par founisseurs à exclure des rfa
-    EN : Table of clients by suppliers to exclude from RFA
+    EN : Table of clients by suppliers to exclude from RFA.
     """
+
     maison = models.ForeignKey(
         Maison,
         on_delete=models.PROTECT,
@@ -90,11 +93,11 @@ class ClientSupplierExclusion(FlagsTable):
         verbose_name="fournisseur",
         related_name="supplier_cct_rfa",
         db_column="supplier",
-        limit_choices_to={'in_use': True}
+        limit_choices_to={"in_use": True},
     )
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["maison", "supplier"]
 
@@ -107,11 +110,12 @@ class ClientSupplierExclusion(FlagsTable):
 
 
 class SupplierRate(FlagsTable):
-    """
-    Table des taux de rfa par fournisseurs
+    """Table des taux de rfa par fournisseurs.
+
     FR : Table des taux de rfa par fournisseurs
-    EN : Table of RFA rates by suppliers
+    EN : Table of RFA rates by suppliers.
     """
+
     supplier = models.OneToOneField(
         Society,
         on_delete=models.PROTECT,
@@ -122,22 +126,23 @@ class SupplierRate(FlagsTable):
         related_name="supplier_rfa",
         db_column="supplier",
         unique=True,
-        limit_choices_to={'in_use': True}
+        limit_choices_to={"in_use": True},
     )
     rfa_rate = models.DecimalField(max_digits=20, decimal_places=5, default=0)
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["supplier"]
 
 
 class SectionRfa(FlagsTable):
-    """
-    Table des Rfa à prendre en compte par section rfa Sage
+    """Table des Rfa à prendre en compte par section rfa Sage.
+
     FR : Table des Rfa par section rfa Sage
-    EN : Table of RFA by section RFA Sage
+    EN : Table of RFA by section RFA Sage.
     """
+
     axe_rfa = models.OneToOneField(
         SectionSage,
         on_delete=models.PROTECT,
@@ -148,21 +153,22 @@ class SectionRfa(FlagsTable):
         related_name="section_rfa_rfa",
         db_column="axe_rfa",
         unique=True,
-        limit_choices_to={'axe': "RFA"}
+        limit_choices_to={"axe": "RFA"},
     )
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["axe_rfa"]
 
 
 class SectionProExclusion(FlagsTable):
-    """
-    Table des exclusions Rfa par section Pro Sage
+    """Table des exclusions Rfa par section Pro Sage.
+
     FR : Table des exclusions Rfa par section Pro Sage
-    EN : Table of Rfa exclusions by Sage section Pro
+    EN : Table of Rfa exclusions by Sage section Pro.
     """
+
     axe_pro = models.OneToOneField(
         SectionSage,
         on_delete=models.PROTECT,
@@ -173,10 +179,10 @@ class SectionProExclusion(FlagsTable):
         related_name="section_pro_rfa",
         db_column="axe_pro",
         unique=True,
-        limit_choices_to={'axe': "PRO"}
+        limit_choices_to={"axe": "PRO"},
     )
 
     class Meta:
-        """class Meta du modèle django"""
+        """class Meta du modèle django."""
 
         ordering = ["axe_pro"]

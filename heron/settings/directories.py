@@ -1,4 +1,6 @@
-from heron.utils.directories import lazy_mkdir, get_files_base_dir
+"""Répertoires de travail du projet, créés à la demande."""
+
+from heron.utils.directories import get_files_base_dir, lazy_mkdir
 
 FILES_BASE_DIR = get_files_base_dir()
 
@@ -42,13 +44,19 @@ PROCESSING_SAGE_DIR = lazy_mkdir("files/processing/sage")
 PROCESSING_SUPPLIERS_DIR = lazy_mkdir("files/processing/suppliers_invoices_files")
 
 # REPERTOIRE DE TRAITEMENT DES IMPORTS DES ARTICLES SANS COMPTES
-PROCESSING_WITHOUT_ACCOUNT_DIR = lazy_mkdir("files/processing/suppliers_invoices_files/ARTICLES_SANS_COMPTES")
+PROCESSING_WITHOUT_ACCOUNT_DIR = lazy_mkdir(
+    "files/processing/suppliers_invoices_files/ARTICLES_SANS_COMPTES"
+)
 
 # REPERTOIRE DE TRAITEMENT DES UPDATES DES COMPTES DES ARTICLES
-PROCESSING_UPDATE_ARTICLES_ACCOUNTS_DIR = lazy_mkdir("files/processing/suppliers_invoices_files/UPDATE_ARTICLES_COMPTES")
+PROCESSING_UPDATE_ARTICLES_ACCOUNTS_DIR = lazy_mkdir(
+    "files/processing/suppliers_invoices_files/UPDATE_ARTICLES_COMPTES"
+)
 
 # REPERTOIRE DE TRAITEMENT DES IMPORTS DESABONNEMENTS PAR MAISONS
-PROCESSING_CLIENS_SUBSCRIPTION = lazy_mkdir("files/processing/suppliers_invoices_files/ABONNEMENTS_PAR_MAISONS")
+PROCESSING_CLIENS_SUBSCRIPTION = lazy_mkdir(
+    "files/processing/suppliers_invoices_files/ABONNEMENTS_PAR_MAISONS"
+)
 
 # REPERTOIRE DE TRAITEMENT DES OD A PASSER
 PROCESSING_OD_A_PASSER = lazy_mkdir("files/processing/suppliers_invoices_files/OD_A_PASSER")

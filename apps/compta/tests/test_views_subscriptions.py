@@ -1,4 +1,5 @@
 """Tests des vues de lancement des abonnements (royalties, meuleuses, publicité, prestations)"""
+
 import pytest
 from django.urls import reverse
 
@@ -16,7 +17,7 @@ VIEWS = [
 
 
 @pytest.mark.parametrize(("url_name", "task_type", "label"), VIEWS)
-@pytest.mark.usefixtures('subscription_checks')
+@pytest.mark.usefixtures("subscription_checks")
 def test_get_affiche_le_formulaire(logged_client, url_name, task_type, label):
     response = logged_client.get(reverse(url_name))
 
@@ -27,11 +28,14 @@ def test_get_affiche_le_formulaire(logged_client, url_name, task_type, label):
 
 
 @pytest.mark.parametrize(("url_name", "task_type", "label"), VIEWS)
-@pytest.mark.parametrize(("blocker", "message"), [
-    ("subscription", "Il n'y pas de Maison avec cet abonnement!"),
-    ("in_action", "Il y a des générations en cours"),
-    ("not_finalize", "déjà envoyée par mail"),
-])
+@pytest.mark.parametrize(
+    ("blocker", "message"),
+    [
+        ("subscription", "Il n'y pas de Maison avec cet abonnement!"),
+        ("in_action", "Il y a des générations en cours"),
+        ("not_finalize", "déjà envoyée par mail"),
+    ],
+)
 def test_blocages(logged_client, subscription_checks, url_name, task_type, label, blocker, message):
     setattr(subscription_checks, blocker, blocker != "subscription")
     response = logged_client.get(reverse(url_name))
@@ -43,7 +47,9 @@ def test_blocages(logged_client, subscription_checks, url_name, task_type, label
 
 
 @pytest.mark.parametrize(("url_name", "task_type", "label"), VIEWS)
-def test_post_famille_manquante(logged_client, subscription_checks, month_period, url_name, task_type, label):
+def test_post_famille_manquante(
+    logged_client, subscription_checks, month_period, url_name, task_type, label
+):
     subscription_checks.missing = "Il manque des familles Cosium : AUDIO"
     response = logged_client.post(reverse(url_name), {"periode": month_period.value})
 
@@ -51,7 +57,9 @@ def test_post_famille_manquante(logged_client, subscription_checks, month_period
 
 
 @pytest.mark.parametrize(("url_name", "task_type", "label"), VIEWS)
-def test_post_deja_genere(logged_client, subscription_checks, month_period, url_name, task_type, label):
+def test_post_deja_genere(
+    logged_client, subscription_checks, month_period, url_name, task_type, label
+):
     subscription_checks.have_subs = True
     response = logged_client.post(reverse(url_name), {"periode": month_period.value})
 
@@ -61,8 +69,10 @@ def test_post_deja_genere(logged_client, subscription_checks, month_period, url_
 
 
 @pytest.mark.parametrize(("url_name", "task_type", "label"), VIEWS)
-@pytest.mark.usefixtures('subscription_checks')
-def test_post_lance_la_generation(logged_client, month_period, thread_recorder, url_name, task_type, label):
+@pytest.mark.usefixtures("subscription_checks")
+def test_post_lance_la_generation(
+    logged_client, month_period, thread_recorder, url_name, task_type, label
+):
     started = thread_recorder(subscriptions_views)
     response = logged_client.post(reverse(url_name), {"periode": month_period.value})
 
@@ -72,15 +82,23 @@ def test_post_lance_la_generation(logged_client, month_period, thread_recorder, 
     assert progress.task_type == task_type
     assert progress.status == "in_progress"
     assert progress.user == logged_client.user
-    assert started == [(
-        subscriptions_views.import_launch_subscriptions,
-        (task_type, month_period.dte_d, month_period.dte_f, logged_client.user.uuid_identification, payload["job_id"]),
-        True,
-    )]
+    assert started == [
+        (
+            subscriptions_views.import_launch_subscriptions,
+            (
+                task_type,
+                month_period.dte_d,
+                month_period.dte_f,
+                logged_client.user.uuid_identification,
+                payload["job_id"],
+            ),
+            True,
+        )
+    ]
 
 
 @pytest.mark.parametrize(("url_name", "task_type", "label"), VIEWS)
-@pytest.mark.usefixtures('subscription_checks')
+@pytest.mark.usefixtures("subscription_checks")
 def test_post_formulaire_invalide(logged_client, url_name, task_type, label, caplog):
     with caplog.at_level("ERROR", logger="edi"):
         response = logged_client.post(reverse(url_name), {"periode": "n_importe_quoi"})

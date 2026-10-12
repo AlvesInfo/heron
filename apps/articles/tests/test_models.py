@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621,W0212
-"""
-FR : Tests des modèles de l'app articles
+"""FR : Tests des modèles de l'app articles
+
+
 EN : Tests for articles models
 
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import datetime
 from decimal import Decimal
 
@@ -34,8 +36,8 @@ def test_article_creation_str_et_defauts(make_article):
     article = make_article("REF-1")
 
     assert str(article) == f"{article.third_party_num} - REF-1"
-    assert article.item_weight == Decimal("0")
-    assert article.packaging_qty == Decimal("1")
+    assert article.item_weight == Decimal(0)
+    assert article.packaging_qty == Decimal(1)
     assert article.unit_weight.num == 1
     assert article.customs_unit_weight.num == 1
     assert article.new_article is False
@@ -102,38 +104,50 @@ def test_selling_price_et_history(make_article, make_sale_price_category):
     """__str__, défauts devise et unicité des prix de vente et de leur historique"""
     article = make_article("REF-1")
     category = make_sale_price_category("Tarif A")
-    price = SellingPrice.objects.create(sale_price_category=category, article=article, sale_price=Decimal("12.5"))
+    price = SellingPrice.objects.create(
+        sale_price_category=category, article=article, sale_price=Decimal("12.5")
+    )
     history = SalePriceHistory.objects.create(
-        sale_price_category=category, article=article, sale_price=Decimal("12.5"), start_date=Decimal("20260101"), end_date=Decimal("20261231")
+        sale_price_category=category,
+        article=article,
+        sale_price=Decimal("12.5"),
+        start_date=Decimal(20260101),
+        end_date=Decimal(20261231),
     )
 
     assert str(price) == f"{category} - {article}"
     assert price.currency == "EUR"
     assert str(history) == f"{category} - {article}"
 
-    sale_price = Decimal("1")
-    start_date = Decimal("20260101")
-    end_date = Decimal("20261231")
+    sale_price = Decimal(1)
+    start_date = Decimal(20260101)
+    end_date = Decimal(20261231)
 
     with transaction.atomic(), pytest.raises(IntegrityError):
-        SellingPrice.objects.create(sale_price_category=category, article=article, sale_price=sale_price)
+        SellingPrice.objects.create(
+            sale_price_category=category, article=article, sale_price=sale_price
+        )
 
     with transaction.atomic(), pytest.raises(IntegrityError):
         SalePriceHistory.objects.create(
-            sale_price_category=category, article=article, sale_price=sale_price, start_date=start_date, end_date=end_date
+            sale_price_category=category,
+            article=article,
+            sale_price=sale_price,
+            start_date=start_date,
+            end_date=end_date,
         )
 
 
 def test_subscription_et_subscription_article(make_article):
     """Abonnements et lignes d'abonnement : __str__, défaut qty, unicité, protection"""
     article = make_article("REF-1")
-    price = SellingPrice.objects.create(article=article, sale_price=Decimal("9"))
+    price = SellingPrice.objects.create(article=article, sale_price=Decimal(9))
     subscription = Subscription.objects.create(name="Mensuel")
     line = SubscriptionArticle.objects.create(subscription=subscription, selling_price=price)
 
     assert str(subscription) == "Mensuel"
     assert str(line) == f"Mensuel - {price}"
-    assert line.qty == Decimal("1")
+    assert line.qty == Decimal(1)
 
     with transaction.atomic(), pytest.raises(IntegrityError):
         SubscriptionArticle.objects.create(subscription=subscription, selling_price=price)
@@ -152,7 +166,13 @@ def test_article_account_metadonnees_et_unicite(make_article_account):
     account = make_article_account(child_center="ACF", vat="001")
     make_article_account(article=account.article, child_center="ACF", vat="002")
 
-    assert list(ArticleAccount.get_columns_import()) == ["article", "child_center", "vat", "purchase_account", "sale_account"]
+    assert list(ArticleAccount.get_columns_import()) == [
+        "article",
+        "child_center",
+        "vat",
+        "purchase_account",
+        "sale_account",
+    ]
     assert list(ArticleAccount.get_columns_import().values()) == list(range(5))
     assert ArticleAccount.get_uniques() == {"child_center", "article", "vat"}
     assert list(ArticleAccount.objects.values_list("vat", flat=True)) == ["001", "002"]
@@ -176,7 +196,12 @@ def test_article_account_protege_article_et_tva(make_article_account):
 
 def test_article_update(make_society):
     """Table d'import pour mise à jour des articles"""
-    row = ArticleUpdate.objects.create(supplier=make_society("TECH001", is_client=False), reference="R1", libelle="L1", date_facture=datetime.date(2026, 1, 1))
+    row = ArticleUpdate.objects.create(
+        supplier=make_society("TECH001", is_client=False),
+        reference="R1",
+        libelle="L1",
+        date_facture=datetime.date(2026, 1, 1),
+    )
 
     assert row.supplier.third_party_num == "TECH001"
     assert row.ean_code is None

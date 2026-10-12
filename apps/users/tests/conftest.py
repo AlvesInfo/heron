@@ -1,6 +1,7 @@
 # pylint: disable=W0621,E0401,R0913
-"""
-FR : conftest de l'app users - fabriques des groupes, staffs, superusers et fichiers téléversés
+"""FR : conftest de l'app users - fabriques des groupes, staffs, superusers et fichiers téléversés
+
+
 EN : users app conftest
 
 Commentaire:
@@ -11,9 +12,10 @@ sont écrits dans un répertoire temporaire (MEDIA_ROOT / MEDIA_DIR patchés), j
 created at: 2026-10-12
 created by: Paulo ALVES
 """
+
 import io
-from typing import Any
 from collections.abc import Callable
+from typing import Any
 
 import pytest
 from django.contrib.auth.models import Group
@@ -36,7 +38,9 @@ def make_group(db) -> Callable[..., Group]:  # pylint: disable=W0613
 
     def _factory(name: str = "Comptabilité", group_name: str | None = None) -> Group:
         group, _ = Group.objects.get_or_create(name=name)
-        AuthGroupName.objects.get_or_create(group=group, defaults={"group_name": group_name or name})
+        AuthGroupName.objects.get_or_create(
+            group=group, defaults={"group_name": group_name or name}
+        )
         return group
 
     return _factory
@@ -58,7 +62,14 @@ def make_superuser(make_user) -> Callable[..., Any]:
     """Fabrique de superusers"""
 
     def _factory(email: str = "admin@heron.local", username: str = "admin", **kwargs: Any):
-        return make_user(email=email, username=username, password=PASSWORD, is_staff=True, is_superuser=True, **kwargs)
+        return make_user(
+            email=email,
+            username=username,
+            password=PASSWORD,
+            is_staff=True,
+            is_superuser=True,
+            **kwargs,
+        )
 
     return _factory
 
@@ -98,7 +109,9 @@ def clamd_off(monkeypatch):
 @pytest.fixture
 def site(settings):
     """Site courant (SITE_ID) pour la construction des liens des emails"""
-    return Site.objects.get_or_create(pk=settings.SITE_ID, defaults={"domain": "heron.local", "name": "Héron"})[0]
+    return Site.objects.get_or_create(
+        pk=settings.SITE_ID, defaults={"domain": "heron.local", "name": "Héron"}
+    )[0]
 
 
 @pytest.fixture
@@ -106,7 +119,9 @@ def no_error_mail(monkeypatch):
     """Neutralise l'écriture du log fichier et l'envoi de mail d'erreur des vues ajax"""
     calls = []
     monkeypatch.setattr(users_views, "write_log", lambda *args: calls.append(("log", args)))
-    monkeypatch.setattr(users_views, "envoi_mail_erreur", lambda *args: calls.append(("mail", args)))
+    monkeypatch.setattr(
+        users_views, "envoi_mail_erreur", lambda *args: calls.append(("mail", args))
+    )
     return calls
 
 
@@ -135,7 +150,10 @@ def make_upload(media_tmp) -> Callable[..., UploadUserFile]:  # pylint: disable=
 
     def _factory(user, name: str, content: bytes, type_insert: int = 1) -> UploadUserFile:
         return UploadUserFile.objects.create(
-            file=SimpleUploadedFile(name, content), base_name_file=name, user=user, type_insert=type_insert
+            file=SimpleUploadedFile(name, content),
+            base_name_file=name,
+            user=user,
+            type_insert=type_insert,
         )
 
     return _factory

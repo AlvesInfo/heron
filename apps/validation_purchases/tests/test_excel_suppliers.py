@@ -1,5 +1,6 @@
 # pylint: disable=E0401,W0621,W0611
 """Tests des exports Excel par fournisseur (factures, détails, pièce, familles, M vs M-1)"""
+
 import datetime
 import logging
 from decimal import Decimal
@@ -17,24 +18,32 @@ from apps.validation_purchases.tests.helpers_excel import KO, cells, month_ago, 
 
 pytestmark = pytest.mark.django_db
 
-ATTR = {"third_party_num": "FOUR001", "supplier": "FOURNISSEUR 1", "invoice_month": "2026-01-01", "flow_name": "Widex"}
+ATTR = {
+    "third_party_num": "FOUR001",
+    "supplier": "FOURNISSEUR 1",
+    "invoice_month": "2026-01-01",
+    "flow_name": "Widex",
+}
 
 
 @pytest.fixture
 def supplier_invoices(make_edi_row, make_maison):
     """Trois factures : mono-magasin, multi-magasins complet, multi-magasins partiel, plus un avoir"""
-    paris, lyon = make_maison("AF0001", code_maison="AF0001"), make_maison("AF0002", code_maison="AF0002")
+    paris, lyon = (
+        make_maison("AF0001", code_maison="AF0001"),
+        make_maison("AF0002", code_maison="AF0002"),
+    )
     make_edi_row(maison=paris, invoice_number="F1")
     make_edi_row(maison=paris, invoice_number="F2", is_multi_store=True)
-    make_edi_row(maison=lyon, invoice_number="F2", is_multi_store=True, net_amount=Decimal("0"))
+    make_edi_row(maison=lyon, invoice_number="F2", is_multi_store=True, net_amount=Decimal(0))
     make_edi_row(maison=paris, invoice_number="F3", is_multi_store=True)
     make_edi_row(cct=None, invoice_number="F3", is_multi_store=True)
     make_edi_row(cct=None, invoice_number="F4")
-    make_edi_row(maison=paris, invoice_number="A1", invoice_type="381", net_amount=Decimal("-100"))
+    make_edi_row(maison=paris, invoice_number="A1", invoice_type="381", net_amount=Decimal(-100))
     return paris
 
 
-@pytest.mark.usefixtures('supplier_invoices')
+@pytest.mark.usefixtures("supplier_invoices")
 def test_supplier_purchases(excel_io):
     result, file_io = run_export(list_module.excel_supplier_purchases, "FOUR001.xlsx", ATTR)
 
@@ -61,7 +70,7 @@ def test_supplier_purchases_erreur(ko_writer, caplog):
     assert result == KO
 
 
-@pytest.mark.usefixtures('supplier_invoices')
+@pytest.mark.usefixtures("supplier_invoices")
 def test_invoice_details(excel_io):
     result, file_io = run_export(details_module.excel_invoice_details, "DETAILS.xlsx", ATTR)
 
@@ -86,7 +95,7 @@ def test_invoice_details_erreur(ko_writer, caplog):
     assert result == KO
 
 
-@pytest.mark.usefixtures('supplier_invoices')
+@pytest.mark.usefixtures("supplier_invoices")
 def test_invoice_number(excel_io):
     attr = {"third_party_num": "FOUR001", "supplier": "FOURNISSEUR 1", "invoice_number": "F2"}
 
@@ -104,14 +113,22 @@ def test_invoice_number_erreur(ko_writer, caplog):
     ko_writer(number_module)
 
     with caplog.at_level(logging.ERROR):
-        result, _ = run_export(number_module.excel_invoice_number, "F2.xlsx", {"third_party_num": "X", "invoice_number": "1"})
+        result, _ = run_export(
+            number_module.excel_invoice_number,
+            "F2.xlsx",
+            {"third_party_num": "X", "invoice_number": "1"},
+        )
 
     assert result == KO
 
 
-@pytest.mark.usefixtures('supplier_invoices')
+@pytest.mark.usefixtures("supplier_invoices")
 def test_supplier_details_invoice(excel_io):
-    result, file_io = run_export(familly_module.excel_supplier_details_invoice, "FAMILLES.xlsx", {"third_party_num": "FOUR001"})
+    result, file_io = run_export(
+        familly_module.excel_supplier_details_invoice,
+        "FAMILLES.xlsx",
+        {"third_party_num": "FOUR001"},
+    )
 
     assert "OK" in result
     rows = excel_io(file_io)
@@ -122,7 +139,11 @@ def test_supplier_details_invoice(excel_io):
 
 def test_supplier_details_invoice_sans_lignes(excel_io):
     """Sans facture, le nom du fournisseur du titre est vide (IndexError attrapé)"""
-    result, file_io = run_export(familly_module.excel_supplier_details_invoice, "FAMILLES.xlsx", {"third_party_num": "INCONNU"})
+    result, file_io = run_export(
+        familly_module.excel_supplier_details_invoice,
+        "FAMILLES.xlsx",
+        {"third_party_num": "INCONNU"},
+    )
 
     assert "OK" in result
     assert excel_io(file_io)[0][0] == "ETAPE 3.1.A: CONTROLES DE FAMILLES : INCONNU - "
@@ -132,23 +153,29 @@ def test_supplier_details_invoice_erreur(ko_writer, caplog):
     ko_writer(familly_module)
 
     with caplog.at_level(logging.ERROR):
-        result, _ = run_export(familly_module.excel_supplier_details_invoice, "FAMILLES.xlsx", {"third_party_num": "X"})
+        result, _ = run_export(
+            familly_module.excel_supplier_details_invoice, "FAMILLES.xlsx", {"third_party_num": "X"}
+        )
 
     assert result == KO
 
 
 # 5.1 FOURNISSEURS M vs M-1 ========================================================================
-@pytest.mark.usefixtures('validation_period')
+@pytest.mark.usefixtures("validation_period")
 def test_balance_suppliers_purchases(make_edi_row, make_purchase_invoice, excel_io):
     initial = datetime.date(2026, 1, 1)
-    make_edi_row(net_amount=Decimal("100"))
-    make_purchase_invoice(integration_month=initial, net_amount=Decimal("40"))
-    make_purchase_invoice(integration_month=datetime.date(2025, 12, 1), net_amount=Decimal("30"))
-    make_purchase_invoice(integration_month=datetime.date(2025, 10, 1), net_amount=Decimal("10"))
-    make_purchase_invoice(integration_month=datetime.date(2025, 6, 1), net_amount=Decimal("999"))  # hors fenêtre
+    make_edi_row(net_amount=Decimal(100))
+    make_purchase_invoice(integration_month=initial, net_amount=Decimal(40))
+    make_purchase_invoice(integration_month=datetime.date(2025, 12, 1), net_amount=Decimal(30))
+    make_purchase_invoice(integration_month=datetime.date(2025, 10, 1), net_amount=Decimal(10))
+    make_purchase_invoice(
+        integration_month=datetime.date(2025, 6, 1), net_amount=Decimal(999)
+    )  # hors fenêtre
 
     result, file_io = run_export(
-        balance_module.excel_balance_suppliers_purchases, "FOURNISSEURS.xlsx", {"initial_date": initial}
+        balance_module.excel_balance_suppliers_purchases,
+        "FOURNISSEURS.xlsx",
+        {"initial_date": initial},
     )
 
     assert "OK" in result
@@ -164,18 +191,24 @@ def test_balance_suppliers_purchases(make_edi_row, make_purchase_invoice, excel_
 def test_balance_suppliers_sans_periode_de_validation(excel_io):
     """Sans EdiValidation ouverte, les en-têtes partent du mois courant (plus d'AttributeError)"""
     result, file_io = run_export(
-        balance_module.excel_balance_suppliers_purchases, "FOURNISSEURS.xlsx", {"initial_date": month_ago(0)}
+        balance_module.excel_balance_suppliers_purchases,
+        "FOURNISSEURS.xlsx",
+        {"initial_date": month_ago(0)},
     )
 
     assert "OK" in result
     assert excel_io(file_io)[0][0] == "5.1 Fournisseurs M vs M-1"
 
 
-@pytest.mark.usefixtures('validation_period')
+@pytest.mark.usefixtures("validation_period")
 def test_balance_suppliers_erreur(ko_writer, caplog):
     ko_writer(balance_module)
 
     with caplog.at_level(logging.ERROR):
-        result, _ = run_export(balance_module.excel_balance_suppliers_purchases, "F.xlsx", {"initial_date": datetime.date(2026, 1, 1)})
+        result, _ = run_export(
+            balance_module.excel_balance_suppliers_purchases,
+            "F.xlsx",
+            {"initial_date": datetime.date(2026, 1, 1)},
+        )
 
     assert result == KO

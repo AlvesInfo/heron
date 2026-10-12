@@ -1,6 +1,7 @@
 # pylint: disable=W0621,E0401
-"""
-FR : conftest racine - bibliothèque de fixtures et de context managers génériques,
+"""FR : conftest racine - bibliothèque de fixtures et de context managers génériques,
+
+
      partagée par toutes les apps du projet Héron
 EN : Root conftest - library of generic fixtures and context managers shared by all apps
 
@@ -16,16 +17,16 @@ Les fixtures spécifiques à une app vivent dans apps/<app>/tests/conftest.py
 created at: 2026-10-10
 created by: Paulo ALVES
 """
+
 import contextlib
 import csv
 import datetime
 import itertools
 import types
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
 from uuid import uuid4
 
 import pytest
@@ -61,8 +62,8 @@ def column_definitions_data(django_db_setup, django_db_blocker):  # pylint: disa
 
 @contextlib.contextmanager
 def patched_attrs(monkeypatch: pytest.MonkeyPatch, target: Any, **attrs: Any) -> Iterator[Any]:
-    """
-    Patch temporaire d'attributs d'un module ou d'un objet, restaurés à la sortie du bloc.
+    """Patch temporaire d'attributs d'un module ou d'un objet, restaurés à la sortie du bloc.
+
     :param monkeypatch: fixture monkeypatch de pytest
     :param target: module ou objet à patcher
     :param attrs: attributs à poser
@@ -82,8 +83,8 @@ def csv_file(
     encoding: str = "utf8",
     lineterminator: str = "\r\n",
 ) -> Iterator[Path]:
-    """
-    Écrit un fichier csv (format des extractions Sage X3 par défaut) et le supprime à la sortie.
+    """Écrit un fichier csv (format des extractions Sage X3 par défaut) et le supprime à la sortie.
+
     :param path: chemin du fichier à écrire
     :param rows: lignes à écrire
     :param delimiter: séparateur de champs
@@ -95,7 +96,10 @@ def csv_file(
 
     with path.open("w", encoding=encoding, newline="") as file:
         writer = csv.writer(
-            file, delimiter=delimiter, quoting=quoting, lineterminator=lineterminator
+            file,
+            delimiter=delimiter,
+            quoting=quoting,  # type: ignore[arg-type]
+            lineterminator=lineterminator,
         )
         writer.writerows(rows)
 
@@ -114,8 +118,8 @@ def captured_queries() -> Iterator[CaptureQueriesContext]:
 
 @contextlib.contextmanager
 def raising_once(exception: BaseException) -> Iterator[Callable[..., None]]:
-    """
-    Fournit un callable qui lève `exception` la première fois puis ne fait plus rien.
+    """Fournit un callable qui lève `exception` la première fois puis ne fait plus rien.
+
     Utile pour tester les branches except des boucles de traitement.
     """
     state = {"raised": False}
@@ -134,7 +138,9 @@ def raising_once(exception: BaseException) -> Iterator[Callable[..., None]]:
 
 
 @pytest.fixture
-def patch_module(monkeypatch: pytest.MonkeyPatch) -> Callable[..., contextlib.AbstractContextManager]:
+def patch_module(
+    monkeypatch: pytest.MonkeyPatch,
+) -> Callable[..., contextlib.AbstractContextManager]:
     """Fabrique de context manager : with patch_module(module, ATTR=valeur): ..."""
 
     def _factory(target: Any, **attrs: Any) -> contextlib.AbstractContextManager:
@@ -144,11 +150,9 @@ def patch_module(monkeypatch: pytest.MonkeyPatch) -> Callable[..., contextlib.Ab
 
 
 @pytest.fixture
-def sage_dirs(
-    tmp_path: Path, settings
-) -> types.SimpleNamespace:
-    """
-    Redirige tous les répertoires Sage (archive X3, processing, backup, pré-traitement)
+def sage_dirs(tmp_path: Path, settings) -> types.SimpleNamespace:
+    """Redirige tous les répertoires Sage (archive X3, processing, backup, pré-traitement)
+
     vers un répertoire temporaire, pour que les tests n'écrivent jamais dans files/.
     """
     dirs = types.SimpleNamespace(
@@ -353,14 +357,18 @@ def make_account(db) -> Callable[..., Any]:  # pylint: disable=W0613
 
     def _factory(code_plan_sage: str = "FRA", account: str | None = None, **kwargs: Any):
         account = account or next_code("41")
-        existing = AccountSage.objects.filter(code_plan_sage=code_plan_sage, account=account).first()
+        existing = AccountSage.objects.filter(
+            code_plan_sage=code_plan_sage, account=account
+        ).first()
 
         if existing and not kwargs:
             return existing
 
         defaults = {"name": f"Compte {account}", "short_name": account[:20]}
         defaults.update(kwargs)
-        return AccountSage.objects.create(code_plan_sage=code_plan_sage, account=account, **defaults)
+        return AccountSage.objects.create(
+            code_plan_sage=code_plan_sage, account=account, **defaults
+        )
 
     return _factory
 
@@ -435,7 +443,12 @@ def make_society(db) -> Callable[..., Any]:  # pylint: disable=W0613
 
     def _factory(third_party_num: str | None = None, **kwargs: Any):
         third_party_num = third_party_num or next_code("TIERS")
-        defaults = {"name": f"Société {third_party_num}", "short_name": third_party_num[:20], "is_client": True, "in_use": True}
+        defaults = {
+            "name": f"Société {third_party_num}",
+            "short_name": third_party_num[:20],
+            "is_client": True,
+            "in_use": True,
+        }
         defaults.update(kwargs)
         return Society.objects.get_or_create(third_party_num=third_party_num, defaults=defaults)[0]
 
@@ -448,7 +461,9 @@ def make_address(make_society) -> Callable[..., Any]:
     from apps.book.models import Address  # pylint: disable=C0415
 
     def _factory(society=None, address_code: str = "1", **kwargs: Any):
-        return Address.objects.create(society=society or make_society(), address_code=address_code, **kwargs)
+        return Address.objects.create(
+            society=society or make_society(), address_code=address_code, **kwargs
+        )
 
     return _factory
 
@@ -474,8 +489,16 @@ def make_child_center(db) -> Callable[..., Any]:  # pylint: disable=W0613
     from apps.centers_purchasing.models import ChildCenterPurchase, PrincipalCenterPurchase  # pylint: disable=C0415
 
     def _factory(code: str = "ACF", **kwargs: Any):
-        principal = PrincipalCenterPurchase.objects.get_or_create(code="ACU", defaults={"name": "Acuitis centrale"})[0]
-        defaults = {"base_center": principal, "name": f"Centrale {code}", "societe_cpy_x3": "ACU", "site_fcy_x3": code, "code_plan_sage": "FRA"}
+        principal = PrincipalCenterPurchase.objects.get_or_create(
+            code="ACU", defaults={"name": "Acuitis centrale"}
+        )[0]
+        defaults = {
+            "base_center": principal,
+            "name": f"Centrale {code}",
+            "societe_cpy_x3": "ACU",
+            "site_fcy_x3": code,
+            "code_plan_sage": "FRA",
+        }
         defaults.update(kwargs)
         return ChildCenterPurchase.objects.get_or_create(code=code, defaults=defaults)[0]
 
@@ -525,7 +548,9 @@ def make_invoice_function(db) -> Callable[..., Any]:  # pylint: disable=W0613
 
     def _factory(function_name: str = "ABONNEMENT", **kwargs: Any):
         kwargs.setdefault("function", "def abonnement(): ...")
-        return InvoiceFunctions.objects.get_or_create(function_name=function_name, defaults=kwargs)[0]
+        return InvoiceFunctions.objects.get_or_create(function_name=function_name, defaults=kwargs)[
+            0
+        ]
 
     return _factory
 
@@ -572,7 +597,9 @@ def make_sub_category(make_big_category) -> Callable[..., Any]:
 
         defaults = {"code": name[:15].upper(), "ranking": next(_REF_COUNTER) + 2000}
         defaults.update(kwargs)
-        return SubCategory.objects.create(name=name, big_category=big_category or make_big_category(), **defaults)
+        return SubCategory.objects.create(
+            name=name, big_category=big_category or make_big_category(), **defaults
+        )
 
     return _factory
 
@@ -599,7 +626,13 @@ def make_article_account(make_article, make_child_center, make_vat) -> Callable[
     """Fabrique de comptes achat/vente par article, centrale et tva"""
     from apps.articles.models import ArticleAccount  # pylint: disable=C0415
 
-    def _factory(article=None, child_center: str = "ACF", vat: str = "001", purchase_account: str = "607000", sale_account: str = "707000"):
+    def _factory(
+        article=None,
+        child_center: str = "ACF",
+        vat: str = "001",
+        purchase_account: str = "607000",
+        sale_account: str = "707000",
+    ):
         return ArticleAccount.objects.create(
             article=article or make_article(),
             child_center=make_child_center(child_center),
@@ -612,12 +645,21 @@ def make_article_account(make_article, make_child_center, make_vat) -> Callable[
 
 
 @pytest.fixture
-def make_accounts_axe_pro_category(make_child_center, make_big_category, make_section, make_vat, make_account) -> Callable[..., Any]:
+def make_accounts_axe_pro_category(
+    make_child_center, make_big_category, make_section, make_vat, make_account
+) -> Callable[..., Any]:
     """Fabrique du paramétrage des comptes par axe pro / catégorie / tva / centrale"""
     from apps.centers_purchasing.models import AccountsAxeProCategory  # pylint: disable=C0415
 
-    def _factory(axe_pro=None, big_category=None, sub_category=None, child_center: str = "ACF", vat: str = "001",
-                 purchase: str = "607000", sale: str = "707000"):
+    def _factory(
+        axe_pro=None,
+        big_category=None,
+        sub_category=None,
+        child_center: str = "ACF",
+        vat: str = "001",
+        purchase: str = "607000",
+        sale: str = "707000",
+    ):
         return AccountsAxeProCategory.objects.create(
             child_center=make_child_center(child_center),
             big_category=big_category or make_big_category(),
@@ -642,7 +684,9 @@ def make_type_vente(db) -> Callable[..., Any]:  # pylint: disable=W0613
     names = {0: "BLOCAGE", 1: "VENTE", 2: "OD ANA"}
 
     def _factory(num: int = 0, name: str | None = None):
-        return TypeVente.objects.get_or_create(num=num, defaults={"name": name or names.get(num, f"TYPE {num}")})[0]
+        return TypeVente.objects.get_or_create(
+            num=num, defaults={"name": name or names.get(num, f"TYPE {num}")}
+        )[0]
 
     return _factory
 
@@ -661,8 +705,17 @@ def make_client_familly(db) -> Callable[..., Any]:  # pylint: disable=W0613
 
 @pytest.fixture
 def make_maison(
-    make_cct, make_society, make_child_center, make_signboard, make_client_familly, make_vat,
-    make_code_plan, make_country_currency, make_language, make_country, make_type_vente,
+    make_cct,
+    make_society,
+    make_child_center,
+    make_signboard,
+    make_client_familly,
+    make_vat,
+    make_code_plan,
+    make_country_currency,
+    make_language,
+    make_country,
+    make_type_vente,
 ) -> Callable[..., Any]:
     """Fabrique de maisons avec toutes leurs dépendances créées à la volée"""
     from apps.centers_clients.models import Maison  # pylint: disable=C0415
@@ -722,7 +775,13 @@ def make_supplier_family_axes(make_section, make_big_category) -> Callable[..., 
     """Fabrique des statistiques familles -> axe pro (stat ACUITIS par défaut)"""
     from apps.book.models import StatFamillyAxes, SupplierFamilyAxes  # pylint: disable=C0415
 
-    def _factory(regex_match: str = "LUNETTES", stat_name: str = "ACUITIS", axe_pro=None, big_category=None, **kwargs: Any):
+    def _factory(
+        regex_match: str = "LUNETTES",
+        stat_name: str = "ACUITIS",
+        axe_pro=None,
+        big_category=None,
+        **kwargs: Any,
+    ):
         stat = StatFamillyAxes.objects.get_or_create(name=stat_name)[0]
         return SupplierFamilyAxes.objects.create(
             stat_name=stat,
@@ -800,14 +859,18 @@ def make_parties_invoices(make_cct, make_society) -> Callable[..., Any]:
         }
         defaults.update(kwargs)
         return PartiesInvoices.objects.create(
-            cct=cct or make_cct("AF0001"), third_party_num=society or make_society("CLI001"), **defaults
+            cct=cct or make_cct("AF0001"),
+            third_party_num=society or make_society("CLI001"),
+            **defaults,
         )
 
     return _factory
 
 
 @pytest.fixture
-def make_sale_invoice(make_society, make_cct, make_centers_invoices, make_signboards_invoices, make_parties_invoices) -> Callable[..., Any]:
+def make_sale_invoice(
+    make_society, make_cct, make_centers_invoices, make_signboards_invoices, make_parties_invoices
+) -> Callable[..., Any]:
     """Fabrique de factures de vente invoices.SaleInvoice (marchandises, type_x3 1 = vente)"""
     from apps.invoices.models import SaleInvoice  # pylint: disable=C0415
 
@@ -823,9 +886,9 @@ def make_sale_invoice(make_society, make_cct, make_centers_invoices, make_signbo
             "invoice_type": "380",
             "invoice_type_name": "Facture",
             "devise": "EUR",
-            "invoice_amount_without_tax": Decimal("100"),
-            "invoice_amount_tax": Decimal("20"),
-            "invoice_amount_with_tax": Decimal("120"),
+            "invoice_amount_without_tax": Decimal(100),
+            "invoice_amount_tax": Decimal(20),
+            "invoice_amount_with_tax": Decimal(120),
             "big_category": "Marchandises",
             "big_category_code": "MAR",
             "big_category_slug_name": "marchandises",
@@ -856,15 +919,17 @@ def make_edi_import(make_society) -> Callable[..., Any]:
             "invoice_number": next_code("FAC"),
             "invoice_date": datetime.date(2026, 1, 15),
             "libelle": f"Libellé {reference_article}",
-            "qty": Decimal("1"),
-            "net_unit_price": Decimal("10"),
-            "net_amount": Decimal("10"),
+            "qty": Decimal(1),
+            "net_unit_price": Decimal(10),
+            "net_amount": Decimal(10),
             "code_center": "ACF",
             "sale_invoice": False,
             "valid": True,
         }
         defaults.update(kwargs)
-        return EdiImport.objects.create(third_party_num=third_party_num, reference_article=reference_article, **defaults)
+        return EdiImport.objects.create(
+            third_party_num=third_party_num, reference_article=reference_article, **defaults
+        )
 
     return _factory
 
@@ -912,7 +977,7 @@ def make_edi_import_control(db) -> Callable[..., Any]:  # pylint: disable=W0613
     from apps.edi.models import EdiImportControl  # pylint: disable=C0415
 
     def _factory(**kwargs: Any):
-        defaults = {"statement_without_tax": Decimal("100"), "statement_with_tax": Decimal("120")}
+        defaults = {"statement_without_tax": Decimal(100), "statement_with_tax": Decimal(120)}
         defaults.update(kwargs)
         return EdiImportControl.objects.create(**defaults)
 
@@ -940,15 +1005,30 @@ def make_sale_invoice_detail(make_sale_invoice) -> Callable[..., Any]:
     def _factory(sale_invoice=None, **kwargs: Any):
         defaults = {
             "import_uuid_identification": uuid4(),
-            "axe_bu": "CAHA", "axe_prj": "NAF", "axe_pro": "OPT", "axe_rfa": "NAF", "axe_pys": "FR",
-            "vat": "001", "vat_rate": Decimal("0.2"), "vat_regime": "FRA",
-            "big_category": "Marchandises", "base": "Marchandises", "grouping_goods": "Montures",
-            "account": "707000", "account_od_600": "607000", "ranking": 1,
-            "gross_unit_price": Decimal("100"), "net_unit_price": Decimal("100"),
-            "gross_amount": Decimal("100"), "net_amount": Decimal("100"),
-            "vat_amount": Decimal("20"), "amount_with_vat": Decimal("120"),
+            "axe_bu": "CAHA",
+            "axe_prj": "NAF",
+            "axe_pro": "OPT",
+            "axe_rfa": "NAF",
+            "axe_pys": "FR",
+            "vat": "001",
+            "vat_rate": Decimal("0.2"),
+            "vat_regime": "FRA",
+            "big_category": "Marchandises",
+            "base": "Marchandises",
+            "grouping_goods": "Montures",
+            "account": "707000",
+            "account_od_600": "607000",
+            "ranking": 1,
+            "gross_unit_price": Decimal(100),
+            "net_unit_price": Decimal(100),
+            "gross_amount": Decimal(100),
+            "net_amount": Decimal(100),
+            "vat_amount": Decimal(20),
+            "amount_with_vat": Decimal(120),
         }
         defaults.update(kwargs)
-        return SaleInvoiceDetail.objects.create(uuid_invoice=sale_invoice or make_sale_invoice(), **defaults)
+        return SaleInvoiceDetail.objects.create(
+            uuid_invoice=sale_invoice or make_sale_invoice(), **defaults
+        )
 
     return _factory

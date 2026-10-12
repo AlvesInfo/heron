@@ -1,6 +1,6 @@
-"""
-FR : Module de préparation à l'import des factures fournisseurs
-EN : Preparation module for importing supplier invoices
+"""FR : Module de préparation à l'import des factures fournisseurs.
+
+EN : Preparation module for importing supplier invoices.
 
 Commentaire:
 
@@ -10,27 +10,28 @@ created by: Paulo ALVES
 modified at: 2021-11-07
 modified by: Paulo ALVES
 """
+
 import uuid
 
 import pendulum
 from django.db import models
 
-from heron.models import DatesTable, FlagsTable
-from apps.accountancy.models import VatSage, SectionSage
+from apps.accountancy.models import SectionSage, VatSage
 from apps.centers_clients.models import Maison
 from apps.parameters.models import (
-    BaseInvoiceTable,
-    BaseInvoiceDetailsTable,
-    Category,
-    SubCategory,
-    Nature,
     BaseCommonDetailsTable,
+    BaseInvoiceDetailsTable,
+    BaseInvoiceTable,
+    Category,
     ControlRebilling,
+    Nature,
+    SubCategory,
 )
+from heron.models import DatesTable, FlagsTable
 
 
 class EdiImportControl(FlagsTable):
-    """Table de saisie de relevé des fournisseurs, pour contrôle des intégrations"""
+    """Table de saisie de relevé des fournisseurs, pour contrôle des intégrations."""
 
     statement_without_tax = models.DecimalField(
         null=True, max_digits=20, decimal_places=5, default=0, verbose_name="Montant HT"
@@ -46,8 +47,9 @@ class EdiImportControl(FlagsTable):
 
 
 class EdiValidation(FlagsTable):
-
     # Validation sur Ecran 1.1 Nouveaux Articles
+    """Suivi des validations par écran du flux EDI."""
+
     articles_news = models.BooleanField(null=True, default=False)
 
     # Validation sur Ecran 1.2 Articles sans Comptes
@@ -99,7 +101,9 @@ class EdiValidation(FlagsTable):
 
 
 class EdiControlRebilling(FlagsTable):
-    control_rebilling= models.ForeignKey(
+    """Lien entre un import EDI et un contrôle de refacturation."""
+
+    control_rebilling = models.ForeignKey(
         ControlRebilling,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
@@ -116,17 +120,17 @@ class EdiControlRebilling(FlagsTable):
     comment = models.TextField(blank=True, null=True)
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         ordering = ["control_rebilling__name"]
         unique_together = (("control_rebilling", "uuid_edi_validation"),)
 
 
 class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommonDetailsTable):
-    """
-    Table de préparation à l'import des factures fournisseurs edi et spécifique
+    """Table de préparation à l'import des factures fournisseurs edi et spécifique.
+
     FR : Table Import EDI
-    EN : Edi Import table
+    EN : Edi Import table.
     """
 
     uuid_identification = models.UUIDField(default=uuid.uuid4, editable=False)
@@ -307,9 +311,9 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommo
     import_uuid_identification = models.UUIDField(null=True, default=uuid.uuid4)
 
     def save(self, *args, **kwargs):
-        """
-        FR : Avant la sauvegarde on clean les données
-        EN : Before the backup we clean the data
+        """FR : Avant la sauvegarde on clean les données.
+
+        EN : Before the backup we clean the data.
         """
         if not self.invoice_month:
             self.invoice_month = pendulum.parse(self.invoice_date.isoformat()).start_of("month")
@@ -320,7 +324,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommo
         super().save(*args, **kwargs)
 
     class Meta:
-        """Class Meta Django"""
+        """Class Meta Django."""
 
         indexes = [
             models.Index(fields=["cct_uuid_identification"]),
@@ -347,10 +351,10 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommo
 
 
 class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommonDetailsTable):
-    """
-    Table de dépôts STARKEY
+    """Table de dépôts STARKEY.
+
     FR : Table Import EDI
-    EN : Edi Import table
+    EN : Edi Import table.
     """
 
     import_uuid_identification = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -528,9 +532,9 @@ class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCo
     is_multi_store = models.BooleanField(null=True)
 
     def save(self, *args, **kwargs):
-        """
-        FR : Avant la sauvegarde on clean les données
-        EN : Before the backup we clean the data
+        """FR : Avant la sauvegarde on clean les données.
+
+        EN : Before the backup we clean the data.
         """
         if not self.invoice_month:
             self.invoice_month = pendulum.parse(self.invoice_date.isoformat()).start_of("month")
@@ -541,7 +545,7 @@ class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCo
         super().save(*args, **kwargs)
 
     class Meta:
-        """Class Meta Django"""
+        """Class Meta Django."""
 
         indexes = [
             models.Index(fields=["cct_uuid_identification"]),
@@ -568,7 +572,7 @@ class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCo
 
 
 class SupplierDefinition(DatesTable):
-    """Table de définition des entêtes des fichiers fournisseurs"""
+    """Table de définition des entêtes des fichiers fournisseurs."""
 
     flow_name = models.CharField(unique=True, max_length=80)
     supplier = models.CharField(null=True, blank=True, max_length=35)
@@ -583,8 +587,9 @@ class SupplierDefinition(DatesTable):
 
 
 class ColumnDefinition(models.Model):
-    """Table de définition des entêtes de l'ordre et du formatage,
-    dans les fichiers fournissuers à importer
+    """Table de définition des entêtes de l'ordre et du formatage,.
+
+    dans les fichiers fournissuers à importer.
     """
 
     flow_name = models.ForeignKey(
@@ -603,14 +608,15 @@ class ColumnDefinition(models.Model):
     unique = models.BooleanField(null=True)
 
     class Meta:
-        """class Meta"""
+        """class Meta."""
 
         ordering = ["ranking"]
         unique_together = (("flow_name", "ranking"),)
 
 
 class ChronoDirect(models.Model):
-    """Parsing du fichier chronodirect"""
+    """Parsing du fichier chronodirect."""
+
     reference_cosium = models.CharField(max_length=35, verbose_name="référence cosium")
     libelle = models.CharField(max_length=80)
     qty = models.IntegerField()

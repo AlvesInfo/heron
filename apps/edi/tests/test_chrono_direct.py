@@ -1,6 +1,5 @@
-"""
-Tests du script autonome chrono_direct (psycopg2 simulé)
-"""
+"""Tests du script autonome chrono_direct (psycopg2 simulé)"""
+
 import csv
 import logging
 from decimal import Decimal
@@ -69,8 +68,9 @@ def test_cnx_postgresql_error_logged(monkeypatch, caplog):
     def _connect(**_kwargs):
         raise psycopg2.OperationalError("refusé")
 
-    with patched_attrs(monkeypatch, psycopg2, connect=_connect), caplog.at_level(
-        logging.ERROR, logger="edi"
+    with (
+        patched_attrs(monkeypatch, psycopg2, connect=_connect),
+        caplog.at_level(logging.ERROR, logger="edi"),
     ):
         assert chrono_direct.cnx_postgresql("dbname=heron") is None
 
@@ -125,12 +125,13 @@ def test_set_generique_chrono_direct(monkeypatch, tmp_path, chrono_file, caplog)
     target = tmp_path / "interne.csv"
     cursor = FakeCursor(rows=[("COS1", "AF0001"), ("COS2", "AF0002")])
 
-    with patched_attrs(
-        monkeypatch, chrono_direct, cnx_postgresql=lambda _dsn: FakeConnection(cursor)
-    ), caplog.at_level(logging.INFO, logger="edi"):
-        chrono_direct.set_generique_chrono_direct(
-            "dbname=x", source, target, dte_fac="20250930"
-        )
+    with (
+        patched_attrs(
+            monkeypatch, chrono_direct, cnx_postgresql=lambda _dsn: FakeConnection(cursor)
+        ),
+        caplog.at_level(logging.INFO, logger="edi"),
+    ):
+        chrono_direct.set_generique_chrono_direct("dbname=x", source, target, dte_fac="20250930")
 
     with target.open(encoding="utf8", newline="") as file:
         lines = list(csv.DictReader(file, delimiter=";", quotechar='"'))
@@ -150,9 +151,12 @@ def test_set_generique_chrono_direct_unknown_reference(monkeypatch, tmp_path, ch
     source = chrono_file([["Courrier", "INCONNUE", "1", "1", "2"]])
     cursor = FakeCursor(rows=[("COS1", "AF0001")])
 
-    with patched_attrs(
-        monkeypatch, chrono_direct, cnx_postgresql=lambda _dsn: FakeConnection(cursor)
-    ), pytest.raises(ValueError, match="INCONNUE"):
+    with (
+        patched_attrs(
+            monkeypatch, chrono_direct, cnx_postgresql=lambda _dsn: FakeConnection(cursor)
+        ),
+        pytest.raises(ValueError, match="INCONNUE"),
+    ):
         chrono_direct.set_generique_chrono_direct(
             "dbname=x", source, tmp_path / "interne.csv", dte_fac="20250930"
         )

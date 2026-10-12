@@ -1,11 +1,13 @@
 # pylint: disable=E0401,W0621
-"""
-FR : Tests des schémas djantic de validation des imports Sage de book (forms/forms_djantic/sage.py)
+"""FR : Tests des schémas djantic de validation des imports Sage de book (forms/forms_djantic/sage.py)
+
+
 EN : Tests for djantic validation schemas of book Sage imports
 
 created at: 2026-10-11
 created by: Paulo ALVES
 """
+
 import datetime
 import uuid
 
@@ -93,7 +95,10 @@ def test_bpr_schema_pays_obligatoire():
 
 @pytest.mark.parametrize(
     ("schema", "required"),
-    [(BpsBookSageSchema, "payment_condition_supplier"), (BpcBookSageSchema, "payment_condition_client")],
+    [
+        (BpsBookSageSchema, "payment_condition_supplier"),
+        (BpcBookSageSchema, "payment_condition_client"),
+    ],
 )
 def test_schemas_fournisseurs_clients_condition_de_paiement_obligatoire(schema, required):
     """La condition de paiement (auuid posé par le pré-traitement) est obligatoire"""
@@ -112,7 +117,12 @@ def test_schemas_fournisseurs_clients_condition_de_paiement_obligatoire(schema, 
 
 def test_adresses_schema():
     validated = BookAdressesSageSchema(
-        society="FOUR001", country="FR", default_adress="2", address_code="1", line_01="12 rue~~x", email_01="a@b.fr"
+        society="FOUR001",
+        country="FR",
+        default_adress="2",
+        address_code="1",
+        line_01="12 rue~~x",
+        email_01="a@b.fr",
     ).dict()
 
     assert validated["default_adress"] is True
@@ -127,8 +137,12 @@ def test_adresses_schema():
 
 def test_contacts_schemas_uuid_par_defaut():
     """Les contacts reçoivent un uuid par défaut, le code contact est tronqué à 15"""
-    code = CodeContactsSageSchema(society="FOUR001", code="C" * 20, service="Compta", role="").dict()
-    contact = BookContactsSageSchema(society="FOUR001", code="C01", country="FR", first_name="Jean", email="jean@acuitis.com").dict()
+    code = CodeContactsSageSchema(
+        society="FOUR001", code="C" * 20, service="Compta", role=""
+    ).dict()
+    contact = BookContactsSageSchema(
+        society="FOUR001", code="C01", country="FR", first_name="Jean", email="jean@acuitis.com"
+    ).dict()
 
     assert isinstance(code["uuid_identification"], uuid.UUID)
     assert len(code["code"]) == 15
@@ -145,7 +159,9 @@ def test_contacts_schemas_uuid_par_defaut():
 
 
 def test_banques_schema():
-    validated = BookBanksSageSchema(society="FOUR001", country="FR", account_number="FR76 3000", is_default="1").dict()
+    validated = BookBanksSageSchema(
+        society="FOUR001", country="FR", account_number="FR76 3000", is_default="1"
+    ).dict()
 
     assert validated["account_number"] == "FR76 3000"
     assert validated["is_default"] is False
