@@ -11,47 +11,48 @@ modified at: 2021-11-07
 modified by: Paulo ALVES
 """
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 
-def get_columns(model: models.Model, flow_name: str) -> dict:
+def get_columns(model: type[models.Model], flow_name: str) -> dict:
     """:param model:      Model au sens django
 
     :param flow_name:  Nom de la table
     :return: Le Dictionnaire de correspondance entre le modèle et l'entête du fichier
     """
     return {
-        dict_row.get("attr_name"): int(dict_row.get("file_column"))
-        if dict_row.get("file_column").isnumeric()
-        else dict_row.get("file_column")
-        for dict_row in model.objects.filter(flow_name=flow_name)
+        dict_row["attr_name"]: int(dict_row["file_column"])
+        if dict_row["file_column"].isnumeric()
+        else dict_row["file_column"]
+        for dict_row in model._default_manager.filter(flow_name=flow_name)
         .order_by("ranking")
         .values("attr_name", "file_column")
     }
 
 
-def get_first_line(model: models.Model, flow_name: str) -> int:
+def get_first_line(model: type[models.Model], flow_name: str) -> int:
     """:param model:      Model SupplierDefinition django
 
     :param flow_name:  Nom de la table
     :return: Retourne la première ligne du fichier
     """
     try:
-        first_line_object = model.objects.get(flow_name=flow_name)
-    except model.DoesNotExist:
+        first_line_object = model._default_manager.get(flow_name=flow_name)
+    except ObjectDoesNotExist:
         return 1
     else:
-        return first_line_object.first_line
+        return first_line_object.first_line  # type: ignore[attr-defined]  # modèle de définition des flux (first_line)
 
 
-def get_loader_params_dict(model: models.Model, flow_name: str) -> dict:
+def get_loader_params_dict(model: type[models.Model], flow_name: str) -> dict:
     """:param model:      Model SupplierDefinition django
 
     :param flow_name:  Nom de la table
     :return: Retourne le dictionnaire des paramètres pour le loader
     """
     try:
-        object_dict = model.objects.values(
+        object_dict = model._default_manager.values(
             "encoding",
             "delimiter",
             "lineterminator",
@@ -66,5 +67,5 @@ def get_loader_params_dict(model: models.Model, flow_name: str) -> dict:
             "quotechar": object_dict.get("quotechar") or '"',
             "escapechar": object_dict.get("escapechar") or '"',
         }
-    except model.DoesNotExist:
+    except ObjectDoesNotExist:
         return {}

@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 
 from psycopg2 import sql
 
-rfa_dict = {
+rfa_dict: dict[str, sql.Composable] = {
     "sql_vat": sql.SQL(
         """
         update "edi_ediimport"

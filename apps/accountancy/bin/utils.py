@@ -5,6 +5,7 @@ import datetime
 import pendulum
 
 from apps.accountancy.models import PaymentCondition
+from apps.core.bin.typing_helpers import required
 
 
 def due_date_calculate(invoice_date: datetime.date, condition: PaymentCondition):
@@ -47,7 +48,7 @@ def get_str_echeances(invoice_date: datetime.date, code: str):
     for due_date in PaymentCondition.objects.filter(code=code).order_by(
         "offset_month", "offset_days"
     ):
-        percent_at_term = int(due_date.percent_at_term)
+        percent_at_term = int(required(due_date.percent_at_term, "pourcentage à terme"))
         pourcent = f"{percent_at_term} % le " if percent_at_term and percent_at_term != 100 else ""
         due_dates_list.append("".join([pourcent, due_date_calculate(invoice_date, due_date)]))
 

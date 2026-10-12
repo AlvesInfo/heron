@@ -22,7 +22,7 @@ def get_vat_alls() -> QuerySet:
 
     :return: queryset of dict.
     """
-    return VatSage.objects.annotate(
+    return VatSage.objects.annotate(  # type: ignore[no-redef]  # alias « pk » attendu par l'API
         str_search=Concat(
             "vat",
             Value("|"),

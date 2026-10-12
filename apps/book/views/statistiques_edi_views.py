@@ -122,7 +122,7 @@ class FamillyAxeCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         "une erreur c'est produite"
     )
 
-    def get(self, _request, *_args, **kwargs):
+    def get(self, request, *args, **kwargs):  # noqa: ARG002 (signature Django)
         """Ajout de self.statistique a l'instance de la vue (404 si la statistique n'existe pas)."""
         self.statistique = get_object_or_404(StatFamillyAxes, pk=kwargs.get("statistique_pk"))
         return self.render_to_response(self.get_context_data())

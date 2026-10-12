@@ -133,14 +133,12 @@ class MaisonUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_clients:maisons_list")
         context["titre_table"] = (
-            f"Mise à jour du Client : "
-            f"{context.get('object').cct} - "
-            f"{context.get('object').intitule}"
+            f"Mise à jour du Client : {context['object'].cct} - {context['object'].intitule}"
         )
         context["adresse_principale_sage"] = (
-            context.get("object").third_party_num.society_society.filter(address_code="1").first()
+            context["object"].third_party_num.society_society.filter(address_code="1").first()
         )
-        context["cct__active"] = context.get("object").cct.active
+        context["cct__active"] = context["object"].cct.active
 
         return context
 

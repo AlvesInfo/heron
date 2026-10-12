@@ -3,6 +3,10 @@
 {% load static %}
 {% load filters_tags %}
 
+{% block head_js %}
+    {{ form.media }}
+{% endblock head_js %}
+
 {% block menu_principal %}
         {% include "heron/menu_principal.html" %}
 {% endblock menu_principal %}

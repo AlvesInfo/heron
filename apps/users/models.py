@@ -1,6 +1,7 @@
 """Modèle utilisateur personnalisé et tables associées (sessions, hiérarchie, groupes)."""
 
 import uuid
+from typing import cast
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
@@ -22,13 +23,16 @@ class UserManager(BaseUserManager, models.Manager):
         if not username:
             raise ValueError("The given username must be set")
 
-        user = self.model(
-            username=username,
-            email=email,
-            is_superuser=is_superuser,
-            is_staff=is_staff,
-            is_active=True,
-            **extra_fields,
+        user = cast(
+            "User",
+            self.model(
+                username=username,
+                email=email,
+                is_superuser=is_superuser,
+                is_staff=is_staff,
+                is_active=True,
+                **extra_fields,
+            ),
         )
 
         if password:

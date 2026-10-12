@@ -27,13 +27,14 @@ class SocietyForm(forms.ModelForm):
 
     def clean(self):
         """Normalise les identifiants fournisseurs saisis et contrôle les doublons."""
-        cleaned_data = super().clean()
+        super().clean()
+        cleaned_data = self.cleaned_data
 
-        if cleaned_data.get("centers_suppliers_indentifier"):
+        identifiers = cleaned_data.get("centers_suppliers_indentifier")
+
+        if identifiers:
             set_identifier = {
-                str(value).strip()
-                for value in cleaned_data.get("centers_suppliers_indentifier").split("|")
-                if str(value).strip()
+                str(value).strip() for value in identifiers.split("|") if str(value).strip()
             }
 
             cleaned_data["centers_suppliers_indentifier"] = "|".join(sorted(set_identifier))

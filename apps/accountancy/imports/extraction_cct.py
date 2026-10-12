@@ -35,7 +35,7 @@ from apps.accountancy.models import CctSage, SectionSage
 
 def update_cct_sage():
     """Update de la table CctSage, pour le foreign key dans les clients des centrales."""
-    section = SectionSage.objects.filter(axe="CCT")
+    section = SectionSage.objects.filter(axe__axe="CCT")
 
     for cct_section in section:
         try:

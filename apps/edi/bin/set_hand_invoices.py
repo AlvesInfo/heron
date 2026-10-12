@@ -21,6 +21,7 @@ from django.db import transaction
 from apps.accountancy.bin.utilities import get_dict_vat_rates
 from apps.articles.bin.articles_queries import get_article
 from apps.book.models import Society
+from apps.core.bin.typing_helpers import required
 from apps.edi.bin.data_edi_invoices_nums import get_invoices_manual_entries_nums
 from apps.edi.bin.edi_utilites import (
     form_errors_message,
@@ -93,7 +94,7 @@ def _line_amounts(line_dict: dict, invoice_type: str, vat_dict: dict) -> dict:
 
 
 def _validate_lines(
-    category_form: forms.ModelForm,
+    category_form: type[forms.ModelForm],
     entete_dict: dict,
     lignes_list: list,
     vat_dict: dict,
@@ -142,14 +143,14 @@ def _validate_lines(
         cct_dict.update(amounts)
 
         # On récupère les axes et catégories des articles dans la base article
-        articles_dict = get_article(line_dict.get("reference_article"))
+        articles_dict = required(get_article(line_dict.get("reference_article")), "article")
         # On va valider le formulaire
         form = category_form({**entete_dict, **line_dict, **cct_dict, **articles_dict})
 
         if not form.is_valid():
             return lines_to_create, multistore_set, totals, form_errors_message(form)
 
-        maison = form.cleaned_data.get("cct_uuid_identification")
+        maison = form.cleaned_data["cct_uuid_identification"]
         multistore_set.add(maison.cct)
         line_to_insert = {
             **form.cleaned_data,
@@ -213,7 +214,7 @@ def _rows_to_insert(
 @transaction.atomic
 def set_hand_invoice(
     invoice_category: str,
-    category_form: forms.ModelForm,
+    category_form: type[forms.ModelForm],
     entete_dict: dict,
     lignes_list: list,
     user: User,
@@ -237,7 +238,7 @@ def set_hand_invoice(
     # si l'on n'a pas de N° de Facture on en met un par défaut, avec la numérotation automatique
     # à aprtir du compteur des saisies manuelles
     if invoice_number == "":
-        invoice_number = get_invoices_manual_entries_nums(entete_dict.get("third_party_num"))
+        invoice_number = get_invoices_manual_entries_nums(entete_dict["third_party_num"])
         entete_dict["invoice_number"] = invoice_number
 
     try:

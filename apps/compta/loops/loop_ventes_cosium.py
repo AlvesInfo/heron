@@ -74,8 +74,8 @@ def process():
         if error:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
+                trace.comment or ""
+            ) + "\n. Une erreur c'est produite veuillez consulter les logs"
 
         trace.time_to_process = time.time() - start
         trace.final_at = pendulum.now()

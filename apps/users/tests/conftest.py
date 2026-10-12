@@ -78,8 +78,8 @@ def make_superuser(make_user) -> Callable[..., Any]:
 def staff_client(make_staff) -> Client:
     """Client authentifié en Admin délégué (utilisateur en `client.user`)"""
     client = Client()
-    client.user = make_staff()
-    client.force_login(client.user)
+    client.user = make_staff()  # type: ignore[attr-defined]
+    client.force_login(client.user)  # type: ignore[attr-defined]
     return client
 
 
@@ -87,8 +87,8 @@ def staff_client(make_staff) -> Client:
 def superuser_client(make_superuser) -> Client:
     """Client authentifié en superuser (utilisateur en `client.user`)"""
     client = Client()
-    client.user = make_superuser()
-    client.force_login(client.user)
+    client.user = make_superuser()  # type: ignore[attr-defined]
+    client.force_login(client.user)  # type: ignore[attr-defined]
     return client
 
 

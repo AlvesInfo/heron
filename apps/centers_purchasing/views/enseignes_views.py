@@ -1,10 +1,12 @@
 """Views des Enseignes."""
 
 from pathlib import Path
+from typing import cast
 
 import pendulum
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db import models
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import CreateView, ListView, UpdateView
@@ -77,9 +79,7 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:enseignes_list")
         context["titre_table"] = (
-            f"Mise à jour de l'enseigne : "
-            f"{context.get('object').code} - "
-            f"{context.get('object').name}"
+            f"Mise à jour de l'enseigne : {context['object'].code} - {context['object'].name}"
         )
         return context
 
@@ -94,11 +94,9 @@ class EnseigneUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         form.save()
 
         # On supprime les fichiers qui sont devenus orphelins
+        upload_to = str(cast(models.FileField, Signboard._meta.get_field("logo")).upload_to)
         logo_files_path = {
-            Signboard._meta.get_field("logo").upload_to + file.name
-            for file in (
-                Path(settings.MEDIA_DIR) / Signboard._meta.get_field("logo").upload_to
-            ).glob("*")
+            upload_to + file.name for file in (Path(settings.MEDIA_DIR) / upload_to).glob("*")
         }
         logo_files_model = {
             row.get("logo") for row in Signboard.objects.all().values("logo") if row.get("logo")

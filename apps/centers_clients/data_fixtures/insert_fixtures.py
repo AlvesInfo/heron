@@ -12,6 +12,7 @@ modified by: Paulo ALVES
 import contextlib
 import csv
 from pathlib import Path
+from typing import Any, cast
 
 from django.db.utils import IntegrityError
 
@@ -31,7 +32,9 @@ def fixtures():
 
         for row in csv_rows:
             with contextlib.suppress(IntegrityError):
-                ClientFamilly.objects.update_or_create(**dict(zip(list_keys, row, strict=False)))
+                ClientFamilly.objects.update_or_create(
+                    **cast("dict[str, Any]", dict(zip(list_keys, row, strict=False)))
+                )
 
 
 if __name__ == "__main__":

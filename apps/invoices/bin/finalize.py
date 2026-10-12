@@ -52,9 +52,9 @@ def set_validations():
         return
 
     invoices_details = set(
-        InvoiceCommonDetails.objects.filter(uuid_control__in=valid_control).values_list(
-            "uuid_control", flat=True
-        )
+        InvoiceCommonDetails.objects.filter(
+            uuid_control__uuid_identification__in=valid_control
+        ).values_list("uuid_control__uuid_identification", flat=True)
     )
 
     to_suppress = valid_control ^ invoices_details
@@ -119,7 +119,7 @@ def finalize_cct_email_invoice(cct: str):
     :param cct: client Héron
     :return:
     """
-    SaleInvoice.objects.filter(cct=cct).filter(
+    SaleInvoice.objects.filter(cct__cct=cct).filter(
         Q(final__isnull=True) | Q(final=False) | Q(send_email__isnull=True) | Q(send_email=False)
     ).update(final=True, send_email=True)
 

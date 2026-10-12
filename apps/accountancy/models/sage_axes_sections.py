@@ -278,6 +278,6 @@ class SectionSage(FlagsTable):
 
         ordering = ["section"]
         unique_together = (("axe", "section"),)
-        index_together = [
-            ["axe", "section"],
+        indexes = [
+            models.Index(fields=["axe", "section"], name="acc_sectionsage_axe_sect_idx"),
         ]

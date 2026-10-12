@@ -24,5 +24,6 @@ def check_sub_category(uuid_sub_category: uuid.UUID, uuid_big_category: uuid.UUI
     :return:
     """
     return SubCategory.objects.filter(
-        big_category=uuid_big_category, uuid_identification=uuid_sub_category
+        big_category__uuid_identification=uuid_big_category,
+        uuid_identification=uuid_sub_category,
     ).exists()

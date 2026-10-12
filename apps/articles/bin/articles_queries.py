@@ -11,6 +11,9 @@ modified at: 2023-03-24
 modified by: Paulo ALVES
 """
 
+from collections.abc import Mapping
+from typing import Any
+
 from django.db.models import Case, F, Q, When
 
 from apps.articles.models import Article
@@ -68,10 +71,12 @@ def get_articles(articles_pk_list: list) -> dict:
         )
     )
 
-    return {row.pop("pk"): row for row in articles}
+    return {
+        row["pk"]: {key: value for key, value in row.items() if key != "pk"} for row in articles
+    }
 
 
-def get_article(article_pk: int) -> dict:
+def get_article(article_pk: int) -> Mapping[str, Any] | None:
     """Renvoie un dictionnaire de l'article recherché.
 
     :param article_pk: id de l'article recherché

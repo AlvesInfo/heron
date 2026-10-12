@@ -126,7 +126,7 @@ def import_maisons_bi():
             if not maison.exists():
                 MaisonBi.objects.create(**maison_dict)
             else:
-                maison = (
+                maison_values = (
                     MaisonBi.objects.filter(code_maison=maison_dict.get("code_maison"))
                     .values(
                         "code_maison",
@@ -150,7 +150,7 @@ def import_maisons_bi():
                 maison_test = deepcopy(maison_dict)
                 maison_test["pays"] = maison_test["pays"].country
 
-                if maison != maison_test:
+                if maison_values != maison_test:
                     MaisonBi.objects.filter(code_maison=maison_dict.get("code_maison")).update(
                         **{
                             "is_modify": True,

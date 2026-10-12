@@ -16,6 +16,7 @@ import platform
 import sys
 
 import django
+from django.db.backends.utils import CursorWrapper
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -242,7 +243,7 @@ SQL_AXE_RFA = """
 """
 
 
-def get_famillly_edi_ediimport_new_articles(cursor: connection.cursor) -> tuple:
+def get_famillly_edi_ediimport_new_articles(cursor: CursorWrapper) -> tuple:
     """Renvoie le nom des statitsiques à appliquer aux articles importés.
 
     dans edi_edi_import non présents dans la table articles pour les codifier
@@ -276,7 +277,7 @@ def get_famillly_edi_ediimport_new_articles(cursor: connection.cursor) -> tuple:
     return cursor.fetchall()
 
 
-def set_stat_definitions(third_party_num: str, stat_name: str, cursor: connection.cursor):
+def set_stat_definitions(third_party_num: str, stat_name: str, cursor: CursorWrapper):
     """Set les stats à appliquer pour les articles non présents dans la table articles.
 
     :param third_party_num: Tiers X3
@@ -389,7 +390,7 @@ def set_stat_definitions(third_party_num: str, stat_name: str, cursor: connectio
     cursor.execute(sql_set_stat, {"third_party_num": third_party_num, "stat_name": stat_name})
 
 
-def insert_new_articles(cursor: connection.cursor):
+def insert_new_articles(cursor: CursorWrapper):
     """Insertion en base des nouveaux articles, flagués new articles.
 
     :param cursor: cursor de connection psycopg2 django.
@@ -491,7 +492,7 @@ def insert_new_articles(cursor: connection.cursor):
     cursor.execute(SQL_FLAG_ERROR_SUB_CATEGORY)
 
 
-def set_edi_ediimport_articles(cursor: connection.cursor):
+def set_edi_ediimport_articles(cursor: CursorWrapper):
     """Insertion en base des nouveaux articles, flagués new articles.
 
     :param cursor: cursor de connection psycopg2 django.

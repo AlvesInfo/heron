@@ -180,19 +180,19 @@ class Article(FlagsTable):
     def save(self, *args, **kwargs):
         """Surcharge de la méthode save pour les axes analytiques."""
         if not self.axe_bu:
-            axe = SectionSage.objects.filter(axe="BU", section="CAHA").first()
+            axe = SectionSage.objects.filter(axe__axe="BU", section="CAHA").first()
             self.axe_bu = axe or None
 
         if not self.axe_prj:
-            axe = SectionSage.objects.filter(axe="PRJ", section="NAF").first()
+            axe = SectionSage.objects.filter(axe__axe="PRJ", section="NAF").first()
             self.axe_prj = axe or None
 
         if not self.axe_pys:
-            axe = SectionSage.objects.filter(axe="PYS", section="FR").first()
+            axe = SectionSage.objects.filter(axe__axe="PYS", section="FR").first()
             self.axe_pys = axe or None
 
         if not self.axe_rfa:
-            axe = SectionSage.objects.filter(axe="RFA", section="NAF").first()
+            axe = SectionSage.objects.filter(axe__axe="RFA", section="NAF").first()
             self.axe_rfa = axe or None
 
         super().save(*args, **kwargs)

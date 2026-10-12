@@ -58,7 +58,7 @@ def get_articles_alls(third_party_num: str | None = None) -> QuerySet:
     if third_party_num is None:
         return queryset
 
-    return queryset.filter(third_party_num=third_party_num)
+    return queryset.filter(third_party_num__third_party_num=third_party_num)
 
 
 def get_articles(str_query: str, third_party_num: str | None = None) -> QuerySet:
@@ -92,7 +92,7 @@ def get_societies_alls() -> QuerySet:
 
     :return: queryset of dict.
     """
-    return Society.objects.annotate(
+    return Society.objects.annotate(  # type: ignore[no-redef]  # alias « pk » attendu par l'API
         str_search=Concat(
             "third_party_num",
             Value("|"),
@@ -137,7 +137,7 @@ def get_maisons_alls() -> QuerySet:
 
     :return: queryset of dict.
     """
-    return Maison.objects.annotate(
+    return Maison.objects.annotate(  # type: ignore[no-redef]  # alias « pk » attendu par l'API
         str_search=Concat(
             "cct",
             Value("|"),
@@ -197,7 +197,7 @@ def get_cct_in_use_active(str_query: str) -> QuerySet:
     :return: queryset of dict.
     """
     queryset = (
-        Maison.objects.annotate(
+        Maison.objects.annotate(  # type: ignore[no-redef]  # alias « pk » attendu par l'API
             str_search=Concat(
                 "cct",
                 Value("|"),
@@ -238,7 +238,7 @@ def get_unity_alls() -> QuerySet:
 
     :return: queryset of dict.
     """
-    return UnitChoices.objects.annotate(
+    return UnitChoices.objects.annotate(  # type: ignore[no-redef]  # alias « pk » attendu par l'API
         str_search=F("unity"),
         pk=F("num"),
         model=F("unity"),
@@ -261,7 +261,7 @@ def get_accounts_alls() -> QuerySet:
 
     :return: queryset of dict.
     """
-    return AccountSage.objects.annotate(
+    return AccountSage.objects.annotate(  # type: ignore[no-redef]  # alias « pk » attendu par l'API
         str_search=Concat(
             "account",
             Value(" - "),

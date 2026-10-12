@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 
 from psycopg2 import sql
 
-post_signia_dict = {
+post_signia_dict: dict[str, sql.Composable] = {
     "sql_update": sql.SQL(
         """
         update "edi_ediimport"

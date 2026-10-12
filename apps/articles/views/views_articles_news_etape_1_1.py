@@ -17,6 +17,7 @@ from apps.articles.excel_outputs.output_excel_articles_news_list import (
 )
 from apps.articles.models import Article
 from apps.centers_purchasing.bin.update_account_article import set_update_articles_confict_account
+from apps.core.bin.typing_helpers import current_user
 from apps.core.functions.functions_http import get_pagination_buttons
 from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.core.models import ChangesTrace
@@ -139,13 +140,13 @@ def articles_new_validation(request):
         change = ChangesTrace(
             action_datetime=timezone.now(),
             action_type=2,
-            function_name=inspect.currentframe(),
-            action_by=request.user,
+            function_name=str(inspect.currentframe()),
+            action_by=current_user(request),
             before={"articles": list(articles.values_list("pk", flat=True))},
             after={"articles": list(articles.values_list("pk", flat=True))},
             difference={"avant": {"new_article": "true"}, "après": {"new_article": "false"}},
             model_name=Article._meta.model_name,
-            model=Article._meta.model,
+            model=str(Article._meta.model),
             db_table=Article._meta.db_table,
         )
 

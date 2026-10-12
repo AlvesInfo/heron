@@ -16,12 +16,16 @@ import io
 import random
 import string
 from itertools import chain, islice
+from typing import cast
 
 import django
 import psycopg2
+from django.core.exceptions import FieldDoesNotExist
 from django.db import connection, models
+from django.db.backends.base.base import BaseDatabaseWrapper
 from psycopg2 import sql
 
+from apps.core.bin.typing_helpers import required
 from heron.loggers import LOGGER_POSTGRES_SAVE
 
 from .exceptions import (
@@ -156,9 +160,9 @@ class PostgresDjangoUpsert:
 
     def __init__(
         self,
-        model: models.Model,
+        model: type[models.Model],
         fields_dict: dict,
-        cnx: connection = connection,
+        cnx: BaseDatabaseWrapper = connection,
         exclude_update_fields: set | None = None,
     ):
         """:param model:       Model Django
@@ -218,7 +222,7 @@ class PostgresDjangoUpsert:
         try:
             field_attr = self.meta.get_field(field_key)
 
-        except django.core.exceptions.FieldDoesNotExist as except_error:
+        except FieldDoesNotExist as except_error:
             raise PostgresKeyError(
                 f"""la clé "{field_key}" n'éxiste pas dans la table"""
             ) from except_error
@@ -242,7 +246,7 @@ class PostgresDjangoUpsert:
         null_fields_list = []
 
         for field_key in self.fields_dict:
-            field = self.meta.get_field(field_key)
+            field = cast(models.Field, self.meta.get_field(field_key))
             if field.null:
                 null_fields_list.append(
                     f'"{field.column}"' if field.db_column is None else f'"{field.db_column}"'
@@ -549,7 +553,7 @@ class PostgresDjangoUpsert:
                     cursor.copy_expert(sql=sql_copy, file=file)
 
                     # do_nothing ou upsert
-                    cursor.execute(insert_mode_dict.get(insert_mode))
+                    cursor.execute(required(insert_mode_dict[insert_mode], "requête d'insertion"))
 
                     # suppression de la table provisoire
                     cursor.execute(self.get_drop_temp)

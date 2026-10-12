@@ -40,7 +40,7 @@ class FlagsTable(DatesTable):
     """
 
     active = models.BooleanField(null=True, default=False)
-    delete = models.BooleanField(null=True, default=False)
+    delete = models.BooleanField(null=True, default=False)  # type: ignore[assignment]  # champ historique homonyme de Model.delete()
     export = models.BooleanField(null=True, default=False)
     valid = models.BooleanField(null=True, default=False)
     final_at = models.DateTimeField(blank=True, null=True, verbose_name=_("final at"))

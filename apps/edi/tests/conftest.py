@@ -348,7 +348,7 @@ def supplier_csv(tmp_path: Path) -> Callable[..., Path]:
         encoding: str = "utf8",
     ) -> Path:
         columns = (
-            ColumnDefinition.objects.filter(flow_name=flow_name)
+            ColumnDefinition.objects.filter(flow_name=flow_name)  # type: ignore[misc]
             .order_by("ranking")
             .values_list("attr_name", "file_column")
         )

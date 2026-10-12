@@ -83,7 +83,7 @@ class UserRegisterForm(forms.Form):
         try:
             validate_password(password)
         except ValidationError as except_errors:
-            for msg in except_errors:
+            for msg in except_errors.messages:
                 self.add_error("password", msg)
 
 

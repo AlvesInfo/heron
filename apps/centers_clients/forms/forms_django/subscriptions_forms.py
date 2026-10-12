@@ -1,9 +1,12 @@
 """Forms des Parameters."""
 
+from typing import cast
+
 from django import forms
 
 from apps.articles.models import Article
 from apps.centers_clients.models import MaisonSubcription
+from apps.core.bin.typing_helpers import required
 from apps.parameters.forms import NumberInput
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
@@ -16,8 +19,11 @@ class MaisonSubcriptionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Restreint les maisons et les articles d'abonnement proposés."""
         super().__init__(*args, **kwargs)
-        self.fields["maison"].queryset = self.fields["maison"].queryset.select_related("cct")
-        self.fields["article"].queryset = Article.objects.select_related("third_party_num").filter(
+        maison_field = cast(forms.ModelChoiceField, self.fields["maison"])
+        maison_field.queryset = required(maison_field.queryset).select_related("cct")
+        cast(
+            forms.ModelChoiceField, self.fields["article"]
+        ).queryset = Article.objects.select_related("third_party_num").filter(
             big_category__slug_name__in={
                 "redevances",
                 "redevances-de-publicite",

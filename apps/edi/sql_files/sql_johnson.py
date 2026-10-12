@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 
 from psycopg2 import sql
 
-post_johnson_dict = {
+post_johnson_dict: dict[str, sql.Composable] = {
     "sql_update": sql.SQL(
         """
         update "edi_ediimport"

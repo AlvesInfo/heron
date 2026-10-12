@@ -292,7 +292,7 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommo
         related_name="+",
         db_column="axe_rfa",
     )
-    personnel_type = models.ForeignKey(
+    personnel_type = models.ForeignKey(  # type: ignore[assignment]  # clé étrangère sur le champ texte de la classe de base
         Nature,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
@@ -316,7 +316,10 @@ class EdiImport(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCommo
         EN : Before the backup we clean the data.
         """
         if not self.invoice_month:
-            self.invoice_month = pendulum.parse(self.invoice_date.isoformat()).start_of("month")
+            # DateField : on stocke une date, pas le DateTime pendulum (Django 4 le rejette)
+            self.invoice_month = (
+                pendulum.parse(self.invoice_date.isoformat()).start_of("month").date()
+            )
 
         if not self.invoice_year:
             self.invoice_year = self.invoice_date.year
@@ -517,7 +520,7 @@ class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCo
         related_name="+",
         db_column="axe_rfa",
     )
-    personnel_type = models.ForeignKey(
+    personnel_type = models.ForeignKey(  # type: ignore[assignment]  # clé étrangère sur le champ texte de la classe de base
         Nature,
         on_delete=models.PROTECT,
         to_field="uuid_identification",
@@ -537,7 +540,10 @@ class StarkeyDepot(FlagsTable, BaseInvoiceTable, BaseInvoiceDetailsTable, BaseCo
         EN : Before the backup we clean the data.
         """
         if not self.invoice_month:
-            self.invoice_month = pendulum.parse(self.invoice_date.isoformat()).start_of("month")
+            # DateField : on stocke une date, pas le DateTime pendulum (Django 4 le rejette)
+            self.invoice_month = (
+                pendulum.parse(self.invoice_date.isoformat()).start_of("month").date()
+            )
 
         if not self.invoice_year:
             self.invoice_year = self.invoice_date.year

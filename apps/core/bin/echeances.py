@@ -40,14 +40,15 @@ def get_payment_method_elements(uuid_payment_method: UUID) -> tuple:
     :param uuid_payment_method: auuid sage du Mode de règlement
     :return:
     """
-    end_month, offset_days, offset_month = None, None, None
+    end_month: int | None = None
+    offset_days = offset_month = None
 
     try:
-        end_month, offset_days, offset_month = PaymentCondition.objects.values_list(
+        end_month_raw, offset_days, offset_month = PaymentCondition.objects.values_list(
             "end_month", "offset_days", "offset_month"
         ).get(auuid=uuid_payment_method)
 
-        end_month = int(end_month) if end_month is not None else None
+        end_month = int(end_month_raw) if end_month_raw is not None else None
 
     except PaymentCondition.DoesNotExist:
         pass

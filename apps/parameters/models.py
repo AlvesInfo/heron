@@ -271,7 +271,7 @@ class Counter(FlagsTable):
         ordering = ["name"]
         constraints = [
             # Ensures constraint on DB level, raises IntegrityError (500 on debug=False)
-            models.CheckConstraint(check=models.Q(lpad_num__gte=0), name="lpad_num_gte_0"),
+            models.CheckConstraint(condition=models.Q(lpad_num__gte=0), name="lpad_num_gte_0"),
         ]
 
     @staticmethod
@@ -294,7 +294,7 @@ class Counter(FlagsTable):
             # raise error for field
             raise ValidationError({"lpad_num": _("LPAD doit être > 0.")})
 
-        if self.pk is None and self.bool_function(self.function):
+        if self._state.adding and self.bool_function(self.function):
             # Controle des doublonction sur les fonctions
             raise ValidationError(
                 {"function": _("La fonction %s a déjà été utilisée") % self.function}
@@ -387,10 +387,12 @@ class SubCategory(FlagsTable):
 
     def __str__(self):
         """Texte renvoyé dans les selects et à l'affichage de l'objet."""
-        try:
-            return f"{self.big_category.name} - {self.ranking} - {self.code} - {self.name}"
-        except AttributeError:
+        big_category = self.big_category
+
+        if big_category is None:
             return ""
+
+        return f"{big_category.name} - {self.ranking} - {self.code} - {self.name}"
 
     @staticmethod
     def get_absolute_url():

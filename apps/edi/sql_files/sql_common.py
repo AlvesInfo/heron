@@ -108,7 +108,7 @@ and (
 )
 """
 
-post_common_dict = {
+post_common_dict: dict[str, sql.Composable] = {
     "sql_round_amount": sql.SQL(
         """
     update "edi_ediimport" "edi"

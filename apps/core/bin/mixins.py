@@ -9,11 +9,14 @@ modified at:
 modified by:
 """
 
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import QuerySet
 from django.http import HttpRequest
+
+if TYPE_CHECKING:
+    from apps.users.models import User
 
 
 class ChildCenterMixin:
@@ -35,7 +38,7 @@ class ChildCenterMixin:
         The return value must be an iterable and may be an instance of
         `QuerySet` in which case `QuerySet` specific behavior will be enabled.
         """
-        code_child_center = self.request.user.code_child_center
+        code_child_center = cast("User", self.request.user).code_child_center
 
         if self.queryset is not None:
             if code_child_center != "*":

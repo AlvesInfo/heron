@@ -37,7 +37,7 @@ from apps.book.models import Society
 @lru_cache(maxsize=256)
 def get_axe_pro(axe_pro_copie_de_acuitis):
     """Section de l'axe PRO correspondant au libellé de la base Acuitis."""
-    return SectionSage.objects.get(section=axe_pro_copie_de_acuitis, axe="PRO")
+    return SectionSage.objects.get(section=axe_pro_copie_de_acuitis, axe__axe="PRO")
 
 
 @lru_cache(maxsize=256)

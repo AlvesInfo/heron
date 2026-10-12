@@ -32,6 +32,7 @@ from apps.centers_purchasing.sql_files.sql_elements import (
     articles_acuitis_without_accounts,
 )
 from apps.core.bin.content_types import CONTENT_TYPE_FILE
+from apps.core.bin.typing_helpers import required
 from apps.core.functions.functions_dates import get_date_apostrophe, long_date_string
 from apps.core.functions.functions_setups import settings
 from apps.core.models import SSEProgress
@@ -469,8 +470,8 @@ def get_pdf_file(request, file_name):
                 ) as zip_file:
                     # On itère sur les pdf pour les zipper
                     for pdf_invoice in pdf_invoices:
-                        file = Path(settings.SALES_INVOICES_FILES_DIR) / pdf_invoice.get(
-                            "global_invoice_file"
+                        file = Path(settings.SALES_INVOICES_FILES_DIR) / required(
+                            pdf_invoice["global_invoice_file"], "fichier pdf"
                         )
                         zip_file.write(file, file.name, compress_type=compression, compresslevel=9)
 
@@ -654,8 +655,11 @@ def finalize_period(request):
         return blocking
 
     # On met à True les validations vérifiées
-    edi_validation = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
+    edi_validation = required(
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
+        .order_by("-id")
+        .first(),
+        "validation EDI en cours",
     )
     edi_validation.articles_news = True
     edi_validation.articles_without_account = True

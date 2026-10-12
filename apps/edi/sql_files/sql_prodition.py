@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 
 from psycopg2 import sql
 
-post_prodition_dict = {
+post_prodition_dict: dict[str, sql.Composable] = {
     "sql_libele": sql.SQL(
         """
         update "edi_ediimport"

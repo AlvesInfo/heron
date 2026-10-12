@@ -42,7 +42,7 @@ def details_purchase(request, flow_name, enc_param):
                 delimiter=", ",
                 distinct=True,
                 default=Value(""),
-                ordering="delivery_number",
+                order_by="delivery_number",
             )
         )
         .filter(

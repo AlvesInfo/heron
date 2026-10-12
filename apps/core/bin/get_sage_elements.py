@@ -58,7 +58,7 @@ def get_uuid_rfa(rfa: str) -> UUID | None:
 
 
 @lru_cache(maxsize=256)
-def get_vat_regime(vat: str) -> UUID | None:
+def get_vat_regime(vat: str) -> str | None:
     """Retourne le vat regime en fonction de la tva."""
     try:
         vat_regime = VatSage.objects.get(vat=vat).vat_regime

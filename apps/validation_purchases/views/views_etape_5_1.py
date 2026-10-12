@@ -9,6 +9,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from apps.core.bin.change_traces import trace_change
+from apps.core.bin.typing_helpers import required
 from apps.core.functions.functions_http import is_ajax
 from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -25,9 +26,10 @@ from heron.loggers import LOGGER_VIEWS
 def balance_suppliers_purchases(request):
     """View de l'étape 5.1 Fournisseurs M vs M-1."""
     sql_context_file = "apps/validation_purchases/sql_files/sql_suppliers_invoices_m_m1.sql"
-    billing_period = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first().billing_period
-    )
+    billing_period = required(
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first(),
+        "validation EDI en cours",
+    ).billing_period
 
     with connection.cursor() as cursor:
         invoices_suppliers = query_file_dict_cursor(
@@ -50,9 +52,10 @@ def balance_suppliers_purchases(request):
         context = {
             "titre_table": "5.1 - Contrôle des fournisseurs M vs M-1",
             "invoices_suppliers": invoices_suppliers,
-            "suppliers_validation": EdiValidation.objects.filter(
-                Q(final=False) | Q(final__isnull=True)
-            ).first(),
+            "suppliers_validation": required(
+                EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first(),
+                "validation EDI en cours",
+            ),
             "mois_dict": mois_dict,
         }
 
@@ -70,11 +73,10 @@ def balance_suppliers_purchases_export(request):
             file_name = (
                 f"CONTROLE_FACTURES_FOURNISSEURS_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
-            billing_period = (
-                EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
-                .first()
-                .billing_period
-            )
+            billing_period = required(
+                EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first(),
+                "validation EDI en cours",
+            ).billing_period
 
             return response_file(
                 excel_balance_suppliers_purchases,

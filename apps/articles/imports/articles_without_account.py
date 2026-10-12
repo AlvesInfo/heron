@@ -14,6 +14,7 @@ modified by: Paulo ALVES
 import csv
 import shutil
 from pathlib import Path
+from typing import Any
 
 from django.db import connection
 from django.utils import timezone
@@ -71,7 +72,10 @@ def accounts_validation(accounts_set: set) -> bool:
     :return: None.
     """
     file_sql_path = Path(f"{settings.APPS_DIR!s}/articles/sql/accounts_validation.sql")
-    params_dict = {"accounts": tuple(accounts_set), "accounts_nb": len(accounts_set)}
+    params_dict: dict[str, Any] = {
+        "accounts": tuple(accounts_set),
+        "accounts_nb": len(accounts_set),
+    }
 
     with file_sql_path.open("r", encoding="utf8") as sql_file, connection.cursor() as cursor:
         query = sql_file.read()

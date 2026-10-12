@@ -5,6 +5,7 @@ import os
 import platform
 import sys
 from pathlib import Path
+from typing import Any
 
 import django
 
@@ -87,7 +88,7 @@ def _initials_from_bi(line: dict, code_plan_sage: CodePlanSage) -> dict:
             "cct": cct,
             "third_party_num": society,
             "intitule": maison_bi.intitule,
-            "intitule_court": maison_bi.intitule_court or maison_bi.intitule[:12],
+            "intitule_court": maison_bi.intitule_court or (maison_bi.intitule or "")[:12],
             "code_cosium": maison_bi.code_cosium,
             "reference_cosium": maison_bi.reference_cosium,
             "code_bbgr": maison_bi.code_bbgr,
@@ -178,7 +179,7 @@ def import_file(file_path: Path):
             if i == 0:
                 continue
 
-            line = dict(zip(ROW_FIELDS, row, strict=True))
+            line: dict[str, Any] = dict(zip(ROW_FIELDS, row, strict=True))
             line["credit_account"] = AccountSage.objects.get(
                 account=line["credit_account"]
             ).uuid_identification

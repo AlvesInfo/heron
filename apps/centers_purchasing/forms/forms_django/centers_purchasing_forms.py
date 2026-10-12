@@ -1,7 +1,9 @@
 """Forms des Maisons."""
 
-from ckeditor.widgets import CKEditorWidget
+from typing import cast
+
 from django import forms
+from tinymce.widgets import TinyMCE
 
 from apps.centers_purchasing.models import (
     ChildCenterPurchase,
@@ -12,6 +14,7 @@ from apps.centers_purchasing.models import (
     Translation,
     TranslationParamaters,
 )
+from apps.core.bin.typing_helpers import required
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 
 
@@ -37,8 +40,8 @@ class FillesForm(forms.ModelForm):
 
     use_required_attribute = False
 
-    legal_notice = forms.CharField(widget=CKEditorWidget())
-    footer = forms.CharField(widget=CKEditorWidget())
+    legal_notice = forms.CharField(widget=TinyMCE())
+    footer = forms.CharField(widget=TinyMCE())
 
     def __init__(self, *args, **kwargs):
         """Ajuste les éditeurs de texte et rend les champs libres facultatifs."""
@@ -57,10 +60,9 @@ class FillesForm(forms.ModelForm):
         self.fields["swift_code"].required = False
         self.fields["iban"].required = False
         self.fields["society"].required = False
-        self.fields["society"].queryset = self.fields["society"].queryset.order_by(
-            "third_party_num"
-        )
-        self.fields["society"].label_from_instance = lambda society: (
+        society_field = cast(forms.ModelChoiceField, self.fields["society"])
+        society_field.queryset = required(society_field.queryset).order_by("third_party_num")
+        society_field.label_from_instance = lambda society: (  # type: ignore[method-assign, assignment]
             f"{society.third_party_num} - {society.name or ''}"
         )
 
@@ -99,7 +101,7 @@ class SignboardForm(forms.ModelForm):
     use_required_attribute = False
     img_delete = forms.CheckboxInput()
 
-    message = forms.CharField(widget=CKEditorWidget())
+    message = forms.CharField(widget=TinyMCE())
 
     def __init__(self, *args, **kwargs):
         """Ajuste l'éditeur de message et rend les champs libres facultatifs."""

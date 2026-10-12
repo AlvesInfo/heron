@@ -42,7 +42,7 @@ ZERO_RATE_VAT_CATEGORIES = {
 DEFAULT_ZERO_RATE_VAT_CATEGORY = ("E", None, "Exonération de TVA")
 
 # Unité heron (parameters_unitchoices.num) -> code UN/ECE Rec. 20 accepté par facturx-fr
-UNIT_CODES = {
+UNIT_CODES: dict[int | None, str] = {
     1: "C62",  # U
     2: "C62",  # Grammes (pas de code supporté, unité par défaut)
     3: "KGM",  # Kg

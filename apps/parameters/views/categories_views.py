@@ -114,7 +114,7 @@ class SubCategoryCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     success_message = "La Rubrique Presta %(name)s a été créé avec success"
     error_message = "La Rubrique Presta %(name)s n'a pu être créé, une erreur c'est produite"
 
-    def get(self, _request, *_args, **kwargs):
+    def get(self, request, *args, **kwargs):  # noqa: ARG002 (signature Django)
         """Ajout de self.category a l'instance de la vue (404 si la catégorie n'existe pas)."""
         self.category = get_object_or_404(Category, pk=kwargs.get("category_pk"))
         return self.render_to_response(self.get_context_data())

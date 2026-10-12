@@ -22,6 +22,7 @@ from apps.articles.models import Article
 from apps.centers_purchasing.sql_files.sql_elements import (
     articles_acuitis_without_accounts,
 )
+from apps.core.bin.typing_helpers import required
 from apps.core.functions.functions_setups import connection
 from apps.edi.bin.reset_import import reset_all_imports
 from apps.edi.models import EdiImport, EdiImportControl, EdiValidation
@@ -519,8 +520,11 @@ def control_validations():
     if imports_validation:
         controls_list.append("Vous avez des imports non validés")
 
-    edi_validations = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
+    edi_validations = required(
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
+        .order_by("-id")
+        .first(),
+        "validation EDI en cours",
     )
 
     # Mise à jour du contrôle des nouveaux articles

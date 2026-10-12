@@ -8,6 +8,7 @@ Correcteur : Paulo ALVES.
 
 import contextlib
 from collections import OrderedDict
+from collections.abc import Iterable
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -67,13 +68,15 @@ def groupes_processor(request):
     :param request: object request
     :return: context dict.
     """
+    rows_groupes: Iterable[tuple[str, str]]
+
     if request.user.is_superuser:
         rows_groupes = AuthGroupName.objects.exclude(group__name__iexact="Admin").values_list(
             "group__name", "group_name"
         )
 
     elif str(request.user) == "AnonymousUser":
-        rows_groupes = {}
+        rows_groupes = []
 
     else:
         rows_groupes = (

@@ -12,6 +12,7 @@ modified by: Paulo ALVES
 import contextlib
 import csv
 from pathlib import Path
+from typing import Any, cast
 
 from django.db.utils import IntegrityError
 
@@ -33,7 +34,7 @@ def fixtures():
         for row in csv_rows:
             with contextlib.suppress(IntegrityError):
                 SalePriceCategory.objects.update_or_create(
-                    **dict(zip(list_keys, row, strict=False))
+                    **cast("dict[str, Any]", dict(zip(list_keys, row, strict=False)))
                 )
 
 

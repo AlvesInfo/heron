@@ -23,6 +23,9 @@ from typing import Any, NoReturn
 from uuid import UUID
 
 import django
+from django.db.backends.utils import CursorWrapper
+
+from apps.core.bin.typing_helpers import required
 
 BASE_DIR = r"C:\SitesWeb\heron"
 
@@ -83,7 +86,7 @@ class InvoicesInsertionError(Exception):
     """Exception niveau module pour les erreurs d'insertion des factures."""
 
 
-def set_fix_uuid(cursor: connection.cursor) -> None:
+def set_fix_uuid(cursor: CursorWrapper) -> None:
     """Ajout de l'import_uuid_identification, au cas où il en manque.
 
     :param cursor: cursor django pour la db
@@ -92,7 +95,7 @@ def set_fix_uuid(cursor: connection.cursor) -> None:
     cursor.execute(SQL_FIX_IMPORT_UUID)
 
 
-def set_common_details(cursor: connection.cursor) -> None:
+def set_common_details(cursor: CursorWrapper) -> None:
     """Ajout des détails de factures pour la partie commune.
 
     :param cursor: cursor django pour la db
@@ -101,7 +104,7 @@ def set_common_details(cursor: connection.cursor) -> None:
     cursor.execute(SQL_COMMON_DETAILS)
 
 
-def set_sales_details(cursor: connection.cursor) -> None:
+def set_sales_details(cursor: CursorWrapper) -> None:
     """Ajout des détails de factures de vente.
 
     :param cursor: cursor django pour la db
@@ -111,7 +114,7 @@ def set_sales_details(cursor: connection.cursor) -> None:
 
 
 def set_purchases_invoices(
-    cursor: connection.cursor, user: User, invoice_date_iso: str
+    cursor: CursorWrapper, user: User, invoice_date_iso: str
 ) -> tuple[bool, str]:
     """Remplissage du fichier io pour insertion en base des factures de vente.
 
@@ -226,7 +229,7 @@ def _sales_line(line: tuple, invoice_date, user: User) -> list:
 
 
 def set_sales_invoices(
-    cursor: connection.cursor, user: User, invoice_date_iso: str
+    cursor: CursorWrapper, user: User, invoice_date_iso: str
 ) -> tuple[bool, str]:
     """Remplissage du fichier io pour insertion en base des factures de vente.
 
@@ -308,7 +311,7 @@ def set_sales_invoices(
     return error, to_print
 
 
-def control_purchases_insertion(cursor: connection.cursor) -> bool:
+def control_purchases_insertion(cursor: CursorWrapper) -> bool:
     """Controle des montants totaux des entêtes factures de ventes par rapport au montant du détail,.
 
     sur les HT, TVA et TTC.
@@ -320,7 +323,7 @@ def control_purchases_insertion(cursor: connection.cursor) -> bool:
     return cursor.fetchone() is not None
 
 
-def control_sales_insertion(cursor: connection.cursor) -> bool:
+def control_sales_insertion(cursor: CursorWrapper) -> bool:
     """Controle des montants totaux des entêtes factures de ventes par rapport au montant du détail,.
 
     sur les HT, TVA et TTC.
@@ -345,21 +348,21 @@ def num_full_sales_invoices():
         return
 
     cct = sales_list[0].get("cct")
-    global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
+    global_invoice_file = f"{get_generic_cct_num(str(cct))}_full.pdf"
 
     for line_dict in sales_list:
         cct_query = line_dict.get("cct")
 
         if cct_query != cct:
             cct = cct_query
-            global_invoice_file = f"{get_generic_cct_num(cct)}_full.pdf"
+            global_invoice_file = f"{get_generic_cct_num(str(cct))}_full.pdf"
 
         SaleInvoice.objects.filter(cct=cct, final=False, type_x3__in=(1, 2)).update(
             global_invoice_file=global_invoice_file
         )
 
 
-def delete_pdf_files(cursor: connection.cursor) -> None:
+def delete_pdf_files(cursor: CursorWrapper) -> None:
     """Supprime les fichiers pdf, des factures devant être supprimées.
 
     :param cursor: cursor django pour la db
@@ -382,7 +385,7 @@ def delete_pdf_files(cursor: connection.cursor) -> None:
                 file_path.unlink()
 
 
-def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> None:
+def reinitialize_purchase_invoices_nums(cursor: CursorWrapper) -> None:
     """Réinitialise la numérotation des factures de d'achat après suppressions.
 
     :param cursor: cursor django pour la db
@@ -418,7 +421,7 @@ def reinitialize_purchase_invoices_nums(cursor: connection.cursor) -> None:
         pass
 
 
-def reinitialize_sales_invoices_nums(cursor: connection.cursor) -> None:
+def reinitialize_sales_invoices_nums(cursor: CursorWrapper) -> None:
     """Réinitialise la numérotation des factures de ventes après suppressions.
 
     :param cursor: cursor django pour la db
@@ -572,8 +575,11 @@ def _prepare_insertion(invoice_date, job_id: str) -> Trace:
         "",
     )
     # On met à jour la billing date dans la table edi_edivalidation
-    edi_validations = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).order_by("-id").first()
+    edi_validations = required(
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
+        .order_by("-id")
+        .first(),
+        "validation EDI en cours",
     )
     edi_validations.billing_date = invoice_date
     edi_validations.save()
@@ -738,7 +744,7 @@ def _run_insertion_steps(cursor, user: User, invoice_date, steps: _InsertionStep
 
 
 def invoices_insertion(
-    user_uuid: User, invoice_date: pendulum.date, job_id: str
+    user_uuid: UUID | str, invoice_date: pendulum.date, job_id: str
 ) -> tuple[Trace, str]:
     """Inserion des factures en mode provisoire avant la validation définitive.
 

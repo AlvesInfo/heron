@@ -101,14 +101,12 @@ class SocietyUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             ),
             "titre_table": (
                 f"Mise à jour du Tiers : "
-                f"{context_dict.get('object').third_party_num} - "
-                f"{context_dict.get('object').name}"
+                f"{context_dict['object'].third_party_num} - "
+                f"{context_dict['object'].name}"
             ),
-            "compte_banque": (
-                context_dict.get("object").bank_society.filter(is_default=True).first()
-            ),
-            "third_party_num": context_dict.get("object").third_party_num,
-            "pk": context_dict.get("object").pk,
+            "compte_banque": (context_dict["object"].bank_society.filter(is_default=True).first()),
+            "third_party_num": context_dict["object"].third_party_num,
+            "pk": context_dict["object"].pk,
             "url_retour_supplier_cct": set_base_64_str(
                 reverse("book:society_update", args=[pk, in_use])
             ),

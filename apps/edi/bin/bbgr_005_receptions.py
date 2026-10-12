@@ -177,4 +177,4 @@ def insert_bbgr_receptions_file(uuid_identification: UUID):
 
 
 if __name__ == "__main__":
-    insert_bbgr_receptions_file("3b0183a3-e2f9-4a1a-9c47-aa753c300a1e")
+    insert_bbgr_receptions_file(UUID("3b0183a3-e2f9-4a1a-9c47-aa753c300a1e"))

@@ -65,9 +65,7 @@ class MereUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("centers_purchasing:meres_list")
         context["titre_table"] = (
-            f"Mise à jour de la Centrale Mère : "
-            f"{context.get('object').code} - "
-            f"{context.get('object').name}"
+            f"Mise à jour de la Centrale Mère : {context['object'].code} - {context['object'].name}"
         )
         return context
 

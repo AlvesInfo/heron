@@ -12,8 +12,7 @@ modified by: Paulo ALVES
 import io
 from collections.abc import Iterator
 
-from django.db import connection
-from django.db.models import QuerySet
+from django.db import connection, models
 from psycopg2 import sql
 
 from apps.centers_purchasing.excel_outputs.output_excel_filles_columns import columns_list_filles
@@ -24,7 +23,7 @@ from apps.core.excel_outputs.generic_list_export import excel_list_export
 class GetRows:
     """Class qui renvoie les bonnes colonnes pour le fichier Excel."""
 
-    def __init__(self, filles: QuerySet):
+    def __init__(self, filles: type[models.Model]):
         """Prépare la requête des centrales filles."""
         self.filles = filles
 
@@ -54,7 +53,7 @@ class GetRows:
             return cursor.fetchall()
 
 
-def excel_filles_list(file_io: io.BytesIO, file_name: str, filles: QuerySet) -> dict:
+def excel_filles_list(file_io: io.BytesIO, file_name: str, filles: type[models.Model]) -> dict:
     """Fonction de génération du fichier de liste des Centrales Filles."""
     titre_list = file_name.split("_")
     titre = " ".join(titre_list[:-4])

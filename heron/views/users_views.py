@@ -5,7 +5,7 @@ import logging
 from axes.utils import reset
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.shortcuts import render
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 
 from apps.core.functions.functions_utilitaires import get_client_ip
@@ -23,7 +23,7 @@ def reactivate(request, uidb64, token):
     :return: url.
     """
     try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
+        uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None

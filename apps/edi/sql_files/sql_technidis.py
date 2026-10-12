@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 
 from psycopg2 import sql
 
-post_technidis_dict = {
+post_technidis_dict: dict[str, sql.Composable] = {
     "sql_update": sql.SQL(
         """
         with "group_technidis" as (

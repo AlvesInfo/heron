@@ -11,6 +11,7 @@ modified by: Paulo ALVES
 
 import csv
 from pathlib import Path
+from typing import Any, cast
 
 from django.db.utils import IntegrityError
 
@@ -37,7 +38,7 @@ def fixtures():
         for row in csv_rows:
             try:
                 PrincipalCenterPurchase.objects.update_or_create(
-                    **dict(zip(list_keys, row, strict=False))
+                    **cast("dict[str, Any]", dict(zip(list_keys, row, strict=False)))
                 )
             except IntegrityError:
                 LOGGER_IMPORT.exception("Erreur d'intégrité à l'insertion des fixtures")
@@ -48,10 +49,10 @@ def fixtures():
         for row in csv_rows:
             try:
                 code, base_center, name, generic_coefficient = row
-                base_center = PrincipalCenterPurchase.objects.get(code=base_center)
+                base_center_obj = PrincipalCenterPurchase.objects.get(code=base_center)
                 ChildCenterPurchase.objects.update_or_create(
                     code=code,
-                    base_center=base_center,
+                    base_center=base_center_obj,
                     name=name,
                     generic_coefficient=generic_coefficient,
                 )
@@ -64,12 +65,12 @@ def fixtures():
         for row in csv_rows:
             # La cinquième colonne (langue) n'a pas de champ dans le modèle Signboard
             code, sale_price_category, name, generic_coefficient, *_ = row
-            sale_price_category = SalePriceCategory.objects.get(name=sale_price_category)
+            sale_price_category_obj = SalePriceCategory.objects.get(name=sale_price_category)
 
             try:
                 Signboard.objects.update_or_create(
                     code=code,
-                    sale_price_category=sale_price_category,
+                    sale_price_category=sale_price_category_obj,
                     name=name,
                     generic_coefficient=generic_coefficient,
                 )

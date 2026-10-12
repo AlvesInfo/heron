@@ -11,9 +11,13 @@ modified at: 2022-04-10
 modified by: Paulo ALVES
 """
 
+from uuid import UUID
+
 from django.db import connection, transaction
+from django.db.backends.utils import CursorWrapper
 from django.db.models import Count, Q
 
+from apps.core.bin.typing_helpers import required
 from apps.data_flux.models import Trace
 from apps.edi.bin.duplicates_check import (
     edi_import_duplicate_check,
@@ -104,9 +108,9 @@ def post_processing_all():
     suppress_import_without_articles()
 
     # Mise à jour sur la fiche tiers, du champ courant, pour l'affichage plus rapide des tiers
-    sql_in_use_third_party_num = post_all_dict.get("sql_in_use_third_party_num")
-    sql_update_item_weight = post_all_dict.get("sql_update_item_weight")
-    sql_orpheans = post_all_dict.get("sql_orpheans")
+    sql_in_use_third_party_num = post_all_dict["sql_in_use_third_party_num"]
+    sql_update_item_weight = post_all_dict["sql_update_item_weight"]
+    sql_orpheans = post_all_dict["sql_orpheans"]
 
     with transaction.atomic(), connection.cursor() as cursor:
         # work_mem augmenté pour ces gros UPDATE (remis à la normale en fin de transaction)
@@ -121,8 +125,8 @@ def post_processing_all():
     set_signboard()
     set_axes_with_regex()
 
-    sql_update_bu = post_all_dict.get("sql_update_bu")
-    sql_update_bu_articles = post_all_dict.get("sql_update_bu_articles")
+    sql_update_bu = post_all_dict["sql_update_bu"]
+    sql_update_bu_articles = post_all_dict["sql_update_bu_articles"]
 
     with transaction.atomic(), connection.cursor() as cursor:
         # work_mem augmenté pour ces gros UPDATE (remis à la normale en fin de transaction)
@@ -137,29 +141,29 @@ def post_vacuum():
         cursor.execute("VACUUM (full)")
 
 
-def post_general(uuid_identification: str, cursor: connection.cursor):
+def post_general(uuid_identification: UUID | str, cursor: CursorWrapper):
     """Mise à jour générale pour tous les founrnisseurs."""
-    sql_round_amount = post_common_dict.get("sql_round_amount")
-    sql_supplier_update = post_common_dict.get("sql_supplier_update")
-    sql_supplier_name_update = post_common_dict.get("sql_supplier_name_update")
-    sql_fac_update_except_edi = post_common_dict.get("sql_fac_update_except_edi")
-    sql_reference = post_common_dict.get("sql_reference")
-    sql_cct = post_common_dict.get("sql_cct")
-    sql_is_multi_store_true = post_common_dict.get("sql_is_multi_store_true")
-    sql_is_multi_store_false = post_common_dict.get("sql_is_multi_store_false")
-    sql_update_articles = post_common_dict.get("sql_update_articles")
-    sql_alls_381 = post_common_dict.get("sql_alls_381")
-    sql_vat_regime = post_common_dict.get("sql_vat_regime")
-    sql_vat = post_common_dict.get("sql_vat")
-    vat_per_line = post_common_dict.get("vat_per_line")
-    sql_delta_vat = post_common_dict.get("sql_delta_vat")
-    sql_none = post_common_dict.get("sql_none")
-    sql_delivery_number = post_common_dict.get("sql_delivery_number")
-    sql_signboard = post_common_dict.get("sql_signboard")
-    sql_center = post_common_dict.get("sql_center")
-    sql_import_uuid_identification = post_common_dict.get("sql_import_uuid_identification")
-    sql_purchase_vat_cee = post_common_dict.get("sql_purchase_vat_cee")
-    sql_validate = post_common_dict.get("sql_validate")
+    sql_round_amount = post_common_dict["sql_round_amount"]
+    sql_supplier_update = post_common_dict["sql_supplier_update"]
+    sql_supplier_name_update = post_common_dict["sql_supplier_name_update"]
+    sql_fac_update_except_edi = post_common_dict["sql_fac_update_except_edi"]
+    sql_reference = post_common_dict["sql_reference"]
+    sql_cct = post_common_dict["sql_cct"]
+    sql_is_multi_store_true = post_common_dict["sql_is_multi_store_true"]
+    sql_is_multi_store_false = post_common_dict["sql_is_multi_store_false"]
+    sql_update_articles = post_common_dict["sql_update_articles"]
+    sql_alls_381 = post_common_dict["sql_alls_381"]
+    sql_vat_regime = post_common_dict["sql_vat_regime"]
+    sql_vat = post_common_dict["sql_vat"]
+    vat_per_line = post_common_dict["vat_per_line"]
+    sql_delta_vat = post_common_dict["sql_delta_vat"]
+    sql_none = post_common_dict["sql_none"]
+    sql_delivery_number = post_common_dict["sql_delivery_number"]
+    sql_signboard = post_common_dict["sql_signboard"]
+    sql_center = post_common_dict["sql_center"]
+    sql_import_uuid_identification = post_common_dict["sql_import_uuid_identification"]
+    sql_purchase_vat_cee = post_common_dict["sql_purchase_vat_cee"]
+    sql_validate = post_common_dict["sql_validate"]
 
     cursor.execute(sql_round_amount, {"uuid_identification": uuid_identification})
     cursor.execute(sql_supplier_update, {"uuid_identification": uuid_identification})
@@ -211,7 +215,7 @@ def bulk_post_insert(uuid_identification: str):
     bulk_list = []
 
     for packaging_dict in packaging_amount_dict:
-        edi = (
+        edi = required(
             EdiImport.objects.filter(
                 invoice_number=packaging_dict.get("invoice_number"),
                 uuid_identification=packaging_dict.get("uuid_identification"),
@@ -241,7 +245,8 @@ def bulk_post_insert(uuid_identification: str):
                 "fees_amount",
                 "command_reference",
             )
-            .first()
+            .first(),
+            "ligne EDI",
         )
         for key, value in packaging_dict.items():
             if key in charges_dict and value:
@@ -276,7 +281,7 @@ def bulk_post_insert(uuid_identification: str):
     if bulk_list:
         EdiImport.objects.bulk_create(bulk_list)
     # Mise à jour des autres champs ================================================================
-    sql_update = post_bulk_dict.get("sql_update")
+    sql_update = post_bulk_dict["sql_update"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -289,10 +294,10 @@ def cosium_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_ttc_a_zero = post_cosium_dict.get("sql_ttc_a_zero")
-    sql_totaux = post_cosium_dict.get("sql_totaux")
-    sql_familles = post_cosium_dict.get("sql_familles")
-    sql_origin = post_cosium_dict.get("sql_origin")
+    sql_ttc_a_zero = post_cosium_dict["sql_ttc_a_zero"]
+    sql_totaux = post_cosium_dict["sql_totaux"]
+    sql_familles = post_cosium_dict["sql_familles"]
+    sql_origin = post_cosium_dict["sql_origin"]
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_ttc_a_zero, {"uuid_identification": uuid_identification})
@@ -307,10 +312,10 @@ def cosium_achats_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_ttc_a_zero = post_cosium_achats_dict.get("sql_ttc_a_zero")
-    sql_totaux = post_cosium_achats_dict.get("sql_totaux")
-    sql_familles = post_cosium_achats_dict.get("sql_familles")
-    sql_origin = post_cosium_achats_dict.get("sql_origin")
+    sql_ttc_a_zero = post_cosium_achats_dict["sql_ttc_a_zero"]
+    sql_totaux = post_cosium_achats_dict["sql_totaux"]
+    sql_familles = post_cosium_achats_dict["sql_familles"]
+    sql_origin = post_cosium_achats_dict["sql_origin"]
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_ttc_a_zero, {"uuid_identification": uuid_identification})
@@ -325,11 +330,11 @@ def tansferts_cosium_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_code_maison = post_transfert_cosium_dict.get("sql_code_maison")
-    sql_amounts = post_transfert_cosium_dict.get("sql_amounts")
-    sql_articles_cosium = post_transfert_cosium_dict.get("sql_articles_cosium")
-    sql_articles_cosium_acuitis = post_transfert_cosium_dict.get("sql_articles_cosium_acuitis")
-    sql_articles_base_cosium = post_transfert_cosium_dict.get("sql_articles_base_cosium")
+    sql_code_maison = post_transfert_cosium_dict["sql_code_maison"]
+    sql_amounts = post_transfert_cosium_dict["sql_amounts"]
+    sql_articles_cosium = post_transfert_cosium_dict["sql_articles_cosium"]
+    sql_articles_cosium_acuitis = post_transfert_cosium_dict["sql_articles_cosium_acuitis"]
+    sql_articles_base_cosium = post_transfert_cosium_dict["sql_articles_base_cosium"]
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
         cursor.execute(sql_code_maison, {"uuid_identification": uuid_identification})
@@ -345,10 +350,10 @@ def edi_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_col_essilor = post_edi_dict.get("sql_col_essilor")
-    sql_tva = post_edi_dict.get("sql_tva")
-    sql_precilens = post_edi_dict.get("sql_precilens")
-    sql_fac_update_edi = post_edi_dict.get("sql_fac_update_edi")
+    sql_col_essilor = post_edi_dict["sql_col_essilor"]
+    sql_tva = post_edi_dict["sql_tva"]
+    sql_precilens = post_edi_dict["sql_precilens"]
+    sql_fac_update_edi = post_edi_dict["sql_fac_update_edi"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -361,8 +366,8 @@ def edi_post_insert(uuid_identification: str):
 
 def edi_trace_supplier_insert():
     """Update des traces pour avoir le nom du fournisseur dans les edi."""
-    sql_edi_generique = post_edi_dict.get("sql_edi_generique")
-    sql_get_edi = post_edi_dict.get("sql_get_edi")
+    sql_edi_generique = post_edi_dict["sql_edi_generique"]
+    sql_get_edi = post_edi_dict["sql_get_edi"]
 
     with connection.cursor() as cursor:
         cursor.execute(sql_get_edi)
@@ -378,8 +383,8 @@ def bbgr_statment_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_vat = bbgr_002_statment_dict.get("sql_vat")
-    sql_familles = bbgr_002_statment_dict.get("sql_familles")
+    sql_vat = bbgr_002_statment_dict["sql_vat"]
+    sql_familles = bbgr_002_statment_dict["sql_familles"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -393,8 +398,8 @@ def bbgr_monthly_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_vat = bbgr_003_monthly_dict.get("sql_vat")
-    sql_familles = bbgr_003_monthly_dict.get("sql_familles")
+    sql_vat = bbgr_003_monthly_dict["sql_vat"]
+    sql_familles = bbgr_003_monthly_dict["sql_familles"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -408,9 +413,9 @@ def bbgr_retours_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_vat = bbgr_004_retours_dict.get("sql_vat")
-    sql_vat_amount = bbgr_004_retours_dict.get("sql_vat_amount")
-    sql_total_amount_by_invoices = bbgr_004_retours_dict.get("sql_total_amount_by_invoices")
+    sql_vat = bbgr_004_retours_dict["sql_vat"]
+    sql_vat_amount = bbgr_004_retours_dict["sql_vat_amount"]
+    sql_total_amount_by_invoices = bbgr_004_retours_dict["sql_total_amount_by_invoices"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -425,9 +430,9 @@ def bbgr_reception_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_vat = bbgr_005_receptions_dict.get("sql_vat")
-    sql_vat_amount = bbgr_005_receptions_dict.get("sql_vat_amount")
-    sql_total_amount_by_invoices = bbgr_005_receptions_dict.get("sql_total_amount_by_invoices")
+    sql_vat = bbgr_005_receptions_dict["sql_vat"]
+    sql_vat_amount = bbgr_005_receptions_dict["sql_vat_amount"]
+    sql_total_amount_by_invoices = bbgr_005_receptions_dict["sql_total_amount_by_invoices"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -442,9 +447,9 @@ def eye_confort_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_eye_dict.get("sql_update")
-    sql_update_units = post_eye_dict.get("sql_update_units")
-    sql_familles = post_eye_dict.get("sql_familles")
+    sql_update = post_eye_dict["sql_update"]
+    sql_update_units = post_eye_dict["sql_update_units"]
+    sql_familles = post_eye_dict["sql_familles"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -460,11 +465,11 @@ def generique_post_insert(uuid_identification: str, post=None):
     :param uuid_identification: uuid_identification
     :param post: si l'on veut appliquer le post général.
     """
-    sql_update = post_generic_dict.get("sql_update")
-    sql_net_amount_mgdev = post_generic_dict.get("sql_net_amount_mgdev")
-    sql_vat = post_generic_dict.get("sql_vat")
-    sql_mg_developpemnt = post_generic_dict.get("sql_mg_developpemnt")
-    sql_edi_generique = post_generic_dict.get("sql_edi_generique")
+    sql_update = post_generic_dict["sql_update"]
+    sql_net_amount_mgdev = post_generic_dict["sql_net_amount_mgdev"]
+    sql_vat = post_generic_dict["sql_vat"]
+    sql_mg_developpemnt = post_generic_dict["sql_mg_developpemnt"]
+    sql_edi_generique = post_generic_dict["sql_edi_generique"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -483,9 +488,9 @@ def generique_post_insert_internal(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_vat = post_generic_internal_dict.get("sql_vat")
-    sql_update = post_generic_internal_dict.get("sql_update")
-    sql_update_bu = post_generic_internal_dict.get("sql_update_bu")
+    sql_vat = post_generic_internal_dict["sql_vat"]
+    sql_update = post_generic_internal_dict["sql_update"]
+    sql_update_bu = post_generic_internal_dict["sql_update_bu"]
 
     with connection.cursor() as cursor:
         cursor.execute(sql_vat, {"uuid_identification": uuid_identification})
@@ -499,7 +504,7 @@ def hearing_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_hearing_dict.get("sql_update")
+    sql_update = post_hearing_dict["sql_update"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -512,8 +517,8 @@ def interson_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_interson_dict.get("sql_update")
-    sql_bl_date = post_interson_dict.get("sql_bl_date")
+    sql_update = post_interson_dict["sql_update"]
+    sql_bl_date = post_interson_dict["sql_bl_date"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -527,9 +532,9 @@ def johnson_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_johnson_dict.get("sql_update")
-    sql_update_vat_rate = post_johnson_dict.get("sql_update_vat_rate")
-    sql_update_units = post_johnson_dict.get("sql_update_units")
+    sql_update = post_johnson_dict["sql_update"]
+    sql_update_vat_rate = post_johnson_dict["sql_update_vat_rate"]
+    sql_update_units = post_johnson_dict["sql_update_units"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -544,7 +549,7 @@ def lmc_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_lmc_dict.get("sql_update")
+    sql_update = post_lmc_dict["sql_update"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -557,9 +562,9 @@ def newson_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_newson_dict.get("sql_update")
-    sql_round_net_amount = post_newson_dict.get("sql_round_net_amount")
-    sql_net_amount = post_newson_dict.get("sql_net_amount")
+    sql_update = post_newson_dict["sql_update"]
+    sql_round_net_amount = post_newson_dict["sql_round_net_amount"]
+    sql_net_amount = post_newson_dict["sql_net_amount"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -574,9 +579,9 @@ def phonak_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_phonak_dict.get("sql_update")
-    sql_net_amount = post_phonak_dict.get("sql_net_amount")
-    sql_mulitiple_dates = post_phonak_dict.get("sql_mulitiple_dates")
+    sql_update = post_phonak_dict["sql_update"]
+    sql_net_amount = post_phonak_dict["sql_net_amount"]
+    sql_mulitiple_dates = post_phonak_dict["sql_mulitiple_dates"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -591,8 +596,8 @@ def prodition_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_libele = post_prodition_dict.get("sql_libele")
-    sql_update = post_prodition_dict.get("sql_update")
+    sql_libele = post_prodition_dict["sql_libele"]
+    sql_update = post_prodition_dict["sql_update"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -606,9 +611,9 @@ def signia_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_signia_dict.get("sql_update")
-    sql_update_units = post_signia_dict.get("sql_update_units")
-    sql_update_bl = post_signia_dict.get("sql_update_bl")
+    sql_update = post_signia_dict["sql_update"]
+    sql_update_units = post_signia_dict["sql_update_units"]
+    sql_update_bl = post_signia_dict["sql_update_bl"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -623,10 +628,10 @@ def starkey_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_starkey_dict.get("sql_update")
-    sql_copie_envoi_depot = post_starkey_dict.get("sql_copie_envoi_depot")
-    sql_delete_envoi_depot = post_starkey_dict.get("sql_delete_envoi_depot")
-    sql_update_units = post_starkey_dict.get("sql_update_units")
+    sql_update = post_starkey_dict["sql_update"]
+    sql_copie_envoi_depot = post_starkey_dict["sql_copie_envoi_depot"]
+    sql_delete_envoi_depot = post_starkey_dict["sql_delete_envoi_depot"]
+    sql_update_units = post_starkey_dict["sql_update_units"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -642,9 +647,9 @@ def technidis_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_technidis_dict.get("sql_update")
-    sql_update_units = post_technidis_dict.get("sql_update_units")
-    sql_net_amount = post_technidis_dict.get("sql_net_amount")
+    sql_update = post_technidis_dict["sql_update"]
+    sql_update_units = post_technidis_dict["sql_update_units"]
+    sql_net_amount = post_technidis_dict["sql_net_amount"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -659,8 +664,8 @@ def unitron_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_unitron_dict.get("sql_update")
-    sql_mulitiple_dates = post_unitron_dict.get("sql_mulitiple_dates")
+    sql_update = post_unitron_dict["sql_update"]
+    sql_mulitiple_dates = post_unitron_dict["sql_mulitiple_dates"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -674,11 +679,11 @@ def widex_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_widex_dict.get("sql_update")
-    sql_update_units = post_widex_dict.get("sql_update_units")
-    sql_invoices_amounts = post_widex_dict.get("sql_invoices_amounts")
-    sql_articles_wsau = post_widex_dict.get("sql_articles_wsau")
-    sql_marque = post_widex_dict.get("sql_marque")
+    sql_update = post_widex_dict["sql_update"]
+    sql_update_units = post_widex_dict["sql_update_units"]
+    sql_invoices_amounts = post_widex_dict["sql_invoices_amounts"]
+    sql_articles_wsau = post_widex_dict["sql_articles_wsau"]
+    sql_marque = post_widex_dict["sql_marque"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})
@@ -703,10 +708,10 @@ def z_bu_refac_post_insert(uuid_identification: str):
 
     :param uuid_identification: uuid_identification.
     """
-    sql_update = post_z_bu_refac.get("sql_update")
-    sql_piece = post_z_bu_refac.get("sql_piece")
-    sql_name = post_z_bu_refac.get("sql_name")
-    sql_vat = post_z_bu_refac.get("sql_vat")
+    sql_update = post_z_bu_refac["sql_update"]
+    sql_piece = post_z_bu_refac["sql_piece"]
+    sql_name = post_z_bu_refac["sql_name"]
+    sql_vat = post_z_bu_refac["sql_vat"]
 
     with connection.cursor() as cursor:
         cursor.execute(SQL_QTY, {"uuid_identification": uuid_identification})

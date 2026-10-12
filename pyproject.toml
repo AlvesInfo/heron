@@ -3,89 +3,74 @@ name = "heron"
 version = "1.0.0"
 description = "Outils crm de refacturation"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 
 dependencies = [
     # --- Framework & serveur
-    "django==3.2.25",
-    "asgiref==3.5.0",  # importé directement (async_to_sync)
-    "uvicorn==0.17.6",  # Procfile
-    "supervisor==4.2.4",  # supervisor.conf (loops d'import sur le serveur)
-    "python-decouple==3.6",
-    "psycopg2-binary==2.9.5",
-    "sqlparse==0.4.2",  # importé directement
+    "django==5.2.18",
+    "asgiref==3.12.1",  # importé directement (async_to_sync) ; Django 4.2 exige >= 3.6
+    "uvicorn==0.54.0",  # Procfile
+    "supervisor==4.3.0",  # supervisor.conf (loops d'import sur le serveur)
+    "python-decouple==3.8",
+    "psycopg2-binary==2.9.13",
+    "sqlparse==0.6.0",  # importé directement
     # --- Apps Django tierces (INSTALLED_APPS)
-    "django-axes==5.31.0",
-    "django-celery-beat==2.2.1",
+    "django-axes==8.3.1",  # 6.0+ : AXES_LOCKOUT_PARAMETERS et AxesStandaloneBackend (production)
+    "django-celery-beat==2.9.0",
     "django-celery-results==2.6.0",
     "django-chartjs==2.3.0",  # fournit le module chartjs ; le paquet chartjs==1.2 écrasait ses fichiers
-    "django-ckeditor==6.2.0",
-    "django-clamd==0.4.0",  # settings production
-    "django-crispy-forms==1.14.0",
+    "django-tinymce==5.0.0",  # éditeur de texte riche des formulaires (remplace django-ckeditor, CKEditor 4 en fin de vie)
+    "django-clamd==1.0.0",  # settings production
+    "django-crispy-forms==2.7",  # aucun template n'utilise crispy
     "crispy-forms-semantic-ui==0.2.0",
-    "django-dynamic-preferences==1.16.0",
-    "django-eventstream==4.5.1",
-    "django-extensions==3.1.5",
-    "django-filter==21.1",
-    "djangorestframework==3.13.1",
+    "django-dynamic-preferences==1.17.0",
+    "django-eventstream==5.3.4",
+    "django-extensions==4.1",
+    "django-filter==26.2",
+    "djangorestframework==3.18.3",
     # --- Tâches
-    "celery==5.2.7",
-    "flower==1.0.0",  # Procfile
-    "redis==3.5.3",
+    "celery==5.6.3",
+    "flower==2.2.0",  # Procfile
+    "redis==8.1.0",
     # --- Validation
-    "pydantic==1.9.0",
-    "djantic==0.5.0",
-    "email-validator==1.1.3",  # pydantic.EmailStr
+    "pydantic==1.10.26",  # dernière v1 (djantic exige pydantic < 2), roues Python 3.14
+    "djantic==0.7.0",
+    "email-validator==1.1.3",  # pydantic.EmailStr ; >= 1.2 rejette les domaines réservés (.local des fabriques de test)
     # --- Fichiers : Excel, PDF, HTML, mails
-    "pandas==2.2.3",
+    "pandas==3.0.6",
     "openpyxl==3.1.5",
-    "xlsxwriter==3.2.2",
-    "xlrd==2.0.1",  # pandas engine xlrd
-    "python-calamine==0.3.1",  # pandas engine calamine
+    "xlsxwriter==3.2.9",
+    "xlrd==2.0.2",  # pandas engine xlrd
+    "python-calamine==0.8.3",  # pandas engine calamine
     "pdfrw==0.4",
     "weasyprint==64.0",
-    "beautifulsoup4==4.10.0",
-    "lxml==4.9.2",
-    "html2text==2020.1.16",
-    "chardet==4.0.0",
-    "google-api-python-client==2.156.0",  # API Gmail (apps/invoices/bin/api_gmail)
-    "google-auth==2.37.0",
-    "google-auth-oauthlib==1.2.1",
-    "dkimpy==1.1.4",
-    "pyyaml==6.0",
-    "requests==2.27.1",
+    "beautifulsoup4==4.15.0",
+    "lxml==6.1.3",
+    "html2text==2025.4.15",
+    "chardet==4.0.0",  # 5+ : confiance trop basse sur les petits fichiers (repli utf8 à tort)
+    "google-api-python-client==2.201.0",  # API Gmail (apps/invoices/bin/api_gmail)
+    "google-auth==2.61.0",
+    "google-auth-oauthlib==1.5.0",
+    "dkimpy==1.1.8",
+    "pyyaml==6.0.3",
+    "requests==2.34.2",
     # --- Dates & SQL
-    "pendulum==2.1.2",
-    "python-dateutil==2.8.2",
-    "sqlfluff==3.5.0",  # formatage SQL dans functions_postgresql
+    "pendulum==3.2.0",
+    "python-dateutil==2.9.0.post0",
+    "sqlfluff==4.4.0",  # formatage SQL dans functions_postgresql
 ]
 
 [tool.uv]
 # Application Django (apps/ + heron/ à la racine, pas de src/) : uv installe les dépendances
 # sans construire ni installer le projet lui-même (le build-system uv_build attendrait src/heron/)
 package = false
-# Versions transitives figées au niveau d'avant le nettoyage du 2026-10-10 : la montée de
-# versions se fera après la mise en place des tests (directive D6). À retirer à ce moment-là.
-constraint-dependencies = [
-    "google-api-core==2.24.0",
-    "google-auth-httplib2==0.2.0",
-    "googleapis-common-protos==1.66.0",
-    "httplib2==0.31.0",
-    "oauthlib==3.2.0",
-    "proto-plus==1.26.1",
-    "protobuf==5.29.5",
-    "pyasn1==0.4.8",
-    "pyasn1-modules==0.2.8",
-    "pyparsing==3.0.7",
-    "requests-oauthlib==1.3.1",
-    "uritemplate==4.1.1",
-]
 
 [dependency-groups]
 
 dev = [
     {include-group = "quality"},
-    {include-group = "test"}
+    {include-group = "test"},
+    {include-group = "typing"},
 ]
 
 quality = [
@@ -95,8 +80,7 @@ quality = [
     "ruff==0.17.0",
 ]
 
-# Types Django pour mypy : groupe séparé, à installer (uv sync --group typing) et à activer dans
-# [tool.mypy] avec Django >= 4.2 ; sans son plugin les stubs n'apportent que du bruit (voir D31)
+# Types Django pour mypy (plugin mypy_django_plugin actif, directive D49) ; inclus dans `dev`
 typing = [
     "django-stubs==6.1.2",
 ]
@@ -106,7 +90,7 @@ test = [
     "pytest-django==4.14.0",
     "pytest-cov==7.1.0",
     "coverage==7.16.2",
-    "django-debug-toolbar==3.2.4",
+    "django-debug-toolbar==8.0.0",
     "black==26.10.1",
     "pylint==4.1.3",
     "pylint-django==2.8.0",
@@ -145,7 +129,9 @@ disable = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+# py313 et non py314 : avec la cible 3.14, le formateur écrit `except A, B:` (PEP 758) que radon /
+# xenon ne savent pas analyser (fichiers ignorés dans la mesure de complexité)
+target-version = "py313"
 # files/ : données et exports (jamais modifié par l'outillage)
 extend-exclude = ["migrations", "apps/*/tests/essais", "apps/*/essais", "heron/bin", "files"]
 
@@ -283,9 +269,6 @@ markers = [
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::UserWarning:axes",
-    # django-dynamic-preferences 1.16 (dernière version compatible Django 3.2) déclare encore
-    # default_app_config : dépréciation sans effet avant Django 4.1, filtrée jusqu'au chantier Django 4.2
-    "ignore:'dynamic_preferences' defines default_app_config:django.utils.deprecation.RemovedInDjango41Warning",
 ]
 
 [tool.coverage.run]
@@ -329,6 +312,8 @@ show_missing = true
 skip_covered = false
 fail_under = 100
 exclude_lines = [
+    # imports réservés à l'analyse statique (mypy)
+    "if TYPE_CHECKING:",
     "pragma: no cover",
     "if __name__ == .__main__.:",
 ]
@@ -337,17 +322,17 @@ exclude_lines = [
 skips = []
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.14"
 # Cibles par défaut : le projet est une application (apps/ + heron/), pas de src/ ni tests/
 files = ["apps", "heron", "conftest.py"]
 exclude = ["/migrations/", "/essais/", "heron/bin/", "heron/env/"]
 # Plugins désactivés tant que les versions d'exécution ne suivent pas :
 # - pydantic.mypy (pydantic 1.9) ne sait pas lire la version de mypy 2.x ;
-# - mypy_django_plugin (django-stubs 6.x) appelle Query.get_select_mask(), absent de Django 3.2
-#   (plantage interne sur les .only() / .defer()) : à activer avec Django >= 4.2 (directive D6).
+# - mypy_django_plugin (django-stubs 6.1.2) actif depuis le 2026-10-12 (directive D49) ;
+#   réglages lus dans heron.settings (voir [tool.django-stubs]).
 #   Sans le plugin, les stubs seuls imposent d'annoter chaque champ de modèle (1 300 erreurs) :
 #   django-stubs est dans le groupe de dépendances « typing », non installé par défaut.
-# plugins = ["mypy_django_plugin.main", "pydantic.mypy"]
+plugins = ["mypy_django_plugin.main"]
 
 warn_redundant_casts = true
 warn_unused_ignores = true
@@ -378,7 +363,9 @@ follow_imports = "skip"
 
 # Réglage du plugin Django de mypy, pour quand il sera activé
 [tool.django-stubs]
-django_settings_module = "heron.settings.test"
+# heron.settings (et non heron.settings.test, dont les noms sont ré-exportés dynamiquement) :
+# le plugin lit le module statiquement pour typer settings.X
+django_settings_module = "heron.settings"
 
 # [tool.pydantic-mypy]
 # init_forbid_extra = true
@@ -386,7 +373,7 @@ django_settings_module = "heron.settings.test"
 # warn_required_dynamic_aliases = true
 
 # Assume Python 3.14
-target-version = "py311"
+target-version = "py314"
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"

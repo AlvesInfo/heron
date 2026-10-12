@@ -107,7 +107,7 @@ def supplier_cct_identifier(request, third_party_num, url_retour_supplier_cct):
 
         if request.method == "POST":
             request.session["level"] = 50
-            formset = supplier_cct_formset(request.POST, initial=queryset)
+            formset = supplier_cct_formset(request.POST, initial=[dict(row) for row in queryset])
 
             if formset.is_valid():
                 _apply_cct_identifiers(request, formset)

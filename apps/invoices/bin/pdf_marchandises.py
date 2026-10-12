@@ -22,6 +22,7 @@ from pdfrw import PdfReader, PdfWriter
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
+from apps.core.bin.typing_helpers import required
 from apps.invoices.models import EnteteDetails, SaleInvoice
 from apps.invoices.sql_files.sql_marchandises import (
     SQL_DETAILS,
@@ -60,7 +61,9 @@ def marchandise_header_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
             "headers": headers,
             "resume": resume,
             "domain": settings.PDF_STATIC_DOMAIN,
-            "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
+            "logo": str(required(invoices[0].signboard, "enseigne").logo_signboard).replace(
+                "logos/", ""
+            ),
         }
         content = render_to_string("invoices/pdf_marchandises_header.html", context)
         font_config = FontConfiguration()
@@ -89,7 +92,9 @@ def marchandise_suppliers_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> Non
             "invoices": invoices,
             "suppliers": suppliers,
             "domain": settings.PDF_STATIC_DOMAIN,
-            "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
+            "logo": str(required(invoices[0].signboard, "enseigne").logo_signboard).replace(
+                "logos/", ""
+            ),
         }
         content = render_to_string("invoices/pdf_marchandises_suppliers.html", context)
         font_config = FontConfiguration()
@@ -119,7 +124,9 @@ def marchandise_details_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
             "entetes": EnteteDetails.objects.all().values("column_name"),
             "suppliers": suppliers,
             "domain": settings.PDF_STATIC_DOMAIN,
-            "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
+            "logo": str(required(invoices[0].signboard, "enseigne").logo_signboard).replace(
+                "logos/", ""
+            ),
         }
         content = render_to_string("invoices/pdf_marchandises_details.html", context)
         font_config = FontConfiguration()
@@ -150,7 +157,9 @@ def marchandise_sub_details_invoice_pdf(uuid_invoice: UUID, pdf_path: Path) -> N
             "invoices": invoices,
             "sub_details": sub_details,
             "domain": settings.PDF_STATIC_DOMAIN,
-            "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
+            "logo": str(required(invoices[0].signboard, "enseigne").logo_signboard).replace(
+                "logos/", ""
+            ),
         }
         content = render_to_string("invoices/pdf_marchandises_sub_details.html", context)
         font_config = FontConfiguration()

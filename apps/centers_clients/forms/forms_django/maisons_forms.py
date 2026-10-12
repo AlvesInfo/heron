@@ -1,5 +1,7 @@
 """Forms des Maisons."""
 
+from typing import cast
+
 from django import forms
 from django.forms import CheckboxInput
 
@@ -31,7 +33,7 @@ class MaisonForm(forms.ModelForm):
             )
             for society in Society.objects.filter(is_client=True).values("third_party_num", "name")
         ]
-        self.fields["third_party_num"].choices = third_party_num_choices
+        cast(forms.ChoiceField, self.fields["third_party_num"]).choices = third_party_num_choices
 
         self.fields["code_maison"].required = False
         self.fields["code_cosium"].required = False
@@ -208,7 +210,9 @@ class MaisonSupllierExclusionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Limite les tiers aux fournisseurs en service."""
         super().__init__(*args, **kwargs)
-        self.fields["third_party_num"].queryset = Society.objects.filter(in_use=True)
+        cast(
+            forms.ModelChoiceField, self.fields["third_party_num"]
+        ).queryset = Society.objects.filter(in_use=True)
 
     class Meta:
         """Métadonnées Django : modèle et champs du formulaire."""
@@ -247,7 +251,9 @@ class SupllierCountryExclusionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Limite les tiers aux fournisseurs en service."""
         super().__init__(*args, **kwargs)
-        self.fields["third_party_num"].queryset = Society.objects.filter(in_use=True)
+        cast(
+            forms.ModelChoiceField, self.fields["third_party_num"]
+        ).queryset = Society.objects.filter(in_use=True)
 
     class Meta:
         """Métadonnées Django : modèle et champs du formulaire."""

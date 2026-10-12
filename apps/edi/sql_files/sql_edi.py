@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 
 from psycopg2 import sql
 
-post_edi_dict = {
+post_edi_dict: dict[str, sql.Composable] = {
     "sql_col_essilor": sql.SQL(
         """
         update "edi_ediimport"

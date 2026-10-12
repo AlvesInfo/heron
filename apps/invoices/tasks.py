@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 
 import smtplib
 import time
+from uuid import UUID
 
 import pendulum
 from bs4 import BeautifulSoup
@@ -34,7 +35,7 @@ from apps.invoices.bin.generate_invoices_facturx import (
     get_facturx_groups,
     invoices_facturx_generation,
 )
-from apps.invoices.bin.generate_invoices_pdf import Maison, invoices_pdf_generation
+from apps.invoices.bin.generate_invoices_pdf import invoices_pdf_generation
 from apps.invoices.bin.invoices_insertions import invoices_insertion
 from apps.invoices.bin.send_emails_essais import essais_send_by_email
 from apps.invoices.bin.send_invoices_emails import invoices_send_by_email
@@ -54,7 +55,7 @@ EMAIL_HOST_PASSWORD = settings.EMAIL_HOST_PASSWORD
 @shared_task(name="invoices_insertions_launch")
 @clean_memory
 def launch_invoices_insertions(
-    user_uuid: User, invoice_date: pendulum.date, job_id: str | None = None
+    user_uuid: UUID | str, invoice_date: pendulum.date, job_id: str | None = None
 ):
     """Insertion des factures définitives achats et ventes.
 
@@ -105,8 +106,8 @@ def launch_invoices_insertions(
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
+                trace.comment or ""
+            ) + "\n. Une erreur c'est produite veuillez consulter les logs"
 
         if trace is not None:
             trace.invoices = True
@@ -205,7 +206,7 @@ def launch_celery_pdf_launch(user_pk: str, job_id: str):
 
 @shared_task(name="launch_generate_pdf_invoices")
 @clean_memory
-def launch_generate_pdf_invoices(cct: Maison.cct, num_file: str, user_pk: int, job_id: str):
+def launch_generate_pdf_invoices(cct: str, num_file: str, user_pk: int, job_id: str):
     """Génération des pdf des factures de ventes pour un cct.
 
     :param cct: maison de la facture pdf à générer
@@ -243,8 +244,8 @@ def launch_generate_pdf_invoices(cct: Maison.cct, num_file: str, user_pk: int, j
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
+                trace.comment or ""
+            ) + "\n. Une erreur c'est produite veuillez consulter les logs"
             update_progress_threaded(
                 job_id,
                 processed=0,
@@ -327,7 +328,7 @@ def launch_celery_facturx_launch(user_pk: str, job_id: str):
 
 @shared_task(name="launch_generate_facturx_invoices")
 @clean_memory
-def launch_generate_facturx_invoices(cct: Maison.cct, num_file: str, user_pk: int, job_id: str):
+def launch_generate_facturx_invoices(cct: str, num_file: str, user_pk: int, job_id: str):
     """Génération des Factur-X des factures de ventes pour un cct / pdf global.
 
     :param cct: maison des factures
@@ -407,7 +408,7 @@ def launch_celery_send_invoice_mails(
     if cct and period:
         cct_invoices_list = (
             SaleInvoice.objects.filter(
-                cct=cct,
+                cct__cct=cct,
                 invoice_month=period,
                 printed=True,
                 type_x3__in=(1, 2),
@@ -485,8 +486,8 @@ def send_invoice_email(context_dict: dict, user_pk: int):
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
+                trace.comment or ""
+            ) + "\n. Une erreur c'est produite veuillez consulter les logs"
 
         if trace is not None:
             trace.save()
@@ -545,8 +546,8 @@ def launch_export_x3(export_type, centrale, file_name, user_pk: int, nb_fac=5000
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
+                trace.comment or ""
+            ) + "\n. Une erreur c'est produite veuillez consulter les logs"
 
         if trace is not None:
             trace.save()
@@ -589,7 +590,7 @@ def launch_celery_send_emails_essais(user_pk: str):
         tasks_list: list = []
 
         for i, range_list in enumerate(iter_slice(range(nb_mails), nb_iter), 1):
-            context_dict["email_list"] = mails_essis_dict.get(i)
+            context_dict["email_list"] = mails_essis_dict[i]
 
             tasks_list.extend(
                 celery_app.signature(
@@ -644,8 +645,8 @@ def send_invoice_email_essais(context_dict: dict, user_pk: int):
         if error and trace:
             trace.errors = True
             trace.comment = (
-                trace.comment + "\n. Une erreur c'est produite veuillez consulter les logs"
-            )
+                trace.comment or ""
+            ) + "\n. Une erreur c'est produite veuillez consulter les logs"
 
         if trace is not None:
             trace.save()

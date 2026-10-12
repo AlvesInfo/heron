@@ -69,9 +69,9 @@ def get_clean_rows(date_debut: str, date_fin: str) -> list:
 
 def excel_sales_cosium(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: str) -> dict:
     """Fonction de génération du fichier de liste des ventes Cosium."""
-    date_debut = pendulum.parse(dte_d)
+    date_debut = pendulum.parse(dte_d).date()
     date_debut_texte = date_debut.format("DD/MM/YYYY", locale="fr")
-    date_fin = pendulum.parse(dte_f)
+    date_fin = pendulum.parse(dte_f).date()
     date_fin_texte = date_fin.format("DD/MM/YYYY", locale="fr")
     titre = f"VENTES COSIUM DU {date_debut_texte} AU {date_fin_texte}"
     columns = columns_sales_cosium

@@ -59,7 +59,7 @@ class EmailUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         """On surcharge la méthode get_context_data, pour ajouter du contexte au template."""
         context = super().get_context_data(**kwargs)
         context["chevron_retour"] = reverse("parameters:emails_list")
-        context["titre_table"] = f"Mise à jour de l'email : {context.get('object').name}"
+        context["titre_table"] = f"Mise à jour de l'email : {context['object'].name}"
 
         return context
 

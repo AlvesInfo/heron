@@ -1,5 +1,7 @@
 """Forms des Parameters."""
 
+from typing import cast
+
 from django import forms
 from django.db.models import Exists, OuterRef
 
@@ -175,7 +177,7 @@ class ArticleAccountUpdateForm(forms.ModelForm):
             if actual_account and actual_account not in accounts_set:
                 choices.insert(1, (actual_account, f"{actual_account} - (hors plan FRA)"))
 
-            self.fields[field_name].choices = choices
+            cast(forms.ChoiceField, self.fields[field_name]).choices = choices
 
     class Meta:
         """class Meta."""

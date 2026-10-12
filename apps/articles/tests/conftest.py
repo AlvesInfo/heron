@@ -87,7 +87,8 @@ def bi_articles_table(make_society, make_country) -> Callable[..., None]:
 
         with connection.cursor() as cursor:
             cursor.execute(
-                f"insert into heron_bi_articles ({', '.join(row)}) values ({placeholders})", row
+                f"insert into heron_bi_articles ({', '.join(row)}) values ({placeholders})",
+                row,  # type: ignore[arg-type]
             )
 
     return _insert

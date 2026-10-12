@@ -21,7 +21,8 @@ class AccountsAxeProCategoryForm(forms.ModelForm):
 
     def clean(self):
         """Netoyage de la clefs multiple à cause de sub_category qui peut être null."""
-        cleaned_data = super().clean()
+        super().clean()
+        cleaned_data = self.cleaned_data
         child_center = cleaned_data.get("child_center", "")
         big_category = cleaned_data.get("big_category", "")
         sub_category = cleaned_data.get("sub_category", "")

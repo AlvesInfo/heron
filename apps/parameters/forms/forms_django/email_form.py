@@ -1,7 +1,7 @@
 """Forms des Parameters."""
 
-from ckeditor.widgets import CKEditorWidget
 from django import forms
+from tinymce.widgets import TinyMCE
 
 from apps.parameters.forms.forms_django.const_forms import SELECT_FLUIDE_DICT
 from apps.parameters.models import Email
@@ -12,7 +12,7 @@ class EmailForm(forms.ModelForm):
 
     use_required_attribute = False
 
-    email_body = forms.CharField(widget=CKEditorWidget())
+    email_body = forms.CharField(widget=TinyMCE())
 
     def __init__(self, *args, **kwargs):
         """Rend le corps de l'e-mail auto-extensible."""

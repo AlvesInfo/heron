@@ -221,11 +221,7 @@ Les modèles Django suivants continuent de fonctionner normalement :
 
 Ces modèles Django n'avaient **aucun lien** avec les objets SQLAlchemy supprimés.
 
-### Note sur requirements.txt
+### Note sur les dépendances
 
-Si vous souhaitez nettoyer complètement :
-```bash
-# Optionnel : Supprimer SQLAlchemy de requirements.txt si non utilisé ailleurs
-grep -v "SQLAlchemy" requirements.txt > requirements.txt.new
-mv requirements.txt.new requirements.txt
-```
+Les dépendances sont déclarées dans `pyproject.toml` et verrouillées dans `uv.lock` (l'ancien
+`requirements.txt` a été supprimé le 2026-10-12) ; SQLAlchemy n'y figure plus.

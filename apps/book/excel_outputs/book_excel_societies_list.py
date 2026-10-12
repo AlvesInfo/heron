@@ -12,8 +12,7 @@ modified by: Paulo ALVES
 import io
 from collections.abc import Iterator
 
-from django.db import connection
-from django.db.models import QuerySet
+from django.db import connection, models
 from psycopg2 import sql
 
 from apps.book.excel_outputs.book_columns import SocietiesColumns
@@ -23,7 +22,7 @@ from apps.core.excel_outputs.generic_list_export import excel_list_export
 class GetRows:
     """Class pour choix des méthodes get_clean rows en fonction du type des sociétés."""
 
-    def __init__(self, societies: QuerySet, society_type: str):
+    def __init__(self, societies: type[models.Model], society_type: str):
         """Prépare la requête des tiers selon le type (clients ou fournisseurs)."""
         self.societies = societies
 
@@ -103,7 +102,7 @@ class GetRows:
 
 
 def excel_liste_societies(
-    file_io: io.BytesIO, file_name: str, societies: QuerySet, society_type: str
+    file_io: io.BytesIO, file_name: str, societies: type[models.Model], society_type: str
 ) -> dict:
     """Fonction de génération du fichier de liste des Tiers, Fournisseurs, Clients."""
     titre_list = file_name.split("_")

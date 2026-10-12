@@ -22,4 +22,4 @@ def rat_vat_correction():
     On doit donc mettre ce taux à Zéro après l'import du matin.
     :return: None.
     """
-    VatRatSage.objects.filter(vat="011").update(rate=0)
+    VatRatSage.objects.filter(vat__vat="011").update(rate=0)

@@ -74,8 +74,8 @@ class TypeFactureUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context["chevron_retour"] = reverse("centers_purchasing:type_facture_list")
         context["titre_table"] = (
             f"Mise à jour du Type de Facture : "
-            f"{context.get('object').child_center} - "
-            f"{context.get('object').invoice_type}"
+            f"{context['object'].child_center} - "
+            f"{context['object'].invoice_type}"
         )
         return context
 

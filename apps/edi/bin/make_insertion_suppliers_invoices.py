@@ -14,7 +14,7 @@ modified by: Paulo ALVES
 import io
 from functools import lru_cache
 from pathlib import Path
-from typing import NoReturn
+from typing import Any, NoReturn
 
 import redis
 from django.db.utils import IntegrityError
@@ -46,6 +46,10 @@ from apps.data_flux.validation import PydanticTrace, PydanticValidation, Validat
 from apps.edi.models import ColumnDefinition, SupplierDefinition
 from apps.edi.parameters.invoices_imports import get_columns, get_first_line, get_loader_params_dict
 from heron.loggers import LOGGER_EDI
+
+# Cache redis, remplacé par un dictionnaire local si le serveur est injoignable
+# (annotation en chaîne : les tests remplacent redis.StrictRedis à l'import du module)
+cache: redis.StrictRedis | dict[str, Any]
 
 try:
     cache = redis.StrictRedis(

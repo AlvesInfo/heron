@@ -14,6 +14,7 @@ modified by: Paulo ALVES
 import pendulum
 from django.shortcuts import render
 
+from apps.core.bin.typing_helpers import required
 from apps.core.functions.functions_http_response import (
     CONTENT_TYPE_EXCEL,
     response_file,
@@ -30,7 +31,10 @@ def finalize_purchases_export(request):
     try:
         if request.method == "POST":
             today = pendulum.now()
-            edi_validation = EdiValidation.objects.filter(final=True).order_by("-id").first()
+            edi_validation = required(
+                EdiValidation.objects.filter(final=True).order_by("-id").first(),
+                "validation EDI en cours",
+            )
             dte_d = pendulum.parse(edi_validation.billing_period.isoformat())
             dte_f = dte_d.last_of("month")
             file_name = (

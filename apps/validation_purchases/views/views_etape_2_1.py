@@ -12,6 +12,7 @@ from django.views.generic import CreateView, UpdateView
 
 from apps.core.bin.change_traces import ChangeTraceMixin, trace_change, trace_mark_bulk_delete
 from apps.core.bin.encoders import get_base_64
+from apps.core.bin.typing_helpers import required
 from apps.core.functions.functions_dates import get_date_apostrophe
 from apps.core.functions.functions_http import is_ajax
 from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
@@ -83,7 +84,9 @@ def integration_purchases(request):
         if not elements:
             return redirect(reverse("edi:import_edi_invoices"))
 
-        periodes = EdiValidation.objects.filter(final=False).first().billing_period.isoformat()
+        periodes = required(
+            EdiValidation.objects.filter(final=False).first(), "validation EDI en cours"
+        ).billing_period.isoformat()
         periode = (
             f"Période de facturation :  {pendulum.parse(periodes).format('MMMM YYYY', locale='FR')}"
         )
@@ -130,7 +133,8 @@ class CreateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, CreateView
         """Décode-les parammètres de la variable enc_param passés en base64."""
         enc_param = get_base_64(kwargs.get("enc_param"))
         self.third_party_num, self.supplier, invoice_month, self.flow_name = enc_param
-        self.invoice_month = pendulum.parse(invoice_month)
+        # DateField : date et non DateTime pendulum (Django 4 appelle make_naive dessus)
+        self.invoice_month = pendulum.parse(invoice_month).date()
         self.month = self.invoice_month.format("MMMM YYYY", locale="fr")
         self.success_message = (
             "La saisie du relevé pour le tiers %(third_party_num)s "
@@ -206,7 +210,8 @@ class UpdateIntegrationControl(ChangeTraceMixin, SuccessMessageMixin, UpdateView
         """Décode-les parammètres de la variable enc_param passés en base64."""
         enc_param = get_base_64(kwargs.get("enc_param"))
         self.third_party_num, self.supplier, invoice_month, self.flow_name = enc_param
-        self.invoice_month = pendulum.parse(invoice_month)
+        # DateField : date et non DateTime pendulum (Django 4 appelle make_naive dessus)
+        self.invoice_month = pendulum.parse(invoice_month).date()
         self.month = self.invoice_month.format("MMMM YYYY", locale="fr")
         self.success_message = (
             "La saisie du relevé pour le tiers %(third_party_num)s "

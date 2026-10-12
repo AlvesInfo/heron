@@ -1,6 +1,6 @@
 """Forms des paramètres pour les Periodes."""
 
-from typing import Any
+from typing import Any, cast
 
 import pendulum
 from django import forms
@@ -92,9 +92,9 @@ class MonthForm(forms.Form):
         choices_dict = get_month_choices()
 
         initial = choices_dict.get("initial")
-        choices = choices_dict.get("periods")
+        choices = choices_dict["periods"]
 
-        self.fields["periode"].choices = choices
+        cast(forms.ChoiceField, self.fields["periode"]).choices = choices
         self.fields["periode"].initial = initial
 
 
@@ -113,7 +113,7 @@ class YearForm(forms.Form):
         """Alimente les choix d'années et la valeur initiale."""
         super().__init__(*args, **kwargs)
         choices_dict = get_year_choices()
-        self.fields["periode"].choices = choices_dict.get("periods")
+        cast(forms.ChoiceField, self.fields["periode"]).choices = choices_dict["periods"]
         self.fields["periode"].initial = choices_dict.get("initial")
 
 
@@ -132,5 +132,5 @@ class YearPassedForm(forms.Form):
         """Alimente les choix d'années passées et la valeur initiale."""
         super().__init__(*args, **kwargs)
         choices_dict = get_year_passed_choices()
-        self.fields["periode"].choices = choices_dict.get("periods")
+        cast(forms.ChoiceField, self.fields["periode"]).choices = choices_dict["periods"]
         self.fields["periode"].initial = choices_dict.get("initial")

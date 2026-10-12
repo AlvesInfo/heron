@@ -36,7 +36,6 @@ from django.db import transaction
 from django_celery_results.models import TaskResult
 from pdfrw import PdfReader, PdfWriter
 
-from apps.centers_clients.models import Maison
 from apps.data_flux.trace import get_trace
 from apps.invoices.bin.pdf_formation import invoice_formation_pdf
 from apps.invoices.bin.pdf_marchandises import invoice_marchandise_pdf
@@ -68,7 +67,7 @@ def get_invoices_in_progress():
 
 
 @transaction.atomic
-def invoices_pdf_generation(cct: Maison.cct, num_file: str):
+def invoices_pdf_generation(cct: str, num_file: str):
     """Génération des pdf de factures de ventes.
 
     :param cct: cct de la facture pdf à générer
@@ -109,7 +108,7 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: str):
 
         sales_invoices_list = (
             SaleInvoice.objects.filter(
-                cct=cct,
+                cct__cct=cct,
                 global_invoice_file=num_file,
                 final=False,
                 printed=False,
@@ -167,7 +166,7 @@ def invoices_pdf_generation(cct: Maison.cct, num_file: str):
             )
         else:
             SaleInvoice.objects.filter(
-                cct=cct,
+                cct__cct=cct,
                 global_invoice_file=num_file,
                 final=False,
                 printed=False,

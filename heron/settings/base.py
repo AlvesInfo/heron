@@ -109,7 +109,7 @@ THIRD_PARTY_APPS = [
     "crispy_forms",
     "crispy_forms_semantic_ui",
     "axes",
-    "ckeditor",
+    "tinymce",
     "chartjs",
     "dynamic_preferences",
     # comment the following line if you don't want to use user preferences
@@ -157,6 +157,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "heron.middleware.login_middleware.LoginMiddleware",
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "heron.urls"
@@ -250,11 +251,14 @@ DATABASES = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    # AxesBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
-    # "axes.backends.AxesBackend",
+    # AxesStandaloneBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
+    "axes.backends.AxesStandaloneBackend",
     # Django ModelBackend is the default authentication backend.
     "django.contrib.auth.backends.ModelBackend",
 ]
+
+# django-axes câblé partout (contrôles système) mais actif seulement en production
+AXES_ENABLED = False
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -296,7 +300,6 @@ DATE_INPUT_FORMATS = [
 ]
 
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 REST_FRAMEWORK = {
@@ -326,11 +329,31 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = ("uni_form", "bootstrap4", "semantic-ui")
 
 CONTENT_TYPE_EXCEL = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
-CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
-
-CKEDITOR_CONFIGS = {
-    "default": {"toolbar": "basic", "height": 374, "width": 688},
-    "basic_ckeditor": {"toolbar": "Basic"},
+# Éditeur de texte riche (django-tinymce, TinyMCE 7 sous licence GPL 2+ : license_key "gpl")
+# Barre équivalente à l'ancienne barre complète de CKEditor 4 (build « full »), avec les
+# plugins open source de TinyMCE 7 : source HTML, aperçu, recherche, listes avancées, alignements,
+# sens d'écriture, liens et ancres, images par URL, tableaux, émoticônes, caractères spéciaux,
+# saut de page, plein écran, blocs visibles, aide.
+TINYMCE_DEFAULT_CONFIG = {
+    "height": 170,
+    "width": "100%",
+    "menubar": False,
+    "plugins": (
+        "code preview searchreplace lists advlist directionality link anchor image table "
+        "emoticons charmap pagebreak fullscreen visualblocks help wordcount autolink"
+    ),
+    "toolbar": (
+        "code newdocument preview | cut copy paste pastetext | undo redo | searchreplace selectall | "
+        "bold italic underline strikethrough subscript superscript removeformat | "
+        "numlist bullist outdent indent blockquote alignleft aligncenter alignright alignjustify "
+        "ltr rtl | link unlink anchor | image table hr emoticons charmap pagebreak | "
+        "styles blocks fontfamily fontsize | forecolor backcolor | fullscreen visualblocks | help"
+    ),
+    "toolbar_mode": "sliding",
+    "language": "fr_FR",
+    "branding": False,
+    "promotion": False,
+    "license_key": "gpl",
 }
 
 # available settings with their default values

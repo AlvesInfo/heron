@@ -15,6 +15,7 @@ import csv
 import io
 from functools import lru_cache
 from pathlib import Path
+from uuid import UUID
 
 from apps.accountancy.models import AccountSage, SectionSage
 from apps.core.functions import functions_setups  # noqa: F401  amorçage Django hors serveur
@@ -24,7 +25,7 @@ from apps.parameters.models import Category, SubCategory
 
 
 @lru_cache(maxsize=256)
-def get_big_category(big_category: str) -> str:
+def get_big_category(big_category: str) -> UUID:
     """Retourne le str de l'identifiant pour la grande catégorie.
 
     :param big_category: big_category à rechercher
@@ -39,7 +40,7 @@ def get_big_category(big_category: str) -> str:
 
 
 @lru_cache(maxsize=256)
-def get_sub_category(sub_category: str) -> str:
+def get_sub_category(sub_category: str) -> UUID | str:
     """Retourne le str de l'identifiant pour la rubrique presta.
 
     :param sub_category: sub_category à rechercher
@@ -57,14 +58,14 @@ def get_sub_category(sub_category: str) -> str:
 
 
 @lru_cache(maxsize=256)
-def get_axe_pro(axe_pro: str) -> str:
+def get_axe_pro(axe_pro: str) -> UUID:
     """Retourne le str de l'identifiant pour l'axe pro.
 
     :param axe_pro: axe_pro à rechercher
     :return: le str de l'identifiant.
     """
     try:
-        pro = SectionSage.objects.get(section=axe_pro, axe="PRO").uuid_identification
+        pro = SectionSage.objects.get(section=axe_pro, axe__axe="PRO").uuid_identification
     except SectionSage.DoesNotExist as error:
         raise ModelFieldError(f"L'axe pro : {axe_pro!r}, n'existe pas") from error
 
@@ -72,7 +73,7 @@ def get_axe_pro(axe_pro: str) -> str:
 
 
 @lru_cache(maxsize=256)
-def get_account(code_plan: str, account: str) -> str:
+def get_account(code_plan: str, account: str) -> UUID:
     """Retourne le str de l'identifiant pour l'axe pro.
 
     :param code_plan: code plan sage à rechercher

@@ -13,7 +13,7 @@ def migrate_ga000_to_lab0001():
     """
     for supplier in SupplierCct.objects.filter(cct_uuid_identification__cct="GA0000"):
         lab_supplier = SupplierCct.objects.filter(
-            third_party_num_id=supplier.third_party_num_id,
+            third_party_num__third_party_num=supplier.third_party_num_id,
             cct_uuid_identification__cct="LAB0001",
         ).first()
 

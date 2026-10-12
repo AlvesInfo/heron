@@ -31,6 +31,8 @@ import uuid
 from operator import itemgetter
 from typing import Any
 
+from apps.core.bin.typing_helpers import required
+
 from .exceptions import (
     CsvFileToStringIoError,
     ExcelToCsvError,
@@ -130,7 +132,7 @@ class TemplateDataLoader:
         uuid_line_identification = uuid.uuid4()
         line = Line.objects.create(
             uuid_identification=uuid_line_identification,
-            trace=self.trace,
+            trace=required(self.trace, "trace"),
             insertion_type=insertion_type,
             num_line=num_line,
             designation=designation or insertion_dict.get(insertion_type),

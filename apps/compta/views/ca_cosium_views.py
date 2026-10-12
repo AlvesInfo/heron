@@ -28,7 +28,7 @@ def export_sales_cosium(request):
 
     try:
         if request.method == "POST" and form.is_valid():
-            dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            dte_d, dte_f = form.cleaned_data["periode"].split("_")
 
             today = pendulum.now()
             file_name = (
@@ -66,7 +66,7 @@ def export_ca_cosium(request):
 
     try:
         if request.method == "POST" and form.is_valid():
-            dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            dte_d, dte_f = form.cleaned_data["periode"].split("_")
             ca_exists = CaClients.objects.filter(date_ca__range=(dte_d, dte_f)).exists()
 
             if ca_exists:
@@ -121,13 +121,14 @@ def reset_exhange_rates_in_sales(request):
 
     if request.method == "POST":
         if form.is_valid():
-            dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            dte_d, dte_f = form.cleaned_data["periode"].split("_")
             update_exchange_rates(dte_d, dte_f)
             set_ca(dte_d, dte_f, request.user.uuid_identification)
 
             # Reset des Abonnements
-            date_debut = pendulum.parse(dte_d)
-            date_fin = pendulum.parse(dte_f)
+            # DateField : dates et non DateTime pendulum (Django 4 appelle make_naive dessus)
+            date_debut = pendulum.parse(dte_d).date()
+            date_fin = pendulum.parse(dte_f).date()
             EdiImport.objects.filter(
                 invoice_date__range=(date_debut, date_fin),
                 flow_name__in=[
@@ -163,13 +164,14 @@ def reset_sales(request):
 
     if request.method == "POST":
         if form.is_valid():
-            dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            dte_d, dte_f = form.cleaned_data["periode"].split("_")
             force_update_sales(dte_d, dte_f)
             set_ca(dte_d, dte_f, request.user.uuid_identification)
 
             # Reset des Abonnements
-            date_debut = pendulum.parse(dte_d)
-            date_fin = pendulum.parse(dte_f)
+            # DateField : dates et non DateTime pendulum (Django 4 appelle make_naive dessus)
+            date_debut = pendulum.parse(dte_d).date()
+            date_fin = pendulum.parse(dte_f).date()
             EdiImport.objects.filter(
                 invoice_date__range=(date_debut, date_fin),
                 flow_name__in=[
@@ -208,14 +210,15 @@ def reset_ca(request):
 
     if request.method == "POST":
         if form.is_valid():
-            dte_d, dte_f = form.cleaned_data.get("periode").split("_")
+            dte_d, dte_f = form.cleaned_data["periode"].split("_")
 
             # Update des taux de change dans les ventes
             update_exchange_rates(dte_d, dte_f)
 
             # Reset des Abonnements
-            date_debut = pendulum.parse(dte_d)
-            date_fin = pendulum.parse(dte_f)
+            # DateField : dates et non DateTime pendulum (Django 4 appelle make_naive dessus)
+            date_debut = pendulum.parse(dte_d).date()
+            date_fin = pendulum.parse(dte_f).date()
             CaClients.objects.filter(date_ca__range=(date_debut, date_fin)).delete()
             EdiImport.objects.filter(
                 invoice_date__range=(date_debut, date_fin),

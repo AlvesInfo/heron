@@ -1,6 +1,7 @@
 """Transfert des articles de réception BBGR vers le tiers BBGR006."""
 
 from copy import deepcopy
+from typing import Any
 
 import django
 
@@ -14,7 +15,7 @@ from heron.loggers import LOGGER_IMPORT
 def transfert_receptions_articles():
     """Copie les articles de réception BBGR001 vers le tiers BBGR006."""
     articles = Article.objects.filter(
-        third_party_num="BBGR001",
+        third_party_num__third_party_num="BBGR001",
         reference__in=(
             "PLV-PLV",
             "PLV-CONSOMMABLE",
@@ -37,7 +38,7 @@ def transfert_receptions_articles():
     ).values()
 
     for article in articles:
-        a_dict = deepcopy(article)
+        a_dict: dict[str, Any] = dict(article)
         del a_dict["uuid_identification"]
         del a_dict["created_at"]
         del a_dict["modified_at"]
@@ -55,7 +56,7 @@ def transfert_receptions_articles():
 def transfert_receptions_accounts():
     """Copie les comptes des articles de réception BBGR001 vers ceux de BBGR006."""
     articles_uuid = Article.objects.filter(
-        third_party_num="BBGR001",
+        third_party_num__third_party_num="BBGR001",
         reference__in=(
             "PLV-PLV",
             "PLV-CONSOMMABLE",
@@ -78,24 +79,26 @@ def transfert_receptions_accounts():
     ).values("uuid_identification", "reference")
 
     for article in articles_uuid:
-        accounts = ArticleAccount.objects.filter(article=article.get("uuid_identification")).values(
-            "purchase_account", "sale_account", "vat", "child_center"
-        )
+        accounts = ArticleAccount.objects.filter(
+            article__uuid_identification=article["uuid_identification"]
+        ).values("purchase_account", "sale_account", "vat", "child_center")
 
         for account in accounts:
             child = deepcopy(account.get("child_center"))
             vat = deepcopy(account.get("vat"))
-            del account["child_center"]
-            del account["vat"]
+            account_dict: dict[str, Any] = dict(account)
+            del account_dict["child_center"]
+            del account_dict["vat"]
 
             try:
                 obj, created = ArticleAccount.objects.get_or_create(
                     article=Article.objects.get(
-                        third_party_num="BBGR006", reference=article.get("reference")
+                        third_party_num__third_party_num="BBGR006",
+                        reference=article.get("reference"),
                     ),
                     child_center=ChildCenterPurchase.objects.get(code=child),
                     vat=VatSage.objects.get(vat=vat),
-                    **account,
+                    **account_dict,
                 )
                 LOGGER_IMPORT.info("%s %s", obj, created)
             except (Article.DoesNotExist, ArticleAccount.DoesNotExist):

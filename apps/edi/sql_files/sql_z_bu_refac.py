@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 
 from psycopg2 import sql
 
-post_z_bu_refac = {
+post_z_bu_refac: dict[str, sql.Composable] = {
     "sql_update": sql.SQL(
         """
         update "edi_ediimport"

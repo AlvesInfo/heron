@@ -5,7 +5,7 @@ import logging
 
 from decouple import Csv
 
-from heron.settings.base import INSTALLED_APPS, LOG_DIR, MIDDLEWARE, WHITELIST, Path, config
+from heron.settings.base import INSTALLED_APPS, LOG_DIR, WHITELIST, Path, config
 
 allocs, g1, g2 = gc.get_threshold()
 gc.set_threshold(100_000, g1 * 5, g2 * 10)
@@ -26,25 +26,33 @@ THIRD_PARTY_APPS = [
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 
-MIDDLEWARE = [*MIDDLEWARE, "axes.middleware.AxesMiddleware"]
-
 SESSION_COOKIE_AGE = 36000
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Durcissement https (cookies secure, HSTS, proxy SSL header, X-Frame-Options) volontairement
 # absent : l'application est servie en http sur le réseau interne ; à activer avec le passage en https
 
-AUTHENTICATION_BACKENDS = [
-    # AxesBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
-    "axes.backends.AxesBackend",
-    # Django ModelBackend is the default authentication backend.
-    "django.contrib.auth.backends.ModelBackend",
-]
+# Origines de confiance CSRF (Django >= 4.0 compare l'en-tête Origin à l'hôte) : nécessaire
+# seulement derrière un proxy qui change l'hôte ou le schéma, ex. https://heron.fr
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
 
 # AXES lockout responses on failed user authentication attempts from login views
 # https://django-axes.readthedocs.io/en/latest/4_configuration.html
 AXES_ENABLED = True
 AXES_FAILURE_LIMIT = 5
-AXES_ONLY_USER_FAILURES = True
+# Verrouillage par utilisateur seul (ex AXES_ONLY_USER_FAILURES, django-axes >= 6)
+AXES_LOCKOUT_PARAMETERS = ["username"]
+# axes.W006 : le verrouillage par adresse IP est écarté volontairement, les agences partagent une
+# même adresse publique (un compte bloqué ne doit pas bloquer les autres)
+# security.W004/W008/W012/W016 : HSTS, redirection SSL et cookies secure sont volontairement absents
+# tant que l'application est servie en http sur le réseau interne (voir ci-dessus) ; à retirer
+# avec le passage en https
+SILENCED_SYSTEM_CHECKS = [
+    "axes.W006",
+    "security.W004",
+    "security.W008",
+    "security.W012",
+    "security.W016",
+]
 AXES_LOCKOUT_TEMPLATE = "axes_blocked.html"
 AXES_USERNAME_FORM_FIELD = "email"
 
@@ -249,8 +257,6 @@ LOGGING = {
         "weasyprint.css": {"level": "ERROR", "propagate": False},
     },
 }
-
-MIDDLEWARE = [*MIDDLEWARE]
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "accounts/logout/"

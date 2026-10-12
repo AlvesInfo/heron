@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 
 import pendulum
 from django.db import connection, transaction
+from django.db.backends.utils import CursorWrapper
 from psycopg2 import sql
 
 from heron.loggers import LOGGER_IMPORT
@@ -20,7 +21,7 @@ from heron.loggers import LOGGER_IMPORT
 HISTORIC_VENTES_ID = 24_673_943
 
 
-def set_cct_ventes(cursor: connection.cursor):
+def set_cct_ventes(cursor: CursorWrapper):
     """Met à jour les cct dans les ventes.
 
     :param cursor: cursor psycopg2
@@ -50,7 +51,7 @@ def set_cct_ventes(cursor: connection.cursor):
     cursor.execute(sql_cct)
 
 
-def update_cct_from_bi(cursor: connection.cursor):
+def update_cct_from_bi(cursor: CursorWrapper):
     """Met à jour les cct dans les ventes.
 
     :param cursor: cursor psycopg2

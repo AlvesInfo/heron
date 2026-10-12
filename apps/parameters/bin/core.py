@@ -122,16 +122,16 @@ def get_action(action: str = "import_edi_invoices"):
 
     # Si l'action n'existe pas on la créée
     try:
-        action = ActionInProgress.objects.get(action=action)
+        action_in_progress = ActionInProgress.objects.get(action=action)
 
     except ActionInProgress.DoesNotExist:
-        action = ActionInProgress(
+        action_in_progress = ActionInProgress(
             action=action,
             comment=action_dict.get(action, action),
         )
-        action.save()
+        action_in_progress.save()
 
-    return action
+    return action_in_progress
 
 
 def get_in_progress(action="import_edi_invoices", task_name="suppliers_import"):

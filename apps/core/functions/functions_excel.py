@@ -1,6 +1,5 @@
 """Module qui gère les fichiers Excel."""
 
-import codecs
 import csv
 import gc
 import glob
@@ -138,7 +137,7 @@ def excel_xhtml_to_csv(fichier_excel, fichier_csv, *, header=True):
         encoding = encoding_detect(fichier_excel)
 
         with (
-            codecs.open(fichier_excel, "r", encoding=encoding, errors="replace") as file,
+            Path(fichier_excel).open("r", encoding=encoding, errors="replace") as file,
             Path(fichier_csv).open("w", newline="", encoding="utf-8") as csvfile,
         ):
             csv_write = csv.writer(csvfile, delimiter=";", quoting=csv.QUOTE_ALL)
@@ -150,14 +149,9 @@ def excel_xhtml_to_csv(fichier_excel, fichier_csv, *, header=True):
                     lig = ""
 
                     for span in t_d.find_all("span"):
-                        lig = (
-                            span.string.replace("=", "")
-                            .replace('"', "")
-                            .replace(";", "")
-                            .replace("\n", "")
-                            .replace("\r", "")
-                            + ";"
-                        )
+                        lig = (span.string or "").replace("=", "").replace('"', "").replace(
+                            ";", ""
+                        ).replace("\n", "").replace("\r", "") + ";"
 
                     if not lig:
                         lig = ";"

@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_http_methods
 from django.views.generic.edit import FormView
 
+from apps.core.bin.typing_helpers import current_user
 from apps.core.functions.functions_http import check_next_page, is_ajax
 from apps.core.functions.functions_logs import LOG_FILE, envoi_mail_erreur, write_log
 from apps.core.functions.functions_sql import clean_id
@@ -218,8 +219,8 @@ def profil_view(request):
         if password:
             user.set_password(password)
             user.save()
-            user = authenticate(request=request, email=email, password=password)
-            login(request, user)
+            auth_user = authenticate(request=request, email=email, password=password)
+            login(request, auth_user)
             LOGGER_CONNEXION.info(
                 "Changement de profil ou mot de passe : %s", _user_log(user_id, request)
             )
@@ -418,7 +419,7 @@ class InsertStaffs(FormView):
         """Ajoute au contexte les fichiers de salariés déjà téléversés."""
         context = super().get_context_data(**kwargs)
         context["files_upload"] = UploadUserFile.objects.filter(
-            user=self.request.user, type_insert=STAFF_INSERT
+            user=current_user(self.request), type_insert=STAFF_INSERT
         )
         context["messages"] = []
         return context
@@ -457,7 +458,7 @@ def groups_access_staff(request):
     form = GroupAccessStaffForm(request.POST or None)
 
     if form.is_valid():
-        list_group = form.cleaned_data.get("group")
+        list_group = form.cleaned_data["group"]
         AuthGroupAccessStaff.objects.exclude(group_id__in=list_group).delete()
 
         for group in list_group:
@@ -477,7 +478,7 @@ class InsertUsers(FormView):
         """Ajoute au contexte les fichiers d'utilisateurs déjà téléversés."""
         context = super().get_context_data(**kwargs)
         context["files_upload"] = UploadUserFile.objects.filter(
-            user=self.request.user, type_insert=USERS_INSERT
+            user=current_user(self.request), type_insert=USERS_INSERT
         )
         context["messages"] = []
         return context

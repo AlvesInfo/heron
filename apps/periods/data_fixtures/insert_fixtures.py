@@ -12,6 +12,7 @@ modified by: Paulo ALVES
 import contextlib
 import csv
 from pathlib import Path
+from typing import Any, cast
 
 from django.conf import settings
 from django.db.utils import IntegrityError
@@ -29,7 +30,9 @@ def fixtures_periodes():
 
         for row in csv_rows:
             with contextlib.suppress(IntegrityError):
-                Periode.objects.update_or_create(**dict(zip(list_keys, row[:6], strict=False)))
+                Periode.objects.update_or_create(
+                    **cast("dict[str, Any]", dict(zip(list_keys, row[:6], strict=False)))
+                )
 
 
 if __name__ == "__main__":

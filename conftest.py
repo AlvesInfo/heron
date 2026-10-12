@@ -256,8 +256,8 @@ def ajax_client(make_user) -> Any:
     from django.test import Client  # pylint: disable=C0415
 
     ajax = Client(HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-    ajax.user = make_user(email="ajax@heron.local", username="ajax")
-    ajax.force_login(ajax.user)
+    ajax.user = make_user(email="ajax@heron.local", username="ajax")  # type: ignore[attr-defined]
+    ajax.force_login(ajax.user)  # type: ignore[attr-defined]
     return ajax
 
 

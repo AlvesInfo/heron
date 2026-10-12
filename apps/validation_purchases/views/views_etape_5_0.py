@@ -9,6 +9,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from apps.core.bin.change_traces import trace_change
+from apps.core.bin.typing_helpers import required
 from apps.core.functions.functions_http import is_ajax
 from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.core.functions.functions_postgresql import query_file_dict_cursor
@@ -24,9 +25,10 @@ from heron.loggers import LOGGER_VIEWS
 
 def refac_cct_purchases(request):
     """View de l'étape 5.0 - Contrôle Refac M M-1 par CCT."""
-    billing_period = (
-        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first().billing_period
-    )
+    billing_period = required(
+        EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first(),
+        "validation EDI en cours",
+    ).billing_period
 
     with connection.cursor() as cursor:
         sql_context_file = "apps/validation_purchases/sql_files/sql_refac_cct.sql"
@@ -48,9 +50,10 @@ def refac_cct_purchases(request):
 
         context = {
             "titre_table": "5.0 - Contrôle Refac M M-1 par CCT",
-            "refac_cct_validation": EdiValidation.objects.filter(
-                Q(final=False) | Q(final__isnull=True)
-            ).first(),
+            "refac_cct_validation": required(
+                EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first(),
+                "validation EDI en cours",
+            ),
             "clients": elements,
             "mois_dict": mois_dict,
         }
@@ -70,11 +73,10 @@ def refac_cct_purchases_export(request):
             file_name = (
                 f"CONTROLE_REFAC_M-1_M_PAR_CCT_{today.format('Y_M_D')}{today.int_timestamp}.xlsx"
             )
-            billing_period = (
-                EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True))
-                .first()
-                .billing_period
-            )
+            billing_period = required(
+                EdiValidation.objects.filter(Q(final=False) | Q(final__isnull=True)).first(),
+                "validation EDI en cours",
+            ).billing_period
             return response_file(
                 excel_refac_cct, file_name, CONTENT_TYPE_EXCEL, {"initial_date": billing_period}
             )

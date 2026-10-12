@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 
 from psycopg2 import sql
 
-post_generic_dict = {
+post_generic_dict: dict[str, sql.Composable] = {
     "sql_update": sql.SQL(
         """
         update "edi_ediimport"
@@ -124,7 +124,7 @@ post_generic_dict = {
 }
 
 
-post_generic_internal_dict = {
+post_generic_internal_dict: dict[str, sql.Composable] = {
     "sql_update": sql.SQL(
         """
         update "edi_ediimport"

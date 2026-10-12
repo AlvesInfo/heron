@@ -10,9 +10,9 @@ modified by:
 """
 
 import inspect
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from copy import deepcopy
-from typing import Any
+from typing import Any, cast
 
 from django import forms
 from django.db import models
@@ -21,6 +21,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, UpdateView
 
+from apps.core.bin.typing_helpers import current_user
 from apps.core.models import ChangesTrace
 from heron.loggers import LOGGER_VIEWS
 
@@ -159,7 +160,7 @@ class ChangeTraceMixin:
         """
         self.request.session["level"] = 20
         self.object = form.save()
-        user = self.request.user
+        user = current_user(self.request)
 
         if self.mark_delete is not None:
             # modified_by est un champ : delete_by_id n'en était pas un et mettait l'objet User
@@ -187,13 +188,13 @@ class ChangeTraceMixin:
         ChangesTrace.objects.create(
             action_datetime=timezone.now(),
             action_type=ACTION_DICT.get(str(self.action_type), 9),
-            function_name=self.__class__,
+            function_name=str(self.__class__),
             action_by=user,
             before=before,
             after=after,
             difference=get_difference_dict(before, after),
             model_name=self.object._meta.model_name,
-            model=self.object._meta.model,
+            model=str(self.object._meta.model),
             db_table=self.object._meta.db_table,
         )
         self.request.session["level"] = 20
@@ -222,7 +223,7 @@ class ChangeTraceMixin:
 
 def trace_mark_delete(
     request,
-    django_model: models.Model,
+    django_model: type[models.Model],
     data_dict: dict,
     *,
     force_delete=False,
@@ -235,7 +236,7 @@ def trace_mark_delete(
     :param force_delete: True si l'on souhaite éffacé definitivement.
     """
     function_call = caller_frame()
-    model_object = django_model.objects.filter(**data_dict)
+    model_object = django_model._default_manager.filter(**data_dict)
 
     if not model_object:
         LOGGER_VIEWS.error(
@@ -253,7 +254,10 @@ def trace_mark_delete(
     # mettrait l'objet User dans le JSON de la trace
     field_names = {field.name for field in django_model._meta.fields}
 
-    for row in model_object:
+    # Les lignes sont manipulées par leurs champs déclarés (delete, modified_by) : type ouvert
+    rows: Iterable[Any] = model_object
+
+    for row in rows:
         request.session["level"] = 20
         before = {key: value for key, value in row.__dict__.items() if key != "_state"}
 
@@ -274,7 +278,7 @@ def trace_mark_delete(
             after=after,
             difference=get_difference_dict(before, after),
             model_name=django_model._meta.model_name,
-            model=django_model._meta.model,
+            model=str(django_model._meta.model),
             db_table=django_model._meta.db_table,
         )
 
@@ -284,7 +288,7 @@ def trace_mark_delete(
 
 def trace_mark_bulk_delete(
     request,
-    django_model: models.Model,
+    django_model: type[models.Model],
     data_dict: dict,
     replacements: tuple = (),
     *,
@@ -299,7 +303,7 @@ def trace_mark_bulk_delete(
     :param force_delete: True si l'on souhaite éffacé definitivement.
     """
     function_call = caller_frame()
-    model_object = django_model.objects.filter(**data_dict)
+    model_object = django_model._default_manager.filter(**data_dict)
 
     if not model_object:
         LOGGER_VIEWS.error(
@@ -331,7 +335,7 @@ def trace_mark_bulk_delete(
         after=after,
         difference=get_difference_dict(before, after),
         model_name=django_model._meta.model_name,
-        model=django_model._meta.model,
+        model=str(django_model._meta.model),
         db_table=django_model._meta.db_table,
     )
 
@@ -356,12 +360,12 @@ def trace_form_change(
 
     user = request.user
     action_datetime = timezone.now()
-    before = model_to_dict(form.cleaned_data.get("id"))
+    before = model_to_dict(form.cleaned_data["id"])
     instance = form.save()
     instance.modified_by = user
     instance.save()
     after = model_to_dict(instance)
-    model = form.Meta.model
+    model = form._meta.model
 
     ChangesTrace.objects.create(
         action_datetime=action_datetime,
@@ -372,13 +376,13 @@ def trace_form_change(
         after=after,
         difference=get_difference_dict(before, after),
         model_name=model._meta.model_name,
-        model=model,
+        model=str(model),
         db_table=model._meta.db_table,
     )
     request.session["level"] = 20
 
 
-def _before_and_after(model: models.Model, before_dict: dict, key: str, value) -> bool:
+def _before_and_after(model: type[models.Model], before_dict: dict, key: str, value) -> bool:
     """Compare la valeur stockée (attname, ex. big_category_id) à la valeur demandée : une instance.
 
     de modèle passée pour une clé étrangère est ramenée à la valeur de sa clé cible.
@@ -388,12 +392,16 @@ def _before_and_after(model: models.Model, before_dict: dict, key: str, value) -
     attname = getattr(field, "attname", key)
 
     if isinstance(value, models.Model):
-        value = getattr(value, field.target_field.attname) if field.is_relation else value.pk
+        value = (
+            getattr(value, cast(models.ForeignKey, field).target_field.attname)
+            if field.is_relation
+            else value.pk
+        )
 
     return before_dict.get(attname) == value
 
 
-def trace_change(request, model: models.Model, before_kwargs: dict, update_kwargs: dict):
+def trace_change(request, model: type[models.Model], before_kwargs: dict, update_kwargs: dict):
     """Fonction trace des changements de données, pour views functions ou fonctions.
 
     :param request: request au sens Django
@@ -405,10 +413,12 @@ def trace_change(request, model: models.Model, before_kwargs: dict, update_kwarg
 
     user = request.user
     action_datetime = timezone.now()
-    instance = model.objects.filter(**before_kwargs).first()
+    instance = model._default_manager.filter(**before_kwargs).first()
 
     if instance is None:
-        raise model.DoesNotExist(f"{model._meta.model_name} introuvable pour {before_kwargs!r}")
+        raise cast(Any, model).DoesNotExist(
+            f"{model._meta.model_name} introuvable pour {before_kwargs!r}"
+        )
 
     before_dict = {key: value for key, value in instance.__dict__.items() if key != "_state"}
 
@@ -420,7 +430,7 @@ def trace_change(request, model: models.Model, before_kwargs: dict, update_kwarg
         message = "Vous n'avez rien modifié !"
         return False, message
 
-    after = model.objects.filter(**before_kwargs)
+    after = model._default_manager.filter(**before_kwargs)
     after.update(**{**update_kwargs, "modified_by": user, "modified_at": timezone.now()})
     after_dict = {key: value for key, value in after.first().__dict__.items() if key != "_state"}
 
@@ -433,7 +443,7 @@ def trace_change(request, model: models.Model, before_kwargs: dict, update_kwarg
         after=after_dict,
         difference=get_difference_dict(before_dict, after_dict),
         model_name=model._meta.model_name,
-        model=model,
+        model=str(model),
         db_table=model._meta.db_table,
     )
     request.session["level"] = 20

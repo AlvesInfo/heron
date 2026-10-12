@@ -99,7 +99,7 @@ def _country_code(country: Any, default: str = DOMESTIC_COUNTRY_CODE) -> str:
 
 
 def _html_to_text(value: Any) -> str:
-    """Convertit un texte HTML (CKEditor) en texte brut."""
+    """Convertit un texte HTML (éditeur de texte riche) en texte brut."""
     cleaned = _clean(value)
     if not cleaned:
         return ""
@@ -228,7 +228,7 @@ def get_buyer(sale: SaleInvoice) -> dict[str, Any]:
         .filter(third_party_num=sale.third_party_num_id)
         .first()
     )
-    maison = Maison.objects.select_related("pays").filter(cct=sale.cct_id).first()
+    maison = Maison.objects.select_related("pays").filter(cct__cct=sale.cct_id).first()
 
     if maison is not None:
         return _party_from_maison(maison, society)
@@ -242,13 +242,13 @@ def get_buyer(sale: SaleInvoice) -> dict[str, Any]:
     )
 
 
-def _vat_regimes() -> dict[str, str]:
+def _vat_regimes() -> dict[str, str | None]:
     """Code TVA X3 -> régime de TVA (FRA, CEE, EXP, DOM, ...)."""
     return dict(VatSage.objects.values_list("vat", "vat_regime"))
 
 
 def _vat_category(
-    vat_code: str, vat_rate: Decimal, regimes: dict[str, str]
+    vat_code: str, vat_rate: Decimal, regimes: dict[str, str | None]
 ) -> tuple[str, Any, Any]:
     """Catégorie TVA EN16931 d'une ligne : (catégorie, code motif, motif)."""
     if vat_rate > 0:
@@ -333,7 +333,7 @@ def _build_line(
     detail: SaleInvoiceDetail,
     common: InvoiceCommonDetails | None,
     sign: int,
-    regimes: dict[str, str],
+    regimes: dict[str, str | None],
 ) -> dict[str, Any]:
     """Ligne de facture au format facturx-fr.
 
@@ -380,7 +380,9 @@ def _build_line(
     }
 
 
-def build_lines(sale: SaleInvoice, sign: int, regimes: dict[str, str]) -> list[dict[str, Any]]:
+def build_lines(
+    sale: SaleInvoice, sign: int, regimes: dict[str, str | None]
+) -> list[dict[str, Any]]:
     """Lignes de facture depuis les SaleInvoiceDetail.
 
     :param sale: facture de vente

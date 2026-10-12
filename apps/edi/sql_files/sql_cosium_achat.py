@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 
 from psycopg2 import sql
 
-post_cosium_achats_dict = {
+post_cosium_achats_dict: dict[str, sql.Composable] = {
     "sql_ttc_a_zero": sql.SQL(
         """
     update "edi_ediimport" "edi"

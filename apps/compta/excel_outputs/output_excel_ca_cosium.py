@@ -50,7 +50,8 @@ def get_clean_rows(date_debut: str, date_fin: str) -> list:
         )
         .order_by(
             "date_ca",
-            "cct_uuid_identification__pays",
+            # ordre du modèle Country rendu explicite (Django 5 trie sinon sur la clé "country")
+            "cct_uuid_identification__pays__country_name",
             "cct_uuid_identification__cct__cct",
             "axe_pro__section",
         )
@@ -132,8 +133,8 @@ def write_board(excel, sheet, _columns, clean_rows, f_lignes, f_lignes_odd):
 
 def excel_ca_cosium(file_io: io.BytesIO, file_name: str, dte_d: str, dte_f: str) -> dict:
     """Fonction de génération du fichier de liste du chiffre d'affaires par maisons/familles."""
-    date_debut = pendulum.parse(dte_d)
-    date_fin = pendulum.parse(dte_f)
+    date_debut = pendulum.parse(dte_d).date()
+    date_fin = pendulum.parse(dte_f).date()
     titre = (
         f"CHIFFRE D'AFFAIRES COSIUM DU {date_debut.format('DD/MM/YYYY', locale='fr')} "
         f"AU {date_fin.format('DD/MM/YYYY', locale='fr')}"

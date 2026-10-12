@@ -66,8 +66,8 @@ class FilleUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
         context["chevron_retour"] = reverse("centers_purchasing:filles_list")
         context["titre_table"] = (
             f"Mise à jour de la Centrale Fille : "
-            f"{context.get('object').code} - "
-            f"{context.get('object').name}"
+            f"{context['object'].code} - "
+            f"{context['object'].name}"
         )
         return context
 

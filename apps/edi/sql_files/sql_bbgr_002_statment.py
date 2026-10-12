@@ -13,7 +13,7 @@ modified by: Paulo ALVES
 
 from psycopg2 import sql
 
-bbgr_002_statment_dict = {
+bbgr_002_statment_dict: dict[str, sql.Composable] = {
     "sql_vat": sql.SQL(
         """
         update "edi_ediimport"

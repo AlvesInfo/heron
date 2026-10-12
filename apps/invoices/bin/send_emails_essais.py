@@ -114,7 +114,8 @@ def essais_send_by_email(context_dict: dict):
         email_06,
     ]:
         try:
-            CheckEmail(email=email)
+            # valeur possiblement vide : validée par pydantic (ValidationError sinon)
+            CheckEmail.parse_obj({"email": email})
             mail_to_list.append(email)
         except ValidationError:
             pass

@@ -11,14 +11,17 @@ modified at: 2023-01-18
 modified by: Paulo ALVES
 """
 
+from collections.abc import Iterable
+
 import pendulum
 from django.db import connection
-from django.db.models import Case, Q, QuerySet, Value, When
+from django.db.models import Case, Q, Value, When
 from django.db.models.functions import Concat
 from django.utils import timezone
 
 from apps.articles.models import Article
 from apps.core.bin.change_traces import caller_frame
+from apps.core.bin.typing_helpers import required
 from apps.core.models import ChangesTrace
 from apps.data_flux.models import Trace
 from apps.edi.models import EdiImport
@@ -51,7 +54,7 @@ def set_trace_hand_invoice(
     invoice_category: str,
     invoice_number: str,
     user: User,
-    edi_objects: QuerySet | None = None,
+    edi_objects: Iterable[EdiImport] | None = None,
     numbers: int = 0,
     *,
     errors: bool = False,
@@ -97,7 +100,7 @@ def set_trace_hand_invoice(
                 after=after_dict,
                 difference={"avant": {}, "après": after_dict},
                 model_name=EdiImport._meta.model_name,
-                model=EdiImport._meta.model,
+                model=str(EdiImport._meta.model),
                 db_table=EdiImport._meta.db_table,
             )
 
@@ -196,15 +199,19 @@ def delete_orphans_controls():
         cursor.execute(sql_delete)
 
 
-def set_signboard(edi_objects: QuerySet) -> None:
+def set_signboard(edi_objects: Iterable[EdiImport]) -> None:
     """On va setter les centrales filles et les enseignes des factures saisies manuellement.
 
     :param edi_objects: Queryset Objets EdiImport créé
     :return:
     """
     for edi_line in edi_objects:
-        edi_line.code_center = edi_line.cct_uuid_identification.center_purchase.code
-        edi_line.code_signboard = edi_line.cct_uuid_identification.sign_board.code
+        edi_line.code_center = required(
+            edi_line.cct_uuid_identification, "maison"
+        ).center_purchase.code
+        edi_line.code_signboard = required(
+            edi_line.cct_uuid_identification, "maison"
+        ).sign_board.code
         edi_line.save()
 
 

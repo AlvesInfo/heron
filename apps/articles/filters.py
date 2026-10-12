@@ -55,7 +55,7 @@ class ArticleAccountFilter(django_filters.FilterSet):
     libelle = django_filters.CharFilter(field_name="libelle_article", lookup_expr="icontains")
     axe_pro = django_filters.ModelChoiceFilter(
         field_name="article__axe_pro",
-        queryset=SectionSage.objects.filter(axe="PRO"),
+        queryset=SectionSage.objects.filter(axe__axe="PRO"),
         to_field_name="uuid_identification",
         widget=forms.Select(attrs=SELECT_FLUIDE_DICT),
     )

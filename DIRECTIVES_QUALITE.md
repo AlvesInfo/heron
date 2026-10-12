@@ -187,7 +187,7 @@ Règles valables pour toute directive de type « tester l'app X ».
 
 ---
 
-## D6 — Migration Django 3.2 → 4.2 LTS `[ ]`
+## D6 — Migration Django 3.2 → 4.2 LTS `[x]`
 
 - **Pré-requis** : D5 ; idéalement D1, D2, D3 pour avoir un filet.
 - **Points connus** : `NullBooleanField` modèle supprimé (vérifier les modèles), `url()` →
@@ -202,6 +202,39 @@ Règles valables pour toute directive de type « tester l'app X ».
   puis passer la version dans `pyproject.toml` et `uv lock`.
 - **Critères d'acceptation** : `manage.py check --deploy` sans erreur, migrations à jour, suite
   complète verte.
+- **Réalisé le 2026-10-12** : `django==4.2.30` (asgiref 3.8.1, sqlparse 0.5.3) et dernières versions
+  compatibles 4.2 des apps tierces (PyPI, `requires_dist` / classifiers) : django-axes 8.3.1,
+  django-celery-beat 2.9.0, django-ckeditor 6.7.3, django-clamd 1.0.0, django-crispy-forms 2.5
+  (aucun template n'utilise crispy), django-dynamic-preferences 1.17.0, django-extensions 4.1,
+  django-filter 25.1, djangorestframework 3.16.1, django-debug-toolbar 6.0.0, djantic 0.7.0 ;
+  django-chartjs 2.3.0 et django-eventstream 4.5.1 conservés (importables, les 5.x d'eventstream
+  exigent Django 5). Bloc `[tool.uv] constraint-dependencies` retiré.
+- **Code** : `force_text` -> `force_str` (`heron/views/users_views.py`) ; `USE_L10N` retiré (défaut
+  depuis 4.0) ; `index_together` (déprécié 4.2, retiré 5.1) -> `Meta.indexes` nommés dans
+  accountancy (3) et compta (5, fusionnés aux `indexes` existants), migrations `RenameIndex`
+  `accountancy/0003` et `compta/0003` ; **pendulum 2 + Django 4 (zoneinfo)** : un `pendulum.DateTime`
+  passé à un `DateField` plante dans `make_naive` (`'NoneType' object has no attribute 'convert'`) :
+  `.date()` sur `EdiImport.invoice_month` (deux modèles), les plages des vues et exports Cosium
+  et `invoice_month` des contrôles d'intégration (étape 2.1). Test `test_section_sage_str_get_import_et_meta`
+  adapté (`meta.indexes` au lieu de `meta.index_together`, signalé).
+- **Réglages** : django-axes >= 6 : `AXES_LOCKOUT_PARAMETERS = ["username"]` (ex
+  `AXES_ONLY_USER_FAILURES`), backend `axes.backends.AxesStandaloneBackend` ; middleware et backend
+  câblés dans `base.py` avec `AXES_ENABLED = False` (contrôles axes.W002/W003 satisfaits partout),
+  `True` en production ; `axes.W006` (pas de verrouillage par IP, agences derrière une même adresse)
+  silencé et justifié ; `CSRF_TRUSTED_ORIGINS` lu du `.env` (vide par défaut : l'en-tête Origin
+  est comparé à l'hôte, suffisant en http interne sans proxy), documenté dans `heron/env/env.txt`.
+- **Contrôles** : `manage.py check` = seul l'avis ckeditor.W001 (CKEditor 4 en fin de vie, à
+  traiter à part) ; `check --deploy` en réglages production (hôte simulé) = 0 erreur, 4
+  avertissements https documentés comme volontaires (réseau interne) ; aucune dépréciation
+  RemovedInDjango5x ; `makemigrations --check` propre ; `uv pip check` OK ; ruff 0, mypy Success,
+  xenon OK ; suite complète 2 962 tests à 100 %, 0 avertissement (filtre dynamic_preferences
+  retiré, `RemovedInDjango41Warning` n'existe plus).
+- **Déploiement** : `manage.py migrate` applique accountancy/compta 0003 (renommage d'index),
+  axes 0008-0010, django_celery_beat 0016-0019, django_celery_results 0011-0014, authtoken 0004 ;
+  `uv sync` ; vérifier le lockout axes après mise en production.
+- **Suite (réalisée le même jour)** : Django 4.2 LTS étant sorti du support étendu en avril 2026,
+  le passage à 5.2 LTS est fait en D48 et le plugin mypy django-stubs est activé en D49 ; reste
+  Python 3.13/3.14 (tentative D31 à rejouer).
 
 ---
 
@@ -1284,6 +1317,185 @@ Petites corrections à passer app par app, en même temps que D0 :
 
 ---
 
+## D48 — Django 5.2 LTS `[x]`
+
+- **Versions** : `django==5.2.18` (support jusqu'en avril 2028, Python 3.11 conservé) ;
+  django-crispy-forms 2.7, django-eventstream 5.3.4 (+ django_grip), django-filter 26.2,
+  djangorestframework 3.18.3, django-debug-toolbar 8.0.0 ; les autres apps tierces de D6 sont déjà
+  compatibles 5.2 (classifiers PyPI) ; `uv pip check` OK, aucune migration à générer.
+- **Code** : `CheckConstraint(check=…)` -> `condition=` (déprécié 5.1, modèle `parameters` et sa
+  migration `0002_initial` mises en cohérence) ; `StringAgg(ordering=…)` -> `order_by=`
+  (RemovedInDjango61Warning, vue étape 2.1.B) ; export CA Cosium : le tri par pays est rendu
+  explicite (`cct_uuid_identification__pays__country_name`), Django 5 triait sur la clé
+  `country` et inversait FR/CH (test inchangé, comportement d'origine rétabli).
+- **Rendu des formulaires** : `{{ form }}` rend des `<div>` depuis 5.0 (plus de `<tr>` orphelins
+  dans `users/group_access_staff.html`, seul template concerné) ; déconnexion par vue dédiée, non
+  concernée par le retrait du GET de `LogoutView`.
+- **Contrôles** : `manage.py check` = seul ckeditor.W001 ; `check --deploy` (production simulée)
+  = 0 erreur ; aucune dépréciation RemovedInDjango6x ; ruff 0, mypy Success, xenon OK ; suite
+  complète 2 962 tests à 100 %, 0 avertissement.
+- **Plugin mypy django-stubs (essai)** : django-stubs 6.1.2 est compatible mypy 2.4 et Django 5.2 ;
+  activé dans une configuration temporaire : 603 erreurs dans 200 fichiers (96 `union-attr`, 90
+  `arg-type`, ~110 attributs de settings inconnus du module `heron.settings.test`, 37
+  `attr-defined`, 17 `name-defined`…). Chantier distinct à planifier (directive à créer) ; plugin
+  laissé désactivé, groupe `typing` non installé par défaut.
+- **Déploiement** : identique à D6 (`uv sync` puis `manage.py migrate`), aucune migration
+  supplémentaire pour 5.2.
+
+---
+
+## D49 — Plugin mypy django-stubs activé `[x]`
+
+- **Configuration** : `plugins = ["mypy_django_plugin.main"]`, `[tool.django-stubs]
+  django_settings_module = "heron.settings"` (le module de test ré-exporte ses noms dynamiquement,
+  invisible pour l'analyse statique) ; groupe `typing` (django-stubs 6.1.2) inclus dans `dev`.
+  603 erreurs à l'essai (module de test) -> 419 avec `heron.settings` -> 0.
+- **Aides de typage** (`apps/core/bin/typing_helpers.py`, testées) : `required(valeur, libellé)`
+  remplace les accès sur une valeur possiblement None (résultats de `.first()`, clés étrangères
+  nullables, `queryset` de champ de formulaire) par une ValueError explicite ; `current_user(request)`
+  renvoie l'utilisateur `User` ou refuse l'anonyme. 39 et 6 appels.
+- **Limites de django-stubs contournées** : les clés étrangères `to_field` sont typées sur la clé
+  primaire de la cible, les lookups `axe="PRO"`, `cct=…`, `third_party_num=…`, `vat=…`,
+  `article=…`, `big_category=…`, `child_center=…`, `uuid_control__in=…` passent par la jointure
+  explicite (`axe__axe="PRO"`, `cct__cct=…`, …) ; `Model.objects` sur une classe reçue en
+  paramètre devient `_default_manager` et les paramètres « classe de modèle » sont typés
+  `type[models.Model]` (traces, imports EDI, exports Excel, PostgresDjangoUpsert) ; `cast` pour
+  les champs de formulaire (`ChoiceField`, `ModelChoiceField`), les champs de modèle lus par
+  `_meta.get_field`, le mixin d'accès par centrale (`request.user` est un double dans les tests) et
+  `BaseUserManager.model` ; `**{"pk": F(…)}` refusé par ruff (PIE804) -> `type: ignore[no-redef]`
+  commenté sur les sept `annotate(pk=…)` de l'API ; `CursorWrapper` / `BaseDatabaseWrapper` au lieu
+  de `connection.cursor` / `connection` en annotation ; dictionnaires SQL typés `dict[str,
+  sql.Composable]` et indexés (plus de `.get` sur des constantes) ; `TypedDict` de `.values()`
+  copiés en `dict[str, Any]` avant suppression de clés ; `cleaned_data` lu sur `self.cleaned_data`
+  après `super().clean()` ; variables réutilisées avec un autre type renommées (`action_in_progress`,
+  `base_center_obj`, `maison_values`, `auth_user`, `end_month_raw`).
+- **Comportements conservés** : `ChangesTrace.model`/`function_name` reçoivent `str(classe)` (ce que
+  CharField faisait déjà), `trace_change` lève toujours `Model.DoesNotExist` (attendu par les vues
+  et les tests), `__str__` de SubCategory renvoie "" sans catégorie (branche explicite au lieu d'un
+  `except AttributeError`), `ActionInProgress`/`get_action` inchangés.
+- **`type: ignore` motivés** : 16 en production (champ `delete` homonyme de `Model.delete()`, clés
+  étrangères sur un champ texte de la classe de base, alias `pk`, `label_from_instance` affecté
+  par lambda, `first_line` d'un modèle générique) et 14 dans les tests (attribut `user` du client,
+  modèle d'essai, lookups `to_field`).
+- Résultat : mypy Success (plugin actif), ruff 0, xenon OK, suite complète 2 962 + 4 tests à 100 %.
+
+---
+
+## D50 — Python 3.14, lot 1 : bibliothèques compilées relevées (sous 3.11) `[x]`
+
+- **Constat** : Django 5.2.18 déclare Python 3.14 ; les bloqueurs sont des paquets épinglés sans
+  roue `cp314`. Lot 1 = montées sans changement d'API, validées sous Python 3.11 pour isoler les
+  causes : psycopg2-binary 2.9.5 -> 2.9.13, pyyaml 6.0 -> 6.0.3, python-calamine 0.3.1 -> 0.8.3,
+  pydantic 1.9.0 -> 1.10.26 (dernière v1, djantic exige < 2), lxml 4.9.2 -> 6.1.3, pandas 2.2.3 ->
+  2.3.3.
+- **Seule retouche** : pydantic 1.10 type `CheckEmail(email=…)` en `EmailStr`, la validation d'une
+  adresse possiblement vide passe par `CheckEmail.parse_obj({"email": …})` (même ValidationError).
+- Résultat : `uv pip check` OK, mypy Success, ruff 0, xenon OK, aucun FutureWarning pandas, suite
+  complète 2 966 tests à 100 %.
+- **Lot 2 (réalisé en D51)** : pendulum 2.1.2 -> 3.2.0 (137 usages, `period` -> `interval`, `parse` plus
+  strict, `Timezone` zoneinfo : retirer alors le contournement `.date()` des DateField), celery
+  5.2.7 -> 5.5.x avec redis 5.x et flower 2.x, supervisor 4.3.0 et uvicorn récents, puis
+  `requires-python = ">=3.14"`, `uv python pin 3.14`, suite complète, `check --deploy`, import EDI
+  et génération PDF réels.
+
+---
+
+## D51 — Python 3.14, lot 2 : pendulum 3, celery 5.6 et bascule de l'interpréteur `[x]`
+
+- **Étapes, chacune validée par la suite complète** : pendulum 2.1.2 -> 3.2.0 sous 3.11 (aucune
+  modification de code : seuls `now`, `parse`, `date`, `datetime`, `today`, `instance`,
+  `from_format`, `format`, `start_of`/`end_of`, `add`/`subtract` sont utilisés) ; celery 5.2.7 ->
+  5.6.3 (kombu 5.6, billiard 4.3), redis 3.5.3 -> 8.1.0, flower 1.0 -> 2.2.0, supervisor 4.3.0,
+  uvicorn 0.54.0 (15 tâches Celery toujours découvertes) ; puis `requires-python = ">=3.14"`,
+  `.python-version` 3.14, cibles ruff/black `py314` et mypy `3.14`, verrou re-résolu, `.venv`
+  recréé avec CPython 3.14.3 (Homebrew) sans aucune compilation.
+- **Verrou** : sept transitives sans roue 3.14 relevées à la pièce (`uv lock --upgrade-package`) :
+  cffi 2.1, markupsafe 3.0, brotli 1.2, zopfli 0.4, numpy 2.5, pillow 12.3 ; puis pytz 2026.5,
+  pyparsing 3.3, python-dateutil 2.9.0.post0 et beautifulsoup4 4.15 pour les `DeprecationWarning`
+  à l'import. Sonde utile : installation du verrou exporté dans un venv 3.14 jetable.
+- **Trois incompatibilités Python 3.14 corrigées** :
+  1. djantic 0.7 (non maintenu) lit `namespace["__annotations__"]` dans sa métaclasse ; avec les
+     annotations différées (PEP 649) l'espace de noms porte `__annotate_func__` et les champs
+     déclarés dans les schémas étaient ignorés (dates `created_at` requises, clés étrangères
+     typées `int`). Correctif `apps/core/validations/djantic_compat.py` (matérialise
+     `__annotations__` via `annotationlib`, comme pydantic 1.10 le fait pour lui-même), chargé par
+     `apps/__init__.py` avant tout schéma, y compris ceux des tests.
+  2. `csv.writer(..., quotechar='"', escapechar='"')` refusé (« bad escapechar or quotechar
+     value ») : `escapechar` retiré de la validation (`QUOTE_ALL` + `doublequote`, même sortie).
+  3. Annotation de variable de module `cache: redis.StrictRedis | dict` : plus évaluée à l'import
+     sous 3.14, donc compatible avec le remplacement de `StrictRedis` par les tests ; `codecs.open`
+     (déprécié) -> `Path.open` ; `required` en syntaxe PEP 695 (`def required[T]`).
+- **Retouches de typage** (bs4 4.15, redis 8 typés) : `(span.string or "")`, `mails_essis_dict[i]`,
+  annotation du cache redis avec repli dictionnaire.
+- Résultat : `uv pip check` OK, ruff 0, mypy Success, xenon OK, `scripts/pre_check.py` au vert,
+  `manage.py check` (hors ckeditor.W001) et `check --deploy` inchangés, suite complète 2 966
+  tests à 100 % en 80 s (contre 95 s sous 3.11), aucune dépréciation issue du code heron.
+- **Déploiement** : installer Python 3.14 sur le serveur (uv le télécharge : `uv python install
+  3.14`), `uv sync`, redémarrer les services supervisor / uvicorn / celery / flower, puis
+  contrôler un import EDI et une génération de factures PDF réels (WeasyPrint 64 est inchangé).
+
+---
+
+## D52 — Mise à jour générale des dépendances `[x]`
+
+- **Montées (dernières versions PyPI)** : asgiref 3.12.1, python-decouple 3.8, sqlparse 0.6.0,
+  pandas 3.0.6, xlsxwriter 3.2.9, xlrd 2.0.2, html2text 2025.4.15, google-api-python-client
+  2.201.0, google-auth 2.61.0, google-auth-oauthlib 1.5.0, dkimpy 1.1.8, requests 2.34.2, sqlfluff
+  4.4.0 ; verrou entièrement re-résolu (`uv lock --upgrade`, 65 transitives : urllib3 2.8,
+  certifi 2026.7, werkzeug 3.1, protobuf 7.36, pyjwt 2.15, …). Aucune modification de code.
+- **Conservés, avec motif** : Django 5.2.18 (LTS jusqu'en avril 2028 ; 6.1 n'est pas LTS),
+  pydantic 1.10.26 (djantic exige la v1), WeasyPrint 64.0 (rendu contractuel des factures, à
+  monter seulement avec un contrôle visuel), chardet 4.0.0 (5+ : confiance trop basse sur les
+  petits fichiers, `encoding_detect` retombait sur utf8 à tort), email-validator 1.1.3 (>= 1.2
+  rejette les domaines réservés comme `.local`, utilisés par les fabriques de test ; les
+  2.x les refusent même en mode test).
+- **Cible ruff `py313`** (et non `py314`) : avec la cible 3.14 le formateur écrit `except A, B:`
+  (PEP 758), que radon / xenon ne savent pas analyser (17 fichiers silencieusement exclus de la
+  mesure de complexité) ; 19 `except` re-parenthésés.
+- Résultat : `uv pip check` OK, ruff 0, mypy Success, xenon OK (tous les fichiers analysés),
+  `scripts/pre_check.py` au vert, `manage.py check` / `check --deploy` inchangés, suite complète
+  2 966 tests à 100 %.
+
+---
+
+## D53 — `check --deploy` propre : avertissements HTTPS silencés, CKEditor remplacé par TinyMCE `[x]`
+
+- **security.W004/W008/W012/W016** silencés dans `production.py` (`SILENCED_SYSTEM_CHECKS`), avec
+  le motif déjà documenté : HSTS, redirection SSL et cookies secure sont absents tant que
+  l'application est servie en http sur le réseau interne ; à retirer au passage en https (avec
+  `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, `SECURE_SSL_REDIRECT`, `SECURE_HSTS_SECONDS`,
+  `CSRF_TRUSTED_ORIGINS`, `SECURE_PROXY_SSL_HEADER`). `security.W018` n'apparaît qu'en local
+  (DEBUG, réglages choisis par nom de machine).
+- **ckeditor.W001** : django-ckeditor (CKEditor 4.22, fin de vie, failles non corrigées) remplacé
+  par django-tinymce 5.0.0 (TinyMCE 7.8). Aucun modèle n'utilisait `RichTextField` : seuls trois
+  widgets de formulaire (`legal_notice`, `footer`, `message` des centrales / enseignes,
+  `email_body` des e-mails types) et les scripts chargés par les templates. `TINYMCE_DEFAULT_CONFIG`
+  reproduit l'ancienne barre : `"toolbar": "basic"` (minuscules) était un nom inconnu de
+  CKEditor 4 (sensible à la casse), qui retombait donc sur la barre complète du build « full ».
+  Équivalents TinyMCE 7 open source (code source, aperçu, recherche, styles de base, listes,
+  alignements, sens d'écriture, liens/ancres, image par URL, tableau, émoticônes, caractères
+  spéciaux, saut de page, polices/tailles, couleurs, plein écran, blocs, aide ; sans équivalent
+  libre : export PDF, modèles, formulaires, correcteur SCAYT, copier le formatage). Hauteur 170
+  (demande utilisateur : moitié de l'ancienne), largeur 100 % du champ, `toolbar_mode` « sliding »,
+  interface en français, `license_key = "gpl"`. `{{ form.media }}` est chargé dans le bloc `head_js` des pages
+  `enseigne_update.html`, `fille_update.html` et `email_update.html` (celles qui étendent
+  `base_semantic.html`) ; plus de script d'éditeur global. Piège rencontré : les fragments
+  `*_update_table.html` sont inclus, pas étendus, leurs blocs `head_js` n'étaient jamais rendus
+  (CKEditor ne fonctionnait que grâce au script global) : blocs morts retirés. Vérifié dans
+  Chromium sans tête (Playwright, environnement jetable) sur le serveur local : barre d'outils
+  présente, HTML existant rendu, aucune erreur console. Le contenu HTML stocké est inchangé,
+  le POST des formulaires aussi (même `name` de textarea).
+- **Licence** : TinyMCE 7 est sous GPL 2+ (comme CKEditor 5) ; TinyMCE 6.8 (MIT) reste accessible
+  via django-tinymce 3.7.1 si cette contrainte doit être évitée. Usage interne, non distribué.
+- **Déploiement** : `uv sync` (retire django-ckeditor et django-js-asset), `collectstatic`
+  (ajoute `static/tinymce/`) ; les anciens répertoires `files/static/ckeditor*` peuvent être
+  supprimés sur le serveur. `requirements.txt` à la racine (ancien gel pip de 250 lignes, pré-uv,
+  lu par aucun script) supprimé le 2026-10-12 : `pyproject.toml` et `uv.lock` font foi.
+- Résultat : `manage.py check` et `check --deploy` (production simulée) sans aucun
+  avertissement, ruff 0, mypy Success, suite complète 2 966 tests à 100 %.
+
+---
+
 ## Suivi
 
 | Directive | État | Date | Commentaire |
@@ -1295,7 +1507,7 @@ Petites corrections à passer app par app, en même temps que D0 :
 | D3 | x | 2026-10-11 | compta 88 + invoices 327 + validation_purchases 202 tests ; projet 1 604, 100 % (après retrait fpdf2/playwright) |
 | D4 | | | |
 | D5 | x | 2026-10-11 | 51 appels remplacés, garde-fou en test |
-| D6 | | | |
+| D6 Django 4.2 | x | 2026-10-12 | django 4.2.30 + apps tierces à jour, index_together -> indexes (2 migrations), pendulum/DateField, axes 8 ; check --deploy 0 erreur ; projet 2 962 tests, 100 % |
 | D7 | x | 2026-10-11 | 31 modules, fixture heron_settings supprimée ; lint des tests propre |
 | D8 | x | 2026-10-11 | 132 print -> loggers, 108 except nus ciblés |
 | D9 | x | 2026-10-11 | générique multi-feuilles ; 62/62 exports migrés, 2 doublons supprimés |
@@ -1336,3 +1548,9 @@ Petites corrections à passer app par app, en même temps que D0 :
 | D45 dépendances | x | 2026-10-12 | django-celery-results 2.6.0 (4 migrations à passer en production), django-dynamic-preferences 1.16.0 (dépréciation filtrée) ; projet 2 962 tests, 100 %, 0 avertissement |
 | D46 Sonar S5779 | x | 2026-10-12 | plus aucun assert en production (paramètre creds, boucle while, creds local, _ensure_service renvoie le service) ; projet 2 962 tests, 100 % |
 | D47 Sonar gabarits PDF | x | 2026-10-12 | role="presentation" annulé (62 alertes S5257/S6819) ; gabarits pdf_*.html à exclure de l'analyse (IDE ou serveur), HTML inchangé |
+| D48 Django 5.2 | x | 2026-10-12 | django 5.2.18, DRF 3.18.3, filter 26.2, eventstream 5.3.4, debug-toolbar 8 ; condition=, order_by=, tri pays explicite ; plugin mypy essayé (603 erreurs, différé) ; projet 2 962 tests, 100 % |
+| D49 plugin mypy Django | x | 2026-10-12 | django-stubs actif (heron.settings), 603 -> 0 erreurs, aides required/current_user, lookups to_field en jointure ; projet 2 966 tests, 100 % |
+| D50 Python 3.14 lot 1 | x | 2026-10-12 | psycopg2 2.9.13, pyyaml 6.0.3, calamine 0.8.3, pydantic 1.10.26, lxml 6.1.3, pandas 2.3.3 sous 3.11 ; projet 2 966 tests, 100 % |
+| D51 Python 3.14 lot 2 | x | 2026-10-12 | pendulum 3.2, celery 5.6, redis 8, Python 3.14.3 ; correctif djantic (annotations différées), csv escapechar ; projet 2 966 tests, 100 % |
+| D52 dépendances à jour | x | 2026-10-12 | 13 directes + 65 transitives relevées (pandas 3, requests 2.34, sqlfluff 4) ; Django 5.2, pydantic 1, WeasyPrint 64, chardet 4, email-validator 1.1 conservés ; ruff py313 (radon) ; projet 2 966 tests, 100 % |
+| D53 check --deploy propre | x | 2026-10-12 | avertissements HTTPS silencés (http interne), django-ckeditor -> django-tinymce 5 (TinyMCE 7, GPL) ; 0 avertissement ; projet 2 966 tests, 100 % |

@@ -48,8 +48,8 @@ class EssaisZImport:
         return {"col_int"}
 
 
-EssaisZ.get_columns_import = EssaisZImport.get_columns_import
-EssaisZ.get_uniques = EssaisZImport.get_uniques
+EssaisZ.get_columns_import = EssaisZImport.get_columns_import  # type: ignore[attr-defined]
+EssaisZ.get_uniques = EssaisZImport.get_uniques  # type: ignore[attr-defined]
 
 
 def _file(tmp_path, rows, name="essais.csv"):

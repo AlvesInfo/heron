@@ -20,6 +20,7 @@ from apps.articles.imports import articles_update_account
 from apps.articles.models import ArticleAccount
 from apps.articles.parameters.querysets import articles_with_account_queryset
 from apps.core.bin.change_traces import ACTION_DICT, ChangeTraceMixin, get_difference_dict
+from apps.core.bin.typing_helpers import current_user
 from apps.core.functions.functions_http import get_pagination_buttons
 from apps.core.functions.functions_http_response import CONTENT_TYPE_EXCEL, response_file
 from apps.core.models import ChangesTrace
@@ -144,9 +145,9 @@ class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
             "sale_account": cleaned_data.get("sale_account"),
         }
         mirror = ArticleAccount.objects.filter(
-            article=self.object.article_id,
-            vat=self.object.vat_id,
-            child_center=CHILD_CENTER_MIRROR,
+            article__uuid_identification=self.object.article_id,
+            vat__vat=self.object.vat_id,
+            child_center__code=CHILD_CENTER_MIRROR,
         ).first()
 
         if mirror is None:
@@ -177,14 +178,14 @@ class ArticleAccountUpdate(ChangeTraceMixin, SuccessMessageMixin, UpdateView):
 
         ChangesTrace.objects.create(
             action_datetime=timezone.now(),
-            action_type=ACTION_DICT.get(action_type),
-            function_name=self.__class__,
-            action_by=self.request.user,
+            action_type=ACTION_DICT[action_type],
+            function_name=str(self.__class__),
+            action_by=current_user(self.request),
             before=before,
             after=after,
             difference=get_difference_dict(before, after),
             model_name=ArticleAccount._meta.model_name,
-            model=ArticleAccount._meta.model,
+            model=str(ArticleAccount._meta.model),
             db_table=ArticleAccount._meta.db_table,
         )
 
@@ -220,7 +221,7 @@ def articles_account_supplier_export(request):
 
     try:
         if request.method == "POST" and form.is_valid():
-            third_party_num = form.cleaned_data.get("third_party_num").third_party_num
+            third_party_num = form.cleaned_data["third_party_num"].third_party_num
             today = pendulum.now()
             file_name = (
                 f"LISTING_DES_ARTICLES_COMPTES_{third_party_num}_"

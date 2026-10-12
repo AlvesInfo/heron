@@ -20,6 +20,7 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 
+from apps.core.bin.typing_helpers import required
 from apps.invoices.models import SaleInvoice
 from apps.invoices.sql_files.sq_royalties import SQL_HEADER, SQL_RESUME_HEADER
 
@@ -51,7 +52,9 @@ def invoice_royalties_pdf(uuid_invoice: UUID, pdf_path: Path) -> None:
             "headers": headers,
             "resume": resume,
             "domain": settings.PDF_STATIC_DOMAIN,
-            "logo": str(invoices[0].signboard.logo_signboard).replace("logos/", ""),
+            "logo": str(required(invoices[0].signboard, "enseigne").logo_signboard).replace(
+                "logos/", ""
+            ),
         }
         content = render_to_string("invoices/pdf_royalties.html", context)
         font_config = FontConfiguration()

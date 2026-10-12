@@ -129,7 +129,7 @@ class ArticleCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
     success_message = "L'Article %(reference)s a été créé avec success"
     error_message = "L'Article %(reference)s n'a pu être créé, une erreur c'est produite"
 
-    def get(self, _request, *_args, **_kwargs):
+    def get(self, request, *args, **kwargs):  # noqa: ARG002 (signature Django)
         """Handle GET requests: instantiate a blank version of the form."""
         self.third_party_num = self.kwargs.get("third_party_num", "")
         self.category = self.kwargs.get("category", "")
@@ -319,7 +319,7 @@ def articles_search_list(request):
     """Affichage de la page de recherche des articles."""
     limit = 50
     queryset = (
-        Article.objects.annotate(
+        Article.objects.annotate(  # type: ignore[no-redef]  # alias « pk » attendu par l'API
             big_category_n=F("big_category__name"),
             sub_category_n=F("sub_category__name"),
             pk=F("id"),
@@ -431,7 +431,7 @@ class ArticleAccountCreate(ChangeTraceMixin, SuccessMessageMixin, CreateView):
         "Le compte par taux de tva %(article)s n'a pu être créé, une erreur c'est produite"
     )
 
-    def get(self, _request, *_args, **kwargs):
+    def get(self, request, *args, **kwargs):  # noqa: ARG002 (signature Django)
         """Ajout de self.article a l'instance de la vue (404 si l'article n'existe pas)."""
         self.article = get_object_or_404(Article, pk=kwargs.get("article_pk"))
         return self.render_to_response(self.get_context_data())

@@ -95,7 +95,7 @@ def test_section_sage_str_get_import_et_meta(make_section):
     assert section.active is True
     assert meta.ordering == ["section"]
     assert meta.unique_together == (("axe", "section"),)
-    assert ["axe", "section"] in [list(fields) for fields in meta.index_together]
+    assert ["axe", "section"] in [list(index.fields) for index in meta.indexes]
 
 
 def test_section_sage_managers():

@@ -33,7 +33,7 @@ def period_select_exchange(request):
 
     try:
         if request.method == "POST" and form.is_valid():
-            dte_d, _ = form.cleaned_data.get("periode").split("_")
+            dte_d, _ = form.cleaned_data["periode"].split("_")
             set_base_exchange_rate(month=dte_d)
             return redirect(reverse("parameters:exchanges_list", kwargs={"month": dte_d}))
 

@@ -31,7 +31,7 @@ and "uuid_identification" = %(uuid_identification)s
 """
 )
 
-post_all_dict = {
+post_all_dict: dict[str, sql.Composable] = {
     "sql_in_use_third_party_num": sql.SQL(
         """
         with alls as (

@@ -15,6 +15,7 @@ from django.db import models
 
 from apps.accountancy.models import SectionSage
 from apps.centers_clients.models import Maison
+from apps.core.bin.typing_helpers import required
 from heron.models import FlagsTable
 
 
@@ -127,13 +128,16 @@ class VentesCosium(models.Model):
                     "prescripteurs",
                     "id_bi",
                 ]
-            )
-        ]
-        index_together = [
-            ["code_ean", "date_vente"],
-            ["code_maison", "date_vente"],
-            ["id_bi", "code_maison", "date_vente"],
-            ["code_ean", "code_maison", "date_vente"],
+            ),
+            models.Index(fields=["code_ean", "date_vente"], name="compta_vc_ean_date_idx"),
+            models.Index(fields=["code_maison", "date_vente"], name="compta_vc_maison_date_idx"),
+            models.Index(
+                fields=["id_bi", "code_maison", "date_vente"], name="compta_vc_bi_maison_date_idx"
+            ),
+            models.Index(
+                fields=["code_ean", "code_maison", "date_vente"],
+                name="compta_vc_ean_maison_date_idx",
+            ),
         ]
         unique_together = (("code_cosium", "id_bi"),)
 
@@ -171,8 +175,8 @@ class CaClients(FlagsTable):
         """Texte renvoyé dans les selects et à l'affichage de l'objet."""
         return (
             f"{self.date_ca.isoformat()} - "
-            f"{self.cct_uuid_identification.cct} - "
-            f"{self.axe_pro.section}"
+            f"{required(self.cct_uuid_identification, 'maison').cct} - "
+            f"{required(self.axe_pro, 'axe pro').section}"
         )
 
     class Meta:
@@ -187,9 +191,10 @@ class CaClients(FlagsTable):
                     "famille_cosium",
                     "axe_pro",
                 ]
-            )
-        ]
-        index_together = [
-            ["date_ca", "cct_uuid_identification", "axe_pro"],
+            ),
+            models.Index(
+                fields=["date_ca", "cct_uuid_identification", "axe_pro"],
+                name="compta_ca_date_cct_axe_idx",
+            ),
         ]
         unique_together = (("date_ca", "cct_uuid_identification", "axe_pro"),)

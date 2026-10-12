@@ -70,7 +70,7 @@ def launch_celery_send_invoice_mails_gmail(
     if cct and period:
         cct_invoices_list = (
             SaleInvoice.objects.filter(
-                cct=cct,
+                cct__cct=cct,
                 invoice_month=period,
                 printed=True,
                 type_x3__in=(1, 2),

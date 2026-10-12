@@ -80,7 +80,7 @@ class TraceTemplate:
         self.trace = Trace.objects.create(
             created_at=timezone.now(),
             uuid_identification=self.trace_number,
-            trace_name=self.params_dict.get("trace_name"),
+            trace_name=self.params_dict["trace_name"],
             file_name=self.params_dict.get("file_name"),
             application_name=self.params_dict.get("application_name"),
             flow_name=self.params_dict.get("flow_name"),
@@ -504,7 +504,6 @@ class ValidationTemplate:
             quotechar='"',
             lineterminator="\n",
             quoting=csv.QUOTE_ALL,
-            escapechar='"',
         )
         try:
             for num_line, data_dict in enumerate(chain([self.first_element], self.dict_flow), 1):

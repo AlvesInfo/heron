@@ -142,8 +142,8 @@ class AccountSage(FlagsTable):
         """class Meta du modèle django."""
 
         ordering = ["code_plan_sage", "account"]
-        index_together = [
-            ["code_plan_sage", "account"],
+        indexes = [
+            models.Index(fields=["code_plan_sage", "account"], name="acc_accountsage_plan_acc_idx"),
         ]
         unique_together = (("code_plan_sage", "account"),)
 
@@ -728,8 +728,8 @@ class TabDivSage(FlagsTable):
         """class Meta du modèle django."""
 
         ordering = ["code"]
-        index_together = [
-            ["num_table", "code"],
+        indexes = [
+            models.Index(fields=["num_table", "code"], name="acc_tabdivsage_table_code_idx"),
         ]
         unique_together = (("num_table", "code"),)
 
