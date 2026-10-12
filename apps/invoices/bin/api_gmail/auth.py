@@ -55,8 +55,11 @@ class GmailAuthenticator:
             LOGGER_EMAIL.exception("Erreur lors du rafraîchissement du token")
             self.creds = None
 
-    def _run_oauth_flow(self, credentials_file: Path) -> None:
-        """Lance le flow d'authentification OAuth2 à partir du fichier credentials.json."""
+    def _run_oauth_flow(self, credentials_file: Path) -> Credentials:
+        """Lance le flow d'authentification OAuth2 à partir du fichier credentials.json.
+
+        :return: les credentials obtenus (aussi conservés dans `self.creds`).
+        """
         # Crée le fichier credentials.json depuis la configuration YAML si nécessaire
         self._create_credentials_file_if_needed(credentials_file)
 
@@ -80,6 +83,8 @@ class GmailAuthenticator:
             LOGGER_EMAIL.exception("Erreur lors de l'authentification OAuth2")
             raise
 
+        return self.creds
+
     def _save_token(self, token_file: Path) -> None:
         """Sauvegarde le token pour la prochaine fois (un échec est seulement journalisé)."""
         try:
@@ -99,20 +104,18 @@ class GmailAuthenticator:
 
         # Tente de charger le token existant
         self._load_token(token_file)
+        creds = self.creds
 
         # Si pas de credentials valides, on en crée de nouveaux
-        if not self.creds or not self.creds.valid:
-            if self.creds and self.creds.expired and self.creds.refresh_token:
-                self._refresh_token(self.creds)
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                self._refresh_token(creds)
 
-            # Si toujours pas de credentials, lance le flow OAuth2
-            if not self.creds:
-                self._run_oauth_flow(credentials_file)
-
+            # Si toujours pas de credentials (absents ou rafraîchissement en échec), flow OAuth2
+            creds = self.creds or self._run_oauth_flow(credentials_file)
             self._save_token(token_file)
 
-        assert self.creds is not None  # noqa: S101 (rétrécissement de type pour mypy)
-        return self.creds
+        return creds
 
     def _create_credentials_file_if_needed(self, credentials_file: Path):
         """Crée le fichier credentials.json depuis la configuration YAML si nécessaire.

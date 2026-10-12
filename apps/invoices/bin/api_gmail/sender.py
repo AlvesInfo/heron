@@ -20,6 +20,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
+from typing import Any
 
 from bs4 import BeautifulSoup
 from django.utils.functional import SimpleLazyObject
@@ -72,14 +73,16 @@ class GmailSender:
     def __init__(self):
         """Initialise le sender."""
         self.config = config
-        self.service = None
+        self.service: Any = None
         self.rate_limiter = RateLimiter(max_per_second=self.config.max_per_second)
         self._ensure_service()
 
-    def _ensure_service(self):
-        """S'assure que le service Gmail est initialisé."""
+    def _ensure_service(self) -> Any:
+        """S'assure que le service Gmail est initialisé et le renvoie."""
         if self.service is None:
             self.service = authenticator.get_gmail_service()
+
+        return self.service
 
     def _reset_service(self):
         """Réinitialise le service Gmail (connexion SSL cassée, etc.)."""
@@ -169,8 +172,8 @@ class GmailSender:
         self.rate_limiter.wait_if_needed()
 
         # Envoie le message
-        assert self.service is not None, "service Gmail non initialisé"  # noqa: S101 (rétrécissement de type pour mypy)
-        result = self.service.users().messages().send(userId="me", body=message).execute()
+        service = self._ensure_service()
+        result = service.users().messages().send(userId="me", body=message).execute()
 
         message_id = result.get("id")
         LOGGER_EMAIL.info(

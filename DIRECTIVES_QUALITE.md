@@ -1262,6 +1262,25 @@ Petites corrections à passer app par app, en même temps que D0 :
 - `GmailAuthenticator._refresh_token` reçoit les credentials en paramètre (l'appelant les a déjà
   contrôlés), `rfa_generation_launch` interroge l'action puis boucle tant qu'elle est en cours :
   les deux `assert` de rétrécissement de type disparaissent sans branche supplémentaire.
+- Les deux autres `assert` (hors `try`) sont retirés aussi : `get_credentials` travaille sur une
+  variable locale `creds` (`_run_oauth_flow` renvoie les credentials), `_send_once` obtient le
+  service par `_ensure_service()` qui le renvoie désormais. Plus aucun `assert` dans le code de
+  production, `S101` n'a plus de `noqa`.
+
+---
+
+## D47 — Sonar Web:S5256 / S5257 / S6819 : gabarits PDF WeasyPrint hors analyse `[x]`
+
+- Essai `role="presentation"` sur les 31 `<table>` des gabarits `invoices/pdf_*.html` : S5256 se
+  tait mais S5257 (« remplacer la table de mise en page par du CSS ») et S6819 se déclenchent sur
+  chaque table (62 alertes) ; essai annulé, HTML d'origine rétabli à l'identique.
+- Les trois règles ne peuvent être satisfaites qu'en changeant le balisage (`<th>`, mise en page
+  CSS), ce qui modifie le rendu WeasyPrint des factures : décision de ne pas toucher aux gabarits.
+- **Décision** : ces gabarits ne sont jamais servis au navigateur, ils sortent de l'analyse web.
+  `sonar-project.properties` porte déjà `sonar.exclusions=**/templates/invoices/pdf_*.html` ;
+  à reporter dans l'outil qui analyse réellement : SonarQube for IDE (PyCharm, Settings ->
+  Tools -> SonarQube for IDE -> File Exclusions, motif `**/templates/invoices/pdf_*.html`) en
+  mode autonome, ou la portée d'analyse du projet côté serveur en mode connecté.
 
 ---
 
@@ -1315,4 +1334,5 @@ Petites corrections à passer app par app, en même temps que D0 :
 | D43 ruff lot 8 | x | 2026-10-12 | `ruff check --fix apps heron conftest.py scripts` à 0 alerte (254 traitées : refactorings invoices_insertion / vues compta, psycopg2.sql, ignores tests justifiés) ; projet 2 962 tests, 100 % |
 | D44 Sonar JS | x | 2026-10-12 | generateToken hors du ready, crypto.getRandomValues (S7721/S2245) dans les deux templates Sage |
 | D45 dépendances | x | 2026-10-12 | django-celery-results 2.6.0 (4 migrations à passer en production), django-dynamic-preferences 1.16.0 (dépréciation filtrée) ; projet 2 962 tests, 100 %, 0 avertissement |
-| D46 Sonar S5779 | x | 2026-10-12 | assert retirés de _refresh_token et rfa_generation_launch (paramètre / boucle while) ; projet 2 962 tests, 100 % |
+| D46 Sonar S5779 | x | 2026-10-12 | plus aucun assert en production (paramètre creds, boucle while, creds local, _ensure_service renvoie le service) ; projet 2 962 tests, 100 % |
+| D47 Sonar gabarits PDF | x | 2026-10-12 | role="presentation" annulé (62 alertes S5257/S6819) ; gabarits pdf_*.html à exclure de l'analyse (IDE ou serveur), HTML inchangé |
