@@ -29,8 +29,9 @@ from apps.core.bin.get_sage_elements import (
 )
 from apps.core.functions.functions_dates import validate_date
 from apps.core.functions.functions_setups import settings
+from apps.core.functions.functions_utilitaires import encoding_detect
 from apps.data_flux.postgres_save import get_random_name
-from apps.data_flux.utilities import encoding_detect, excel_file_to_csv_string_io
+from apps.data_flux.utilities import excel_file_to_csv_string_io
 from apps.edi.models import SupplierDefinition
 from heron.loggers import LOGGER_EDI
 

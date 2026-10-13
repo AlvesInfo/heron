@@ -17,6 +17,7 @@ from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 
+from apps.core.functions.functions_utilitaires import encoding_detect
 from apps.data_flux.exceptions import (
     OptoDateError,
     OptoIdError,
@@ -26,7 +27,6 @@ from apps.data_flux.exceptions import (
     PathFileError,
     PathTypeError,
 )
-from apps.data_flux.utilities import encoding_detect
 
 INVOICE_DICT = {
     "supplier": "",

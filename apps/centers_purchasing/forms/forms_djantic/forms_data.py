@@ -14,9 +14,11 @@ modified by: Paulo ALVES
 import uuid
 
 from djantic import ModelSchema
+from pydantic import Field
 
 from apps.centers_purchasing.models import AccountsAxeProCategory
-from apps.core.validations.pydantic_validators_base import ValidateFieldsBase, validator
+from apps.core.validations.djantic_compat import schema_config
+from apps.core.validations.pydantic_validators_base import ValidateFieldsBase, field_validator
 
 
 class AxeProAccountSchema(
@@ -27,14 +29,16 @@ class AxeProAccountSchema(
 
     child_center: str
     big_category: uuid.UUID
-    sub_category: uuid.UUID | str | None
+    # union_mode : pydantic 2 garderait le texte, l'UUID doit être tenté en premier (pydantic 1)
+    sub_category: uuid.UUID | str | None = Field(default=None, union_mode="left_to_right")
     axe_pro: uuid.UUID
     vat: str
     purchase_account: uuid.UUID
     sale_account: uuid.UUID
     uuid_identification: uuid.UUID
 
-    @validator("sub_category")
+    @field_validator("sub_category")
+    @classmethod
     def prevent_none(cls, value):
         """Validateur pour le champ sub_category optionnel."""
         if value == "":
@@ -42,13 +46,12 @@ class AxeProAccountSchema(
 
         return value
 
-    class Config:
-        """Config."""
-
-        model = AccountsAxeProCategory
-        include = [
+    model_config = schema_config(
+        AccountsAxeProCategory,
+        include=[
             *AccountsAxeProCategory.get_columns_import(),
             "uuid_identification",
             "created_at",
             "modified_at",
-        ]
+        ],
+    )

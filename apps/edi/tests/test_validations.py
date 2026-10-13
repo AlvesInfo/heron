@@ -58,6 +58,6 @@ def test_edi_form_fields_and_cleaning():
 def test_edi_import_schema_covers_model_fields():
     schema = validation_by_pydantic.EdiImportSchema
 
-    assert schema.__config__.model is EdiImport
+    assert schema.model_config["model"] is EdiImport
     assert "invoice_number" in schema.__fields__
     assert "uuid_identification" in schema.__fields__

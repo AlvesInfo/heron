@@ -13,10 +13,32 @@ modified by: Paulo ALVES
 
 import datetime
 from decimal import Decimal
+from types import UnionType
+from typing import Annotated, Any, Union, get_args, get_origin
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, ValidationInfo, field_validator
 
 from apps.core.functions.functions_utilitaires import get_decimal, get_zero_decimal
+
+__all__ = [
+    "DATE_FORMATS",
+    "DecimalFieldBase",
+    "ExcelDateFieldsBase",
+    "NullZeroDecimalFieldBase",
+    "SageDateFieldsBase",
+    "SageDefaultDateFieldsBase",
+    "SageNullBooleanFieldsBase",
+    "SageNullFalseBooleanFieldsBase",
+    "SageTruncateStrFieldsBase",
+    "TruncateStrFieldsBase",
+    "TvaEyeConfor",
+    "TvaGenerique",
+    "TvaInterson",
+    "TvaNewson",
+    "TvaWidex",
+    "ValidateFieldsBase",
+    "field_validator",
+]
 
 # VALIDATEUR GENERIQUE REPRENANT ===================================================================
 # TruncateStrFieldsBase
@@ -37,7 +59,71 @@ def _truncated(value, max_length: int):
     return str(value).split("~~", maxsplit=1)[0].strip()[:max_length]
 
 
-class ValidateFieldsBase(BaseModel):
+def _inner_type(annotation: Any) -> tuple[Any, list[Any]]:
+    """Type interne d'une annotation, `X | None` et `Annotated` retirés.
+
+    :param annotation: annotation du champ pydantic
+    :return: (type interne, métadonnées des `Annotated` traversés)
+    """
+    metadata: list[Any] = []
+    inner = annotation
+
+    while True:
+        origin = get_origin(inner)
+
+        if origin is Annotated:
+            metadata.extend(inner.__metadata__)
+            inner = get_args(inner)[0]
+
+        elif origin in {Union, UnionType}:
+            not_none = [arg for arg in get_args(inner) if arg is not type(None)]
+
+            if len(not_none) != 1:
+                return inner, metadata
+
+            inner = not_none[0]
+
+        else:
+            return inner, metadata
+
+
+def field_type(cls: type[BaseModel], info: ValidationInfo) -> tuple[Any, int | None]:
+    """Type interne et longueur maximale du champ en cours de validation.
+
+    Équivalent de `field.type_` / `field.type_.max_length` de pydantic 1 : les contraintes
+    de longueur viennent des métadonnées du champ (djantic2, `Field(max_length=)`) ou d'un
+    `constr(max_length=)` dans l'annotation.
+
+    :param cls: classe du schéma
+    :param info: contexte de validation pydantic
+    :return: (type interne, max_length ou None)
+    """
+    field = cls.model_fields[str(info.field_name)]
+    inner, metadata = _inner_type(field.annotation)
+    max_length = next(
+        (
+            meta.max_length
+            for meta in [*field.metadata, *metadata]
+            if getattr(meta, "max_length", None) is not None
+        ),
+        None,
+    )
+
+    return inner, max_length
+
+
+def _is_date(inner: Any) -> bool:
+    """Le type interne est une date ou un datetime."""
+    return isinstance(inner, type) and issubclass(inner, datetime.date)
+
+
+class FieldsBase(BaseModel):
+    """Socle des validateurs « * » : les valeurs par défaut sont validées (always=True de pydantic 1)."""
+
+    model_config = ConfigDict(validate_default=True)
+
+
+class ValidateFieldsBase(FieldsBase):
     """Validation de base des champs.
 
     Pré tronque le texte à la valeur du max_length
@@ -46,47 +132,34 @@ class ValidateFieldsBase(BaseModel):
     pré valide les dates python.
     """
 
-    @validator("*", pre=True, always=True)
-    def truncate(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def truncate(cls, value, info: ValidationInfo):
         """Tronque les chaînes à la longueur maximale du champ."""
-        if hasattr(field.type_, "max_length"):
-            value = _truncated(value, field.type_.max_length)
+        _, max_length = field_type(cls, info)
+
+        if max_length is not None:
+            value = _truncated(value, max_length)
 
         return value
 
-    @validator("*", pre=True, always=True)
-    def fiels_decimal(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def fiels_decimal(cls, value, info: ValidationInfo):
         """Convertit les champs décimaux, zéro si vide."""
-        if str(field.type_) == "<class 'decimal.Decimal'>":
+        if field_type(cls, info)[0] is Decimal:
             return get_decimal(get_zero_decimal(value))
 
         return value
 
-    """
-    @validator('acuitis_order_date', pre=True)
-    def check_acuitis_order_date(cls, value):
-
-        if not value or value == "None":
-            return datetime.datetime(1900, 1, 1)
-
-        return value
-
-    @validator('delivery_date', pre=True)
-    def check_delivery_date(cls, value):
-
-        if not value or value == "None":
-            return datetime.datetime(1900, 1, 1)
-
-        return value
-    """
-
-    @validator("*", pre=True, always=True)
-    def input_format_date(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def input_format_date(cls, value, info: ValidationInfo):
         """Convertit un texte en datetime pour les champs date, au premier format qui convient.
 
         La valeur est rendue telle quelle si aucun format ne correspond.
         """
-        if not hasattr(field.type_, "day") or not isinstance(value, (str,)):
+        if not _is_date(field_type(cls, info)[0]) or not isinstance(value, str):
             return value
 
         value = str(value).strip()
@@ -103,29 +176,35 @@ class ValidateFieldsBase(BaseModel):
 # GESTION DE TEXTE =================================================================================
 
 
-class TruncateStrFieldsBase(BaseModel):
+class TruncateStrFieldsBase(FieldsBase):
     """Validation qui pré tronque le texte à la valeur du max_length."""
 
-    @validator("*", pre=True, always=True)
-    def truncate_str(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def truncate_str(cls, value, info: ValidationInfo):
         """Tronque les chaînes à la longueur maximale du champ."""
-        if hasattr(field.type_, "max_length"):
-            value = _truncated(value, field.type_.max_length)
+        _, max_length = field_type(cls, info)
+
+        if max_length is not None:
+            value = _truncated(value, max_length)
 
         return value
 
 
-class SageTruncateStrFieldsBase(BaseModel):
+class SageTruncateStrFieldsBase(FieldsBase):
     """Validation qui pré supprime les imports Sage avec des tildes "~".
 
     et tronque le texte à la valeur du max_length.
     """
 
-    @validator("*", pre=True, always=True)
-    def sage_truncate_str(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def sage_truncate_str(cls, value, info: ValidationInfo):
         """Tronque les chaînes Sage à la longueur maximale du champ."""
-        if hasattr(field.type_, "max_length"):
-            value = _truncated(value, field.type_.max_length)
+        _, max_length = field_type(cls, info)
+
+        if max_length is not None:
+            value = _truncated(value, max_length)
 
         return value
 
@@ -133,13 +212,14 @@ class SageTruncateStrFieldsBase(BaseModel):
 # GESTION DE BOOLEEN ===============================================================================
 
 
-class SageNullBooleanFieldsBase(BaseModel):
+class SageNullBooleanFieldsBase(FieldsBase):
     """Validation qui pré valide les booléens Sage et qui peuvent être null=True Dajngo."""
 
-    @validator("*", pre=True, always=True)
-    def sage_null_boolean(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def sage_null_boolean(cls, value, info: ValidationInfo):
         """Convertit les booléens Sage, None si la valeur est indéterminée."""
-        if str(field.type_) == "<class 'bool'>":
+        if field_type(cls, info)[0] is bool:
             str_value = str(value).lower()
 
             if str_value in {"2.0", "2", "on", "t", "true", "y", "o", "yes", "oui", "vrai"}:
@@ -153,13 +233,14 @@ class SageNullBooleanFieldsBase(BaseModel):
         return value
 
 
-class SageNullFalseBooleanFieldsBase(BaseModel):
+class SageNullFalseBooleanFieldsBase(FieldsBase):
     """Validation qui pré valide les booléens Sage et qui peuvent être null=True Dajngo."""
 
-    @validator("*", pre=True, always=True)
-    def sage_null_false_boolean(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def sage_null_false_boolean(cls, value, info: ValidationInfo):
         """Convertit les booléens Sage, False si la valeur est indéterminée."""
-        if str(field.type_) == "<class 'bool'>":
+        if field_type(cls, info)[0] is bool:
             str_value = str(value).lower()
 
             return str_value in {"2.0", "2", "on", "t", "true", "y", "o", "yes", "oui", "vrai"}
@@ -170,25 +251,27 @@ class SageNullFalseBooleanFieldsBase(BaseModel):
 # GESTION DE CHIFFRE ===============================================================================
 
 
-class DecimalFieldBase(BaseModel):
+class DecimalFieldBase(FieldsBase):
     """Validation qui pré valide les Decimal python."""
 
-    @validator("*", pre=True, always=True)
-    def fiels_decimal_base(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def fiels_decimal_base(cls, value, info: ValidationInfo):
         """Convertit les champs décimaux sans valeur par défaut."""
-        if str(field.type_) == "<class 'decimal.Decimal'>":
+        if field_type(cls, info)[0] is Decimal:
             return get_decimal(value)
 
         return value
 
 
-class NullZeroDecimalFieldBase(BaseModel):
+class NullZeroDecimalFieldBase(FieldsBase):
     """Validation qui pré valide les Decimal python, pour avoir zéro, par defaut."""
 
-    @validator("*", pre=True, always=True)
-    def null_zero_decimal(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def null_zero_decimal(cls, value, info: ValidationInfo):
         """Convertit les champs décimaux, zéro si vide."""
-        if str(field.type_) == "<class 'decimal.Decimal'>":
+        if field_type(cls, info)[0] is Decimal:
             return get_zero_decimal(value)
 
         return value
@@ -197,13 +280,14 @@ class NullZeroDecimalFieldBase(BaseModel):
 # GESTION DE DATE ==================================================================================
 
 
-class SageDateFieldsBase(BaseModel):
+class SageDateFieldsBase(FieldsBase):
     """Validation qui pré valide les DateField Django, et qui arrive au format sage ddmmyy."""
 
-    @validator("*", pre=True, always=True)
-    def sage_date(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def sage_date(cls, value, info: ValidationInfo):
         """Convertit les dates Sage, None si vide."""
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
+        if _is_date(field_type(cls, info)[0]) and isinstance(value, str):
             value = str(value).strip()
 
             if not value:
@@ -214,13 +298,14 @@ class SageDateFieldsBase(BaseModel):
         return value
 
 
-class ExcelDateFieldsBase(BaseModel):
+class ExcelDateFieldsBase(FieldsBase):
     """Validation qui pré valide les DateField Django, et qui arrive au format sage ddmmyyyy."""
 
-    @validator("*", pre=True, always=True)
-    def sage_date(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def sage_date(cls, value, info: ValidationInfo):
         """Convertit les dates Excel, None si vide."""
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
+        if _is_date(field_type(cls, info)[0]) and isinstance(value, str):
             value = str(value).strip()
 
             if not value:
@@ -231,13 +316,14 @@ class ExcelDateFieldsBase(BaseModel):
         return value
 
 
-class SageDefaultDateFieldsBase(BaseModel):
+class SageDefaultDateFieldsBase(FieldsBase):
     """Validation qui pré valide les DateField Django, et qui arrive au format sage ddmmyy."""
 
-    @validator("*", pre=True, always=True)
-    def sage_date(cls, value, field):
+    @field_validator("*", mode="before")
+    @classmethod
+    def sage_date(cls, value, info: ValidationInfo):
         """Convertit les dates Sage, 1900-01-01 si vide."""
-        if hasattr(field.type_, "day") and isinstance(value, (str,)):
+        if _is_date(field_type(cls, info)[0]) and isinstance(value, str):
             value = str(value).strip()
 
             if not value or value == "None":
@@ -254,7 +340,8 @@ class SageDefaultDateFieldsBase(BaseModel):
 class TvaEyeConfor(BaseModel):
     """Validation du taux de tva pour EyeConfort."""
 
-    @validator("vat_rate", pre=True, check_fields=False)
+    @field_validator("vat_rate", mode="before", check_fields=False)
+    @classmethod
     def tva_eye_confort(cls, value):
         """Convertit le taux de TVA Eye Confort exprimé en pourcentage."""
         if "%" in value:
@@ -266,7 +353,8 @@ class TvaEyeConfor(BaseModel):
 class TvaGenerique(BaseModel):
     """Validation du taux de tva pour GENERIQUE."""
 
-    @validator("vat_rate", pre=True, check_fields=False)
+    @field_validator("vat_rate", mode="before", check_fields=False)
+    @classmethod
     def tva_generique(cls, value):
         """Convertit les codes de TVA génériques en taux."""
         if value in {
@@ -292,7 +380,8 @@ class TvaGenerique(BaseModel):
 class TvaInterson(BaseModel):
     """Validation du taux de tva pour INTERSON."""
 
-    @validator("vat_rate", pre=True, check_fields=False)
+    @field_validator("vat_rate", mode="before", check_fields=False)
+    @classmethod
     def tva_interson(cls, value):
         """Convertit les codes de TVA Interson en taux."""
         if value in {"", None, False}:
@@ -310,7 +399,8 @@ class TvaInterson(BaseModel):
 class TvaWidex(BaseModel):
     """Validation du taux de tva pour Widex."""
 
-    @validator("vat_rate", pre=True, check_fields=False)
+    @field_validator("vat_rate", mode="before", check_fields=False)
+    @classmethod
     def tva_widex(cls, value):
         # les zéros en tête sont retirés : "06" -> "6", "020.0" -> "20.0", "0" -> ""
         """Convertit les codes de TVA Widex en taux."""
@@ -328,7 +418,8 @@ class TvaWidex(BaseModel):
 class TvaNewson(BaseModel):
     """Validation du taux de tva pour Nexson."""
 
-    @validator("vat_rate", pre=True, check_fields=False)
+    @field_validator("vat_rate", mode="before", check_fields=False)
+    @classmethod
     def tva_newson(cls, value):
         """Convertit les codes de TVA Newson en taux."""
         if value in {"C0", "C1", "C2", "E7"}:

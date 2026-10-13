@@ -14,29 +14,10 @@ from pathlib import Path
 
 import openpyxl
 import pandas as pd
-from chardet.universaldetector import UniversalDetector
+
+from apps.core.functions.functions_utilitaires import encoding_detect
 
 from .exceptions import CsvFileToStringIoError, EncodingError, ExcelToCsvFileError
-
-
-def encoding_detect(path_file):
-    """Fonction qui renvoi l'encoding le plus probable du fichier passé en paramètre."""
-    try:
-        detector = UniversalDetector()
-
-        with Path(path_file).open("rb") as file:
-            for line in file:
-                detector.feed(line)
-
-                if detector.done:
-                    break
-
-            detector.close()
-
-    except Exception as except_error:
-        raise EncodingError(f"encoding_detect : {path_file.name!r}") from except_error
-
-    return detector.result["encoding"] if detector.result["confidence"] > 0.66 else "utf8"
 
 
 def excel_file_to_csv_string_io(excel_file: Path, string_io_file, *, header=True):

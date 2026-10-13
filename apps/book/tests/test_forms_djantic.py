@@ -55,10 +55,9 @@ WITHOUT_UUID = ["created_at", "modified_at"]
 )
 def test_config_des_schemas(schema, sage_class, model, extra):
     """Chaque schéma cible son modèle et inclut les colonnes du fichier + les champs techniques"""
-    assert schema.Config.base_model is sage_class
-    assert schema.Config.model is model
-    assert schema.Config.include == list(sage_class.get_columns_import()) + extra
-    assert set(schema.__fields__) == set(schema.Config.include)
+    assert schema.model_config["model"] is sage_class.model is model
+    assert schema.model_config["include"] == list(sage_class.get_columns_import()) + extra
+    assert set(schema.model_fields) == set(schema.model_config["include"])
 
 
 def test_bpr_schema_nettoyage_sage():

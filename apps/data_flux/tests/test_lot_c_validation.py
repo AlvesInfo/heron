@@ -14,7 +14,7 @@ import uuid
 
 import pytest
 from django import forms
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from rest_framework import serializers
 
 from apps.data_flux.exceptions import (
@@ -62,8 +62,7 @@ class EssaisSchema(BaseModel):
     col_texte: str
     col_int: int
 
-    class Config:
-        include = ("col_texte", "col_int")
+    model_config = {"include": ("col_texte", "col_int")}  # type: ignore[typeddict-unknown-key]
 
 
 class RefusingSchema(BaseModel):
@@ -71,7 +70,8 @@ class RefusingSchema(BaseModel):
 
     col_texte: str
 
-    @validator("col_texte")
+    @field_validator("col_texte")
+    @classmethod
     def refuse(cls, value):
         raise ValidationError(f"{value} refusé")
 
@@ -81,7 +81,8 @@ class CrashingSchema(BaseModel):
 
     col_texte: str
 
-    @validator("col_texte")
+    @field_validator("col_texte")
+    @classmethod
     def crash(cls, value):
         raise RuntimeError(f"{value} imprévu")
 

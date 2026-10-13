@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 
 import datetime
 import uuid
+from typing import ClassVar
 
 from django.utils import timezone
 from djantic import ModelSchema
@@ -26,6 +27,7 @@ from apps.book.models import (
     BpsBookSage,
     CodeContactsSage,
 )
+from apps.core.validations.djantic_compat import schema_config
 from apps.core.validations.pydantic_validators_base import (
     SageNullFalseBooleanFieldsBase,
     SageTruncateStrFieldsBase,
@@ -38,17 +40,14 @@ class BprBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     Validation de l'import ZBIBPR des Tiers Génériques Sage X3.
     """
 
-    now = timezone.now()
+    now: ClassVar[datetime.datetime] = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     country: str
 
-    class Config:
-        """class Config du models au sens django."""
-
-        base_model = BprBookSage
-        model = base_model.model
-        include = [*base_model.get_columns_import(), "created_at", "modified_at"]
+    model_config = schema_config(
+        BprBookSage.model, include=[*BprBookSage.get_columns_import(), "created_at", "modified_at"]
+    )
 
 
 class BpsBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
@@ -57,17 +56,14 @@ class BpsBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     Validation de l'import ZBIBPS des Tiers Génériques Sage X3.
     """
 
-    now = timezone.now()
+    now: ClassVar[datetime.datetime] = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     payment_condition_supplier: str
 
-    class Config:
-        """class Config du models au sens django."""
-
-        base_model = BpsBookSage
-        model = base_model.model
-        include = [*base_model.get_columns_import(), "created_at", "modified_at"]
+    model_config = schema_config(
+        BpsBookSage.model, include=[*BpsBookSage.get_columns_import(), "created_at", "modified_at"]
+    )
 
 
 class BpcBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
@@ -76,17 +72,14 @@ class BpcBookSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBoo
     Validation de l'import ZBIBPC des Tiers Génériques Sage X3.
     """
 
-    now = timezone.now()
+    now: ClassVar[datetime.datetime] = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     payment_condition_client: str
 
-    class Config:
-        """class Config du models au sens django."""
-
-        base_model = BpcBookSage
-        model = base_model.model
-        include = [*base_model.get_columns_import(), "created_at", "modified_at"]
+    model_config = schema_config(
+        BpcBookSage.model, include=[*BpcBookSage.get_columns_import(), "created_at", "modified_at"]
+    )
 
 
 class BookAdressesSageSchema(
@@ -97,18 +90,16 @@ class BookAdressesSageSchema(
     Validation de l'import ZBIADDR des Tiers Génériques Sage X3.
     """
 
-    now = timezone.now()
+    now: ClassVar[datetime.datetime] = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     society: str
     country: str
 
-    class Config:
-        """class Config du models au sens django."""
-
-        base_model = BookAdressesSage
-        model = base_model.model
-        include = [*base_model.get_columns_import(), "created_at", "modified_at"]
+    model_config = schema_config(
+        BookAdressesSage.model,
+        include=[*BookAdressesSage.get_columns_import(), "created_at", "modified_at"],
+    )
 
 
 class CodeContactsSageSchema(
@@ -119,24 +110,21 @@ class CodeContactsSageSchema(
     Validation de l'import ZBICONTACT des Tiers Génériques Sage X3.
     """
 
-    now = timezone.now()
+    now: ClassVar[datetime.datetime] = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     uuid_identification: uuid.UUID = uuid.uuid4()
     society: str
-    country: str
 
-    class Config:
-        """class Config du models au sens django."""
-
-        base_model = CodeContactsSage
-        model = base_model.model
-        include = [
-            *base_model.get_columns_import(),
+    model_config = schema_config(
+        CodeContactsSage.model,
+        include=[
+            *CodeContactsSage.get_columns_import(),
             "created_at",
             "modified_at",
             "uuid_identification",
-        ]
+        ],
+    )
 
 
 class BookContactsSageSchema(
@@ -147,24 +135,22 @@ class BookContactsSageSchema(
     Validation de l'import ZBICONTCRM des Tiers Génériques Sage X3.
     """
 
-    now = timezone.now()
+    now: ClassVar[datetime.datetime] = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     uuid_identification: uuid.UUID = uuid.uuid4()
     society: str
     country: str
 
-    class Config:
-        """class Config du models au sens django."""
-
-        base_model = BookContactsSage
-        model = base_model.model
-        include = [
-            *base_model.get_columns_import(),
+    model_config = schema_config(
+        BookContactsSage.model,
+        include=[
+            *BookContactsSage.get_columns_import(),
             "created_at",
             "modified_at",
             "uuid_identification",
-        ]
+        ],
+    )
 
 
 class BookBanksSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseBooleanFieldsBase):
@@ -173,15 +159,13 @@ class BookBanksSageSchema(ModelSchema, SageTruncateStrFieldsBase, SageNullFalseB
     Validation de l'import ZBIBANK des Tiers Génériques Sage X3.
     """
 
-    now = timezone.now()
+    now: ClassVar[datetime.datetime] = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     society: str
     country: str
 
-    class Config:
-        """class Config du models au sens django."""
-
-        base_model = BookBanksSage
-        model = base_model.model
-        include = [*base_model.get_columns_import(), "created_at", "modified_at"]
+    model_config = schema_config(
+        BookBanksSage.model,
+        include=[*BookBanksSage.get_columns_import(), "created_at", "modified_at"],
+    )

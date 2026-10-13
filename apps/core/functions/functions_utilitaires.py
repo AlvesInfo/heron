@@ -1,13 +1,12 @@
 """Module Utilitaires."""
 
+import codecs
 import importlib
 import time
 from collections.abc import Iterable
 from itertools import accumulate, chain, islice
 from operator import itemgetter
 from pathlib import Path
-
-from chardet.universaldetector import UniversalDetector
 
 from heron.loggers import LOGGER_DJANGO
 
@@ -353,24 +352,72 @@ def delete_file(file):
         Path(file).unlink()
 
 
-def encoding_detect(path_file):
-    """Fonction qui renvoi l'encoding le plus probable de du fichier passé en paramètre."""
+# Marques d'ordre d'octets reconnues ; l'utf-32 est testé avant l'utf-16 (préfixe commun FF FE)
+_BOMS: tuple[tuple[bytes, str], ...] = (
+    (codecs.BOM_UTF8, "utf-8-sig"),
+    (codecs.BOM_UTF32_LE, "utf-32"),
+    (codecs.BOM_UTF32_BE, "utf-32"),
+    (codecs.BOM_UTF16_LE, "utf-16"),
+    (codecs.BOM_UTF16_BE, "utf-16"),
+)
+_CHUNK_SIZE = 1 << 20
+
+
+def _decodable(path: Path, encoding: str) -> tuple[bool, bool]:
+    """Vérifie par morceaux qu'un fichier se décode strictement dans l'encodage donné.
+
+    :param path: fichier à lire
+    :param encoding: codec Python à essayer
+    :return: (décodable, contenu purement ascii)
+    """
+    decoder = codecs.getincrementaldecoder(encoding)()
+    is_ascii = True
+
     try:
-        detector = UniversalDetector()
+        with path.open("rb") as file:
+            while chunk := file.read(_CHUNK_SIZE):
+                is_ascii = is_ascii and chunk.isascii()
+                decoder.decode(chunk)
 
-        with Path(path_file).open("rb") as file:
-            for line in file:
-                detector.feed(line)
+            decoder.decode(b"", final=True)
 
-                if detector.done:
-                    break
+    except UnicodeDecodeError:
+        return False, is_ascii
 
-            detector.close()
+    return True, is_ascii
 
-    except Exception as except_error:
-        raise EncodingError(f"encoding_detect : {path_file.name!r}") from except_error
 
-    return detector.result["encoding"]
+def encoding_detect(path_file) -> str:
+    """Renvoie l'encodage du fichier passé en paramètre, de façon déterministe.
+
+    Ordre : marque d'ordre d'octets (BOM), décodage utf8 strict ("ascii" si le contenu
+    est purement ascii), repli windows-1252 (exports Excel / Windows), enfin iso-8859-1
+    pour les cinq octets que cp1252 ne définit pas. Les replis sont journalisés.
+    """
+    path = Path(path_file)
+
+    try:
+        with path.open("rb") as file:
+            head = file.read(4)
+
+        for bom, encoding in _BOMS:
+            if head.startswith(bom):
+                return encoding
+
+        utf8_ok, is_ascii = _decodable(path, "utf-8")
+
+        if utf8_ok:
+            return "ascii" if is_ascii else "utf-8"
+
+        cp1252_ok, _ = _decodable(path, "cp1252")
+
+    except OSError as except_error:
+        raise EncodingError(f"encoding_detect : {path.name!r}") from except_error
+
+    encoding = "windows-1252" if cp1252_ok else "iso-8859-1"
+    LOGGER_DJANGO.warning("encoding_detect : %r n'est pas utf8, lu en %s", path.name, encoding)
+
+    return encoding
 
 
 def slicing_parser(iterable):

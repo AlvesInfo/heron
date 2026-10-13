@@ -13,6 +13,7 @@ modified by: Paulo ALVES
 
 from djantic import ModelSchema
 
+from apps.core.validations.djantic_compat import schema_config
 from apps.core.validations.pydantic_validators_base import (
     SageDefaultDateFieldsBase,
     SageNullFalseBooleanFieldsBase,
@@ -32,8 +33,4 @@ class CountrySageSchema(
     Validation de l'import ZBICRY des pays Sage X3.
     """
 
-    class Config:
-        """class Config du models au sens django."""
-
-        model = Country
-        include = list(Country.get_columns_import())
+    model_config = schema_config(Country, include=list(Country.get_columns_import()))

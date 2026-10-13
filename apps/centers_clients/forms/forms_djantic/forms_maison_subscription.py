@@ -12,18 +12,20 @@ modified by: Paulo ALVES
 """
 
 import datetime
+from typing import ClassVar
 from uuid import UUID
 
 from django.utils import timezone
 from djantic import ModelSchema
 
 from apps.centers_clients.models import MaisonSubcription
+from apps.core.validations.djantic_compat import schema_config
 
 
 class MaisonSubcriptionSchema(ModelSchema):
     """Schema Djantic pour validation du modèle MaisonSubcription."""
 
-    now = timezone.now()
+    now: ClassVar[datetime.datetime] = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
     maison: str
@@ -33,8 +35,7 @@ class MaisonSubcriptionSchema(ModelSchema):
     for_signboard: str
     vat: str | None = None
 
-    class Config:
-        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
-
-        model = MaisonSubcription
-        include = [*model.get_columns_import(), "created_at", "modified_at"]
+    model_config = schema_config(
+        MaisonSubcription,
+        include=[*MaisonSubcription.get_columns_import(), "created_at", "modified_at"],
+    )

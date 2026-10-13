@@ -65,9 +65,9 @@ WITHOUT_UUID = ["created_at", "modified_at"]
 )
 def test_config_des_schemas(schema, model, extra):
     """Chaque schéma cible son modèle et inclut les colonnes du fichier + les champs techniques"""
-    assert schema.Config.model is model
-    assert schema.Config.include == list(model.get_columns_import()) + extra
-    assert set(schema.__fields__) == set(schema.Config.include)
+    assert schema.model_config["model"] is model
+    assert schema.model_config["include"] == list(model.get_columns_import()) + extra
+    assert set(schema.model_fields) == set(schema.model_config["include"])
 
 
 def test_account_sage_schema_nettoyage_sage():

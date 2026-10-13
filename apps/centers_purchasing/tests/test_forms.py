@@ -300,8 +300,8 @@ def test_axe_pro_account_schema():
         child_center="ACF", sub_category=str(identifiers["axe_pro"]), vat="001", **identifiers
     )
 
-    assert AxeProAccountSchema.Config.model is AccountsAxeProCategory
-    assert AxeProAccountSchema.Config.include == [
+    assert AxeProAccountSchema.model_config["model"] is AccountsAxeProCategory
+    assert AxeProAccountSchema.model_config["include"] == [
         "child_center",
         "big_category",
         "sub_category",

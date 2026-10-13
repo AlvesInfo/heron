@@ -8,6 +8,7 @@ created at: 2026-10-11
 created by: Paulo ALVES
 """
 
+import codecs
 import datetime
 import logging
 from decimal import Decimal
@@ -138,6 +139,39 @@ def test_encoding_detect_latin_1(tmp_path):
 def test_encoding_detect_fichier_absent(tmp_path):
     with pytest.raises(EncodingError, match="encoding_detect : 'absent.csv'"):
         encoding_detect(tmp_path / "absent.csv")
+
+
+def test_encoding_detect_cp1252_puis_iso_8859_1(tmp_path):
+    """Octet 0x80 (€) : windows-1252 ; octet 0x81 indéfini en cp1252 : iso-8859-1"""
+    euro = tmp_path / "euro.csv"
+    euro.write_bytes(b"prix;10\x80\n")
+    indefini = tmp_path / "indefini.csv"
+    indefini.write_bytes(b"a;\x81\n")
+
+    assert encoding_detect(euro) == "windows-1252"
+    assert encoding_detect(indefini) == "iso-8859-1"
+
+
+@pytest.mark.parametrize(
+    ("bom", "expected"),
+    [
+        (codecs.BOM_UTF8, "utf-8-sig"),
+        (codecs.BOM_UTF16_LE, "utf-16"),
+        (codecs.BOM_UTF32_BE, "utf-32"),
+    ],
+)
+def test_encoding_detect_bom(tmp_path, bom, expected):
+    path = tmp_path / "bom.csv"
+    path.write_bytes(bom + "a;b\n".encode(expected))
+
+    assert encoding_detect(path) == expected
+
+
+def test_encoding_detect_fichier_vide(tmp_path):
+    path = tmp_path / "vide.csv"
+    path.write_bytes(b"")
+
+    assert encoding_detect(path) == "ascii"
 
 
 def test_slicing_parser():

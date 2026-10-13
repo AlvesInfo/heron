@@ -256,7 +256,7 @@ def make_insert_edi_files(model, flow_name, source, trace, validator, params_dic
 
             postgres_upsert = PostgresDjangoUpsert(
                 model=model,
-                fields_dict=dict.fromkeys(validator.Config.include, False),
+                fields_dict=dict.fromkeys(validator.model_config["include"], False),
                 cnx=connection,
                 exclude_update_fields=set(),
             )

@@ -25,8 +25,9 @@ from typing import Any, NamedTuple
 
 from django.core.exceptions import ImproperlyConfigured
 from djantic import ModelSchema
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
+from apps.core.validations.djantic_compat import schema_config
 from apps.core.validations.pydantic_validators_base import (
     TvaEyeConfor,
     TvaGenerique,
@@ -222,25 +223,18 @@ def build_schema(name: str, definition: SchemaDefinition) -> type[ModelSchema]:
             f"le schéma {name} ne peut pas être construit"
         )
 
-    config = type(
-        "Config",
-        (),
-        {"model": EdiImport, "include": columns + list(definition.extra_columns)},
-    )
     namespace = {
         "__module__": __name__,
         "__qualname__": name,
         "__doc__": f"Schema Djantic pour validation du modèle {definition.doc or name}",
         "__annotations__": dict(definition.fields),
-        "Config": config,
+        "model_config": schema_config(EdiImport, columns + list(definition.extra_columns)),
         **definition.defaults,
     }
 
-    # allow_reuse : la même fonction sert à plusieurs champs et plusieurs schémas
+    # la même fonction sert à plusieurs champs et plusieurs schémas
     for field_name in definition.default_date_fields:
-        namespace[f"check_{field_name}"] = validator(field_name, pre=True, allow_reuse=True)(
-            default_date
-        )
+        namespace[f"check_{field_name}"] = field_validator(field_name, mode="before")(default_date)
 
     return type(name, (ModelSchema, ValidateFieldsBase, *definition.mixins), namespace)
 

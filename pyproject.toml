@@ -33,9 +33,9 @@ dependencies = [
     "flower==2.2.0",  # Procfile
     "redis==8.1.0",
     # --- Validation
-    "pydantic==1.10.26",  # dernière v1 (djantic exige pydantic < 2), roues Python 3.14
-    "djantic==0.7.0",
-    "email-validator==1.1.3",  # pydantic.EmailStr ; >= 1.2 rejette les domaines réservés (.local des fabriques de test)
+    "pydantic==2.14.1",
+    "djantic2==1.0.5",  # fork de djantic (ModelSchema) compatible pydantic 2
+    "email-validator==2.3.0",  # pydantic.EmailStr
     # --- Fichiers : Excel, PDF, HTML, mails
     "pandas==3.0.6",
     "openpyxl==3.1.5",
@@ -47,7 +47,6 @@ dependencies = [
     "beautifulsoup4==4.15.0",
     "lxml==6.1.3",
     "html2text==2025.4.15",
-    "chardet==4.0.0",  # 5+ : confiance trop basse sur les petits fichiers (repli utf8 à tort)
     "google-api-python-client==2.201.0",  # API Gmail (apps/invoices/bin/api_gmail)
     "google-auth==2.61.0",
     "google-auth-oauthlib==1.5.0",
@@ -56,7 +55,6 @@ dependencies = [
     "requests==2.34.2",
     # --- Dates & SQL
     "pendulum==3.2.0",
-    "python-dateutil==2.9.0.post0",
     "sqlfluff==4.4.0",  # formatage SQL dans functions_postgresql
 ]
 
@@ -326,13 +324,13 @@ python_version = "3.14"
 # Cibles par défaut : le projet est une application (apps/ + heron/), pas de src/ ni tests/
 files = ["apps", "heron", "conftest.py"]
 exclude = ["/migrations/", "/essais/", "heron/bin/", "heron/env/"]
-# Plugins désactivés tant que les versions d'exécution ne suivent pas :
-# - pydantic.mypy (pydantic 1.9) ne sait pas lire la version de mypy 2.x ;
+# Plugins :
+# - pydantic.mypy (pydantic 2) actif depuis le 2026-10-12 (directive D54) ;
 # - mypy_django_plugin (django-stubs 6.1.2) actif depuis le 2026-10-12 (directive D49) ;
 #   réglages lus dans heron.settings (voir [tool.django-stubs]).
 #   Sans le plugin, les stubs seuls imposent d'annoter chaque champ de modèle (1 300 erreurs) :
 #   django-stubs est dans le groupe de dépendances « typing », non installé par défaut.
-plugins = ["mypy_django_plugin.main"]
+plugins = ["mypy_django_plugin.main", "pydantic.mypy"]
 
 warn_redundant_casts = true
 warn_unused_ignores = true
@@ -354,9 +352,13 @@ check_untyped_defs = false
 # sans vérification des corps non annotés, mypy signalerait chaque annotation locale (note sans effet)
 disable_error_code = ["annotation-unchecked"]
 
-# pendulum 2 : ses annotations déclarent parse() en Date | Time | Duration et date()/instance()
-# ne sont pas des types ; la bibliothèque est traitée comme non typée jusqu'à pendulum 3
-# (seul le paquet est importé par le projet : pas de motif « pendulum.* », sinon section inutilisée)
+# pendulum 3 (vérifié en 3.2.0 et 3.3.0 le 2026-10-13) : parse() est annoté
+# Date | DateTime | Time | Duration | Interval, et date()/instance() sont des fonctions, pas des
+# types ; sans cette dérogation mypy relève 158 erreurs dans 31 fichiers (130 union-attr sur
+# .start_of()/.add(months=…), 8 dict-item, 7 call-arg, 7 arg-type, 4 valid-type, 2 attr-defined).
+# La lever suppose de remplacer les parse() par pendulum.instance()/datetime() ou d'affiner les
+# types. (Seul le paquet est importé par le projet : pas de motif « pendulum.* », sinon section
+# inutilisée.)
 [[tool.mypy.overrides]]
 module = ["pendulum"]
 follow_imports = "skip"
@@ -367,27 +369,19 @@ follow_imports = "skip"
 # le plugin lit le module statiquement pour typer settings.X
 django_settings_module = "heron.settings"
 
-# [tool.pydantic-mypy]
-# init_forbid_extra = true
-# init_typed = true
-# warn_required_dynamic_aliases = true
-
-# Assume Python 3.14
-target-version = "py314"
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
 
 [tool.ruff.lint.pep8-naming]
-# Allow Pydantic's `@validator` decorator to trigger class method treatment.
-# pydantic v1 : `validator` / `root_validator` reçoivent `cls` ; `validator` est aussi ré-exporté par
+# pydantic 2 : `field_validator` reçoit `cls` ; il est aussi ré-exporté par
 # apps.core.validations.pydantic_validators_base (ruff ne suit pas les ré-exports)
 classmethod-decorators = [
     "classmethod",
     "pydantic.field_validator",
-    "pydantic.validator",
-    "pydantic.root_validator",
-    "apps.core.validations.pydantic_validators_base.validator",
+    "pydantic.model_validator",
+    "apps.core.validations.pydantic_validators_base.field_validator",
 ]
 
 [tool.ruff.lint.mccabe]

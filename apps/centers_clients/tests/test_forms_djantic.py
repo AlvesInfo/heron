@@ -25,8 +25,8 @@ ARTICLE_UUID = "6fa459ea-ee8a-3ca4-894e-db77e160355e"
 
 def test_config():
     """Le schéma cible MaisonSubcription et les colonnes du fichier d'import"""
-    assert MaisonSubcriptionSchema.Config.model is MaisonSubcription
-    assert MaisonSubcriptionSchema.Config.include == [
+    assert MaisonSubcriptionSchema.model_config["model"] is MaisonSubcription
+    assert MaisonSubcriptionSchema.model_config["include"] == [
         *list(MaisonSubcription.get_columns_import()),
         "created_at",
         "modified_at",

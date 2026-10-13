@@ -22,13 +22,12 @@ from itertools import chain
 from typing import Any
 
 import pendulum
-import pydantic
 from django import forms
 from django.db import connection, models
 from django.db.models import Count, Q
 from django.utils import timezone
 from djantic import ModelSchema
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError as PydanticValidationError
 from rest_framework import serializers as seria
 
 # noinspection PyCompatibility
@@ -367,13 +366,14 @@ class PydanticTrace(TraceTemplate):
 
 
 def get_columns(validator, default: Iterable) -> list:
-    """Colonnes à écrire dans le fichier des données validées : celles de validator.Config.include.
+    """Colonnes à écrire dans le fichier des données validées.
 
-    (schémas djantic / pydantic), sinon les champs validés.
+    Celles de `validator.model_config["include"]` (schémas djantic / pydantic), sinon les champs
+    validés.
     """
-    config = getattr(validator, "Config", None)
+    config = getattr(validator, "model_config", None) or {}
 
-    return list(getattr(config, "include", None) or default)
+    return list(config.get("include") or default)
 
 
 class ValidationTemplate:
@@ -640,9 +640,11 @@ class PydanticValidation(ValidationTemplate):
         """
         try:
             form = validator(**data_dict)
-            csv_writer.writerow([form.dict().get(key) for key in validator.Config.include])
+            csv_writer.writerow(
+                [form.model_dump().get(key) for key in validator.model_config["include"]]
+            )
 
-        except (pydantic.error_wrappers.ValidationError, ValidationError) as except_error:
+        except (PydanticValidationError, ValidationError) as except_error:
             LOGGER_VALIDATION.exception("Ligne refusée par le validateur")
             # une ValidationError du module n'a pas la méthode errors() de pydantic
             errors = (

@@ -128,7 +128,7 @@ def test_essai_iter_file_to_insert(monkeypatch, caplog):
 
     assert "'currency_current': 'EUR'" in out
     assert "datetime.date(2024, 1, 1)" in out
-    assert "none is not an allowed value" in out
+    assert "Input should be a valid date" in out
 
 
 def test_constantes_du_script():

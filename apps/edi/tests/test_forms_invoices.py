@@ -103,15 +103,15 @@ def test_build_schema_includes_file_columns_and_loader_columns(make_column_defin
 
     assert schema.__name__ == "EdiSchema"
     assert schema.__module__ == forms_invoices.__name__
-    assert schema.__config__.include == [column for column, _ in EDI_COLUMNS] + [
+    assert schema.model_config["include"] == [column for column, _ in EDI_COLUMNS] + [
         "uuid_identification",
         "flow_name",
         "created_at",
         "modified_at",
     ]
-    assert set(schema.__fields__) == set(schema.__config__.include)
-    assert schema.__fields__["qty"].default == 1
-    assert schema.__fields__["uuid_identification"].required
+    assert set(schema.model_fields) == set(schema.model_config["include"])
+    assert schema.model_fields["qty"].default == 1
+    assert schema.model_fields["uuid_identification"].is_required()
 
 
 def test_built_schema_validates_like_before(make_column_definitions):
@@ -160,7 +160,7 @@ def test_build_schema_can_be_called_twice(make_column_definitions):
     second = build_schema("JohnsonSchema", definition)
 
     assert first is not second
-    assert first.__config__.include == second.__config__.include
+    assert first.model_config["include"] == second.model_config["include"]
     assert (
         first(
             uuid_identification=uuid.uuid4(),
@@ -200,5 +200,7 @@ def test_get_schema_with_production_snapshot():
     """Toutes les définitions se construisent sur l'instantané de production"""
     schemas = {name: get_schema(name) for name in SCHEMA_DEFINITIONS}
 
-    assert all(len(schema.__config__.include) > 4 for schema in schemas.values())
-    assert {schema.__config__.model for schema in schemas.values()} == {forms_invoices.EdiImport}
+    assert all(len(schema.model_config["include"]) > 4 for schema in schemas.values())
+    assert {schema.model_config["model"] for schema in schemas.values()} == {
+        forms_invoices.EdiImport
+    }

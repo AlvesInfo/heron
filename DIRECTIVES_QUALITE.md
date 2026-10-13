@@ -1445,10 +1445,30 @@ Petites corrections à passer app par app, en même temps que D0 :
   certifi 2026.7, werkzeug 3.1, protobuf 7.36, pyjwt 2.15, …). Aucune modification de code.
 - **Conservés, avec motif** : Django 5.2.18 (LTS jusqu'en avril 2028 ; 6.1 n'est pas LTS),
   pydantic 1.10.26 (djantic exige la v1), WeasyPrint 64.0 (rendu contractuel des factures, à
-  monter seulement avec un contrôle visuel), chardet 4.0.0 (5+ : confiance trop basse sur les
-  petits fichiers, `encoding_detect` retombait sur utf8 à tort), email-validator 1.1.3 (>= 1.2
-  rejette les domaines réservés comme `.local`, utilisés par les fabriques de test ; les
-  2.x les refusent même en mode test).
+  monter seulement avec un contrôle visuel), email-validator 1.1.3 (>= 1.2 rejette les domaines
+  réservés comme `.local`, utilisés par les fabriques de test ; les 2.x les refusent même en mode
+  test).
+- **chardet retiré (2026-10-13)** après banc sur 63 fichiers réels (54 EDI de 12 fournisseurs
+  optique, CSV LMC / Sage, cas limites 0 et 8 octets) : chardet 7.6.0 ratait les 6 fichiers
+  Markennovy (ISO-8859-1, un seul octet 0xB4 non ascii, confiance 0,01 → repli utf8 faux) et
+  chardet 4.0.0 lisait un Novacel utf8 en EUC-KR à 0,99 (`°` devenu `째` en production). Tous
+  les EDI déclarent UNOC dans leur UNB alors que BBGR et Novacel envoient de l'utf8 : la
+  déclaration n'est pas fiable. `encoding_detect` (unique, dans
+  `apps/core/functions/functions_utilitaires.py` ; la copie de `apps/data_flux/utilities.py` a été
+  supprimée le même jour) est désormais déterministe : BOM → utf8 strict (« ascii » si le contenu
+  est purement ascii) → repli `windows-1252` (exports Excel / Windows) → `iso-8859-1` pour les cinq
+  octets indéfinis en cp1252 ; chaque repli est journalisé en avertissement. Résultat correct sur
+  les 63 fichiers du banc, dont le Novacel.
+  - **Retour arrière** : remettre `"chardet==4.0.0"` dans `dependencies` du `pyproject.toml`
+    (`uv lock && uv sync`), puis restaurer dans `functions_utilitaires.py` l'ancien corps, qui
+    nourrissait `chardet.universaldetector.UniversalDetector` ligne par ligne (`feed`, arrêt sur
+    `done`, `close`) et renvoyait `detector.result["encoding"]` si
+    `detector.result["confidence"] > 0.66`, sinon `"utf8"` ; `OSError` et toute exception
+    étaient enveloppées dans `EncodingError(f"encoding_detect : {path_file.name!r}")`. Les tests
+    `test_encoding_detect_cp1252_puis_iso_8859_1`, `test_encoding_detect_bom` et
+    `test_encoding_detect_fichier_vide` (core) sont alors à retirer et le faux `UniversalDetector`
+    du test data_flux à rétablir. Avant le 2026-10-13, chardet était épinglé en 4.0.0 (5+ :
+    confiance trop basse sur les petits fichiers, repli utf8 à tort).
 - **Cible ruff `py313`** (et non `py314`) : avec la cible 3.14 le formateur écrit `except A, B:`
   (PEP 758), que radon / xenon ne savent pas analyser (17 fichiers silencieusement exclus de la
   mesure de complexité) ; 19 `except` re-parenthésés.
@@ -1493,6 +1513,55 @@ Petites corrections à passer app par app, en même temps que D0 :
   lu par aucun script) supprimé le 2026-10-12 : `pyproject.toml` et `uv.lock` font foi.
 - Résultat : `manage.py check` et `check --deploy` (production simulée) sans aucun
   avertissement, ruff 0, mypy Success, suite complète 2 966 tests à 100 %.
+
+---
+
+## D54 — Pydantic 2 (djantic2) `[x]`
+
+- **Contexte** : pydantic était figé en 1.10.26 parce que djantic 0.7.0 (avril 2022) n'accepte
+  que la v1. Son fork djantic2 1.0.5 (décembre 2024, même API `ModelSchema`) fonctionne avec
+  pydantic 2 ; essai préalable sur Python 3.14.3 / Django 5.2 / pydantic 2.14.1 concluant.
+  Dépendances : pydantic 2.14.1, djantic2 1.0.5, email-validator 2.3.0 (pydantic-core,
+  annotated-types, typing-inspection en transitives).
+- **Validateurs de base** (`apps/core/validations/pydantic_validators_base.py`) :
+  `@validator("*", pre=True, always=True)` + `field.type_` deviennent
+  `@field_validator("*", mode="before")` + `@classmethod` + `info: ValidationInfo` ; l'aide
+  `field_type(cls, info)` rend le type interne (`X | None` et `Annotated` retirés) et le
+  `max_length` lu dans les métadonnées (djantic2 `MaxLen`, `Field(max_length=)`,
+  `constr(max_length=)` dans l'annotation). Socle `FieldsBase` avec
+  `model_config = ConfigDict(validate_default=True)` pour conserver `always=True` (les valeurs
+  par défaut, ex. `qty = 1`, passent dans les validateurs). Les mixins TVA gardent
+  `check_fields=False`. `field_validator` est ré-exporté (ruff `classmethod-decorators`).
+- **Schémas djantic** (33 classes + fabrique EDI `build_schema`) : `class Config: model / include`
+  devient `model_config = schema_config(Model, include=[...])`
+  (`apps/core/validations/djantic_compat.py`, cast en `ConfigDict` car djantic2 lit
+  `namespace["model_config"]` et mypy ne connaît pas ces clés). `now = timezone.now()` devient
+  `now: ClassVar[datetime.datetime]` (pydantic 2 refuse les attributs non annotés). La couche
+  3.14 (annotations différées matérialisées avant la métaclasse djantic) est conservée, adaptée
+  à la signature de djantic2 (`**kwargs`).
+- **Différences de comportement traitées** : (1) djantic2 garde les annotations hors `include`
+  comme champs : `country: str` (annotation morte, non importée par ZBICONTACT) retirée de
+  `CodeContactsSageSchema`, sinon le champ devenait obligatoire ; audit : les 24 schémas statiques
+  ont `model_fields == include` ; (2) union « smart » de pydantic 2 : `sub_category: UUID | str |
+  None` gardait le texte, `Field(default=None, union_mode="left_to_right")` rétablit l'essai UUID
+  d'abord ; (3) messages d'erreur pydantic 2 (« Input should be a valid date » au lieu de « none is
+  not an allowed value ») : visibles dans les fichiers d'erreurs d'import, sans effet fonctionnel ;
+  (4) `EmailStr` passe par email-validator 2 qui refuse les domaines réservés (`.local` des
+  fabriques de test) : `conftest.py` retire « local » de `SPECIAL_USE_DOMAIN_NAMES` pour la session
+  de test seulement (la production refuse toujours `.local`).
+- **API renommées** : `.dict()` → `model_dump()`, `parse_obj` → `model_validate`,
+  `pydantic.error_wrappers.ValidationError` → `pydantic.ValidationError`,
+  `validator.Config.include` → `validator.model_config["include"]` (`data_flux/validation.py`,
+  `make_insertion_suppliers_invoices.py`, envois d'e-mails, essai Sage).
+- **Tests adaptés** (API, pas de comportement métier) : lectures `schema.Config.*` /
+  `__config__` / `__fields__` / `.required` → `model_config` / `model_fields` / `is_required()`
+  (accountancy, book, articles, centers_clients, centers_purchasing, countries, edi, od) ;
+  `class Config` des schémas d'essai de data_flux → `model_config` ; message d'erreur attendu dans
+  `test_essais_import_sage`. Les `.dict()` des tests sont conservés (dépréciés, fonctionnels).
+- **mypy** : plugin `pydantic.mypy` activé (`[tool.pydantic-mypy]` : `init_forbid_extra`,
+  `init_typed`, `warn_required_dynamic_aliases`), 0 erreur.
+- Résultat : ruff 0, mypy Success, xenon OK, suite complète 2 966 tests à 100 %. Gain attendu :
+  validation 5 à 50 fois plus rapide sur les imports volumineux (pydantic-core en Rust).
 
 ---
 
@@ -1552,5 +1621,6 @@ Petites corrections à passer app par app, en même temps que D0 :
 | D49 plugin mypy Django | x | 2026-10-12 | django-stubs actif (heron.settings), 603 -> 0 erreurs, aides required/current_user, lookups to_field en jointure ; projet 2 966 tests, 100 % |
 | D50 Python 3.14 lot 1 | x | 2026-10-12 | psycopg2 2.9.13, pyyaml 6.0.3, calamine 0.8.3, pydantic 1.10.26, lxml 6.1.3, pandas 2.3.3 sous 3.11 ; projet 2 966 tests, 100 % |
 | D51 Python 3.14 lot 2 | x | 2026-10-12 | pendulum 3.2, celery 5.6, redis 8, Python 3.14.3 ; correctif djantic (annotations différées), csv escapechar ; projet 2 966 tests, 100 % |
-| D52 dépendances à jour | x | 2026-10-12 | 13 directes + 65 transitives relevées (pandas 3, requests 2.34, sqlfluff 4) ; Django 5.2, pydantic 1, WeasyPrint 64, chardet 4, email-validator 1.1 conservés ; ruff py313 (radon) ; projet 2 966 tests, 100 % |
+| D52 dépendances à jour | x | 2026-10-12 | 13 directes + 65 transitives relevées (pandas 3, requests 2.34, sqlfluff 4) ; Django 5.2, pydantic 1, WeasyPrint 64, email-validator 1.1 conservés ; chardet retiré le 2026-10-13 (détection déterministe, retour arrière documenté) ; ruff py313 (radon) ; projet 2 966 tests, 100 % |
 | D53 check --deploy propre | x | 2026-10-12 | avertissements HTTPS silencés (http interne), django-ckeditor -> django-tinymce 5 (TinyMCE 7, GPL) ; 0 avertissement ; projet 2 966 tests, 100 % |
+| D54 pydantic 2 | x | 2026-10-12 | pydantic 2.14.1 + djantic2 1.0.5 + email-validator 2.3.0 ; field_validator / model_config, plugin pydantic.mypy ; projet 2 966 tests, 100 % |

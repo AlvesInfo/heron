@@ -12,10 +12,12 @@ modified by: Paulo ALVES
 """
 
 import datetime
+from typing import ClassVar
 
 from django.utils import timezone
 from djantic import ModelSchema
 
+from apps.core.validations.djantic_compat import schema_config
 from apps.core.validations.pydantic_validators_base import (
     ExcelDateFieldsBase,
     SageTruncateStrFieldsBase,
@@ -27,12 +29,10 @@ from apps.od.models import ModelOd
 class OdSchema(ModelSchema, ValidateFieldsBase, SageTruncateStrFieldsBase, ExcelDateFieldsBase):
     """Schema Djantic pour validation du modèle AccountSage."""
 
-    now = timezone.now()
+    now: ClassVar[datetime.datetime] = timezone.now()
     created_at: datetime.datetime = now
     modified_at: datetime.datetime = now
 
-    class Config:
-        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
-
-        model = ModelOd
-        include = [*model.get_columns_import(), "created_at", "modified_at"]
+    model_config = schema_config(
+        ModelOd, include=[*ModelOd.get_columns_import(), "created_at", "modified_at"]
+    )

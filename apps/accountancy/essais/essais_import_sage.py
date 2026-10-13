@@ -89,10 +89,10 @@ def essai_iter_file_to_insert(file):
             except ValidationError as except_error:
                 LOGGER_DJANGO.exception("%s %s", i + 1, except_error.errors())
             else:
-                LOGGER_DJANGO.info("%s %s", i + 1, t.dict())
+                LOGGER_DJANGO.info("%s %s", i + 1, t.model_dump())
                 # try:
                 # upsert = PostresDjangoUpsert(
-                #     model=CurrencySage, fields_dict=t.dict(), cnx=connection
+                #     model=CurrencySage, fields_dict=t.model_dump(), cnx=connection
                 # )
                 # upsert.set_direct_insertion()
                 # except IntegrityError:

@@ -22,9 +22,9 @@ from django.db import close_old_connections, transaction
 from psycopg2 import sql
 
 from apps.core.functions.functions_setups import connection, connections, settings
+from apps.core.functions.functions_utilitaires import encoding_detect
 from apps.core.models import SSEProgress
 from apps.data_flux.postgres_save import get_random_name
-from apps.data_flux.utilities import encoding_detect
 from apps.edi.bin.bbgr_002_statment import HISTORIC_STATMENT_ID
 from apps.edi.bin.bbgr_003_monthly import HISTORIC_MONTHLY_ID
 from apps.edi.bin.bbgr_004_retours import HISTORIC_RETOURS_ID

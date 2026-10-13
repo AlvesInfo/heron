@@ -69,8 +69,8 @@ def test_schema_config_et_nettoyage():
         cee_date_quit="",
     ).dict()
 
-    assert CountrySageSchema.Config.model is Country
-    assert CountrySageSchema.Config.include == list(Country.get_columns_import())
+    assert CountrySageSchema.model_config["model"] is Country
+    assert CountrySageSchema.model_config["include"] == list(Country.get_columns_import())
     assert validated["country_name"] == "France"
     assert validated["country_iso_num"] == 250
     assert validated["cee"] is True

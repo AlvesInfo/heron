@@ -24,7 +24,7 @@ from bs4 import BeautifulSoup
 from celery import shared_task
 from django.db import connection
 from django.db.models import Count
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 
 from apps.core.bin.clean_celery import clean_memory
 from apps.core.functions.functions_setups import settings

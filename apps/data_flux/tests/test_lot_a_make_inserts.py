@@ -12,11 +12,11 @@ created by: Paulo ALVES
 import csv
 import logging
 import uuid
-from typing import ClassVar
 
 import pytest
 from djantic import ModelSchema
 
+from apps.core.validations.djantic_compat import schema_config
 from apps.data_flux import make_inserts
 from apps.data_flux.make_inserts import make_insert
 from apps.data_flux.models import EssaisZ, Line
@@ -29,11 +29,7 @@ pytestmark = pytest.mark.django_db
 class EssaisZSchema(ModelSchema):
     """Validation des lignes du fichier d'essai"""
 
-    class Config:
-        """Config"""
-
-        model = EssaisZ
-        include: ClassVar[list[str]] = ["col_texte", "col_2", "col_3", "col_int"]
+    model_config = schema_config(EssaisZ, include=["col_texte", "col_2", "col_3", "col_int"])
 
 
 class EssaisZImport:

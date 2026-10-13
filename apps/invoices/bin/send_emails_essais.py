@@ -31,7 +31,7 @@ django.setup()
 
 import pendulum
 from django.conf import settings
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 
 from apps.core.bin.emails import send_mass_mail
 from apps.core.exceptions import EmailException
@@ -115,7 +115,7 @@ def essais_send_by_email(context_dict: dict):
     ]:
         try:
             # valeur possiblement vide : validée par pydantic (ValidationError sinon)
-            CheckEmail.parse_obj({"email": email})
+            CheckEmail.model_validate({"email": email})
             mail_to_list.append(email)
         except ValidationError:
             pass

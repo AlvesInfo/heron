@@ -10,7 +10,6 @@ created by: Paulo ALVES
 
 import io
 from pathlib import Path
-from typing import ClassVar
 
 import pandas as pd
 import pytest
@@ -30,8 +29,8 @@ XLS_FIXTURE = (
 )
 
 
-def test_encoding_detect(tmp_path, monkeypatch):
-    """Encodage détecté avec confiance, sinon utf8 ; fichier illisible : EncodingError"""
+def test_encoding_detect(tmp_path):
+    """utf8 strict, repli windows-1252 ; fichier illisible : EncodingError"""
     latin = tmp_path / "latin.txt"
     latin.write_bytes(
         "Déjà vu, été, çà et là, Noël, naïve, forêt, château, garçon\n".encode("latin-1") * 40
@@ -42,18 +41,9 @@ def test_encoding_detect(tmp_path, monkeypatch):
     assert encoding_detect(latin).lower() in {"iso-8859-1", "windows-1252", "latin-1"}
     assert encoding_detect(ascii_file) in {"ascii", "utf8"}
 
-    class _Detector:
-        done = True
-        result: ClassVar[dict] = {"confidence": 0.1, "encoding": "koi8-r"}
-
-        def feed(self, _line):
-            """Rien"""
-
-        def close(self):
-            """Rien"""
-
-    with patched_attrs(monkeypatch, utilities, UniversalDetector=_Detector):
-        assert encoding_detect(ascii_file) == "utf8"
+    euro = tmp_path / "euro.txt"
+    euro.write_bytes(b"10\x80\n")
+    assert encoding_detect(euro) == "windows-1252"
 
     with pytest.raises(EncodingError, match="absent.txt"):
         encoding_detect(tmp_path / "absent.txt")

@@ -204,8 +204,8 @@ def test_schema_dates_excel_et_troncature():
         montant_ttc="120.6",
     ).dict()
 
-    assert OdSchema.Config.model is ModelOd
-    assert OdSchema.Config.include == [*COLUMNS, "created_at", "modified_at"]
+    assert OdSchema.model_config["model"] is ModelOd
+    assert OdSchema.model_config["include"] == [*COLUMNS, "created_at", "modified_at"]
     assert validated["date_od"] == datetime.date(2025, 3, 31)
     assert validated["date_extourne"] == datetime.date(2025, 4, 1)
     assert len(validated["libelle"]) == 30

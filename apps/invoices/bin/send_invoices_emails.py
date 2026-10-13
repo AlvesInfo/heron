@@ -32,7 +32,7 @@ django.setup()
 import pendulum
 from django.conf import settings
 from django.db import connection
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 
 from apps.core.bin.emails import send_mass_mail
 from apps.core.exceptions import EmailException

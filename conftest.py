@@ -29,10 +29,15 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+import email_validator
 import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
+
+# Les fabriques de test utilisent des adresses en `.local` (domaine réservé, refusé par
+# email-validator >= 1.2, donc par pydantic.EmailStr) : autorisé pour la session de test seulement.
+email_validator.SPECIAL_USE_DOMAIN_NAMES.remove("local")
 
 # Les scripts utilitaires des répertoires bin/ (ex. apps/invoices/bin/api_gmail/test_gmail_api.py,
 # interactif) ne sont pas des tests : on les exclut de la collecte

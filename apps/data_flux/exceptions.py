@@ -9,6 +9,38 @@ modified at: 2021-10-30
 modified by: Paulo ALVES
 """
 
+from apps.core.functions.functions_utilitaires import EncodingError
+
+__all__ = [
+    "CsvFileToStringIoError",
+    "DuplicatesError",
+    "EncodingError",
+    "ExcelToCsvError",
+    "ExcelToCsvFileError",
+    "FileToCsvError",
+    "FluxtypeError",
+    "GetAddDictError",
+    "IsValidError",
+    "IterFileToInsertError",
+    "ModelFieldError",
+    "OptoDateError",
+    "OptoIdError",
+    "OptoLinesError",
+    "OptoNumberError",
+    "OptoParserError",
+    "OptoQualifierError",
+    "PathFileError",
+    "PathTypeError",
+    "PostgresCardinalityViolationError",
+    "PostgresDjangoError",
+    "PostgresInsertMethodError",
+    "PostgresKeyError",
+    "PostgresPreparedError",
+    "PostgresTypeError",
+    "PostgresUniqueError",
+    "ValidationError",
+    "ValidationFormError",
+]
 
 # Exceptions pour les Imports de fihiers ===========================================================
 
@@ -30,10 +62,6 @@ class IterFileToInsertError(Exception):
 
 class GetAddDictError(IterFileToInsertError):
     """Gestion d'erreur d'itération d'un fichier à insérer."""
-
-
-class EncodingError(Exception):
-    """Exception sniff encodig."""
 
 
 class ExcelToCsvError(Exception):

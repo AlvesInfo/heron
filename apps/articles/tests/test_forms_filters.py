@@ -161,8 +161,8 @@ def test_article_account_schema():
     """Config, conversion des types, article obligatoire"""
     article_uuid = "6fa459ea-ee8a-3ca4-894e-db77e160355e"
 
-    assert ArticleAccountSageSchema.Config.model is ArticleAccount
-    assert ArticleAccountSageSchema.Config.include == [
+    assert ArticleAccountSageSchema.model_config["model"] is ArticleAccount
+    assert ArticleAccountSageSchema.model_config["include"] == [
         *list(ArticleAccount.get_columns_import()),
         "created_at",
         "modified_at",

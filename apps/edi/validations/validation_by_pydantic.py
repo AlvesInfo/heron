@@ -2,13 +2,11 @@
 
 from djantic import ModelSchema
 
+from apps.core.validations.djantic_compat import schema_config
 from apps.edi.models import EdiImport
 
 
 class EdiImportSchema(ModelSchema):
     """Schéma djantic des lignes d'import EDI."""
 
-    class Config:
-        """Configuration djantic : modèle et colonnes incluses dans le schéma."""
-
-        model = EdiImport
+    model_config = schema_config(EdiImport)
