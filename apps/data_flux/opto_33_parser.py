@@ -267,16 +267,23 @@ class EDIQualifierParser:
     def cmd_moa(self, data: list) -> dict:
         """PARSE MOA : balise EDI pour les Montants du resume.
 
+        Un MOA tronqué (qualifier sans montant, ex. "MOA+150") est ignoré si son qualifier
+        n'est pas exploité ; il lève une OptoQualifierError s'il s'agit d'un montant utilisé.
+
         :param data: list of values.
         """
+        moa_dict = {
+            "125": "invoice_amount_without_tax",
+            "128": "invoice_amount_with_tax",
+        }
+
         try:
-            moa_dict = {
-                "125": "invoice_amount_without_tax",
-                "128": "invoice_amount_with_tax",
-            }
             moa_qualifier, amount = data
 
         except ValueError as except_error:
+            if len(data) == 1 and data[0] not in moa_dict:
+                return {}
+
             raise OptoQualifierError(
                 f"Impossible d'extraire les données du qualifier MOA : {data!r}"
                 f", pour le fichier {self.edi_file!r}"

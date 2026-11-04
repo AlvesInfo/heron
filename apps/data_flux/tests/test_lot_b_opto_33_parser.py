@@ -245,8 +245,25 @@ def test_cmd_moa_et_moal(qualifier):
     with pytest.raises(OptoQualifierError, match="MOA :"):
         qualifier.cmd_moa(["125"])
 
+    with pytest.raises(OptoQualifierError, match="MOA :"):
+        qualifier.cmd_moa(["128"])
+
     with pytest.raises(OptoQualifierError, match=r"MOA\(L\)"):
         qualifier.cmd_moal(["125", "1", "2"])
+
+
+def test_cmd_moa_tronque_non_exploite(qualifier):
+    """Un MOA tronqué (ex. "MOA+150" sans montant, vu dans un fichier OPAL à TVA 0 %)
+    est ignoré si son qualifier n'est pas exploité ; les qualifiers 125 et 128 restent bloquants.
+    """
+    assert qualifier.cmd_moa(["150"]) == {}
+    assert qualifier.cmd_moa(["9"]) == {}
+
+    with pytest.raises(OptoQualifierError, match="MOA :"):
+        qualifier.cmd_moa([])
+
+    with pytest.raises(OptoQualifierError, match="MOA :"):
+        qualifier.cmd_moa(["150", "1", "2"])
 
 
 def test_cmd_lin(qualifier):
